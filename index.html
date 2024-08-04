@@ -140,9 +140,8 @@
                 var paintoil = new Image();
                 paintoil.src = "oil.png";
                 ctx.fillStyle = color;
-                for(let i = 0; i < e.movementX*5; i++){
                     ctx.drawImage(paintoil, e.clientX -canvasOffsetX, e.clientY -canvasOffsetY, lineWidth, lineWidth);
-                }
+                
 
             }
             else {
@@ -161,10 +160,9 @@
                 var paintoil = new Image();
                 paintoil.src = "oil.png";
                 ctx.fillStyle = color;
-                for(let i = 0; i < e.touches[0].movementX*5; i++){
 
                 ctx.drawImage(paintoil, e.touches[0].clientX- canvasOffsetX, e.touches[0].clientY -canvasOffsetY, lineWidth, lineWidth);
-            }
+            
             }
             else {
                 ctx.lineWidth = lineWidth;
