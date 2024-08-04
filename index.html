@@ -140,7 +140,7 @@
                 var paintoil = new Image();
                 paintoil.src = "oil.png";
                 ctx.fillStyle = color;
-                ctx.drawImage(paintoil, e.clientX, e.clientY, lineWidth, lineWidth);
+                ctx.drawImage(paintoil, e.clientX, e.clientY, e.movementX, lineWidth);
 
             }
             else {
@@ -159,7 +159,7 @@
                 var paintoil = new Image();
                 paintoil.src = "oil.png";
                 ctx.fillStyle = color;
-                ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, lineWidth *e.touches[0].force, lineWidth*e.touches[0].force);
+                ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, e.touches[0].movementX, lineWidth*e.touches[0].force);
 
             }
             else {
