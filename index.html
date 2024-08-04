@@ -1,0 +1,219 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            color: white;
+        }
+
+        h1 {
+            background: #7F7FD5;
+            background: linear-gradient(to right, blue, green, orange);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #drawing-board {
+            border: 1px solid black;
+            height: 1000px;
+            width: 1000px;
+        }
+
+        .container {
+            height: 100%;
+            display: flex;
+        }
+
+        #toolbar {
+            display: flex;
+            flex-direction: column;
+            padding: 5px;
+            width: 70px;
+            background-color: #202020;
+        }
+
+        #toolbar * {
+            margin-bottom: 6px;
+        }
+
+        #toolbar label {
+            font-size: 12px;
+        }
+
+        #toolbar input {
+            width: 100%;
+        }
+
+        #clear {
+            background-color: #1565c0;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            padding: 2px;
+        }
+
+        #erase {
+            background-color: black;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            padding: 2px;
+        }
+
+        #map {
+            rotate: 1 0 0 20deg;
+            position: absolute;
+            left: 200px;
+            top: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="container">
+        <div id="toolbar">
+            <h1>Draw!</h1>
+            <label for="stroke">Stroke</label>
+            <input id="stroke" name='stroke' type="color">
+            <button id="erase">Eraser</button>
+            <label for="lineWidth">Brush Width</label>
+            <input id="lineWidth" name='lineWidth' type="number" value="5">
+            <button id="clear">Clear</button>
+            <button id="oil">Oil Paint</button>
+        </div>
+        <div id="map"></div>
+        <div class="drawing-board">
+            <canvas id="drawing-board"></canvas>
+        </div>
+    </section>
+    <script>
+        
+        const oil = document.getElementById("oil");
+        const canvas = document.getElementById('drawing-board');
+        const toolbar = document.getElementById('toolbar');
+        const eraser = document.getElementById('erase');
+        const ctx = canvas.getContext('2d');
+
+        const canvasOffsetX = canvas.offsetLeft;
+        const canvasOffsetY = canvas.offsetTop;
+
+        var color;
+        let isPainting = false;
+        let lineWidth = 5;
+        let startX;
+        let startY;
+        var isOil = false;
+
+        toolbar.addEventListener('click', e => {
+            if (e.target.id === 'clear') {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        toolbar.addEventListener('change', e => {
+            if (e.target.id === 'stroke') {
+                ctx.strokeStyle = e.target.value;
+                color = e.target.value;
+            }
+
+            if (e.target.id === 'lineWidth') {
+                lineWidth = e.target.value;
+            }
+
+        });
+
+        const draw = (e) => {
+           if (!isPainting) {
+                return;
+            }
+            if (isOil) {
+                var paintoil = new Image(lineWidth, lineWidth);
+                paintoil.src = "oil2.png";
+                ctx.fillStyle = color;
+                ctx.drawImage(paintoil, 0, 0, 100, 100, e.clientX, e.clientY, lineWidth, lineWidth);
+
+            }
+            else {
+                ctx.lineWidth = lineWidth;
+                ctx.lineCap = 'round';
+                ctx.lineTo(e.clientX - canvasOffsetX, e.clientY);
+                ctx.stroke();
+            }
+        } 
+        const draw2 = (e) => {
+           if (!isPainting) {
+                return;
+            }
+            if (isOil) {
+                var paintoil = new Image(lineWidth, lineWidth);
+                paintoil.src = "oil2.png";
+                ctx.fillStyle = color;
+                ctx.drawImage(paintoil, 0, 0, 100, 100, e.clientX, e.clientY, lineWidth, lineWidth);
+
+            }
+            else {
+                ctx.lineWidth = lineWidth;
+                ctx.lineCap = 'round';
+                 ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY);
+                ctx.stroke();
+            }
+        } 
+
+
+        canvas.addEventListener('mousedown', (e) => {
+            isPainting = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        canvas.addEventListener('mouseup', e => {
+            isPainting = false;
+            ctx.stroke();
+            ctx.beginPath();
+        });
+        canvas.addEventListener('touchstart', (e) => {
+            isPainting = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        canvas.addEventListener('touchend', e => {
+            isPainting = false;
+            ctx.stroke();
+            ctx.beginPath();
+        });
+        function rgbaToHex(r, g, b, a) {
+            const rHex = r.toString(16).padStart(2, '0');
+            const gHex = g.toString(16).padStart(2, '0');
+            const bHex = b.toString(16).padStart(2, '0');
+            const aHex = a.toString(16).padStart(2, '0');
+            return `#${rHex}${gHex}${bHex}${aHex}`;
+        }
+        canvas.addEventListener('touchmove', draw2);
+        canvas.addEventListener('mousemove', draw);
+
+        toolbar.addEventListener('click', e => {
+            if (e.target.id === 'erase') {
+                eraser.style.backgroundColor = "#b58691";
+                ctx.strokeStyle = 'white';
+            }
+            if (e.target.id != 'erase' && eraser.style.backgroundColor === '#b58691') {
+                eraser.style.backgroundColor = "black";
+            }
+        });
+        oil.onclick = () => {
+            if(!isOil)isOil = true;
+            else isOil = false;
+        }
+    </script>
+</body>
+
+</html>
