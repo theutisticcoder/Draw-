@@ -136,7 +136,8 @@
                 return;
             }
             if (isOil) {
-                var paintoil = new Image(lineWidth, lineWidth);
+                  ctx.globalAlpha = 0.5;
+                var paintoil = new Image();
                 paintoil.src = "oil2.png";
                 ctx.fillStyle = color;
                 ctx.drawImage(paintoil, e.clientX, e.clientY, lineWidth, lineWidth);
@@ -154,7 +155,8 @@
                 return;
             }
             if (isOil) {
-                var paintoil = new Image(lineWidth, lineWidth);
+                  ctx.globalAlpha = 0.5;
+                var paintoil = new Image();
                 paintoil.src = "oil2.png";
                 ctx.fillStyle = color;
                 ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, lineWidth, lineWidth);
