@@ -153,6 +153,17 @@
                 ctx.fillStyle = color;
                     ctx.drawImage(paintoil, e.clientX, e.clientY, Math.sqrt( dx*dx + dy*dy), lineWidth);
                 }
+                else{
+                    var paintoil = new Image();
+                paintoil.src = "oil.png";
+                paintoil.style.width = "100px"
+                paintoil.style.height = "100px"
+                paintoil.style.objectFill = "cover";
+                paintoil.style.opacity = 0.5;
+                paintoil.style.backgroundColor = color;
+                ctx.fillStyle = color;
+                    ctx.drawImage(paintoil, e.clientX, e.clientY, lineWidth, lineWidth);
+                }
                 lastTouch = { pageX: e.pageX, pageY: e.pageY}
 
             }
@@ -184,7 +195,24 @@
 
                 ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, Math.sqrt(dx + dx + dy * dy), lineWidth);
                 }
-                lastTouch = { pageX: touch.pageX, pageY: touch.pageY}
+                
+                else {
+                    var paintoil = new Image();
+                paintoil.src = "oil.png";
+                paintoil.style.width = "100px"
+                paintoil.style.height = "100px"
+                paintoil.style.objectFill = "cover"
+                paintoil.style.opacity = 0.5;
+                paintoil.style.backgroundColor = color;
+                paintoil.style.transform = "rotate(" + e.changedTouches[0].rotationAngle + "deg)"
+                ctx.fillStyle = color;
+
+                ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, lineWidth, lineWidth);
+                
+                    lastTouch = { pageX: touch.pageX, pageY: touch.pageY
+
+                }
+            }
             }
             else {
                 ctx.lineWidth = lineWidth;
