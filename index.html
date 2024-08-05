@@ -174,10 +174,11 @@
             
                     var paintoil = new Image();
                 paintoil.src = "oil.png";
-                var newsrc = recolorImage(paintoil, hexToRgb(color))
-                paintoil.src = newsrc;
+                
                 paintoil.style.width = "100px"
                 paintoil.style.height = "100px"
+                var newsrc = recolorImage(paintoil, hexToRgb(color))
+                paintoil.src = newsrc;
                 paintoil.style.objectFill = "cover";
                 paintoil.style.opacity = 0.5;
                 paintoil.style.backgroundColor = color;
@@ -201,6 +202,8 @@
                 paintoil.src = "oil.png";
                 paintoil.style.width = "100px"
                 paintoil.style.height = "100px"
+                var newsrc = recolorImage(paintoil, hexToRgb(color))
+                paintoil.src = newsrc;
                 paintoil.style.objectFill = "cover"
                 paintoil.style.opacity = 0.5;
                 paintoil.style.backgroundColor = color;
