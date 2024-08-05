@@ -136,18 +136,20 @@
                 return;
             }
             if (isOil) {
-                  ctx.globalAlpha = 0.8;
-                var paintoil = new Image();
+                var paintoil = new Image(200, 200);
                 paintoil.src = "oil.png";
+                paintoil.style.opacity = 0.7;
+                paintoil.style.borderRadius = "25%";
+                paintoil.style.backgroundColor = color;
                 ctx.fillStyle = color;
-                    ctx.drawImage(paintoil, e.clientX -canvasOffsetX, e.clientY -canvasOffsetY, lineWidth, lineWidth);
+                    ctx.drawImage(paintoil, e.clientX, e.clientY, lineWidth, lineWidth);
                 
 
             }
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX - canvasOffsetX, e.clientY);
+                ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
             }
         } 
@@ -156,18 +158,21 @@
                 return;
             }
             if (isOil) {
-                  ctx.globalAlpha = 0.8;
-                var paintoil = new Image();
+                var paintoil = new Image(200,200);
                 paintoil.src = "oil.png";
+                paintoil.style.opacity = 0.7;
+                paintoil.style.borderRadius = "25%";
+                paintoil.style.backgroundColor = color;
+                paintoil.style.transform = "rotate(" + e.touches[0].rotationAngle + "deg)"
                 ctx.fillStyle = color;
 
-                ctx.drawImage(paintoil, e.touches[0].clientX- canvasOffsetX, e.touches[0].clientY -canvasOffsetY, lineWidth, lineWidth);
+                ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, lineWidth, lineWidth);
             
             }
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                 ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY);
+                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
         } 
