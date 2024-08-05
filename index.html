@@ -146,12 +146,11 @@
                 var paintoil = new Image();
                 paintoil.src = "oil.png";
                 paintoil.style.width = "100px"
-                paintoil.style.height = "100px"
-                paintoil.style.objectFill = "cover";
+                paintoil.style.height = Math.sqrt(dx*dx + dy*dy) +"px"
                 paintoil.style.opacity = 0.5;
                 paintoil.style.backgroundColor = color;
                 ctx.fillStyle = color;
-                    ctx.drawImage(paintoil, e.clientX, e.clientY, Math.sqrt( dx*dx + dy*dy), lineWidth);
+                    ctx.drawImage(paintoil, e.clientX, linewidth, lineWidth);
                 }
                 else{
                     var paintoil = new Image();
