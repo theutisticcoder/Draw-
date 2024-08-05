@@ -139,16 +139,21 @@
                 return;
             }
             if (isOil) {
+                if(lasttouch){
+
+                    const dx = e.pageX - lastTouch.pageX;
+                    const dy = e.pageY - lastTouch.pageY;
                 var paintoil = new Image();
                 paintoil.src = "oil.png";
                 paintoil.style.width = "100px"
                 paintoil.style.height = "100px"
-                paintoil.style.objectFill = "cover"
+                paintoil.style.objectFill = "cover";
                 paintoil.style.opacity = 0.5;
                 paintoil.style.backgroundColor = color;
                 ctx.fillStyle = color;
-                    ctx.drawImage(paintoil, e.clientX, e.clientY, lineWidth, lineWidth);
-                
+                    ctx.drawImage(paintoil, e.clientX, e.clientY, Math.sqrt( dx*dx + dy*dy), lineWidth);
+                }
+                lastTouch = { pageX: e.pageX, pageY: e.pageY}
 
             }
             else {
