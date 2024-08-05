@@ -165,7 +165,7 @@
                 paintoil.style.opacity = 0.7;
                 paintoil.style.borderRadius = "25%";
                 paintoil.style.backgroundColor = color;
-                paintoil.style.transform = "rotate(" + e.changedTouches.items(0).rotationAngle + "deg)"
+                paintoil.style.transform = "rotate(" + e.changedTouches[0].rotationAngle + "deg)"
                 ctx.fillStyle = color;
 
                 ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, lineWidth, lineWidth);
@@ -174,7 +174,7 @@
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+                ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
         } 
