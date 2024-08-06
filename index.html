@@ -161,7 +161,7 @@
                     
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX + i/5-1, e.touches[0].clientY + i/5-1);
+                ctx.lineTo(e.clientX + i/5-1, e.clientY + i/5-1);
                 ctx.stroke();
                     }
 
