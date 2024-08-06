@@ -152,7 +152,7 @@
                     
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX + i/5, e.touches[0].clientY + i/5);
+                ctx.lineTo(e.clientX + i/5, e.clientY + i/5);
                 ctx.stroke();
                     }
                     ctx.fillStyle = hexToRgb(color);
