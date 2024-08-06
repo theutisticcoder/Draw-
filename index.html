@@ -174,7 +174,7 @@
                 ctx.shadowColor = shadeColor(color, 18)
                 if (lasttouch != null) {
                     for (let i = 0; i < 5; i++) {
-                        ctx.moveTo(lastTouch.clientX, lastTouch.clientY);
+                        ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                         ctx.lineWidth = lineWidth;
                         ctx.lineCap = 'round';
                         ctx.lineTo(e.clientX + i, e.clientY + i);
@@ -212,7 +212,7 @@
                 ctx.shadowColor = shadeColor(color, 18)
                 if (lasttouch!= null) {
                     for (let i = 0; i < 5; i++) {
-                        ctx.moveTo(lastTouch.clientX, lastTouch.clientY);
+                        ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                         ctx.lineWidth = lineWidth;
                         ctx.lineCap = 'round';
                         ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY + i);
