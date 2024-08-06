@@ -146,32 +146,26 @@
                 return;
             }
             if (isOil) {
-                if(lasttouch){
-
-                    const dx = e.pageX - lastTouch.pageX;
-                    const dy = e.pageY - lastTouch.pageY;
-                var paintoil = new Image();
-                paintoil.src = "oil.png";
-                paintoil.style.width = "100px"
-                paintoil.style.height = Math.sqrt(dx*dx + dy*dy) +"px"
-                paintoil.style.opacity = 0.5;
-                paintoil.style.backgroundColor = color;
                 ctx.fillStyle = color;
-                    ctx.drawImage(paintoil, e.clientX, linewidth, lineWidth);
-                }
-                else{
-                    var paintoil = new Image();
-                paintoil.src = "oil.png";
-                paintoil.style.width = "100px"
-                paintoil.style.height = "100px"
-                paintoil.style.objectFill = "cover";
-                paintoil.style.opacity = 0.5;
-                paintoil.style.backgroundColor = color;
-                ctx.fillStyle = color;
-                    ctx.drawImage(paintoil, e.clientX, e.clientY, lineWidth, lineWidth);
-                }
-                lastTouch = { pageX: e.pageX, pageY: e.pageY}
+                    for(let i = 0; i < lineWidth; i+=10){
 
+                    
+                ctx.lineWidth = lineWidth;
+                ctx.lineCap = 'round';
+                ctx.lineTo(e.touches[0].clientX + i/5, e.touches[0].clientY + i/5);
+                ctx.stroke();
+                    }
+                    ctx.fillStyle = hexToRgb(color);
+                    for(let i = 0; i < lineWidth; i+=10){
+
+                    
+                ctx.lineWidth = lineWidth;
+                ctx.lineCap = 'round';
+                ctx.lineTo(e.touches[0].clientX + i/5-1, e.touches[0].clientY + i/5-1);
+                ctx.stroke();
+                    }
+
+                
             }
             else {
                 ctx.lineWidth = lineWidth;
