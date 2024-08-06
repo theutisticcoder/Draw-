@@ -182,11 +182,14 @@
                     }
                 }
                 else {
+                    for (let i = 0; i < 5; i++) {
+
                     ctx.moveTo(0, 0);
                     ctx.lineWidth = lineWidth;
                     ctx.lineCap = 'round';
                     ctx.lineTo(e.clientX + i, e.clientY + i);
                     ctx.stroke();
+                    }
                 }
                 lasttouch = e;
 
@@ -217,11 +220,14 @@
                     }
                 }
                 else {
+                    for (let i = 0; i < 5; i++) {
+
                     ctx.moveTo(0, 0);
                     ctx.lineWidth = lineWidth;
                     ctx.lineCap = 'round';
                     ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY + i);
                     ctx.stroke();
+                    }
                 }
                 lasttouch = e.touches[0];
 
