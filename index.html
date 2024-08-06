@@ -171,23 +171,24 @@
             }
             if (isOil) {
                 ctx.fillStyle = color;
-                for (let i = 0; i < 5; i++) {
-
-
+                ctx.shadowColor = shadeColor(color, 18)
+                if (lasttouch) {
+                    for (let i = 0; i < 5; i++) {
+                        ctx.moveTo(lastTouch.clientX, lastTouch.clientY);
+                        ctx.lineWidth = lineWidth;
+                        ctx.lineCap = 'round';
+                        ctx.lineTo(e.clientX + i, e.clientY + i);
+                        ctx.stroke();
+                    }
+                }
+                else {
+                    ctx.moveTo(0, 0);
                     ctx.lineWidth = lineWidth;
                     ctx.lineCap = 'round';
-                    ctx.lineTo(e.clientX + i * 3 * lineWidth, e.clientY + i * 3 * lineWidth);
+                    ctx.lineTo(e.clientX + i, e.clientY + i);
                     ctx.stroke();
                 }
-                ctx.fillStyle = shadeColor(color, 20);
-                for (let i = 0; i < 5; i++) {
-
-
-                    ctx.lineWidth = lineWidth;
-                    ctx.lineCap = 'round';
-                    ctx.lineTo(e.clientX + i * 3 * lineWidth, e.clientY + i * 3 * lineWidth);
-                    ctx.stroke();
-                }
+                lasttouch = e;
 
 
             }
