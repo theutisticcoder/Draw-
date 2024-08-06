@@ -112,7 +112,8 @@
 
   canvas.width = img.width;
   canvas.height = img.height;
-canvas.style.background = newColor;
+  ctx.fillStyle = newColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, 0, 0);
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -120,7 +121,7 @@ canvas.style.background = newColor;
 
   for (let i = 3; i < data.length; i += 4) {
     // Modify the RGB values of each pixel
-    data[i] = 50 // alpha
+    data[i] = 30 // alpha
   }
 
   ctx.putImageData(imageData, 0, 0);
