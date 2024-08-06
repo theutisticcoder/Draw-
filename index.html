@@ -99,6 +99,11 @@
         </div>
     </section>
     <script>
+        var paintoil = new Image();
+                paintoil.src = "oil.png";
+                paintoil.style.width = "100px"
+                paintoil.style.height = "100px"
+                document.getElementById("oil").appendChild(paintoil);
         function recolorImage(img, newColor) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -172,11 +177,7 @@
             }
             if (isOil) {
             
-                    var paintoil = new Image();
-                paintoil.src = "oil.png";
-                
-                paintoil.style.width = "100px"
-                paintoil.style.height = "100px"
+                    
                 var newsrc = recolorImage(paintoil, hexToRgb(color))
                 paintoil.src = newsrc;
                 paintoil.style.objectFill = "cover";
@@ -198,10 +199,7 @@
             }
             if (isOil) {
                 
-                    var paintoil = new Image();
-                paintoil.src = "oil.png";
-                paintoil.style.width = "100px"
-                paintoil.style.height = "100px"
+                    
                 var newsrc = recolorImage(paintoil, hexToRgb(color))
                 paintoil.src = newsrc;
                 paintoil.style.objectFill = "cover"
