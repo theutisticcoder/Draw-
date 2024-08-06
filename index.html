@@ -112,11 +112,10 @@
 
   canvas.width = 50;
   canvas.height = 50;
-  ctx.fillStyle = newColor;
   ctx.drawImage(img, 0, 0);
 
 
-
+ctx.fillStyle = newColor;
   ctx.globalAlpha = 0.2
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   return canvas.toDataURL();
