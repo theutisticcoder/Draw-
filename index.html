@@ -184,7 +184,7 @@ return "#"+RR+GG+BB;
                     
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX + i*3-1, e.clientY + i*3-1);
+                ctx.lineTo(e.clientX + i*3-lineWidth, e.clientY + i*3-lineWidth);
                 ctx.stroke();
                     }
 
@@ -214,12 +214,12 @@ return "#"+RR+GG+BB;
                 ctx.stroke();
                     }
                     for(let i = 0; i < lineWidth; i++){
-                        ctx.fillStyle = hexToRgb(color);
+                        ctx.fillStyle = shadeColor(color, 20);
 
                     
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX + i*3-1, e.touches[0].clientY + i*3-1);
+                ctx.lineTo(e.touches[0].clientX + i*3-lineWidth, e.touches[0].clientY + i*3-lineWidth);
                 ctx.stroke();
                     }
 
