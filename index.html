@@ -198,22 +198,22 @@
                     for (let i = 0; i < 8; i++) {
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
-                            ctx.moveTo(lasttouch.clientX + i , lasttouch.clientY + i );
+                            ctx.moveTo(lasttouch.clientX + i+1, lasttouch.clientY + i+1);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i , e.clientY + i );
+                            ctx.lineTo(e.clientX + i+1, e.clientY + i+1);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, 40);
-                            ctx.moveTo(lasttouch.clientX + i   * 3, lasttouch.clientY + i  * 3);
+                            ctx.moveTo(lasttouch.clientX + i*2+3, lasttouch.clientY + i*2+3);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i   * 3, e.clientY + i * 3);
+                            ctx.lineTo(e.clientX + i*2+3, e.clientY + i * 2+3);
                             ctx.stroke();
                         }
                     }
-                    ctx.strokeStyle = shadeColor(color, -50);
+                    ctx.strokeStyle = shadeColor(color, 40);
 
                     ctx.strokeStyle = color
                 }
@@ -223,14 +223,14 @@
                             ctx.strokeStyle = color 
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i , e.clientY + i );
+                            ctx.lineTo(e.clientX + i+1, e.clientY + i+1);
                             ctx.stroke();
                         }
                         else {
-                            ctx.strokeStyle = shadeColor(color, -50);
+                            ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i  * 3, e.clientY + i  * 3);
+                            ctx.lineTo(e.clientX + i*2+3, e.clientY + i*2+3);
                             ctx.stroke();
                         }
                     }
