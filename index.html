@@ -113,8 +113,9 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            canvas.width = 5000;
-            canvas.height = 5000;
+            canvas.width = 5000 + "px";
+            canvas.height = 5000 + "px";
+            canvas.style.scale = 0.1
             ctx.drawImage(img, 0, 0);
 
 
