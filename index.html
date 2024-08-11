@@ -26,6 +26,7 @@
             border: 1px solid black;
             height: 5000px;
             width: 7000px;
+            scale: 0.1 0.1;
             background-color: white;
         }
 
@@ -140,7 +141,6 @@
         let startX;
         let startY;
         var isOil = true;
-        ctx.scale(0.1, 0.1)
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
