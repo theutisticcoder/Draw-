@@ -191,10 +191,8 @@ return "#"+RR+GG+BB;
                 return;
             }
             if (isOil) {
-            
-                    
-            for(let i = 0; i < 5; i++){
-                ctx.moveTo(startX + i*2, startY + i*2);
+            if(lasttouch){
+                for(let i = 0; i < 5; i++){
                 ctx.lineWidth = lineWidth/10;
                 ctx.lineCap = 'round';
                 ctx.lineTo(e.clientX + i*2, e.clientY + i*2);
@@ -202,13 +200,30 @@ return "#"+RR+GG+BB;
             }
             ctx.strokeStyle = shadeColor(color, 40);
             for(let i = 0; i < 5; i++){
-                ctx.moveTo(startX + i*2-1, startY + i*2-1);
                 ctx.lineWidth = lineWidth/10;
                 ctx.lineCap = 'round';
                 ctx.lineTo(e.clientX + i*2-1, e.clientY + i*2-1);
                 ctx.stroke();
             }
-            ctx.strokeStyle = color;
+            ctx.strokeStyle = color
+            }
+            else{
+                for(let i = 0; i < 5; i++){
+                ctx.lineWidth = lineWidth/10;
+                ctx.lineCap = 'round';
+                ctx.lineTo(e.clientX + i*2, e.clientY + i*2);
+                ctx.stroke();
+            }
+            ctx.strokeStyle = shadeColor(color, 40);
+            for(let i = 0; i < 5; i++){
+                ctx.lineWidth = lineWidth/10;
+                ctx.lineCap = 'round';
+                ctx.lineTo(e.clientX + i*2-1, e.clientY + i*2-1);
+                ctx.stroke();
+            }
+            ctx.strokeStyle = color
+            }        
+            
             }
             else {
                 ctx.lineWidth = lineWidth;
