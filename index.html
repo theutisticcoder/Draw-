@@ -198,16 +198,16 @@
                     for (let i = 0; i < 8; i++) {
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
-                            ctx.moveTo(lasttouch.clientX + i*lineWidth*2, lasttouch.clientY + i*lineWidth*2);
                             ctx.lineWidth = lineWidth / 8;
+                            ctx.moveTo(lasttouch.clientX + i*lineWidth*2, lasttouch.clientY + i*lineWidth*2);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX + i*lineWidth*2, e.clientY + i*lineWidth*2);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, 40);
-                            ctx.moveTo(lasttouch.clientX + i*lineWidth*2+ lineWidth, lasttouch.clientY + i*lineWidth*2 + lineWidth);
                             ctx.lineWidth = lineWidth / 8;
+                            ctx.moveTo(lasttouch.clientX + i*lineWidth*2+ lineWidth, lasttouch.clientY + i*lineWidth*2 + lineWidth);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX + i*lineWidth*2 + lineWidth, e.clientY + i*lineWidth*2 + lineWidth);
                             ctx.stroke();
