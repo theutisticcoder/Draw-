@@ -199,12 +199,12 @@ return "#"+RR+GG+BB;
                 ctx.lineTo(e.clientX + i* lineWidth, e.clientY + i* lineWidth);
                 ctx.stroke();
             }
-            ctx.strokeStyle = shadeColor(color, -40);
+            ctx.strokeStyle = shadeColor(color, 40);
             for(let i = 0; i < 5; i++){
-                ctx.moveTo(lasttouch.clientX + i * lineWidth + 1, lasttouch.clientY + i * lineWidth + 1);
+                ctx.moveTo(lasttouch.clientX + i * lineWidth + 2, lasttouch.clientY + i * lineWidth + 2);
                 ctx.lineWidth = lineWidth/8;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX + i* lineWidth-1, e.clientY + i* lineWidth-1);
+                ctx.lineTo(e.clientX + i* lineWidth+2, e.clientY + i* lineWidth+2);
                 ctx.stroke();
             }
             ctx.strokeStyle = color
@@ -216,11 +216,11 @@ return "#"+RR+GG+BB;
                 ctx.lineTo(e.clientX + i* lineWidth, e.clientY + i* lineWidth);
                 ctx.stroke();
             }
-            ctx.strokeStyle = shadeColor(color, -40);
+            ctx.strokeStyle = shadeColor(color, 40);
             for(let i = 0; i < 5; i++){
                 ctx.lineWidth = lineWidth/8;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX + i* lineWidth-1, e.clientY + i* lineWidth-1);
+                ctx.lineTo(e.clientX + i* lineWidth+2, e.clientY + i* lineWidth+2);
                 ctx.stroke();
             }
             ctx.strokeStyle = color
