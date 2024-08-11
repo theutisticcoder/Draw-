@@ -199,17 +199,17 @@
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i*1.2, lasttouch.clientY + i*1.2);
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY + i);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i*1.2, e.clientY + i*1.2);
+                            ctx.lineTo(e.clientX + i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i*1.2+lineWidth,  lasttouch.clientY + i*1.2 +lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i+lineWidth,  lasttouch.clientY + i +lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i*1.2+lineWidth , e.clientY + i*1.2+lineWidth );
+                            ctx.lineTo(e.clientX + i+lineWidth , e.clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
@@ -221,14 +221,14 @@
                             ctx.strokeStyle = color 
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i*1.2, e.clientY + i*1.2);
+                            ctx.lineTo(e.clientX + i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i*1.2+lineWidth, e.clientY + i*1.2+lineWidth );
+                            ctx.lineTo(e.clientX + i+lineWidth, e.clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
