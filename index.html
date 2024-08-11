@@ -77,7 +77,7 @@
             rotate: 1 0 0 20deg;
             position: absolute;
             left: 200px;
-            top: 400px;
+            top: -800px;
         }
 
         img {
@@ -205,7 +205,7 @@
                             ctx.stroke();
                         }
                         else {
-                            ctx.strokeStyle = shadeColor(color, 40);
+                            ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.moveTo(lasttouch.clientX + i*2+ lineWidth/2+ lineWidth/2, lasttouch.clientY + i*2 + lineWidth/2);
                             ctx.lineCap = 'round';
@@ -225,7 +225,7 @@
                             ctx.stroke();
                         }
                         else {
-                            ctx.strokeStyle = shadeColor(color, 40);
+                            ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX + i*2+ lineWidth/2 + lineWidth/2, e.clientY + i*2+ lineWidth/2 + lineWidth/2);
