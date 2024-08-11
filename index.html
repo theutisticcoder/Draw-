@@ -206,10 +206,10 @@
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, 40);
-                            ctx.moveTo(lasttouch.clientX + i * lineWidth + lineWidth * 2, lasttouch.clientY + i * lineWidth + lineWidth * 2);
+                            ctx.moveTo(lasttouch.clientX + i * lineWidth  * 2, lasttouch.clientY + i * lineWidth * 2);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i * lineWidth + lineWidth * 2, e.clientY + i * lineWidth + lineWidth * 2);
+                            ctx.lineTo(e.clientX + i * lineWidth  * 2, e.clientY + i * lineWidth  * 2);
                             ctx.stroke();
                         }
                     }
@@ -230,7 +230,7 @@
                             ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i * lineWidth + lineWidth * 2, e.clientY + i * lineWidth + lineWidth * 2);
+                            ctx.lineTo(e.clientX + i * lineWidth * 2, e.clientY + i * lineWidth * 2);
                             ctx.stroke();
                         }
                     }
