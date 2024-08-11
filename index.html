@@ -194,7 +194,7 @@ return "#"+RR+GG+BB;
             
                     
             for(let i = 0; i < 5; i++){
-                ctx.goTo(startX + i*2, startY + i*2);
+                ctx.moveTo(startX + i*2, startY + i*2);
                 ctx.lineWidth = lineWidth/10;
                 ctx.lineCap = 'round';
                 ctx.lineTo(e.clientX + i*2, e.clientY + i*2);
@@ -202,7 +202,7 @@ return "#"+RR+GG+BB;
             }
             ctx.strokeStyle = shadeColor(color, 40);
             for(let i = 0; i < 5; i++){
-                ctx.goTo(startX + i*2-1, startY + i*2-1);
+                ctx.moveTo(startX + i*2-1, startY + i*2-1);
                 ctx.lineWidth = lineWidth/10;
                 ctx.lineCap = 'round';
                 ctx.lineTo(e.clientX + i*2-1, e.clientY + i*2-1);
