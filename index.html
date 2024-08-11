@@ -22,11 +22,10 @@
         }
 
         #drawing-board {
-            translate: -3500px -2500px;
             border: 1px solid black;
-            height: 5000px;
-            width: 7000px;
-            scale: 0.1;
+            height: 100vh;
+            width: 90vw;
+            left: 10vw;
             background-color: white;
         }
 
@@ -39,7 +38,7 @@
             display: flex;
             flex-direction: column;
             padding: 5px;
-            width: 70px;
+            width: 10vw;
             background-color: #202020;
         }
 
@@ -124,7 +123,7 @@
             ctx.globalAlpha = 0.2
             return canvas.toDataURL();
         }
-
+        var offset = window.screen.width/10
         var lasttouch = null, touch;
         const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
@@ -134,7 +133,7 @@
 
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
-
+        ctx.scale(0.3, 0.3)
         var color = "#000000";
         let isPainting = false;
         let lineWidth = 5;
@@ -203,7 +202,7 @@
                             ctx.lineWidth = lineWidth / 8;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY + i);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY + i);
+                            ctx.lineTo(e.clientX + offset+ i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
@@ -211,7 +210,7 @@
                             ctx.lineWidth = lineWidth / 8;
                             ctx.moveTo(lasttouch.clientX + i+lineWidth,  lasttouch.clientY + i +lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i+lineWidth , e.clientY + i+lineWidth );
+                            ctx.lineTo(e.clientX + offset+ i+lineWidth , e.clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
@@ -223,14 +222,14 @@
                             ctx.strokeStyle = color 
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY + i);
+                            ctx.lineTo(e.clientX + offset+ i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i+lineWidth, e.clientY + i+lineWidth );
+                            ctx.lineTo(e.clientX + offset+ i+lineWidth, e.clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
@@ -253,16 +252,47 @@
             if (isOil) {
 
 
-                var newsrc = recolorImage(paintoil, hexToRgb(color))
-                paintoil.src = newsrc;
-                paintoil.style.opacity = 0.5;
-                paintoil.style.transform = "rotate(" + e.changedTouches[0].rotationAngle + "deg)"
-                ctx.fillStyle = color;
-
-                ctx.drawImage(paintoil, e.touches[0].clientX, e.touches[0].clientY, lineWidth, lineWidth);
-
-
-
+                if (lasttouch) {
+                    for (let i = 0; i < 8; i++) {
+                        if (i % 2 === 0) {
+                            ctx.strokeStyle = color
+                            ctx.lineWidth = lineWidth / 8;
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY + i);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.touches[0].clientX + offset+ i, e.touches[0].clientY + i);
+                            ctx.stroke();
+                        }
+                        else {
+                            ctx.strokeStyle = shadeColor(color, -80);
+                            ctx.lineWidth = lineWidth / 8;
+                            ctx.moveTo(lasttouch.clientX + i+lineWidth,  lasttouch.clientY + i +lineWidth);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.touches[0].clientX + offset+ i+lineWidth , e.touches[0].clientY + i+lineWidth );
+                            ctx.stroke();
+                        }
+                    }
+                   
+                }
+                else {
+                    for (let i = 0; i < 8; i++) {
+                        if (i % 2 === 0) {
+                            ctx.strokeStyle = color 
+                            ctx.lineWidth = lineWidth / 8;
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.touches[0].clientX + offset+ i, e.touches[0].clientY + i);
+                            ctx.stroke();
+                        }
+                        else {
+                            ctx.strokeStyle = shadeColor(color, -80);
+                            ctx.lineWidth = lineWidth / 8;
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.touches[0].clientX + offset+ i+lineWidth, e.touches[0].clientY + i+lineWidth );
+                            ctx.stroke();
+                        }
+                    }
+                    
+                }
+                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
             }
             else {
