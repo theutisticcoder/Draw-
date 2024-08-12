@@ -319,12 +319,12 @@
         });
 
         document.getElementById("svg").addEventListener('mouseup', e => {
-            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + startX + " " + startY + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 1 * lineWidth/6) + " " + (startY + 1* lineWidth/6) + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 2* lineWidth/6) + " " + (startY + 2* lineWidth/6) + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 3* lineWidth/6) + " " + (startY + 3* lineWidth/6) + " C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 4* lineWidth/6) + " " + (startY + 4* lineWidth/6) + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 5* lineWidth/6) + " " + (startY + 5* lineWidth/6) + " C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + startX + " " + startY + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 1 * lineWidth/6) + " " + (startY + 1* lineWidth/6) + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 2* lineWidth/6) + " " + (startY + 2* lineWidth/6) + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 3* lineWidth/6) + " " + (startY + 3* lineWidth/6) + " S " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 4* lineWidth/6) + " " + (startY + 4* lineWidth/6) + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 5* lineWidth/6) + " " + (startY + 5* lineWidth/6) + " S " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
 
         });
         document.getElementById("svg").addEventListener('touchstart', (e) => {
@@ -335,24 +335,24 @@
         });
         document.getElementById("svg").addEventListener('touchend', e => {
             if (isPainting) {
-                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + startX + " " + startY + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 1* lineWidth/6) + " " + (startY + 1* lineWidth/6) + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 2* lineWidth/6) + " " + (startY + 2* lineWidth/6) + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 3* lineWidth/6) + " " + (startY + 3* lineWidth/6) + " C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 4* lineWidth/6) + " " + (startY + 4* lineWidth/6) + " C " + coords + "' stroke='" + color + "' fill='transparent'>"
-                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 5* lineWidth/6) + " " + (startY + 5* lineWidth/6) + " C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + startX + " " + startY + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 1* lineWidth/6) + " " + (startY + 1* lineWidth/6) + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 2* lineWidth/6) + " " + (startY + 2* lineWidth/6) + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 3* lineWidth/6) + " " + (startY + 3* lineWidth/6) + " S " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 4* lineWidth/6) + " " + (startY + 4* lineWidth/6) + " S " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width='"+lineWidth/6 + "' d='M " + (startX + 5* lineWidth/6) + " " + (startY + 5* lineWidth/6) + " S " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
             }
         });
         var coords = "";
         const svg = (e) => {
             count++;
             if(count < 2) coords += (e.clientX + " " + e.clientY);
-            else coords += (" ," + e.clientX + " " + e.clientY );
+            else coords += (", " + e.clientX + " " + e.clientY );
         }
         const svg2 = (e) => {
             count++;
             if(count < 2)coords += (e.touches[0].clientX + " " + e.touches[0].clientY);
-            else coords += (" ," + e.touches[0].clientX + " " + e.touches[0].clientY);
+            else coords += (", " + e.touches[0].clientX + " " + e.touches[0].clientY);
         }
 
         document.getElementById("svg").addEventListener('touchmove', svg2);
