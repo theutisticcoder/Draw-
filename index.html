@@ -174,7 +174,7 @@
             }
             if (isOil) {
                 if (lasttouch) {
-                    for (let i = 0; i < 8; i++) {
+                    for (let i = 0; i < 8* lineWidth/8; i+= linewidth/8) {
                         
                         if (i === 2 || i=== 4) {
                             ctx.beginPath();
@@ -200,7 +200,7 @@
                    
                 }
                 else {
-                    for (let i = 0; i < 8; i++) {
+                    for (let i = 0; i < 8* lineWidth/8; i+= linewidth/8) {
                         if (i === 2 || i=== 4) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
@@ -238,7 +238,7 @@
 
 
                 if (lasttouch) {
-                    for (let i = 0; i < 8; i++) {
+                    for (let i = 0; i < 8* lineWidth/8; i+= linewidth/8) {
                         if (i === 2 || i=== 4) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
@@ -262,7 +262,7 @@
                    
                 }
                 else {
-                    for (let i = 0; i < 8; i++) {
+                    for (let i = 0; i < 8* lineWidth/8; i+= linewidth/8) {
                         if (i === 2 || i=== 4) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
