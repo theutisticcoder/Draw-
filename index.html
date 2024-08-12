@@ -178,7 +178,7 @@
                     for (let i = 0; i < 8* lineWidth/1.5; i+= lineWidth/1.5) {
                         if (i === 2* lineWidth/1.5 || i=== 4 * lineWidth/1.5) {
                             ctx.beginPath();
-                                                        ctx.strokeStyle = shadeColor(color, -40);
+                                                        ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5)- offset, lasttouch.clientY +i/Math.sqrt(5));
                             ctx.lineCap = 'round';
@@ -198,7 +198,7 @@
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -15);
+                            ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5)+lineWidth- offset,  lasttouch.clientY +i/Math.sqrt(5) +lineWidth);
                             ctx.lineCap = 'round';
@@ -211,7 +211,7 @@
                 else {for (let i = 0; i < 8* lineWidth/1.5; i+= lineWidth/1.5) {
                         if (i === 2* lineWidth/1.5 || i=== 4 * lineWidth/1.5) {
                             ctx.beginPath();
-                                                        ctx.strokeStyle = shadeColor(color, -40);
+                                                        ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX - offset+i/Math.sqrt(5), e.clientY +i/Math.sqrt(5));
@@ -229,7 +229,7 @@
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -15);
+                            ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX - offset+i/Math.sqrt(5)+lineWidth, e.clientY +i/Math.sqrt(5)+lineWidth );
@@ -259,7 +259,7 @@
                     for (let i = 0; i < 8* lineWidth/1.5; i+= lineWidth/1.5) {
                         if (i === 2* lineWidth/1.5 || i=== 4 * lineWidth/1.5) {
                             ctx.beginPath();
-                                                        ctx.strokeStyle = shadeColor(color, -40);
+                                                        ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5)- offset, lasttouch.clientY +i/Math.sqrt(5));
                             ctx.lineCap = 'round';
@@ -278,7 +278,7 @@
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -15);
+                            ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5)+lineWidth- offset,  lasttouch.clientY +i/Math.sqrt(5) +lineWidth);
                             ctx.lineCap = 'round';
@@ -292,7 +292,7 @@
                     for (let i = 0; i < 8* lineWidth/1.5; i+= lineWidth/1.5) {
                         if (i === 2* lineWidth/1.5 || i=== 4 * lineWidth/1.5) {
                             ctx.beginPath();
-                                                        ctx.strokeStyle = shadeColor(color, -40);
+                                                        ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(5), e.touches[0].clientY +i/Math.sqrt(5));
@@ -309,7 +309,7 @@
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -15);
+                            ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(5)+lineWidth, e.touches[0].clientY +i/Math.sqrt(5)+lineWidth );
