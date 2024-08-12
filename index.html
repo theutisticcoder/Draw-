@@ -21,11 +21,18 @@
             -webkit-text-fill-color: transparent;
         }
 
+        #drawing-board {
+            border: 1px solid black;
+            height: 100vh;
+            width: 100vw;
+            z-index: -1;
+            position: absolute;
+            background-color: white;
+        }
 
         .container {
             height: 100%;
             display: flex;
-
         }
 
         #toolbar {
@@ -42,12 +49,10 @@
 
         #toolbar label {
             font-size: 12px;
-
-            }
+        }
 
         #toolbar input {
             width: 100%;
-
         }
 
         button {
@@ -60,7 +65,7 @@
             border-radius: 4px;
             color: white;
             padding: 2px;
-            }
+        }
 
         #erase {
             background-color: black;
@@ -80,37 +85,25 @@
         img {
             overflow: hidden;
         }
-
-        #svg {
-            background: white;
-            left: 10vw;
-            height: 100vh;
-            width: 90vw;
-            position: absolute;
-        }
     </style>
 </head>
 
 <body>
     <section class="container">
-        <div id="toolbar"></div>
-        <h1>DrawPaw</h1>
-        <label for="stroke">Stroke</label>
-        <input id="stroke" name='stroke' type="color">
-        <button id="erase">Eraser</button>
-        <label for="lineWidth">Brush Width</label>
-        <input id="lineWidth" name='lineWidth' type="number" value="5">
-        <button id="clear">Clear</button>
-        <button id="oil"></button>
+        <div id="toolbar">
+            <h1>DrawPaw</h1>
+            <label for="stroke">Stroke</label>
+            <input id="stroke" name='stroke' type="color">
+            <button id="erase">Eraser</button>
+            <label for="lineWidth">Brush Width</label>
+            <input id="lineWidth" name='lineWidth' type="number" value="5">
+            <button id="clear">Clear</button>
+            <button id="oil"></button>
         </div>
         <div id="map"></div>
         <div class="drawing-board">
-            <svg id="svg" xmlns="http://www.w3.org/2000/svg">
-            </svg>
             <canvas id="drawing-board"></canvas>
-            
         </div>
-        
     </section>
     <script>
         var paintoil = new Image();
@@ -122,8 +115,8 @@
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            canvas.width = 0 + "px";
-            canvas.height = 0 + "px";
+            canvas.width = 5000 + "px";
+            canvas.height = 5000 + "px";
             ctx.drawImage(img, 0, 0);
 
 
@@ -131,7 +124,7 @@
             ctx.globalAlpha = 0.2
             return canvas.toDataURL();
         }
-        var offset = screen.width / 10;
+        var offset = 0
         var lasttouch = null, touch;
         const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
@@ -207,40 +200,40 @@
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i - offset, lasttouch.clientY + i);
+                            ctx.moveTo(lasttouch.clientX + i- offset, lasttouch.clientY + i);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i, e.clientY + i);
+                            ctx.lineTo(e.clientX - offset+ i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i + lineWidth - offset, lasttouch.clientY + i + lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i+lineWidth- offset,  lasttouch.clientY + i +lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i + lineWidth, e.clientY + i + lineWidth);
+                            ctx.lineTo(e.clientX - offset+ i+lineWidth , e.clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
-
+                   
                 }
                 else {
                     for (let i = 0; i < 8; i++) {
                         if (i % 2 === 0) {
-                            ctx.strokeStyle = color
+                            ctx.strokeStyle = color 
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i, e.clientY + i);
+                            ctx.lineTo(e.clientX - offset+ i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i + lineWidth, e.clientY + i + lineWidth);
+                            ctx.lineTo(e.clientX - offset+ i+lineWidth, e.clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
-
+                    
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
@@ -264,40 +257,40 @@
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i - offset, lasttouch.clientY + i);
+                            ctx.moveTo(lasttouch.clientX + i- offset, lasttouch.clientY + i);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i, e.touches[0].clientY + i);
+                            ctx.lineTo(e.touches[0].clientX - offset+ i, e.touches[0].clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i + lineWidth - offset, lasttouch.clientY + i + lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i+lineWidth- offset,  lasttouch.clientY + i +lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i + lineWidth, e.touches[0].clientY + i + lineWidth);
+                            ctx.lineTo(e.touches[0].clientX - offset+ i+lineWidth , e.touches[0].clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
-
+                   
                 }
                 else {
                     for (let i = 0; i < 8; i++) {
                         if (i % 2 === 0) {
-                            ctx.strokeStyle = color
+                            ctx.strokeStyle = color 
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i, e.touches[0].clientY + i);
+                            ctx.lineTo(e.touches[0].clientX - offset+ i, e.touches[0].clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i + lineWidth, e.touches[0].clientY + i + lineWidth);
+                            ctx.lineTo(e.touches[0].clientX - offset+ i+lineWidth, e.touches[0].clientY + i+lineWidth );
                             ctx.stroke();
                         }
                     }
-
+                    
                 }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
@@ -305,46 +298,14 @@
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX - offset, e.touches[0].clientY);
+                ctx.lineTo(e.touches[0].clientX- offset, e.touches[0].clientY);
                 ctx.stroke();
             }
         }
-        var count = 0;
 
-        document.getElementById("svg").addEventListener('mousedown', (e) => {
-            isPainting = true;
-            count = 0;
-            startX = e.clientX;
-            startY = e.clientY;
-        });
 
-        document.getElementById("svg").addEventListener('mouseup', e => {
-            document.getElementById("svg").innerHTML += "<polyline stroke-width='"+lineWidth + "' points='" + coords + "' stroke='" + color + "' fill='transparent'>"
-         
-        });
-        document.getElementById("svg").addEventListener('touchstart', (e) => {
-            isPainting = true;
-            count = 0;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        });
-        document.getElementById("svg").addEventListener('touchend', e => {
-            if (isPainting) {
-                document.getElementById("svg").innerHTML += "<polyline stroke-width='"+lineWidth + "' points='" + coords + "' stroke='" + color + "' fill='transparent'>"
-                }
-        });
-        var coords = "";
-        const svg = (e) => {
-            coords += (e.clientX + "," + e.clientY  + " ");
-        }
-        const svg2 = (e) => {
-           coords += (e.touches[0].clientX + "," + e.touches[0].clientY + " ");
-        }
-
-        document.getElementById("svg").addEventListener('touchmove', svg2);
-        document.getElementById("svg").addEventListener('mousemove', svg);
         canvas.addEventListener('mousedown', (e) => {
-            coords = "";
+            isPainting = true;
             startX = e.clientX;
             startY = e.clientY;
         });
@@ -355,12 +316,13 @@
             ctx.beginPath();
         });
         canvas.addEventListener('touchstart', (e) => {
-            coords = "";
+            isPainting = true;
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
         });
         canvas.addEventListener('touchend', e => {
             isPainting = false;
+            ctx.stroke();
             ctx.beginPath();
         });
         function rgbaToHex(r, g, b, a) {
