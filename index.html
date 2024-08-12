@@ -175,45 +175,53 @@
             }
             if (isOil) {
                 if (lasttouch) {
-                    for (let i = 0; i < 8* lineWidth/24; i+= lineWidth/24) {
-                        if (i === 2* lineWidth/24 || i=== 4 * lineWidth/24) {
+                    for (let i = 0; i < 9* lineWidth/12; i+= lineWidth/12) {
+                        if (i < 3* lineWidth/12 ) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
-                            ctx.lineWidth = lineWidth/16;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2*lineWidth)- offset, lasttouch.clientY +i/Math.sqrt(2*lineWidth));
+                            ctx.lineWidth = lineWidth/8;
+                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2)- offset, lasttouch.clientY +i/Math.sqrt(2));
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2*lineWidth), e.clientY +i/Math.sqrt(2*lineWidth));
+                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2), e.clientY +i/Math.sqrt(2));
                             ctx.stroke();
                             
                         }
-                       
+                       else if(i <6*lineWidth/12){
+                            ctx.beginPath();
+                            ctx.strokeStyle = color;
+                            ctx.lineWidth = lineWidth/8;
+                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2)+lineWidth/2- offset,  lasttouch.clientY +i/Math.sqrt(2) +lineWidth/2);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2)+lineWidth/2 , e.clientY +i/Math.sqrt(2)+lineWidth/2 );
+                            ctx.stroke();
+                        }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
-                            ctx.lineWidth = lineWidth/16;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2*lineWidth)+lineWidth- offset,  lasttouch.clientY +i/Math.sqrt(2*lineWidth) +lineWidth);
+                            ctx.lineWidth = lineWidth/8;
+                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2)+lineWidth- offset,  lasttouch.clientY +i/Math.sqrt(2) +lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2*lineWidth)+lineWidth , e.clientY +i/Math.sqrt(2*lineWidth)+lineWidth );
+                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2)+lineWidth , e.clientY +i/Math.sqrt(2)+lineWidth );
                             ctx.stroke();
                         }
                     }
                    
                 }
-                else {for (let i = 0; i < 8* lineWidth/24; i+= lineWidth/24) {
-                        if (i === 2* lineWidth/24 || i=== 4 * lineWidth/24) {
+                else {for (let i = 0; i < 8* lineWidth/12; i+= lineWidth/12) {
+                        if (i === 2* lineWidth/12 || i=== 4 * lineWidth/12) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
-                            ctx.lineWidth = lineWidth/16;
+                            ctx.lineWidth = lineWidth/8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2*lineWidth), e.clientY +i/Math.sqrt(2*lineWidth));
+                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2), e.clientY +i/Math.sqrt(2));
                             ctx.stroke();
                         }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
-                            ctx.lineWidth = lineWidth/16;
+                            ctx.lineWidth = lineWidth/8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2*lineWidth)+lineWidth, e.clientY +i/Math.sqrt(2*lineWidth)+lineWidth );
+                            ctx.lineTo(e.clientX - offset+i/Math.sqrt(2)+lineWidth, e.clientY +i/Math.sqrt(2)+lineWidth );
                             ctx.stroke();
                         }
                     }
@@ -237,45 +245,45 @@
 
 
                 if (lasttouch) {
-                    for (let i = 0; i < 8* lineWidth/24; i+= lineWidth/24) {
-                        if (i === 2* lineWidth/24 || i=== 4 * lineWidth/24) {
+                    for (let i = 0; i < 8* lineWidth/12; i+= lineWidth/12) {
+                        if (i === 2* lineWidth/12 || i=== 4 * lineWidth/12) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
-                            ctx.lineWidth = lineWidth/16;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2*lineWidth)- offset, lasttouch.clientY +i/Math.sqrt(2*lineWidth));
+                            ctx.lineWidth = lineWidth/8;
+                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2)- offset, lasttouch.clientY +i/Math.sqrt(2));
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2*lineWidth), e.touches[0].clientY +i/Math.sqrt(2*lineWidth));
+                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2), e.touches[0].clientY +i/Math.sqrt(2));
                             ctx.stroke();
                         }
                         
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
-                            ctx.lineWidth = lineWidth/16;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2*lineWidth)+lineWidth- offset,  lasttouch.clientY +i/Math.sqrt(2*lineWidth) +lineWidth);
+                            ctx.lineWidth = lineWidth/8;
+                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(2)+lineWidth- offset,  lasttouch.clientY +i/Math.sqrt(2) +lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2*lineWidth)+lineWidth , e.touches[0].clientY +i/Math.sqrt(2*lineWidth)+lineWidth );
+                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2)+lineWidth , e.touches[0].clientY +i/Math.sqrt(2)+lineWidth );
                             ctx.stroke();
                         }
                     }
                    
                 }
                 else {
-                    for (let i = 0; i < 8* lineWidth/24; i+= lineWidth/24) {
-                        if (i === 2* lineWidth/24 || i=== 4 * lineWidth/24) {
+                    for (let i = 0; i < 8* lineWidth/12; i+= lineWidth/12) {
+                        if (i === 2* lineWidth/12 || i=== 4 * lineWidth/12) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
-                            ctx.lineWidth = lineWidth/16;
+                            ctx.lineWidth = lineWidth/8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2*lineWidth), e.touches[0].clientY +i/Math.sqrt(2*lineWidth));
+                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2), e.touches[0].clientY +i/Math.sqrt(2));
                             ctx.stroke();
                         }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
-                            ctx.lineWidth = lineWidth/16;
+                            ctx.lineWidth = lineWidth/8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2*lineWidth)+lineWidth, e.touches[0].clientY +i/Math.sqrt(2*lineWidth)+lineWidth );
+                            ctx.lineTo(e.touches[0].clientX - offset+i/Math.sqrt(2)+lineWidth, e.touches[0].clientY +i/Math.sqrt(2)+lineWidth );
                             ctx.stroke();
                         }
                     }
