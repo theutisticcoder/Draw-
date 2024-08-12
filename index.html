@@ -174,9 +174,9 @@
             }
             if (isOil) {
                 if (lasttouch) {
-                    for (let i = 0; i < 8* lineWidth; i+= lineWidth) {
+                    for (let i = 0; i < 8* lineWidth/3; i+= lineWidth/3) {
                         
-                        if (i === 2* lineWidth || i=== 4 * lineWidth) {
+                        if (i === 2* lineWidth/3 || i=== 4 * lineWidth/3) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
                             ctx.lineWidth = lineWidth / 8;
@@ -200,8 +200,8 @@
                    
                 }
                 else {
-                    for (let i = 0; i < 8* lineWidth; i+= lineWidth) {
-                        if (i === 2* lineWidth || i=== 4 * lineWidth) {
+                    for (let i = 0; i< 8*lineWidth/3; i+= lineWidth/3) {
+                        if (i === 2* lineWidth/3 || i=== 4 * lineWidth/3) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
                             ctx.lineWidth = lineWidth / 8;
@@ -238,8 +238,8 @@
 
 
                 if (lasttouch) {
-                    for (let i = 0; i < 8* lineWidth; i+= lineWidth) {
-                        if (i === 2* lineWidth || i=== 4 * lineWidth) {
+                    for (let i = 0; i < 8* lineWidth/3; i+= lineWidth/3) {
+                        if (i === 2* lineWidth/3 || i=== 4 * lineWidth/3) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
                             ctx.lineWidth = lineWidth / 8;
@@ -262,8 +262,8 @@
                    
                 }
                 else {
-                    for (let i = 0; i < 8* lineWidth; i+= lineWidth) {
-                        if (i === 2* lineWidth || i=== 4 * lineWidth) {
+                    for (let i = 0; i < 8* lineWidth/3; i+= lineWidth/3) {
+                        if (i === 2* lineWidth/3 || i=== 4 * lineWidth/3) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 15);
                             ctx.lineWidth = lineWidth / 8;
