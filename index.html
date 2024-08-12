@@ -86,7 +86,8 @@
         img {
             overflow: hidden;
         }
-        #svg{
+
+        #svg {
             height: 100vh;
             width: 100vw;
             position: absolute;
@@ -98,21 +99,23 @@
 <body>
     <section class="container">
         <div id="toolbar"></div>
-            <h1>DrawPaw</h1>
-            <label for="stroke">Stroke</label>
-            <input id="stroke" name='stroke' type="color">
-            <button id="erase">Eraser</button>
-            <label for="lineWidth">Brush Width</label>
-            <input id="lineWidth" name='lineWidth' type="number" value="5">
-            <button id="clear">Clear</button>
-            <button id="oil"></button>
+        <h1>DrawPaw</h1>
+        <label for="stroke">Stroke</label>
+        <input id="stroke" name='stroke' type="color">
+        <button id="erase">Eraser</button>
+        <label for="lineWidth">Brush Width</label>
+        <input id="lineWidth" name='lineWidth' type="number" value="5">
+        <button id="clear">Clear</button>
+        <button id="oil"></button>
         </div>
         <div id="map"></div>
         <div class="drawing-board">
+            <svg id="svg" width="190" height="160" xmlns="http://www.w3.org/2000/svg">
+            </svg>
             <canvas id="drawing-board"></canvas>
+            
         </div>
-        <svg id="svg" width="190" height="160" xmlns="http://www.w3.org/2000/svg">
-</svg>
+        
     </section>
     <script>
         var paintoil = new Image();
@@ -133,7 +136,7 @@
             ctx.globalAlpha = 0.2
             return canvas.toDataURL();
         }
-        var offset = screen.width/10;
+        var offset = screen.width / 10;
         var lasttouch = null, touch;
         const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
@@ -209,40 +212,40 @@
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i- offset, lasttouch.clientY + i);
+                            ctx.moveTo(lasttouch.clientX + i - offset, lasttouch.clientY + i);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+ i, e.clientY + i);
+                            ctx.lineTo(e.clientX - offset + i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i+lineWidth- offset,  lasttouch.clientY + i +lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i + lineWidth - offset, lasttouch.clientY + i + lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+ i+lineWidth , e.clientY + i+lineWidth );
+                            ctx.lineTo(e.clientX - offset + i + lineWidth, e.clientY + i + lineWidth);
                             ctx.stroke();
                         }
                     }
-                   
+
                 }
                 else {
                     for (let i = 0; i < 8; i++) {
                         if (i % 2 === 0) {
-                            ctx.strokeStyle = color 
+                            ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+ i, e.clientY + i);
+                            ctx.lineTo(e.clientX - offset + i, e.clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset+ i+lineWidth, e.clientY + i+lineWidth );
+                            ctx.lineTo(e.clientX - offset + i + lineWidth, e.clientY + i + lineWidth);
                             ctx.stroke();
                         }
                     }
-                    
+
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
@@ -266,40 +269,40 @@
                         if (i % 2 === 0) {
                             ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i- offset, lasttouch.clientY + i);
+                            ctx.moveTo(lasttouch.clientX + i - offset, lasttouch.clientY + i);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+ i, e.touches[0].clientY + i);
+                            ctx.lineTo(e.touches[0].clientX - offset + i, e.touches[0].clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
-                            ctx.moveTo(lasttouch.clientX + i+lineWidth- offset,  lasttouch.clientY + i +lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i + lineWidth - offset, lasttouch.clientY + i + lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+ i+lineWidth , e.touches[0].clientY + i+lineWidth );
+                            ctx.lineTo(e.touches[0].clientX - offset + i + lineWidth, e.touches[0].clientY + i + lineWidth);
                             ctx.stroke();
                         }
                     }
-                   
+
                 }
                 else {
                     for (let i = 0; i < 8; i++) {
                         if (i % 2 === 0) {
-                            ctx.strokeStyle = color 
+                            ctx.strokeStyle = color
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+ i, e.touches[0].clientY + i);
+                            ctx.lineTo(e.touches[0].clientX - offset + i, e.touches[0].clientY + i);
                             ctx.stroke();
                         }
                         else {
                             ctx.strokeStyle = shadeColor(color, -80);
                             ctx.lineWidth = lineWidth / 8;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset+ i+lineWidth, e.touches[0].clientY + i+lineWidth );
+                            ctx.lineTo(e.touches[0].clientX - offset + i + lineWidth, e.touches[0].clientY + i + lineWidth);
                             ctx.stroke();
                         }
                     }
-                    
+
                 }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
@@ -307,7 +310,7 @@
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX- offset, e.touches[0].clientY);
+                ctx.lineTo(e.touches[0].clientX - offset, e.touches[0].clientY);
                 ctx.stroke();
             }
         }
@@ -318,13 +321,13 @@
         });
 
         document.getElementById("svg").addEventListener('mouseup', e => {
-            document.getElementById("svg").innerHTML += "<path d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+1) + " " + (startY+1) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+2) + " " + (startY+2) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+3) + " " + (startY+3) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+4) + " " + (startY+4) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+5) + " " + (startY+5) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-                        
+            document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 1 * lineWidth/6) + " " + (startY + 1* lineWidth/6) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 2* lineWidth/6) + " " + (startY + 2* lineWidth/6) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 3* lineWidth/6) + " " + (startY + 3* lineWidth/6) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 4* lineWidth/6) + " " + (startY + 4* lineWidth/6) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+            document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 5* lineWidth/6) + " " + (startY + 5* lineWidth/6) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+
         });
         document.getElementById("svg").addEventListener('touchstart', (e) => {
             isPainting = true;
@@ -332,28 +335,29 @@
             startY = e.touches[0].clientY;
         });
         document.getElementById("svg").addEventListener('touchend', e => {
-            document.getElementById("svg").innerHTML += "<path d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+1) + " " + (startY+1) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+2) + " " + (startY+2) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+3) + " " + (startY+3) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+4) + " " + (startY+4) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+5) + " " + (startY+5) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-                        
-        }); 
+            if (isPainting) {
+                document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 1* lineWidth/6) + " " + (startY + 1* lineWidth/6) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 2* lineWidth/6) + " " + (startY + 2* lineWidth/6) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 3* lineWidth/6) + " " + (startY + 3* lineWidth/6) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 4* lineWidth/6) + " " + (startY + 4* lineWidth/6) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+                document.getElementById("svg").innerHTML += "<path stroke-width="+lineWidth/6 + " d='M " + (startX + 5* lineWidth/6) + " " + (startY + 5* lineWidth/6) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+            }
+        });
         var coords = "";
-const svg = (e)=> {
-coords += (e.clientX + " " + e.clientY + ",");
-}
-const svg2 = (e)=> {
-    coords += (e.touches[0].clientX + " " + e.touches[0].clientY + ",");
-}
+        const svg = (e) => {
+            coords += (e.clientX + " " + e.clientY + ",");
+        }
+        const svg2 = (e) => {
+            coords += (e.touches[0].clientX + " " + e.touches[0].clientY + ",");
+        }
 
         document.getElementById("svg").addEventListener('touchmove', svg2);
         document.getElementById("svg").addEventListener('mousemove', svg);
         canvas.addEventListener('mousedown', (e) => {
-           coords = "";
-           startX = e.clientX;
-           startY = e.clientY;
+            coords = "";
+            startX = e.clientX;
+            startY = e.clientY;
         });
 
         canvas.addEventListener('mouseup', e => {
@@ -369,7 +373,7 @@ const svg2 = (e)=> {
         canvas.addEventListener('touchend', e => {
             isPainting = false;
             ctx.beginPath();
-      });
+        });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
