@@ -99,6 +99,7 @@
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
             <button id="oil"></button>
+            <button id="save">Save Image</button>
         </div>
         <div id="map"></div>
         <div class="drawing-board">
@@ -106,6 +107,7 @@
         </div>
     </section>
     <script>
+        
         var paintoil = new Image();
         paintoil.src = "oil.png";
         paintoil.style.width = "50px"
@@ -374,6 +376,9 @@
         oil.onclick = () => {
             if (!isOil) isOil = true;
             else isOil = false;
+        }
+        document.querySelector("#save").onclick = ()=> {
+            window.open(canvas.toDataURL());
         }
     </script>
 </body>
