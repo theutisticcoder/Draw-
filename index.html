@@ -318,9 +318,13 @@
         });
 
         document.getElementById("svg").addEventListener('mouseup', e => {
-            isPainting = false;
-            ctx.stroke();
-            ctx.beginPath();
+            document.getElementById("svg").innerHTML += "<path d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+1) + " " + (startY+1) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+2) + " " + (startY+2) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+3) + " " + (startY+3) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+4) + " " + (startY+4) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+5) + " " + (startY+5) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+                        
         });
         document.getElementById("svg").addEventListener('touchstart', (e) => {
             isPainting = true;
@@ -328,16 +332,20 @@
             startY = e.touches[0].clientY;
         });
         document.getElementById("svg").addEventListener('touchend', e => {
-            isPainting = false;
-            ctx.stroke();
-            ctx.beginPath();
+            document.getElementById("svg").innerHTML += "<path d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+1) + " " + (startY+1) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+2) + " " + (startY+2) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+3) + " " + (startY+3) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+4) + " " + (startY+4) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
+        document.getElementById("svg").innerHTML += "<path d='M " + (startX+5) + " " + (startY+5) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
+                        
         }); 
         var coords = "";
 const svg = (e)=> {
 coords += (e.clientX + " " + e.clientY + ",");
 }
 const svg2 = (e)=> {
-    
+    coords += (e.touches[0].clientX + " " + e.touches[0].clientY + ",");
 }
 
         document.getElementById("svg").addEventListener('touchmove', svg2);
@@ -359,13 +367,9 @@ const svg2 = (e)=> {
             startY = e.touches[0].clientY;
         });
         canvas.addEventListener('touchend', e => {
-        document.getElementById("svg").innerHTML += "<path d='M " + startX + " " + startY + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+1) + " " + (startY+1) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+2) + " " + (startY+2) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+3) + " " + (startY+3) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+4) + " " + (startY+4) + "C " + coords + "' stroke='" + color + "' fill='transparent'>"
-        document.getElementById("svg").innerHTML += "<path d='M " + (startX+5) + " " + (startY+5) + "C " + coords + "' stroke='" + shadeColor(color) + "' fill='transparent'>"
-                        });
+            isPainting = false;
+            ctx.beginPath();
+      });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
