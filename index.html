@@ -151,7 +151,7 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
         });
-
+var draws = 0;
         toolbar.addEventListener('change', e => {
             if (e.target.id === 'stroke') {
                 ctx.strokeStyle = e.target.value;
@@ -177,6 +177,8 @@
 
 
         const draw = (e) => {
+            draws++;
+            if(draws === 2) ctx.translate(150, 0);
             if (!isPainting) {
                 return;
             }
@@ -229,6 +231,8 @@
             }
         }
         const draw2 = (e) => {
+            draws++;
+            if(draws === 2) ctx.translate(150, 0);
             if (!isPainting) {
                 return;
             }
