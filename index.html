@@ -116,8 +116,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            const canvasOffsetX= canvas.offsetLeft;
-            const canvasOffsetY= canvas.offsetTop;
+           
 
             canvas.width = 5000 + "px";
             canvas.height = 5000 + "px";
@@ -134,8 +133,8 @@
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
 
-        const canvasOffsetX = canvas.canvasOffsetXLeft;
-        const canvasOffsetY = canvas.canvasOffsetXTop;
+        const canvasOffsetX = canvas.offsetLeft;
+        const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
         let isPainting = false;
         let lineWidth = 5;
