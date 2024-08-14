@@ -107,7 +107,7 @@
         </div>
     </section>
     <script>
-        
+
         var paintoil = new Image();
         paintoil.src = "oil.png";
         paintoil.style.width = "50px"
@@ -125,7 +125,7 @@
 
             return canvas.toDataURL();
         }
-        var offset = window.screen.width/10
+        var offset = window.screen.width / 10
         var lasttouch = null, touch;
         const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
@@ -159,8 +159,8 @@
 
         });
         function shadeColor(color, amount) {
-    return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
-}
+            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+        }
         function hexToRgb(hex) {
             var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
@@ -170,50 +170,48 @@
             } : null;
         }
 
-        
+
         const draw = (e) => {
             if (!isPainting) {
                 return;
             }
             if (isOil) {
                 if (lasttouch) {
-                    for (let i = 0; i < 8* lineWidth/1.5; i+= lineWidth/1.5) {
-                        if (i === 2* lineWidth/1.5 || i=== 4 * lineWidth/1.5) {
+                    for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
+                        if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
                             ctx.beginPath();
-                                                        ctx.strokeStyle = shadeColor(color, -15);
+                            ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5), lasttouch.clientY +i/Math.sqrt(5));
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX +i/Math.sqrt(5), e.clientY +i/Math.sqrt(5));
+                            ctx.lineTo(e.clientX - offset + i / Math.sqrt(5), e.clientY + i / Math.sqrt(5) - offset);
                             ctx.stroke();
-                            
+
                         }
-                        else if (i === 5* lineWidth/1.5) {
+                        else if (i === 5 * lineWidth / 1.5) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 40);
-                            ctx.lineWidth = lineWidth/2;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5), lasttouch.clientY +i/Math.sqrt(5));
+                            ctx.lineWidth = lineWidth / 2;
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX +i/Math.sqrt(5), e.clientY +i/Math.sqrt(5));
+                            ctx.lineTo(e.clientX - offset + i / Math.sqrt(5), e.clientY + i / Math.sqrt(5) - offset);
                             ctx.stroke();
-                            
+
                         }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5)+lineWidth,  lasttouch.clientY +i/Math.sqrt(5) +lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) + lineWidth - offset, lasttouch.clientY + i / Math.sqrt(5) + lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX +i/Math.sqrt(5)+lineWidth , e.clientY +i/Math.sqrt(5)+lineWidth );
+                            ctx.lineTo(e.clientX - offset + i / Math.sqrt(5) + lineWidth, e.clientY + i / Math.sqrt(5) + lineWidth);
                             ctx.stroke();
                         }
                     }
-                   
-                }
 
-                else {                                               
-                     ctx.moveTo(e.clientX, e.clientY);
-                    
+                }
+                else {
+                    ctx.moveTo(e.clientX  - offset, e.clientY - offset);
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
@@ -221,7 +219,7 @@
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX , e.clientY);
+                ctx.lineTo(e.clientX - offset, e.clientY);
                 ctx.stroke();
             }
         }
@@ -233,40 +231,43 @@
 
 
                 if (lasttouch) {
-                    for (let i = 0; i < 8* lineWidth/1.5; i+= lineWidth/1.5) {
-                        if (i === 2* lineWidth/1.5 || i=== 4 * lineWidth/1.5) {
+                    for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
+                        if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
                             ctx.beginPath();
-                                                        ctx.strokeStyle = shadeColor(color, -15);
+                            ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5), lasttouch.clientY +i/Math.sqrt(5));
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX +i/Math.sqrt(5), e.touches[0].clientY +i/Math.sqrt(5));
+                            ctx.lineTo(e.touches[0].clientX - offset + i / Math.sqrt(5), e.touches[0].clientY + i / Math.sqrt(5) - offset);
                             ctx.stroke();
                         }
-                        else if (i === 5* lineWidth/1.5) {
+                        else if (i === 5 * lineWidth / 1.5) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 40);
-                            ctx.lineWidth = lineWidth/2;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5), lasttouch.clientY +i/Math.sqrt(5));
+                            ctx.lineWidth = lineWidth / 2;
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX +i/Math.sqrt(5), e.touches[0].clientY +i/Math.sqrt(5));
+                            ctx.lineTo(e.touches[0].clientX - offset + i / Math.sqrt(5), e.touches[0].clientY + i / Math.sqrt(5) - offset);
                             ctx.stroke();
-                            
+
                         }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX +i/Math.sqrt(5)+lineWidth,  lasttouch.clientY +i/Math.sqrt(5) +lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) + lineWidth - offset, lasttouch.clientY + i / Math.sqrt(5) + lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX +i/Math.sqrt(5)+lineWidth , e.touches[0].clientY +i/Math.sqrt(5)+lineWidth );
+                            ctx.lineTo(e.touches[0].clientX - offset + i / Math.sqrt(5) + lineWidth, e.touches[0].clientY + i / Math.sqrt(5) + lineWidth);
                             ctx.stroke();
                         }
                     }
-                   
+
                 }
                 else {
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY)
+
+                    ctx.moveTo(e.touches[0].clientX - offset, e.touches[0].clientY - offset);
+
+
                 }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
@@ -274,7 +275,7 @@
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+                ctx.lineTo(e.touches[0].clientX - offset, e.touches[0].clientY);
                 ctx.stroke();
             }
         }
@@ -324,7 +325,7 @@
             if (!isOil) isOil = true;
             else isOil = false;
         }
-        document.querySelector("#save").onclick = ()=> {
+        document.querySelector("#save").onclick = () => {
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
             window.open(image);
         }
