@@ -202,9 +202,9 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i  - canvasOffsetX, lasttouch.clientY - canvasOffsetY + lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i  - canvasOffsetX, lasttouch.clientY - canvasOffsetY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - canvasOffsetX + i , e.clientY - canvasOffsetY + lineWidth);
+                            ctx.lineTo(e.clientX - canvasOffsetX + i , e.clientY - canvasOffsetY);
                             ctx.stroke();
                         }
                     }
