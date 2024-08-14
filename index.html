@@ -25,7 +25,7 @@
         #drawing-board {
             border: 1px solid black;
             height: 100vh;
-            width: 90vw;
+            width: 100vw;
             left: 10vw;
             background-color: white;
         }
@@ -36,6 +36,8 @@
         }
 
         #toolbar {
+            position: relative;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             padding: 5px;
@@ -44,7 +46,9 @@
         }
 
         #toolbar * {
-            margin-bottom: 6px;            
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 3;
         }
 
         #toolbar label {
@@ -136,7 +140,7 @@
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
-        let isPainting = true;
+        let isPainting = false;
         let lineWidth = 5;
         let startX;
         let startY;
@@ -172,7 +176,9 @@
 
 
         const draw = (e) => {
-           
+            if (!isPainting) {
+                return;
+            }
             if (isOil) {
                 if (lasttouch) {
                     for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
@@ -212,7 +218,7 @@
                     ctx.moveTo(e.clientX , e.clientY );
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY}
-                console.log(lastTouch)
+
             }
             else {
                 ctx.lineWidth = lineWidth;
@@ -222,7 +228,9 @@
             }
         }
         const draw2 = (e) => {
-          
+            if (!isPainting) {
+                return;
+            }
             if (isOil) {
 
 
@@ -277,8 +285,25 @@
         }
 
 
-        
-       
+        canvas.addEventListener('mousedown', (e) => {
+            isPainting = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        canvas.addEventListener('mouseup', e => {
+            isPainting = false;
+            lasttouch = null;
+        });
+        canvas.addEventListener('touchstart', (e) => {
+            isPainting = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        canvas.addEventListener('touchend', e => {
+            isPainting = false;
+            lasttouch = null;
+        });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
@@ -287,7 +312,7 @@
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
         canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('drag', draw);
+        canvas.addEventListener('mousemove', draw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
