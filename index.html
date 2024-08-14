@@ -182,6 +182,7 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX - canvasOffsetX, lasttouch.clientY - canvasOffsetY);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX - canvasOffsetX + i , e.clientY - canvasOffsetY);
                             ctx.stroke();
@@ -200,6 +201,7 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX + i  - canvasOffsetX, lasttouch.clientY - canvasOffsetY + lineWidth);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX - canvasOffsetX + i , e.clientY - canvasOffsetY + lineWidth);
                             ctx.stroke();
@@ -233,6 +235,7 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX - canvasOffsetX, lasttouch.clientY - canvasOffsetY);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.touches[0].clientX - canvasOffsetX + i , e.touches[0].clientY - canvasOffsetY);
                             ctx.stroke();
@@ -250,6 +253,7 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX + i  - canvasOffsetX, lasttouch.clientY + i  - canvasOffsetY);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.touches[0].clientX - canvasOffsetX + i , e.touches[0].clientY + i - canvasOffsetY);
                             ctx.stroke();
