@@ -146,7 +146,7 @@
         ctx.translate(-150, 0)
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width*3, canvas.height*3);
             }
         });
 var draws = 0;
@@ -322,6 +322,7 @@ var draws = 0;
             }
             if (e.target.id != 'erase' && eraser.style.backgroundColor === '#b58691') {
                 eraser.style.backgroundColor = "black";
+                ctx.strokeStyle = color;
             }
         });
         oil.onclick = () => {
