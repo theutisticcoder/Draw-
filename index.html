@@ -188,7 +188,7 @@
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX -130 , lasttouch.clientY );
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX -130 + i , e.clientY );
+                            ctx.lineTo(e.clientX  + i , e.clientY );
                             ctx.stroke();
 
                         }
@@ -198,7 +198,7 @@
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX-130 , lasttouch.clientY );
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX-130  + i , e.clientY );
+                            ctx.lineTo(e.clientX  + i , e.clientY );
                             ctx.stroke();
 
                         }
@@ -208,7 +208,7 @@
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX-130 + i  , lasttouch.clientY );
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX-130  + i , e.clientY );
+                            ctx.lineTo(e.clientX  + i , e.clientY );
                             ctx.stroke();
                         }
                     }
@@ -217,13 +217,13 @@
                 else {
                     ctx.moveTo(e.clientX-130 , e.clientY );
                 }
-                lasttouch = { clientX: e.clientX-130, clientY: e.clientY}
+                lasttouch = { clientX: e.clientX, clientY: e.clientY}
 
             }
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX-130 , e.clientY );
+                ctx.lineTo(e.clientX , e.clientY );
                 ctx.stroke();
             }
         }
@@ -242,7 +242,7 @@
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX-130 , lasttouch.clientY );
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX-130  + i , e.touches[0].clientY );
+                            ctx.lineTo(e.touches[0].clientX  + i , e.touches[0].clientY );
                             ctx.stroke();
                         }
                         else if (i === 5 * lineWidth / 1.5) {
@@ -251,7 +251,7 @@
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX -130, lasttouch.clientY );
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX -130 + i , e.touches[0].clientY );
+                            ctx.lineTo(e.touches[0].clientX + i , e.touches[0].clientY );
                             ctx.stroke();
 
                         }
@@ -261,7 +261,7 @@
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX-130 + i  , lasttouch.clientY + i  );
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX -130 + i , e.touches[0].clientY + i );
+                            ctx.lineTo(e.touches[0].clientX + i , e.touches[0].clientY + i );
                             ctx.stroke();
                         }
                     }
@@ -273,7 +273,7 @@
 
 
                 }
-                lasttouch = { clientX: e.touches[0].clientX-130, clientY: e.touches[0].clientY }
+                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
             }
             else {
