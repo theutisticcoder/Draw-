@@ -211,7 +211,7 @@
 
                 }
                 else {
-                    ctx.moveTo(e.clientX, e.clientY);
+                    ctx.moveTo(e.clientX - canvasOffsetX, e.clientY - canvasOffsetY);
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY}
 
@@ -265,7 +265,7 @@
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.moveTo(e.touches[0].clientX -canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
 
 
                 }
