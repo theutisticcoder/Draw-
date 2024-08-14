@@ -125,7 +125,7 @@
             canvas.width = 5000 + "px";
             canvas.height = 5000 + "px";
             ctx.drawImage(img, 0, 0);
-        
+
 
 
             return canvas.toDataURL();
@@ -139,9 +139,8 @@
 
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
-        ctx.translate(-150, 0)
         var color = "#000000";
-        let isPainting = false;
+        let isPainting = true;
         let lineWidth = 5;
         let startX;
         let startY;
@@ -224,7 +223,7 @@
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(startX, startY );
+                ctx.lineTo(e.clientX , e.clientY );
                 ctx.stroke();
             }
         }
@@ -270,7 +269,7 @@
                 }
                 else {
 
-                    ctx.moveTo(startX , startY);
+                    ctx.moveTo(e.touches[0].clientX , e.touches[0].clientY );
 
 
                 }
@@ -286,25 +285,8 @@
         }
 
 
-        canvas.addEventListener('mousedown', (e) => {
-            isPainting = true;
-            startX = e.clientX;
-            startY = e.clientY;
-        });
-
-        canvas.addEventListener('mouseup', e => {
-            isPainting = false;
-            lasttouch = null;
-        });
-        canvas.addEventListener('touchstart', (e) => {
-            isPainting = true;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        });
-        canvas.addEventListener('touchend', e => {
-            isPainting = false;
-            lasttouch = null;
-        });
+        
+       
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
@@ -313,7 +295,7 @@
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
         canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('drag', draw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
