@@ -125,7 +125,6 @@
 
             return canvas.toDataURL();
         }
-        var offset = window.screen.width / 10
         var lasttouch = null, touch;
         const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
@@ -133,8 +132,8 @@
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
 
-        const canvasOffsetX = canvas.offsetLeft;
-        const canvasOffsetY = canvas.offsetTop;
+        const canvasOffsetX = canvas.canvasOffsetXLeft;
+        const canvasOffsetY = canvas.canvasOffsetXTop;
         var color = "#000000";
         let isPainting = false;
         let lineWidth = 5;
@@ -182,9 +181,9 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - canvasOffsetX, lasttouch.clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i / Math.sqrt(5), e.clientY + i / Math.sqrt(5) - offset);
+                            ctx.lineTo(e.clientX - canvasOffsetX + i / Math.sqrt(5), e.clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.stroke();
 
                         }
@@ -192,9 +191,9 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth / 2;
-                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - canvasOffsetX, lasttouch.clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i / Math.sqrt(5), e.clientY + i / Math.sqrt(5) - offset);
+                            ctx.lineTo(e.clientX - canvasOffsetX + i / Math.sqrt(5), e.clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.stroke();
 
                         }
@@ -202,24 +201,24 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) + lineWidth - offset, lasttouch.clientY + i / Math.sqrt(5) + lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) + lineWidth - canvasOffsetX, lasttouch.clientY + i / Math.sqrt(5) - canvasOffsetY + lineWidth);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX - offset + i / Math.sqrt(5) + lineWidth, e.clientY + i / Math.sqrt(5) + lineWidth);
+                            ctx.lineTo(e.clientX - canvasOffsetX + i / Math.sqrt(5) + lineWidth, e.clientY + i / Math.sqrt(5) - canvasOffsetY + lineWidth);
                             ctx.stroke();
                         }
                     }
 
                 }
                 else {
-                    ctx.moveTo(e.clientX  - offset, e.clientY - offset);
+                    ctx.moveTo(e.clientX  - canvasOffsetX, e.clientY - canvasOffsetY);
                 }
-                lasttouch = { clientX: e.clientX, clientY: e.clientY }
+                lasttouch = { clientX: e.clientX - canvasOffsetX, clientY: e.clientY - canvasOffsetY}
 
             }
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX - offset, e.clientY);
+                ctx.lineTo(e.clientX - canvasOffsetX, e.clientY);
                 ctx.stroke();
             }
         }
@@ -236,18 +235,18 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - canvasOffsetX, lasttouch.clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i / Math.sqrt(5), e.touches[0].clientY + i / Math.sqrt(5) - offset);
+                            ctx.lineTo(e.touches[0].clientX - canvasOffsetX + i / Math.sqrt(5), e.touches[0].clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.stroke();
                         }
                         else if (i === 5 * lineWidth / 1.5) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth / 2;
-                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - offset, lasttouch.clientY + i / Math.sqrt(5) - offset);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) - canvasOffsetX, lasttouch.clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i / Math.sqrt(5), e.touches[0].clientY + i / Math.sqrt(5) - offset);
+                            ctx.lineTo(e.touches[0].clientX - canvasOffsetX + i / Math.sqrt(5), e.touches[0].clientY + i / Math.sqrt(5) - canvasOffsetY);
                             ctx.stroke();
 
                         }
@@ -255,9 +254,9 @@
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) + lineWidth - offset, lasttouch.clientY + i / Math.sqrt(5) + lineWidth);
+                            ctx.moveTo(lasttouch.clientX + i / Math.sqrt(5) + lineWidth - canvasOffsetX, lasttouch.clientY + i / Math.sqrt(5) + lineWidth - canvasOffsetY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX - offset + i / Math.sqrt(5) + lineWidth, e.touches[0].clientY + i / Math.sqrt(5) + lineWidth);
+                            ctx.lineTo(e.touches[0].clientX - canvasOffsetX + i / Math.sqrt(5) + lineWidth, e.touches[0].clientY + i / Math.sqrt(5) + lineWidth- canvasOffsetY);
                             ctx.stroke();
                         }
                     }
@@ -265,17 +264,17 @@
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX - offset, e.touches[0].clientY - offset);
+                    ctx.moveTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
 
 
                 }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
+                lasttouch = { clientX: e.touches[0].clientX -canvasOffsetX, clientY: e.touches[0].clientY - canvasOffsetY }
 
             }
             else {
                 ctx.lineWidth = lineWidth;
                 ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX - offset, e.touches[0].clientY);
+                ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
                 ctx.stroke();
             }
         }
