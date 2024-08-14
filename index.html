@@ -289,7 +289,6 @@
 
         canvas.addEventListener('mouseup', e => {
             isPainting = false;
-            lasttouch = {};
         });
         canvas.addEventListener('touchstart', (e) => {
             isPainting = true;
@@ -298,7 +297,6 @@
         });
         canvas.addEventListener('touchend', e => {
             isPainting = false;
-            lasttouch = {};
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
