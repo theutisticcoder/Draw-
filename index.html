@@ -188,7 +188,11 @@ var draws = 0;
 
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
-
+if(localStorage.getItem("canvas")){
+    var i = new Image();
+    i.src = localStorage.getItem("canvas")
+ctx.drawImage(i, 0, 0)
+}
 
         const draw = (e) => {
             draws++;
@@ -253,9 +257,12 @@ var draws = 0;
                 ctx.lineTo(e.clientX , e.clientY );
                 ctx.stroke();
             }
+            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
+
         }
         const draw2 = (e) => {
             draws++;
+
             if (!isPainting) {
                 return;
             }
@@ -270,6 +277,7 @@ var draws = 0;
                 
 
                 if (lasttouch) {
+
                     for (let i = 0; i < 8 * lineWidth ; i += lineWidth ) {
                         if (i === 2 * lineWidth  || i === 4 * lineWidth ) {
                             ctx.beginPath();
@@ -317,6 +325,8 @@ var draws = 0;
                 ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY );
                 ctx.stroke();
             }
+            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
+
         }
 
 
