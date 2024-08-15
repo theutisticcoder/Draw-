@@ -181,7 +181,7 @@ var draws = 0;
                 return;
             }
             if (isOil) {
-                ctx.globalCompositeOperation = "color";
+                ctx.globalCompositeOperation = "multiply";
                 if (lasttouch) {
                     for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
                         if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
@@ -235,7 +235,7 @@ var draws = 0;
                 return;
             }
             if (isOil) {
-                ctx.globalCompositeOperation = "color";
+                ctx.globalCompositeOperation = "multiply";
 
 
                 if (lasttouch) {
