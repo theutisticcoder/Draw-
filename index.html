@@ -144,6 +144,7 @@
         canvas.height = 500;
         canvas.width = 500;
         var isOil = true;
+        ctx.translate(-150, 0)
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.clearRect(0, 0, canvas.width*3, canvas.height*3);
@@ -191,7 +192,7 @@ if(localStorage.getItem("canvas")){
     var i = new Image();
     i.src = localStorage.getItem("canvas")
     i.onload = ()=> {
-        ctx.drawImage(i, 0, 0)
+        ctx.drawImage(i, 150, 0)
     }
 }
 
