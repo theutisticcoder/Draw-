@@ -141,7 +141,6 @@
         let lineWidth = 5;
         let startX;
         let startY;
-        ctx.globalAlpha = 0.7;
         canvas.height = 500;
         canvas.width = 500;
         var isOil = true;
@@ -189,6 +188,8 @@ var draws = 0;
 
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
+
+ctx.globalAlpha = 0.7;
 
         const draw = (e) => {
             draws++;
