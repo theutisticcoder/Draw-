@@ -197,7 +197,7 @@ var draws = 0;
             if (isOil) {
                 if(points.findIndex(x=> x.x === e.clientX)> -1 && points.findIndex(y=> y.y === e.clientY)> -1){
                     ctx.globalAlpha = 0.5;
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.5)
                     setTimeout(()=>{
                         ctx.globalAlpha = 1;
                         color = document.querySelector("#stroke").value;
@@ -261,7 +261,7 @@ var draws = 0;
             if (isOil) {
                 if(points.findIndex(x=> x.x === e.touches[0].clientX)> -1 && points.findIndex(y=> y.y === e.touches[0].clientY)> -1){
                     ctx.globalAlpha = 0.5;
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.5)
                     setTimeout(()=>{
                         ctx.globalAlpha = 1;
                         color = document.querySelector("#stroke").value;
