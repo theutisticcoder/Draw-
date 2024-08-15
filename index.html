@@ -210,8 +210,8 @@ var draws = 0;
                 points.push({color: color, x: e.clientX, y: e.clientY})
                 
                 if (lasttouch) {
-                    for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
-                        if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
+                    for (let i = 0; i < 8 * lineWidth ; i += lineWidth ) {
+                        if (i === 2 * lineWidth  || i === 4 * lineWidth ) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
@@ -221,7 +221,7 @@ var draws = 0;
                             ctx.stroke();
 
                         }
-                        else if (i === 5 * lineWidth / 1.5) {
+                        else if (i === 5 * lineWidth ) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 20);
                             ctx.lineWidth = lineWidth*2;
@@ -278,8 +278,8 @@ var draws = 0;
                 
 
                 if (lasttouch) {
-                    for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
-                        if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
+                    for (let i = 0; i < 8 * lineWidth ; i += lineWidth ) {
+                        if (i === 2 * lineWidth  || i === 4 * lineWidth ) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
@@ -288,7 +288,7 @@ var draws = 0;
                             ctx.lineTo(e.touches[0].clientX  + i , e.touches[0].clientY );
                             ctx.stroke();
                         }
-                        else if (i === 5 * lineWidth / 1.5) {
+                        else if (i === 5 * lineWidth ) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 20);
                             ctx.lineWidth = lineWidth*2;
