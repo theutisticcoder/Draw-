@@ -257,7 +257,7 @@ ctx.drawImage(i, 0, 0)
                 ctx.lineTo(e.clientX , e.clientY );
                 ctx.stroke();
             }
-            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
+            localStorage.setItem("canvas", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
 
         }
         const draw2 = (e) => {
@@ -325,7 +325,7 @@ ctx.drawImage(i, 0, 0)
                 ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY );
                 ctx.stroke();
             }
-            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
+            localStorage.setItem("canvas", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
 
         }
 
