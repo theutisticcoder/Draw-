@@ -198,11 +198,16 @@ var draws = 0;
                 if(points.findIndex(x=> x.x === e.clientX)> -1 && points.findIndex(y=> y.y === e.clientY)> -1){
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.5)
                     setTimeout(()=>{
+                        points.push({color: color, x: e.clientX, y: e.clientY})
                         color = document.querySelector("#stroke").value;
+
                     }, 1000);
                 }
+                else{
+                    points.push({color: color, x: e.clientX, y: e.clientY})
 
-                points.push({color: color, x: e.clientX, y: e.clientY})
+                }
+
                 
                 if (lasttouch) {
                     for (let i = 0; i < 8 * lineWidth ; i += lineWidth ) {
