@@ -180,7 +180,6 @@ var draws = 0;
                 return;
             }
             if (isOil) {
-                if (lasttouch) {
                     for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
                         if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
                             ctx.beginPath();
@@ -210,12 +209,7 @@ var draws = 0;
                         }
                     }
 
-                }
-                else {
-                    ctx.moveTo(e.clientX - canvasOffsetX, e.clientY );
-                }
-                lasttouch = { clientX: e.clientX, clientY: e.clientY}
-
+               
             }
             else {
                 ctx.lineWidth = lineWidth;
@@ -231,8 +225,6 @@ var draws = 0;
             }
             if (isOil) {
 
-
-                if (lasttouch) {
                     for (let i = 0; i < 8 * lineWidth / 1.5; i += lineWidth / 1.5) {
                         if (i === 2 * lineWidth / 1.5 || i === 4 * lineWidth / 1.5) {
                             ctx.beginPath();
@@ -261,15 +253,8 @@ var draws = 0;
                         }
                     }
 
-                }
-                else {
-
-                    ctx.moveTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY );
-
-
-                }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
-
+                
+              
             }
             else {
                 ctx.lineWidth = lineWidth;
