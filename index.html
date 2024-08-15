@@ -197,10 +197,12 @@ var draws = 0;
             if (isOil) {
                 if(points.findIndex(x=> x.x === e.clientX)> -1 && points.findIndex(y=> y.y === e.clientY)> -1){
                     ctx.globalAlpha = 0.5;
+                    ctx.globalCompositeOperation = "soft-light";
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.5)
                     setTimeout(()=>{
                         color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.25);
                         setTimeout(()=>{
+                            ctx.globalCompositeOperation = "source-over";
                         ctx.globalAlpha = 1;
                         color = document.querySelector("#stroke").value;
                     }, 300);
@@ -263,12 +265,14 @@ var draws = 0;
             }
             if (isOil) {
                 if(points.findIndex(x=> x.x === e.touches[0].clientX)> -1 && points.findIndex(y=> y.y === e.touches[0].clientY)> -1){
+                    ctx.globalCompositeOperation = "soft-light";
                     ctx.globalAlpha = 0.5;
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.5)
                     setTimeout(()=>{
                         color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.25)
                         setTimeout(()=>{
-                        ctx.globalAlpha = 1;
+                            ctx.globalCompositeOperation = "source-over";
+                            ctx.globalAlpha = 1;
                         color = document.querySelector("#stroke").value;
                     }, 300);
                     }, 300);
