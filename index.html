@@ -191,7 +191,9 @@ var draws = 0;
 if(localStorage.getItem("canvas")){
     var i = new Image();
     i.src = localStorage.getItem("canvas")
-ctx.drawImage(i, 0, 0)
+    i.onload = ()=> {
+        ctx.drawImage(i, 0, 0)
+    }
 }
 
         const draw = (e) => {
@@ -257,7 +259,7 @@ ctx.drawImage(i, 0, 0)
                 ctx.lineTo(e.clientX , e.clientY );
                 ctx.stroke();
             }
-            localStorage.setItem("canvas", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
+            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
 
         }
         const draw2 = (e) => {
@@ -325,7 +327,7 @@ ctx.drawImage(i, 0, 0)
                 ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY );
                 ctx.stroke();
             }
-            localStorage.setItem("canvas", canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"))
+            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
 
         }
 
