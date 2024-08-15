@@ -217,7 +217,7 @@ var draws = 0;
                 else {
                     ctx.moveTo(e.clientX - canvasOffsetX, e.clientY );
                 }
-                lasttouch = { clientX: e.clientX, clientY: e.clientY}
+                lasttouch = { clientX: e.clientX- canvasOffsetX, clientY: e.clientY}
 
             }
             else {
@@ -274,7 +274,7 @@ var draws = 0;
 
 
                 }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
+                lasttouch = { clientX: e.touches[0].clientX- canvasOffsetX, clientY: e.touches[0].clientY }
 
             }
             else {
