@@ -186,7 +186,7 @@ var draws = 0;
                             ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX  + i- canvasOffsetX , e.clientY );
+                            ctx.lineTo(e.clientX  + i , e.clientY );
                             ctx.stroke();
 
                         }
@@ -195,7 +195,7 @@ var draws = 0;
                             ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX  + i - canvasOffsetX, e.clientY );
+                            ctx.lineTo(e.clientX  + i , e.clientY );
                             ctx.stroke();
 
                         }
@@ -204,7 +204,7 @@ var draws = 0;
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX  + i- canvasOffsetX , e.clientY );
+                            ctx.lineTo(e.clientX  + i , e.clientY );
                             ctx.stroke();
                         }
                     }
@@ -231,7 +231,7 @@ var draws = 0;
                             ctx.strokeStyle = shadeColor(color, -15);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX  + i- canvasOffsetX , e.touches[0].clientY );
+                            ctx.lineTo(e.touches[0].clientX  + i , e.touches[0].clientY );
                             ctx.stroke();
                         }
                         else if (i === 5 * lineWidth / 1.5) {
@@ -239,7 +239,7 @@ var draws = 0;
                             ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX  + i - canvasOffsetX, e.touches[0].clientY );
+                            ctx.lineTo(e.touches[0].clientX  + i, e.touches[0].clientY );
                             ctx.stroke();
 
                         }
@@ -248,7 +248,7 @@ var draws = 0;
                             ctx.strokeStyle = shadeColor(color, -5);
                             ctx.lineWidth = lineWidth;
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX  + i - canvasOffsetX , e.touches[0].clientY + i );
+                            ctx.lineTo(e.touches[0].clientX  + i  , e.touches[0].clientY + i );
                             ctx.stroke();
                         }
                     }
