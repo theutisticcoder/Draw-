@@ -387,6 +387,11 @@ if(localStorage.getItem("canvas")){
             a.download = name + ".png";
             a.click();
         }
+        function restore(){
+            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
+            setTimeout(restore, 10)
+        }
+        restore();
     </script>
 </body>
 
