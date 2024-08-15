@@ -200,7 +200,7 @@ var draws = 0;
                     color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color)
                     setTimeout(()=>{
                         ctx.globalAlpha = 1;
-                        color = document.querySelector("stroke").value;
+                        color = document.querySelector("#stroke").value;
                     }, 500);
                 }
 
@@ -264,7 +264,7 @@ var draws = 0;
                     color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color)
                     setTimeout(()=>{
                         ctx.globalAlpha = 1;
-                        color = document.querySelector("stroke").value;
+                        color = document.querySelector("#stroke").value;
                     }, 500);
                 }
 
