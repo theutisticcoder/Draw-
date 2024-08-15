@@ -119,7 +119,6 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-           var points = []
 
             ctx.drawImage(img, 0, 0);
 
@@ -131,6 +130,7 @@
         const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
         const toolbar = document.getElementById('toolbar');
+        var points = []
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
 
