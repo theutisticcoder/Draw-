@@ -97,8 +97,8 @@
             <label for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
             <button id="erase">Eraser</button>
-            <label for="lineWidth" hidden>Brush Width</label>
-            <input id="lineWidth" hidden name='lineWidth' type="number" value="5">
+            <label for="lineWidth" >Brush Width</label>
+            <input id="lineWidth" min="1" max="15" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
             <button id="oil"></button>
             <button id="save">Save Image</button>
@@ -140,10 +140,10 @@
         let lineWidth = 5;
         let startX;
         let startY;
-        canvas.height = screen.height;
-        canvas.width = screen.width*0.9;
-        canvas.style.height = screen.height + "px";
-        canvas.style.width = screen.width*0.9 + "px";
+        canvas.height = screen.height*0.7;
+        canvas.width = screen.width*0.7;
+        canvas.style.height = screen.height*0.7 + "px";
+        canvas.style.width = screen.width*0.7 + "px";
         var isOil = true;
         ctx.translate(-150, 0)
         toolbar.addEventListener('click', e => {
