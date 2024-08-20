@@ -138,7 +138,7 @@
         const canvas = document.getElementById('drawing-board');
         const toolbar = document.getElementById('toolbar');
         var points = []
-        if (localStorage.getItem("points")) points = localStorage.getItem("points");
+        if (localStorage.getItem("points")) points = JSON.parse(localStorage.getItem("points"));
         document.querySelector("#dry").onclick = () => {
             points = []
         }
@@ -417,7 +417,7 @@
         function restore() {
             arts[number - 1].canvas = canvas.toDataURL("image/png")
             localStorage.setItem("canvas", JSON.stringify(arts));
-            localStorage.setItem("points", points)
+            localStorage.setItem("points", JSON.stringify(points))
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
