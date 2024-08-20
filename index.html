@@ -198,7 +198,7 @@ var draws = 0;
 }
 function openDrawing(e){
 document.querySelector(".container").hidden = false;
-ctx.drawImage(e.target, 0,0,canvas.width, canvas.height);
+ctx.drawImage(e.target, 150,0,canvas.width, canvas.height);
 
 document.querySelector("#gallery").hidden = true;
 }
@@ -207,6 +207,7 @@ if(localStorage.getItem("canvas")){
      canvases.forEach(can => {
      var i = new Image();
         i.src = can.canvas;
+        i.style.scale = 0.1;
         i.onclick = openDrawing
         document.getElementById("gallery").appendChild(i);
      });
