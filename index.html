@@ -87,6 +87,14 @@
         img {
             overflow: hidden;
         }
+        #new{
+            color: white;
+            background: blue;
+            font-size: 20pt;
+        }
+        #gallery{
+            background: white;
+        }
     </style>
 </head>
 
@@ -209,6 +217,7 @@
                 var i = new Image();
                 i.src = can.canvas;
                 i.style.scale = 0.1;
+                i.style.border = "1px solid black"
                 i.onclick = openDrawing
                 document.getElementById("gallery").appendChild(i);
             });
