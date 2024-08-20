@@ -40,7 +40,7 @@
             flex-direction: column;
             padding: 5px;
             width: 10vw;
-            background-color: #202020;
+            background-color: #297086;
         }
 
         #toolbar * {
@@ -91,16 +91,17 @@
 </head>
 
 <body>
-    <section class="container">
+    <div id="gallery"></div>
+    <section class="container" hidden>
         <div id="toolbar">
             <h1>DrawPaw</h1>
             <label for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
             <button id="erase">Eraser</button>
             <label for="lineWidth" >Brush Width</label>
-            <input id="lineWidth" min="1" max="15" name='lineWidth' type="number" value="5">
+            <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
-            <button id="oil"></button>
+            <button id="dry">Dry</button>
             <button id="save">Save Image</button>
         </div>
         <div id="map"></div>
@@ -109,12 +110,10 @@
         </div>
     </section>
     <script>
-
-        var paintoil = new Image();
-        paintoil.src = "oil.png";
-        paintoil.style.width = "50px"
-        paintoil.style.height = "50px"
-        document.getElementById("oil").appendChild(paintoil);
+      var arts = [];
+      if(localStorage.canvas){
+        arts = localStorage.canvas;
+      }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -126,10 +125,13 @@
             return canvas.toDataURL();
         }
         var lasttouch = null, touch;
-        const oil = document.getElementById("oil");
         const canvas = document.getElementById('drawing-board');
         const toolbar = document.getElementById('toolbar');
         var points = []
+        if(localStorage.getItem("points")) points = localStorage.getItem("points");
+        document.querySelector("#dry").onclick = ()=> {
+            points = []
+        }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
 
@@ -138,6 +140,11 @@
         var color = "#000000";
         let isPainting = false;
         let lineWidth = 5;
+        arts.push({canvas: canvas.toDataURL("image/png"), number: arts.length})
+
+        if(localStorage.getItem("lw")) lineWidth = localStorage.getItem("lw");
+        if(localStorage.getItem("color")) color = localStorage.getItem("color");
+      
         let startX;
         let startY;
         canvas.height = screen.height*0.7;
@@ -189,12 +196,20 @@ var draws = 0;
 
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
+function openDrawing(e){
+document.querySelector(".container").hidden = false;
+ctx.drawImage(e.target, 0,0,canvas.width, canvas.height);
+
+document.querySelector("#gallery").hidden = true;
+}
 if(localStorage.getItem("canvas")){
-    var i = new Image();
-    i.src = localStorage.getItem("canvas")
-    i.onload = ()=> {
-        ctx.drawImage(i, 150, 0)
-    }
+     var canvases =JSON.parse(arts);
+     canvases.forEach(can => {
+     var i = new Image();
+        i.src = can.canvas;
+        i.onclick = openDrawing
+        document.getElementById("gallery").appendChild(i);
+     });
 }
 
         const draw = (e) => {
@@ -206,7 +221,6 @@ if(localStorage.getItem("canvas")){
                 if(points.findIndex(x=> x.x === e.clientX)> -1 && points.findIndex(y=> y.y === e.clientY)> -1){
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.4)
                         points.push({color: color, x: e.clientX, y: e.clientY})
-
                 }
                 else{
                     points.push({color: color, x: e.clientX, y: e.clientY})
@@ -271,7 +285,7 @@ if(localStorage.getItem("canvas")){
             }
             if (isOil) {
                 if(points.findIndex(x=> x.x === e.touches[0].clientX)> -1 && points.findIndex(y=> y.y === e.touches[0].clientY)> -1){
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.4)
+                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.6)
                      
                    
                 }
@@ -376,10 +390,7 @@ if(localStorage.getItem("canvas")){
                 ctx.strokeStyle = color;
             }
         });
-        oil.onclick = () => {
-            if (!isOil) isOil = true;
-            else isOil = false;
-        }
+      
         document.querySelector("#save").onclick = () => {
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
             var a = document.createElement("a");
@@ -388,8 +399,13 @@ if(localStorage.getItem("canvas")){
             a.download = name + ".png";
             a.click();
         }
+        var number = 1;
         function restore(){
-            localStorage.setItem("canvas", canvas.toDataURL("image/png"))
+            arts[number-1].canvas = canvas.toDataURL("image/png")
+            localStorage.setItem("canvas", JSON.stringify(arts));
+            localStorage.setItem("points", points)
+            localStorage.setItem("lw", lineWidth)
+            localStorage.setItem("color", color)
             setTimeout(restore, 10)
         }
         restore();
