@@ -127,7 +127,6 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
             ctx.drawImage(img, 0, 0);
 
 
@@ -218,6 +217,7 @@
                 i.src = can.canvas;
                 i.style.scale = 0.1;
                 i.style.border = "1px solid black"
+                i.style.position = "relative"
                 i.onclick = openDrawing
                 document.getElementById("gallery").appendChild(i);
             });
