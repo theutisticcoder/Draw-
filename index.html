@@ -125,7 +125,7 @@
     <script>
         var arts = [];
         if (localStorage.canvas) {
-            arts = JSON.parse(localStorage.canvas);
+            arts = JSON.parse(localStorage.getItem("canvas"));
         }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
