@@ -222,11 +222,7 @@
         var imgs = 0;
         if (localStorage.getItem("canvas")) {
             arts.forEach(can => {
-                imgs++;
-                if(imgs %4 === 0){
-                    document.getElementById("gallery").innerHTML += "<br>";
-
-                }
+                
                 var i = new Image();
                 i.src = can.canvas;
                 i.style.background = "white";
@@ -241,7 +237,13 @@
                     openDrawing(i, can.points, can.number)
                 };
                 document.getElementById("gallery").appendChild(i);
+                imgs++;
+                if(imgs % 4 === 0){
+                    document.getElementById("gallery").innerHTML += "<br>";
+
+                }
             });
+            
         }
         document.getElementById("new").onclick = () => {
 
