@@ -140,7 +140,6 @@
         const canvas = document.getElementById('drawing-board');
         const toolbar = document.getElementById('toolbar');
         var points = []
-        if (localStorage.getItem("points")) points = JSON.parse(localStorage.getItem("points"));
         document.querySelector("#dry").onclick = () => {
             points = []
         }
@@ -211,8 +210,8 @@
         }
         function openDrawing(e) {
             document.querySelector("#toolbar").hidden = false;
-            ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height);
-
+            ctx.drawImage(e.canvas, 150, 0, canvas.width, canvas.height);
+            points = e.points;
             document.querySelector("#gallery").hidden = true;
         }
         if (localStorage.getItem("canvas")) {
@@ -223,8 +222,11 @@
                 i.style.width = canvas.width/10;
                 i.style.height = canvas.height/10;
                 i.style.border = "1px solid black"
-                i.style.position = "relative"
-                i.onclick = openDrawing
+                i.style.position = "relative";
+
+                i.onclick = ()=> {
+                    openDrawing(can)
+                };
                 document.getElementById("gallery").appendChild(i);
             });
         }
@@ -421,9 +423,9 @@
         }
         var number = 1;
         function restore() {
-            arts[number - 1].canvas = canvas.toDataURL("image/png")
+            arts[number - 1].canvas = canvas.toDataURL("image/png");
+            arts[number-1].points = points;
             localStorage.setItem("canvas", JSON.stringify(arts));
-            localStorage.setItem("points", JSON.stringify(points))
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
