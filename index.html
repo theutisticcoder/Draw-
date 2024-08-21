@@ -137,6 +137,7 @@
             return canvas.toDataURL();
         }
         var lasttouch = null, touch;
+        var number = 1;
         const canvas = document.getElementById('drawing-board');
         const toolbar = document.getElementById('toolbar');
         var points = []
@@ -421,7 +422,6 @@
             a.download = name + ".png";
             a.click();
         }
-        var number = 1;
         function restore() {
             arts[number - 1].canvas = canvas.toDataURL("image/png");
             arts[number-1].points = points;
