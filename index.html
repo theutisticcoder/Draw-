@@ -214,6 +214,7 @@
             ctx.drawImage(image, 150, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
+            restore();
         }
         if (localStorage.getItem("canvas")) {
             arts.forEach(can => {
@@ -234,8 +235,11 @@
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
-            arts.push({canvas: canvas.toDataURL("image/png"), number: arts.length})
+            arts.push({canvas: canvas.toDataURL("image/png"), number: arts.length, points: []})
             document.querySelector("#gallery").hidden = true;
+            ctx.drawImage();
+            restore();
+
         }
         const draw = (e) => {
             draws++;
@@ -430,7 +434,6 @@
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
         }
-        restore();
     </script>
 </body>
 
