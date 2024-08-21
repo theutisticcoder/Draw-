@@ -239,8 +239,8 @@
             document.querySelector("#toolbar").hidden = false;
             arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [] })
             document.querySelector("#gallery").hidden = true;
-            restore();
             number = arts.length + 1
+            restore();
         }
         const draw = (e) => {
             draws++;
