@@ -227,14 +227,13 @@
                 var i = new Image();
                 i.src = can.canvas;
                 i.style.background = "white";
-                i.style.marginLeft = "14vw";
-                i.style.marginTop = "7vw";
-                i.style.marginBottom = "7vw";
+                i.style.marginLeft = "10vw";
+                i.style.marginTop = "7vh";
+                i.style.marginBottom = "7vh";
                 
                 i.style.width = canvas.width / 6;
                 i.style.height = canvas.height / 6;
                 i.style.border = "1px solid black"
-                i.style.position = "relative";
 
                 i.onclick = () => {
                     openDrawing(i, can.points, can.number)
