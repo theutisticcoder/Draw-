@@ -208,7 +208,8 @@
 
             return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
         }
-        function openDrawing(image, p) {
+        function openDrawing(image, p, num) {
+            number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.drawImage(image, 150, 0, canvas.width, canvas.height);
             points = p;
@@ -217,7 +218,6 @@
         }
         if (localStorage.getItem("canvas")) {
             arts.forEach(can => {
-                number = can.number;
                 var i = new Image();
                 i.src = can.canvas;
                 i.style.background = "white";
@@ -227,7 +227,7 @@
                 i.style.position = "relative";
 
                 i.onclick = () => {
-                    openDrawing(i, can.points)
+                    openDrawing(i, can.points, can.number)
                 };
                 document.getElementById("gallery").appendChild(i);
             });
