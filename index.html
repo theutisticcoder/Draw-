@@ -87,17 +87,18 @@
         img {
             overflow: hidden;
         }
-        #new{
+
+        #new {
             color: white;
             background: blue;
             font-size: 20pt;
         }
-        #gallery{
+
+        #gallery {
             height: 100vh;
             width: 100vw;
             background: gray;
         }
-
     </style>
 </head>
 
@@ -219,12 +220,13 @@
                 number = can.number;
                 var i = new Image();
                 i.src = can.canvas;
-                i.style.width = canvas.width/10;
-                i.style.height = canvas.height/10;
+                i.style.background = "white";
+                i.style.width = canvas.width / 10;
+                i.style.height = canvas.height / 10;
                 i.style.border = "1px solid black"
                 i.style.position = "relative";
 
-                i.onclick = ()=> {
+                i.onclick = () => {
                     openDrawing(i, can.points)
                 };
                 document.getElementById("gallery").appendChild(i);
@@ -233,7 +235,7 @@
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
-            arts.push({canvas: canvas.toDataURL("image/png"), number: arts.length+1, points: []})
+            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [] })
             document.querySelector("#gallery").hidden = true;
             restore();
 
@@ -425,7 +427,7 @@
         }
         function restore() {
             arts[number - 1].canvas = canvas.toDataURL("image/png");
-            arts[number-1].points = points;
+            arts[number - 1].points = points;
             localStorage.setItem("canvas", JSON.stringify(arts));
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
