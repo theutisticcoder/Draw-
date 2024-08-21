@@ -208,10 +208,10 @@
 
             return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
         }
-        function openDrawing(e) {
+        function openDrawing(image, p) {
             document.querySelector("#toolbar").hidden = false;
-            ctx.drawImage(e.canvas, 150, 0, canvas.width, canvas.height);
-            points = e.points;
+            ctx.drawImage(image, 150, 0, canvas.width, canvas.height);
+            points = p;
             document.querySelector("#gallery").hidden = true;
         }
         if (localStorage.getItem("canvas")) {
@@ -225,7 +225,7 @@
                 i.style.position = "relative";
 
                 i.onclick = ()=> {
-                    openDrawing(can)
+                    openDrawing(i, can.points)
                 };
                 document.getElementById("gallery").appendChild(i);
             });
