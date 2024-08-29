@@ -159,7 +159,7 @@
         let isPainting = false;
         let lineWidth = 5;
 
-        if (localStorage.getItem("lw")) lineWidth = parseInt(localStorage.getItem("lw"));
+        if (localStorage.getItem("lw").isNumber) lineWidth = parseInt(localStorage.getItem("lw"));
         if (localStorage.getItem("color")) color = localStorage.getItem("color");
 
         let startX;
