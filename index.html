@@ -142,6 +142,9 @@
 
             return canvas.toDataURL();
         }
+        var isNumber = function isNumber(value) {
+  return typeof value === 'number' && isFinite(value);
+}
         var lasttouch = null, touch;
         var number = 1;
         const canvas = document.getElementById('drawing-board');
@@ -159,7 +162,7 @@
         let isPainting = false;
         let lineWidth = 5;
 
-        if (localStorage.getItem("lw").isNumber) lineWidth = parseInt(localStorage.getItem("lw"));
+        if (isNumber(localStorage.getItem("lw"))) lineWidth = parseInt(localStorage.getItem("lw"));
         if (localStorage.getItem("color")) color = localStorage.getItem("color");
 
         let startX;
