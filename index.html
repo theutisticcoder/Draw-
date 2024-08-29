@@ -175,7 +175,8 @@
         ctx.translate(-150, 0)
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
-                ctx.clearRect(0, 0, canvas.width * 3, canvas.height * 3);
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
             }
         });
@@ -276,7 +277,7 @@
                 if (lasttouch) {
                     for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
-                            ctx.beginPath();
+                            ctx.beginxPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
