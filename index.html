@@ -173,6 +173,7 @@
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.clearRect(0, 0, canvas.width * 3, canvas.height * 3);
+                points = [];
             }
         });
         var draws = 0;
