@@ -474,7 +474,7 @@ if (imgs % 4 === 0) {
         imagerequest.onupgradeneeded = function (event) {
             imagedb = event.target.result;
             // Create an object store with a keyPath, which can be the ID
-            imagedb.createObjectStore("urls", { keyPath: "id" });
+            imagedb.createObjectStore("urls", { keyPath: "id", autoIncrement: true });
         };
         function storeText(data) {
             const transaction = imagedb.transaction(["urls"], "readwrite");
