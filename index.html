@@ -139,7 +139,7 @@
     </section>
     <script>
         var paintings = [];
-        window.onload =()=> {
+        setTimeout(()=> {
             getAllDataimages();
             paintings.forEach(can => {
 
@@ -164,7 +164,7 @@ if (imgs % 4 === 0) {
 }
 });
 
-        };
+        }, 500);
         var arts = [];
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
