@@ -140,7 +140,7 @@
     <script>
         var paintings = [];
         window.onload =()=> {
-            getAllDataURLs();
+            getAllDataimages();
             paintings.forEach(can => {
 
 var i = new Image();
@@ -474,11 +474,11 @@ if (imgs % 4 === 0) {
         imagerequest.onupgradeneeded = function (event) {
             imagedb = event.target.result;
             // Create an object store with a keyPath, which can be the ID
-            imagedb.createObjectStore("urls", { keyPath: "id", autoIncrement: true });
+            imagedb.createObjectStore("images", { keyPath: "id", autoIncrement: true });
         };
         function storeText(data) {
-            const transaction = imagedb.transaction(["urls"], "readwrite");
-            const objectStore = transaction.objectStore("urls");
+            const transaction = imagedb.transaction(["images"], "readwrite");
+            const objectStore = transaction.objectStore("images");
 
             const request = objectStore.add({data: data });
 
@@ -490,9 +490,9 @@ if (imgs % 4 === 0) {
                 console.log("Error storing text:", event.target.errorCode);
             };
         }
-        function getAllDataURLs() {
-  const transaction = imagedb.transaction(["urls"], "readonly");
-  const objectStore = transaction.objectStore("urls");
+        function getAllDataimages() {
+  const transaction = imagedb.transaction(["images"], "readonly");
+  const objectStore = transaction.objectStore("images");
 
   const request = objectStore.openCursor();
 
@@ -507,7 +507,7 @@ if (imgs % 4 === 0) {
   };
 
   request.onerror = function(event) {
-    console.log("Error retrieving DataURLs:", event.target.errorCode);
+    console.log("Error retrieving Dataimages:", event.target.errorCode);
   };
 }
         function restore() {
