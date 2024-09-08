@@ -164,6 +164,7 @@ i.style.border = "1px solid black"
 i.onclick = () => {
     id=paintings.findIndex(c => c === can)
     arts = can;
+    strokes = can[can.length-1].strokes
     openDrawing(i, can[can.length-1].points, can[can.length-1].number)
 };
 document.getElementById("gallery").appendChild(i);
