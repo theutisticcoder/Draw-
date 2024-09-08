@@ -113,6 +113,7 @@
         label {
             font-size: 30pt;
         }
+
     </style>
 </head>
 
@@ -129,6 +130,7 @@
             <label style="font-size: 30pt;" for="lineWidth">Brush Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
+            <button id="undo">Undo</button>
             <button id="dry">Dry</button>
             <button id="save">Save Image</button>
         </div>
@@ -521,6 +523,14 @@ if (imgs % 4 === 0) {
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
+        }
+
+        document.getElementById("undo").onclick = ()=> {
+            arts.pop();
+            points.pop();
+            var old = new Image();
+            old.src = arts[arts.length-1].canvas;
+            ctx.drawImage(old, 0,0);
         }
     </script>
 </body>
