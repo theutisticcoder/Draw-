@@ -530,6 +530,7 @@ if (imgs % 4 === 0) {
             points.pop();
             var old = new Image();
             old.src = arts[arts.length-1].canvas;
+            ctx.clearRect(canvas.width, canvas.height);
             ctx.drawImage(old, 0,0);
         }
     </script>
