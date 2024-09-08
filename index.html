@@ -138,13 +138,14 @@
         </div>
     </section>
     <script>
+        var arts = [];
         var paintings = [];
         setTimeout(()=> {
             getAllDataimages();
             paintings.forEach(can => {
 
 var i = new Image();
-i.src = can.canvas;
+i.src = can[can.length-1].canvas;
 i.style.background = "white";
 i.style.marginLeft = "13vw";
 i.style.marginTop = "15vh";
@@ -154,7 +155,8 @@ i.style.height = canvas.height / 6;
 i.style.border = "1px solid black"
 
 i.onclick = () => {
-    openDrawing(i, can.points, can.number)
+    arts = can;
+    openDrawing(i, can[can.length-1].points, can[can.length-1].number)
 };
 document.getElementById("gallery").appendChild(i);
 imgs++;
@@ -165,7 +167,6 @@ if (imgs % 4 === 0) {
 });
 
         }, 500);
-        var arts = [];
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -333,7 +334,7 @@ if (imgs % 4 === 0) {
 
         }
         window.onbeforeunload = function(){
-   storeText(JSON.stringify(arts));
+   storeText(arts);
 }   
         const draw2 = (e) => {
             draws++;
@@ -413,7 +414,7 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('mouseup', e => {
             isPainting = false;
             color = document.querySelector("#stroke").value;
-            arts.push({canvas: canvas.toDataURL()})
+            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points })
 
             lasttouch = null;
         });
@@ -427,7 +428,7 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('touchend', e => {
             isPainting = false;
 
-            arts.push({canvas: canvas.toDataURL()})
+            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points})
             lasttouch = null;
         });
         function rgbaToHex(r, g, b, a) {
