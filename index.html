@@ -140,9 +140,9 @@
     <script>
         var arts = [];
         var paintings = [];
-        setTimeout(()=> {
-            getAllDataimages();
-            paintings.forEach(can => {
+        setTimeout(getAllDataimages, 500)
+            setTimeout(()=> {
+                paintings.forEach(can => {
 
 var i = new Image();
 i.src = can[can.length-1].canvas;
@@ -166,7 +166,7 @@ if (imgs % 4 === 0) {
 }
 });
 
-        }, 500);
+        }, 3000);
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
