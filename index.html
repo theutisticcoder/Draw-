@@ -276,7 +276,7 @@ if (imgs % 4 === 0) {
         document.getElementById("new").onclick = () => {
             id = paintings.length;
             document.querySelector("#toolbar").hidden = false;
-            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [] })
+            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
             document.querySelector("#gallery").hidden = true;
             number = arts.length;
             restore();
