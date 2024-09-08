@@ -529,7 +529,7 @@ if (imgs % 4 === 0) {
         document.getElementById("undo").onclick = ()=> {
             arts.pop();
             strokes[strokes.length -1].forEach(p=> {
-                points.splice(points.findIndex(p), 1);
+                points.splice(points.indexOf(p), 1);
             });
             strokes.pop();
             var old = new Image();
