@@ -533,11 +533,13 @@ if (imgs % 4 === 0) {
                 points.splice(points.indexOf(p), 1);
             });
             strokes.pop();
-            var old = new Image();
+            var old = new Image(canvas.width, canvas.height);
             old.src = arts[arts.length-1].canvas;
-            ctx.clearRect(0,0,canvas.width*3, canvas.height*3);
-            ctx.drawImage(old, 150,0, canvas.width, canvas.height);
-        }
+            old.onload = ()=> {
+                ctx.clearRect(0,0,canvas.width*3, canvas.height*3);
+                ctx.drawImage(old, 150,0, canvas.width, canvas.height);
+            }
+            }
     </script>
 </body>
 
