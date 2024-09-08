@@ -143,6 +143,9 @@
         setTimeout(getAllDataimages, 500)
             setTimeout(()=> {
                 paintings.forEach(can => {
+                    if(can.length >=1){
+                    
+                    
 
 var i = new Image();
 i.src = can[can.length-1].canvas;
@@ -164,6 +167,7 @@ if (imgs % 4 === 0) {
     document.getElementById("gallery").innerHTML += "<br>";
 
 }
+                    }
 });
 
         }, 3000);
