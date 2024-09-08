@@ -140,6 +140,7 @@
         </div>
     </section>
     <script>
+                var strokes = [];
         var id = 0;
         var arts = [];
         var paintings = [];
@@ -279,6 +280,9 @@ if (imgs % 4 === 0) {
             number = arts.length;
             restore();
         }
+        var pointarray = [];
+
+        var pointcount = 0;
         const draw = (e) => {
             draws++;
             if (!isPainting) {
@@ -288,6 +292,7 @@ if (imgs % 4 === 0) {
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.7)
                     points.push({ color: color, x: e.clientX, y: e.clientY })
+                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
@@ -344,6 +349,7 @@ if (imgs % 4 === 0) {
         window.onbeforeunload = function(){
    storeText(arts);
 }   
+
         const draw2 = (e) => {
             draws++;
 
@@ -357,7 +363,8 @@ if (imgs % 4 === 0) {
 
                 }
 
-                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY });
+                pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY });
 
 
                 if (lasttouch) {
@@ -422,7 +429,9 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('mouseup', e => {
             isPainting = false;
             color = document.querySelector("#stroke").value;
-            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points })
+            strokes.push(pointarray);
+            pointarray = [];
+            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points, strokes: strokes })
 
             lasttouch = null;
         });
@@ -436,7 +445,9 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('touchend', e => {
             isPainting = false;
 
-            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points})
+            strokes.push(pointarray);
+            pointarray = [];
+            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points, strokes: strokes })
             lasttouch = null;
         });
         function rgbaToHex(r, g, b, a) {
@@ -449,16 +460,6 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('touchmove', draw2);
         canvas.addEventListener('mousemove', draw);
 
-        toolbar.addEventListener('click', e => {
-            if (e.target.id === 'erase') {
-                eraser.style.backgroundColor = "#b58691";
-                ctx.strokeStyle = 'white';
-            }
-            if (e.target.id != 'erase' && eraser.style.backgroundColor === '#b58691') {
-                eraser.style.backgroundColor = "black";
-                ctx.strokeStyle = color;
-            }
-        });
 
         document.querySelector("#save").onclick = () => {
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
@@ -527,7 +528,10 @@ if (imgs % 4 === 0) {
 
         document.getElementById("undo").onclick = ()=> {
             arts.pop();
-            points.pop();
+            strokes[strokes.length -1].forEach(p=> {
+                points.splice(p.findIndex(), 1);
+            });
+            strokes.pop();
             var old = new Image();
             old.src = arts[arts.length-1].canvas;
             ctx.clearRect(0,0,canvas.width, canvas.height);
