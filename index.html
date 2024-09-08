@@ -138,6 +138,7 @@
         </div>
     </section>
     <script>
+        var id = 0;
         var arts = [];
         var paintings = [];
         setTimeout(getAllDataimages, 500)
@@ -158,6 +159,7 @@ i.style.height = canvas.height / 6;
 i.style.border = "1px solid black"
 
 i.onclick = () => {
+    id=paintings.findIndex(c => c === can)
     arts = can;
     openDrawing(i, can[can.length-1].points, can[can.length-1].number)
 };
@@ -170,7 +172,7 @@ if (imgs % 4 === 0) {
                     }
 });
 
-        }, 3000);
+        }, 800);
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -268,7 +270,7 @@ if (imgs % 4 === 0) {
        
         
         document.getElementById("new").onclick = () => {
-
+            id = paintings.length;
             document.querySelector("#toolbar").hidden = false;
             arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [] })
             document.querySelector("#gallery").hidden = true;
@@ -485,7 +487,7 @@ if (imgs % 4 === 0) {
             const transaction = imagedb.transaction(["images"], "readwrite");
             const objectStore = transaction.objectStore("images");
 
-            const request = objectStore.add({data: data });
+            const request = objectStore.put({ id: id, data: data});
 
             request.onsuccess = function () {
                 console.log("Text stored successfully");
