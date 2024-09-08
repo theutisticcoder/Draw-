@@ -43,7 +43,7 @@
             background-color: lightgray;
         }
 
-       
+
 
         #toolbar label {
             font-size: 12px;
@@ -100,16 +100,19 @@
             overflow-y: scroll;
             background: gray;
         }
+
         #toolbar * {
             margin-bottom: 6px;
             position: relative;
             z-index: 3;
             height: 45px;
             font-size: 15pt;
-       }
-       h1, label{
-        font-size: 30pt;
-       }
+        }
+
+        h1,
+        label {
+            font-size: 30pt;
+        }
     </style>
 </head>
 
@@ -135,10 +138,34 @@
         </div>
     </section>
     <script>
+        var paintings = [];
+        window.onload =()=> {
+            getAllDataURLs();
+            paintings.forEach(can => {
+
+var i = new Image();
+i.src = can.canvas;
+i.style.background = "white";
+i.style.marginLeft = "13vw";
+i.style.marginTop = "15vh";
+
+i.style.width = canvas.width / 6;
+i.style.height = canvas.height / 6;
+i.style.border = "1px solid black"
+
+i.onclick = () => {
+    openDrawing(i, can.points, can.number)
+};
+document.getElementById("gallery").appendChild(i);
+imgs++;
+if (imgs % 4 === 0) {
+    document.getElementById("gallery").innerHTML += "<br>";
+
+}
+});
+
+        };
         var arts = [];
-        if (localStorage.canvas) {
-            arts = JSON.parse(localStorage.getItem("canvas"));
-        }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -149,8 +176,8 @@
             return canvas.toDataURL();
         }
         var isNumber = function isNumber(value) {
-  return typeof value === 'number' && isFinite(value);
-}
+            return typeof value === 'number' && isFinite(value);
+        }
         var lasttouch = null, touch;
         var number = 1;
         const canvas = document.getElementById('drawing-board');
@@ -233,31 +260,8 @@
             restore();
         }
         var imgs = 0;
-        if (localStorage.getItem("canvas")) {
-            arts.forEach(can => {
-                
-                var i = new Image();
-                i.src = can.canvas;
-                i.style.background = "white";
-                i.style.marginLeft = "13vw";
-                i.style.marginTop = "15vh";
-                
-                i.style.width = canvas.width / 6;
-                i.style.height = canvas.height / 6;
-                i.style.border = "1px solid black"
-
-                i.onclick = () => {
-                    openDrawing(i, can.points, can.number)
-                };
-                document.getElementById("gallery").appendChild(i);
-                imgs++;
-                if(imgs % 4 === 0){
-                    document.getElementById("gallery").innerHTML += "<br>";
-
-                }
-            });
-            
-        }
+       
+        
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
@@ -328,6 +332,9 @@
             }
 
         }
+        window.onbeforeunload = function(){
+   storeText(JSON.stringify(arts));
+}   
         const draw2 = (e) => {
             draws++;
 
@@ -406,6 +413,7 @@
         canvas.addEventListener('mouseup', e => {
             isPainting = false;
             color = document.querySelector("#stroke").value;
+            arts.push({canvas: canvas.toDataURL()})
 
             lasttouch = null;
         });
@@ -418,6 +426,8 @@
         });
         canvas.addEventListener('touchend', e => {
             isPainting = false;
+
+            arts.push({canvas: canvas.toDataURL()})
             lasttouch = null;
         });
         function rgbaToHex(r, g, b, a) {
@@ -449,10 +459,58 @@
             a.download = name + ".png";
             a.click();
         }
+        let imagedb;
+        const imagerequest = indexedDB.open("images", 1);
+
+        imagerequest.onerror = function (event) {
+            console.log("Error opening database:", event.target.errorCode);
+        };
+
+        imagerequest.onsuccess = function (event) {
+            imagedb = event.target.result;
+            console.log("Database opened successfully");
+        };
+
+        imagerequest.onupgradeneeded = function (event) {
+            imagedb = event.target.result;
+            // Create an object store with a keyPath, which can be the ID
+            imagedb.createObjectStore("urls", { keyPath: "id" });
+        };
+        function storeText(data) {
+            const transaction = imagedb.transaction(["urls"], "readwrite");
+            const objectStore = transaction.objectStore("urls");
+
+            const request = objectStore.add({data: data });
+
+            request.onsuccess = function () {
+                console.log("Text stored successfully");
+            };
+
+            request.onerror = function (event) {
+                console.log("Error storing text:", event.target.errorCode);
+            };
+        }
+        function getAllDataURLs() {
+  const transaction = imagedb.transaction(["urls"], "readonly");
+  const objectStore = transaction.objectStore("urls");
+
+  const request = objectStore.openCursor();
+
+  request.onsuccess = function(event) {
+    const cursor = event.target.result;
+    if (cursor) {
+        paintings.push(cursor.value.data)
+        cursor.continue();  // Move to the next entry
+    } else {
+      console.log("No more entries");
+    }
+  };
+
+  request.onerror = function(event) {
+    console.log("Error retrieving DataURLs:", event.target.errorCode);
+  };
+}
         function restore() {
-            arts[number - 1].canvas = canvas.toDataURL("image/png");
-            arts[number - 1].points = points;
-            localStorage.setItem("canvas", JSON.stringify(arts));
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
