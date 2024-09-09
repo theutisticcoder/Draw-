@@ -320,6 +320,16 @@
                             ctx.stroke();
 
                         }
+                        else if ((i /linewidth)%3 === 0) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, 15);
+                            ctx.lineWidth = lineWidth/2 + 2;
+                            ctx.moveTo(lasttouch.clientX + lineWidth/2 + i, lasttouch.clientY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.clientX + i, e.clientY);
+                            ctx.stroke();
+
+                        }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
@@ -388,6 +398,16 @@
                         else if (i === 5 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 40);
+                            ctx.lineWidth = lineWidth/2 + 2;
+                            ctx.moveTo(lasttouch.clientX + i+ lineWidth/2, lasttouch.clientY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.touches[0].clientX + i+ lineWidth/2, e.touches[0].clientY);
+                            ctx.stroke();
+
+                        }
+                        else if ((i/linewidth)%3 === 0) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, 15);
                             ctx.lineWidth = lineWidth/2 + 2;
                             ctx.moveTo(lasttouch.clientX + i+ lineWidth/2, lasttouch.clientY);
                             ctx.lineCap = 'round';
