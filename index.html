@@ -185,9 +185,8 @@
         canvas.style.height = screen.height * 0.7 + "px";
         canvas.style.width = screen.width * 0.7 + "px";
         var isOil = true;
-        ctx.translate(-width - canvas.width*2, 0)
+        ctx.translate(-width, 0)
         ctx.fillStyle = "white";
-        ctx.scale(0.25, 0.25)
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
