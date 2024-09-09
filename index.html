@@ -414,7 +414,7 @@
             isPainting = false;
             color = document.querySelector("#stroke").value;
             lasttouch = null;
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -431,7 +431,7 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
 
         });
         function rgbaToHex(r, g, b, a) {
@@ -470,7 +470,7 @@
             setTimeout(restore, 10)
         }
         document.getElementById("undo").onclick = ()=> {
-            arts[number].pop();
+            arts[number-1].pop();
             strokes[strokes.length -1].forEach(p=> {
                 points.splice(points.indexOf(p), 1);
             });
