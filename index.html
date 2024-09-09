@@ -10,6 +10,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="Icon.png">
     <style>
+
+       button{
+        color: white;
+        background-color: blue;
+       }
         #name{
             font-family: "Fascinate Inline", system-ui;
             font-weight: 400;
@@ -47,7 +52,7 @@
             display: flex;
             flex-direction: column;
             padding: 5px;
-            width: 20vw;
+            width: 10vw;
             background-color: lightblue;
         }
 
@@ -126,10 +131,6 @@ h1{
         label{
         font-size: 30pt;
        }
-       button{
-        color: white;
-        background-color: blue;
-       }
     </style>
 </head>
 
@@ -139,7 +140,7 @@ h1{
     </div>
     <section class="container">
         <div id="toolbar" hidden>
-            <h1 id="name" style="font-size: 30pt;">DrawPaw</h1>
+            <img id="name" height="100px" width="100px" src="Icon.png">
             <label style="font-size: 30pt;" for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
             <button id="erase">Eraser</button>
