@@ -322,7 +322,7 @@
                         }
                         else if ((i /lineWidth)%3 === 0) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, 15);
+                            ctx.strokeStyle = shadeColor(color, 7);
                             ctx.lineWidth = lineWidth/2 + 2;
                             ctx.moveTo(lasttouch.clientX + lineWidth/2 + i, lasttouch.clientY);
                             ctx.lineCap = 'round';
@@ -407,7 +407,7 @@
                         }
                         else if ((i/lineWidth)%3 === 0) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, 15);
+                            ctx.strokeStyle = shadeColor(color, 7);
                             ctx.lineWidth = lineWidth/2 + 2;
                             ctx.moveTo(lasttouch.clientX + i+ lineWidth/2, lasttouch.clientY);
                             ctx.lineCap = 'round';
