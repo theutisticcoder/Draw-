@@ -427,30 +427,21 @@
 
         });
         canvas.addEventListener('touchstart', (e) => {
-            if(e.touches.length > 1){
-                tap = true;
-            }
-            else{
+          
             isPainting = true;
             color = document.querySelector("#stroke").value;
            
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
-            }
+            
         });
         canvas.addEventListener('touchend', e => {
-            if(!tap){
+         
                 isPainting = false;
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
-            }
-            else{
-                tap = false;
-                document.querySelector("#undo").click();
-                console.log(arts, "\n", strokes)
-            }
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes });
              });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
