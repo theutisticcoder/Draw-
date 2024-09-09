@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="Icon.png">
     <style>
-        *{
+        #name{
             font-family: "Fascinate Inline", system-ui;
             font-weight: 400;
         }
@@ -84,6 +84,9 @@ h1{
     color: white;
     font-size: 100pt;
 }
+#name{
+    font-size: 30pt;
+}
         #map {
             rotate: 1 0 0 20deg;
             position: absolute;
@@ -136,7 +139,7 @@ h1{
     </div>
     <section class="container">
         <div id="toolbar" hidden>
-            <h1 style="font-size: 30pt;">DrawPaw</h1>
+            <h1 id="name" style="font-size: 30pt;">DrawPaw</h1>
             <label style="font-size: 30pt;" for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
             <button id="erase">Eraser</button>
