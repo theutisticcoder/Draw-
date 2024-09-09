@@ -492,12 +492,12 @@
             old.src = arts[number-1][arts[number-1].length-1].canvas;
             ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
             old.onload = ()=> {
-                ctx.drawImage(old, -width,0);
+                ctx.drawImage(old, width,0);
             }
             }
         }
         document.onkeydown =  (e)=> {
-            if(e.key === "z" && e.ctrlKey){
+            if(e.key === "z" && (e.ctrlKey || e.metaKey)){
                 document.querySelector("#undo").click();
             }
         }
