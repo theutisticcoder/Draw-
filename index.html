@@ -492,7 +492,7 @@
             old.src = arts[number-1][arts[number-1].length-1].canvas;
             old.onload = ()=> {
                 ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
-                ctx.drawImage(old, -width,0, canvas.width, canvas.height);
+                ctx.drawImage(old, 0,0, canvas.width, canvas.height);
             }
             }
         }
