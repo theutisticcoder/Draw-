@@ -478,7 +478,7 @@
             });
             strokes.pop();
             var old = new Image(canvas.width, canvas.height);
-            old.src = arts[arts.length-1].canvas;
+            old.src = arts[number-1].canvas;
             old.onload = ()=> {
                 ctx.clearRect(0,0,canvas.width*3, canvas.height*3);
                 ctx.drawImage(old, 150,0, canvas.width, canvas.height);
