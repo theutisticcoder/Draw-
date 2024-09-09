@@ -445,6 +445,9 @@
             pointarray = [];
             arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
             }
+            else{
+                console.log(arts, "\n", strokes)
+            }
              });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
