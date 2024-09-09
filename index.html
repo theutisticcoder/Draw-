@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DrawPaw - Free Drawing Online!</title>
     <link rel="icon" href="Icon.png">
-    
     <style>
         body {
             overflow: hidden;
@@ -44,7 +43,7 @@
             background-color: lightgray;
         }
 
-
+       
 
         #toolbar label {
             font-size: 12px;
@@ -101,20 +100,16 @@
             overflow-y: scroll;
             background: gray;
         }
-
         #toolbar * {
             margin-bottom: 6px;
             position: relative;
             z-index: 3;
             height: 45px;
             font-size: 15pt;
-        }
-
-        h1,
-        label {
-            font-size: 30pt;
-        }
-
+       }
+       h1, label{
+        font-size: 30pt;
+       }
     </style>
 </head>
 
@@ -131,6 +126,7 @@
             <label style="font-size: 30pt;" for="lineWidth">Brush Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
+            <br><br>
             <button id="undo">Undo</button>
             <button id="dry">Dry</button>
             <button id="save">Save Image</button>
@@ -141,44 +137,13 @@
         </div>
     </section>
     <script>
-        window.indexedDB;
-                var strokes = [];
-        var id = 0;
-        var arts = [];
+        var strokes = [];
+        var pointarray = [];
         var paintings = [];
-        setTimeout(getAllDataimages, 50)
-            setTimeout(()=> {
-                paintings.forEach(can => {
-                    if(can.length >=1){
-                    
-                    
-
-var i = new Image();
-i.src = can[can.length-1].canvas;
-i.style.background = "white";
-i.style.marginLeft = "13vw";
-i.style.marginTop = "15vh";
-
-i.style.width = canvas.width / 6;
-i.style.height = canvas.height / 6;
-i.style.border = "1px solid black"
-
-i.onclick = () => {
-    id=paintings.findIndex(c => c === can)
-    arts = can;
-    strokes = can[can.length-1].strokes
-    openDrawing(i, can[can.length-1].points, can[can.length-1].number)
-};
-document.getElementById("gallery").appendChild(i);
-imgs++;
-if (imgs % 4 === 0) {
-    document.getElementById("gallery").innerHTML += "<br>";
-
-}
-                    }
-});
-
-        }, 100);
+        var arts = [];
+        if (localStorage.canvas) {
+            arts = JSON.parse(localStorage.getItem("canvas"));
+        }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -189,8 +154,8 @@ if (imgs % 4 === 0) {
             return canvas.toDataURL();
         }
         var isNumber = function isNumber(value) {
-            return typeof value === 'number' && isFinite(value);
-        }
+  return typeof value === 'number' && isFinite(value);
+}
         var lasttouch = null, touch;
         var number = 1;
         const canvas = document.getElementById('drawing-board');
@@ -273,19 +238,39 @@ if (imgs % 4 === 0) {
             restore();
         }
         var imgs = 0;
-       
-        
+        if (localStorage.getItem("canvas")) {
+            arts.forEach(can => {
+                
+                var i = new Image();
+                i.src = can[can.length-1].canvas;
+                i.style.background = "white";
+                i.style.marginLeft = "13vw";
+                i.style.marginTop = "15vh";
+                
+                i.style.width = canvas.width / 6;
+                i.style.height = canvas.height / 6;
+                i.style.border = "1px solid black"
+
+                i.onclick = () => {
+                    openDrawing(i, can[can.length-1].points, can[can.length-1].number)
+                };
+                document.getElementById("gallery").appendChild(i);
+                imgs++;
+                if(imgs % 4 === 0){
+                    document.getElementById("gallery").innerHTML += "<br>";
+
+                }
+            });
+            
+        }
         document.getElementById("new").onclick = () => {
-            id = paintings.length;
+
             document.querySelector("#toolbar").hidden = false;
-            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+            arts.push([{ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes }])
             document.querySelector("#gallery").hidden = true;
             number = arts.length;
             restore();
         }
-        var pointarray = [];
-
-        var pointcount = 0;
         const draw = (e) => {
             draws++;
             if (!isPainting) {
@@ -349,10 +334,6 @@ if (imgs % 4 === 0) {
             }
 
         }
-        window.onbeforeunload = function(){
-   storeText(arts);
-}   
-
         const draw2 = (e) => {
             draws++;
 
@@ -366,8 +347,8 @@ if (imgs % 4 === 0) {
 
                 }
 
-                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY });
-                pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY });
+                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
 
 
                 if (lasttouch) {
@@ -419,7 +400,7 @@ if (imgs % 4 === 0) {
                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
-
+            
         }
 
 
@@ -432,26 +413,26 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('mouseup', e => {
             isPainting = false;
             color = document.querySelector("#stroke").value;
-            strokes.push(pointarray);
-            pointarray = [];
-            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points, strokes: strokes })
-
             lasttouch = null;
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+
         });
         canvas.addEventListener('touchstart', (e) => {
             isPainting = true;
             color = document.querySelector("#stroke").value;
+            strokes.push(pointarray);
+            pointarray = [];
 
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
         });
         canvas.addEventListener('touchend', e => {
             isPainting = false;
-
+            lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts.push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: points, strokes: strokes })
-            lasttouch = null;
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -463,6 +444,16 @@ if (imgs % 4 === 0) {
         canvas.addEventListener('touchmove', draw2);
         canvas.addEventListener('mousemove', draw);
 
+        toolbar.addEventListener('click', e => {
+            if (e.target.id === 'erase') {
+                eraser.style.backgroundColor = "#b58691";
+                ctx.strokeStyle = 'white';
+            }
+            if (e.target.id != 'erase' && eraser.style.backgroundColor === '#b58691') {
+                eraser.style.backgroundColor = "black";
+                ctx.strokeStyle = color;
+            }
+        });
 
         document.querySelector("#save").onclick = () => {
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
@@ -472,65 +463,14 @@ if (imgs % 4 === 0) {
             a.download = name + ".png";
             a.click();
         }
-        let imagedb;
-        const imagerequest = indexedDB.open("images", 1);
-
-        imagerequest.onerror = function (event) {
-            console.log("Error opening database:", event.target.errorCode);
-        };
-
-        imagerequest.onsuccess = function (event) {
-            imagedb = event.target.result;
-            console.log("Database opened successfully");
-        };
-
-        imagerequest.onupgradeneeded = function (event) {
-            imagedb = event.target.result;
-            // Create an object store with a keyPath, which can be the ID
-            imagedb.createObjectStore("images", { keyPath: "id", autoIncrement: true });
-        };
-        function storeText(data) {
-            const transaction = imagedb.transaction(["images"], "readwrite");
-            const objectStore = transaction.objectStore("images");
-
-            const request = objectStore.put({ id: id, data: data});
-
-            request.onsuccess = function () {
-                console.log("Text stored successfully");
-            };
-
-            request.onerror = function (event) {
-                console.log("Error storing text:", event.target.errorCode);
-            };
-        }
-        function getAllDataimages() {
-  const transaction = imagedb.transaction(["images"], "readonly");
-  const objectStore = transaction.objectStore("images");
-
-  const request = objectStore.openCursor();
-
-  request.onsuccess = function(event) {
-    const cursor = event.target.result;
-    if (cursor) {
-        paintings.push(cursor.value.data)
-        cursor.continue();  // Move to the next entry
-    } else {
-      console.log("No more entries");
-    }
-  };
-
-  request.onerror = function(event) {
-    console.log("Error retrieving Dataimages:", event.target.errorCode);
-  };
-}
         function restore() {
+            localStorage.setItem("canvas", JSON.stringify(arts));
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
         }
-
         document.getElementById("undo").onclick = ()=> {
-            arts.pop();
+            arts[number].pop();
             strokes[strokes.length -1].forEach(p=> {
                 points.splice(points.indexOf(p), 1);
             });
