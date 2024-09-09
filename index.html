@@ -415,6 +415,7 @@
             startY = e.clientY;
         });
 
+        var tap = false;
         canvas.addEventListener('mouseup', e => {
             isPainting = false;
             color = document.querySelector("#stroke").value;
@@ -427,7 +428,7 @@
         });
         canvas.addEventListener('touchstart', (e) => {
             if(e.touches.length > 1){
-                document.querySelector("#undo").click();
+                tap = true;
             }
             else{
             isPainting = true;
@@ -438,7 +439,7 @@
             }
         });
         canvas.addEventListener('touchend', e => {
-            if(isPainting){
+            if(!tap){
                 isPainting = false;
             lasttouch = null;
             strokes.push(pointarray);
@@ -446,6 +447,8 @@
             arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
             }
             else{
+                tap = false;
+                document.querySelector("#undo").click();
                 console.log(arts, "\n", strokes)
             }
              });
