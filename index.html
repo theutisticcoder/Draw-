@@ -242,7 +242,7 @@
             arts.forEach(can => {
                 
                 var i = new Image();
-                i.src = can[imgs][can[imgs].length-1].canvas;
+                i.src = can[can.length-1].canvas;
                 i.style.background = "white";
                 i.style.marginLeft = "13vw";
                 i.style.marginTop = "15vh";
@@ -252,8 +252,8 @@
                 i.style.border = "1px solid black"
 
                 i.onclick = () => {
-                    strokes = can[imgs][can[imgs].length-1].strokes;
-                    openDrawing(i, can[imgs][can[imgs].length-1].points, can[imgs][can[imgs].length-1].number)
+                    strokes = can[can.length-1].strokes;
+                    openDrawing(i, can[can.length-1].points, can[can.length-1].number)
                 };
                 document.getElementById("gallery").appendChild(i);
                 imgs++;
