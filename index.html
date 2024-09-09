@@ -418,7 +418,7 @@
             strokes.push(pointarray);
             pointarray = [];
 
-            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -433,7 +433,7 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
 
         });
         function rgbaToHex(r, g, b, a) {
