@@ -428,11 +428,11 @@
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.moveTo(e.touches[0].clientX +15, e.touches[0].clientY);
 
 
                 }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
+                lasttouch = { clientX: e.touches[0].clientX + 15, clientY: e.touches[0].clientY }
 
             }
             else {
