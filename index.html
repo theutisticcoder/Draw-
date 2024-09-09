@@ -186,6 +186,7 @@
         canvas.style.width = screen.width * 0.7 + "px";
         var isOil = true;
         ctx.translate(-width, 0)
+        ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
@@ -490,7 +491,7 @@
             var old = new Image(canvas.width, canvas.height);
             old.src = arts[number-1][arts[number-1].length-1].canvas;
             old.onload = ()=> {
-                ctx.fillRect(-width,0,canvas.width, canvas.height);
+                ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
                 ctx.drawImage(old, -width,0, canvas.width, canvas.height);
             }
             }
