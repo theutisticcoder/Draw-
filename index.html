@@ -488,10 +488,10 @@
                 points.splice(points.indexOf(p), 1);
             });
             strokes.pop();
-            var old = new Image(canvas.width, canvas.height);
+            var old = new Image();
             old.src = arts[number-1][arts[number-1].length-1].canvas;
+            ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
             old.onload = ()=> {
-                ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
                 ctx.drawImage(old, 0,0, canvas.width, canvas.height);
             }
             }
