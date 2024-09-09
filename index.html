@@ -489,6 +489,11 @@
             }
             }
         }
+        document.onkeydown =  (e)=> {
+            if(e.key === "z" && e.ctrlKey){
+                document.querySelector("#undo").click();
+            }
+        }
     </script>
 </body>
 
