@@ -489,19 +489,21 @@
         }
         document.getElementById("undo").onclick = ()=> {
 
-            
-            arts[number].pop();
-            strokes[strokes.length -1].forEach(p=> {
-                points.splice(points.indexOf(p), 1);
-            });
-            strokes.pop();
-            var old = new Image();
-            old.src = arts[number][arts[number].length-1].canvas;
-            old.onload = ()=> {
-                ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
-                ctx.drawImage(old, width,0);
+            if(strokes.length > 0){
 
-            }
+            
+arts[number-1].pop();
+strokes[strokes.length -1].forEach(p=> {
+    points.splice(points.indexOf(p), 1);
+});
+strokes.pop();
+var old = new Image(canvas.width, canvas.height);
+old.src = arts[number-1][arts[number-1].length-1].canvas;
+old.onload = ()=> {
+    ctx.fillRect(-width,0,canvas.width, canvas.height);
+    ctx.drawImage(old, -width,0, canvas.width, canvas.height);
+}
+}
             
         }
         document.onkeydown =  (e)=> {
