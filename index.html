@@ -138,7 +138,8 @@
         </div>
     </section>
     <script>
-        var width = window.innerWidth/10;
+        var width = window.innerWidth/20;
+        var height = window.innerHeight/20;
         var strokes = [];
         var pointarray = [];
         var paintings = [];
@@ -149,7 +150,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, -width, 0);
+            ctx.drawImage(img, -width, -height);
 
 
 
@@ -180,12 +181,12 @@
 
         let startX;
         let startY;
-        canvas.height = window.innerHeight * 0.7;
-        canvas.width = window.innerWidth * 0.7;
-        canvas.style.height = screen.height * 0.7 + "px";
-        canvas.style.width = screen.width * 0.7 + "px";
+        canvas.height = window.innerHeight * 0.5;
+        canvas.width = window.innerWidth * 0.5;
+        canvas.style.height = screen.height * 0.5 + "px";
+        canvas.style.width = screen.width * 0.5 + "px";
         var isOil = true;
-        ctx.translate(-width, 0)
+        ctx.translate(-width, -height)
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
@@ -235,7 +236,7 @@
         function openDrawing(image, p, num) {
             number = num;
             document.querySelector("#toolbar").hidden = false;
-            ctx.drawImage(image, -width,0, canvas.width, canvas.height);
+            ctx.drawImage(image, -width,-height, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
             restore();
