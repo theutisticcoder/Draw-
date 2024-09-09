@@ -159,7 +159,7 @@
   return typeof value === 'number' && isFinite(value);
 }
         var lasttouch = null, touch;
-        var number = 1;
+        var number = -1;
         const canvas = document.getElementById('drawing-board');
         const toolbar = document.getElementById('toolbar');
         var points = []
@@ -271,9 +271,9 @@
 
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
+            arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes })
             document.querySelector("#gallery").hidden = true;
-            number = arts.length;
+            number = arts.length-1;
             restore();
         }
         const draw = (e) => {
@@ -422,7 +422,7 @@
             strokes.push(pointarray);
             pointarray = [];
 
-            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -443,7 +443,7 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -484,17 +484,17 @@
             if(strokes.length > 0){
 
             
-            arts[number-1].pop();
+            arts[number].pop();
             strokes[strokes.length -1].forEach(p=> {
                 points.splice(points.indexOf(p), 1);
             });
             strokes.pop();
             var old = new Image();
-            old.src = arts[number-1][arts[number-1].length-1].canvas;
+            old.src = arts[number][arts[number].length-1].canvas;
             old.onload = ()=> {
                 ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
                 ctx.drawImage(old, width,0);
-                arts[number-1].push({ canvas: old.src, number: number, points: points, strokes: strokes })
+                arts[number].push({ canvas: old.src, number: number, points: points, strokes: strokes })
 
             }
             }
