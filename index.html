@@ -481,7 +481,6 @@
             setTimeout(restore, 10)
         }
         document.getElementById("undo").onclick = ()=> {
-            if(strokes.length > 0){
 
             
             arts[number].pop();
@@ -497,7 +496,7 @@
                 arts[number].push({ canvas: old.src, number: number, points: points, strokes: strokes })
 
             }
-            }
+            
         }
         document.onkeydown =  (e)=> {
             if(e.key === "z" && (e.ctrlKey || e.metaKey)){
