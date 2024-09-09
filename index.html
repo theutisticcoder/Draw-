@@ -414,15 +414,16 @@
             isPainting = false;
             color = document.querySelector("#stroke").value;
             lasttouch = null;
+            strokes.push(pointarray);
+            pointarray = [];
+
             arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length + 1, points: [], strokes: strokes })
 
         });
         canvas.addEventListener('touchstart', (e) => {
             isPainting = true;
             color = document.querySelector("#stroke").value;
-            strokes.push(pointarray);
-            pointarray = [];
-
+           
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
         });
