@@ -374,8 +374,8 @@
 
 
                 if (lasttouch) {
-                    for (let i = 15; i < 10 * lineWidth + 15; i += lineWidth) {
-                        if (i === 7 * lineWidth + 15 || i === 2 * lineWidth + 15) {
+                    for (let i = 0; i < 10 * lineWidth; i += lineWidth) {
+                        if (i === 7 * lineWidth || i === 2 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth +4;
@@ -384,7 +384,7 @@
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
                             ctx.stroke();
                         }
-                        else if (i === 8 * lineWidth + 15) {
+                        else if (i === 8 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 20);
                             ctx.lineWidth = lineWidth +4;
@@ -394,7 +394,7 @@
                             ctx.stroke();
 
                         }
-                        else if (i === 5 * lineWidth + 15 || i === 9 * lineWidth + 15) {
+                        else if (i === 5 * lineWidth || i === 9 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 40);
                             ctx.lineWidth = lineWidth +4;
@@ -404,7 +404,7 @@
                             ctx.stroke();
 
                         }
-                        else if ((i/(lineWidth-15))%5 === 0) {
+                        else if ((i/lineWidth)%5 === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 7);
                             ctx.lineWidth = lineWidth +4;
@@ -428,7 +428,7 @@
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.moveTo(e.touches[0].clientX +15, e.touches[0].clientY);
 
 
                 }
