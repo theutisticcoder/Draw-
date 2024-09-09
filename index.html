@@ -426,8 +426,9 @@
 
         });
         canvas.addEventListener('touchstart', (e) => {
-            if(e.touches.length === 2){
-                setTimeout(document.querySelector("#undo").click(), 400);
+            if(e.touches.length > 1){
+                document.querySelector("#undo").click();
+
             }
             else{
             isPainting = true;
@@ -443,7 +444,6 @@
             strokes.push(pointarray);
             pointarray = [];
             arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
-
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -491,9 +491,11 @@
             strokes.pop();
             var old = new Image();
             old.src = arts[number-1][arts[number-1].length-1].canvas;
-            ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
             old.onload = ()=> {
+                ctx.fillRect(0,0,canvas.width*3, canvas.height*3);
                 ctx.drawImage(old, width,0);
+                arts[number-1].push({ canvas: old.src, number: number, points: points, strokes: strokes })
+
             }
             }
         }
