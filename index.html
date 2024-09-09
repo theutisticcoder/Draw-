@@ -428,7 +428,6 @@
         canvas.addEventListener('touchstart', (e) => {
             if(e.touches.length > 1){
                 document.querySelector("#undo").click();
-
             }
             else{
             isPainting = true;
@@ -439,12 +438,14 @@
             }
         });
         canvas.addEventListener('touchend', e => {
-            isPainting = false;
+            if(isPainting){
+                isPainting = false;
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
             arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
-        });
+            }
+             });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
