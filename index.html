@@ -306,7 +306,6 @@ h1{
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.7)
                     points.push({ color: color, x: e.clientX, y: e.clientY })
-                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
@@ -374,7 +373,6 @@ h1{
                 }
 
                 points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
 
 
                 if (lasttouch) {
@@ -426,8 +424,9 @@ h1{
                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
-            
+
         }
+
 
 
         canvas.addEventListener('mousedown', (e) => {
