@@ -324,7 +324,7 @@ h1{
                             ctx.stroke();
 
                         }
-                        else if (i === 5 * lineWidth) {
+                        else if (i ===( 5 * lineWidth || 7*lineWidth) ) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 20);
                             ctx.lineWidth = lineWidth * 2;
@@ -389,7 +389,7 @@ h1{
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
                             ctx.stroke();
                         }
-                        else if (i === 5 * lineWidth) {
+                        else if (i === ( 5 * lineWidth || 7*lineWidth)) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 20);
                             ctx.lineWidth = lineWidth * 2;
