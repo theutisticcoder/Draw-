@@ -336,10 +336,11 @@ h1{
                             ctx.save();
                             ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                             ctx.rotate(calculateAngle( lasttouch.clientX, lasttouch.clientY,e.clientX, e.clientY))
-                            ctx.lineTo(e.clientX, e.clientY);
+                            ctx.translate(e.clientX, e.clientY);
+                            ctx.lineTo(0, 0);
                             ctx.stroke();          
                             ctx.restore();         
-
+                    ctx.globalAlpha = 1;
                 }
                 else {
                     ctx.moveTo(e.clientX, e.clientY);
