@@ -339,7 +339,6 @@
 
                     ctx.save();
                     oilim.style.rotate = calculateAngle(lasttouch.clientX, lasttouch.clientY, e.clientX, e.clientY) + "rad";
-                    oilim.onload = () => {
                         ctx.strokeStyle = ctx.createPattern(oilim, "repeat");
                         ctx.globalAlpha = 0.3;
                         ctx.lineWidth = lineWidth;
@@ -347,7 +346,7 @@
                         ctx.lineTo(e.clientX, e.clientY);
                         ctx.stroke();
                         ctx.restore();
-                    }
+                    
 
                     ctx.globalAlpha = 1;
                 }
