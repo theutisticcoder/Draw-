@@ -195,7 +195,9 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
-
+        function calculateDistance(x1, y1, x2, y2) {
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
@@ -210,6 +212,7 @@
         var oilpat;
         const oilim = new Image(50, 50)
         oilim.src = "oil.jpg"
+        oilim.style.borderRadius = "2px";
         oilim.onload = () => {
             oilpat = ctx.createPattern(oilim, "repeat")
         }
@@ -347,13 +350,19 @@
 
                 }
                 if (lasttouch) {
+
                     const currentX = e.offsetX;
         const currentY = e.offsetY;
+    const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
 
         // Calculate the angle between the current and last points
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
+        for (let i = 0; i < distance; i++) {
+        const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
+        const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
-        drawRotatedBrush(currentX, currentY, angle);
+        drawRotatedBrush(interpolatedX, interpolatedY, angle);
+    }
 
 
                 }
@@ -390,12 +399,17 @@
                 if (lasttouch) {
         const currentX = e.touches[0].offsetX;
         const currentY = e.touches[0].offsetY;
-
-        // Calculate the angle between the current and last points
+        const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
+        for (let i = 0; i < distance; i++) {
+        const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
+        const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
+
+        drawRotatedBrush(interpolatedX, interpolatedY, angle);
+    }
+        // Calculate the angle between the current and last points
 
         // Save the current canvas state
-        drawRotatedBrush(currentX, currentY, angle);
 
     
 
