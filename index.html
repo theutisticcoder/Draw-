@@ -333,10 +333,12 @@ h1{
                             ctx.strokeStyle = oilpat;
                             ctx.globalAlpha = 0.3;
                             ctx.lineWidth = lineWidth;
+                            ctx.save();
                             ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                             ctx.rotate(calculateAngle( lasttouch.clientX, lasttouch.clientY,e.clientX, e.clientY))
                             ctx.lineTo(e.clientX, e.clientY);
-                            ctx.stroke();                   
+                            ctx.stroke();          
+                            ctx.restore();         
 
                 }
                 else {
