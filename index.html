@@ -323,17 +323,17 @@ h1{
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY);
+                            ctx.lineTo(e.clientX, e.clientY);
                             ctx.stroke();                   
                             ctx.beginPath();
                             ctx.strokeStyle = oilpat;
                             ctx.globalAlpha = 0.3;
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY);
+                            ctx.lineTo(e.clientX, e.clientY);
                             ctx.stroke();                   
 
                 }
@@ -373,17 +373,17 @@ h1{
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.moveTo(lasttouch.clientX , lasttouch.clientY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
+                            ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY);
                             ctx.stroke();
                             ctx.globalAlpha = 0.3;
                             ctx.beginPath();
                             ctx.strokeStyle = oilpat;
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.moveTo(lasttouch.clientX , lasttouch.clientY);
                             ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
+                            ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY);
                             ctx.stroke();
                       
 
