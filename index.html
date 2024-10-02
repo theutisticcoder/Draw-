@@ -328,32 +328,37 @@
 
                 }
                 if (lasttouch) {
-                    ctx.globalAlpha = 0.7;
-                    ctx.beginPath();
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = lineWidth;
-                    ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                    ctx.lineTo(e.clientX, e.clientY);
-                    ctx.stroke();
-                    ctx.beginPath();
+                    const currentX = e.offsetX;
+        const currentY = e.offsetY;
 
-                    ctx.save();
-                    oilim.style.rotate = calculateAngle(lasttouch.clientX, lasttouch.clientY, e.clientX, e.clientY) + "rad";
-                        ctx.strokeStyle = ctx.createPattern(oilim, "repeat");
-                        ctx.globalAlpha = 0.3;
-                        ctx.lineWidth = lineWidth;
-                        ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                        ctx.lineTo(e.clientX, e.clientY);
-                        ctx.stroke();
-                        ctx.restore();
-                    
+        // Calculate the angle between the current and last points
+        const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
 
-                    ctx.globalAlpha = 1;
+        // Save the current canvas state
+        ctx.save();
+
+        // Move the context to the current position
+        ctx.translate(currentX, currentY);
+
+        // Rotate the context by the calculated angle
+        ctx.rotate(angle);
+
+        // Set the pattern as the stroke style
+        ctx.strokeStyle = oilpat;
+
+        // Draw a line segment at the rotated angle
+        ctx.lineWidth = lineWidth; // Adjust brush size
+        ctx.lineTo(0, 0);
+        ctx.stroke();
+
+        // Restore the canvas state to its original state
+        ctx.restore();
+
                 }
                 else {
-                    ctx.moveTo(e.clientX, e.clientY);
+                    ctx.moveTo(e.offsetX, e.offsetY);
                 }
-                lasttouch = { clientX: e.clientX, clientY: e.clientY }
+                lasttouch = { clientX: e.offsetX, clientY: e.offsetY }
 
             }
             else {
@@ -381,8 +386,8 @@
 
 
                 if (lasttouch) {
-        const currentX = e.offsetX;
-        const currentY = e.offsetY;
+        const currentX = e.touches[0].offsetX;
+        const currentY = e.touches[0].offsetY;
 
         // Calculate the angle between the current and last points
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
@@ -412,11 +417,11 @@
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.moveTo(e.touches[0].offsetX, e.touches[0].offsetY);
 
 
                 }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
+                lasttouch = { clientX: e.touches[0].offsetX, clientY: e.touches[0].offsetY }
 
             }
             else {
