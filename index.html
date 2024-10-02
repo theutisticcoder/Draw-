@@ -6,19 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DrawPaw - Free Drawing Online!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="icon.png">
     <style>
+        button {
+            color: white;
+            background-color: blue;
+        }
 
-       button{
-        color: white;
-        background-color: blue;
-       }
-        #name{
+        #name {
             font-family: "Fascinate Inline", system-ui;
             font-weight: 400;
         }
+
         body {
             overflow: hidden;
             margin: 0;
@@ -56,7 +57,7 @@
             background-color: lightblue;
         }
 
-       
+
 
         #toolbar label {
             font-size: 12px;
@@ -85,13 +86,16 @@
             color: white;
             padding: 2px;
         }
-h1{
-    color: black;
-    font-size: 100pt;
-}
-#name{
-    font-size: 30pt;
-}
+
+        h1 {
+            color: black;
+            font-size: 100pt;
+        }
+
+        #name {
+            font-size: 30pt;
+        }
+
         #map {
             rotate: 1 0 0 20deg;
             position: absolute;
@@ -120,18 +124,20 @@ h1{
             width: 100vw;
             overflow-y: scroll;
             background: darkblue;
-            
+
         }
+
         #toolbar * {
             margin-bottom: 6px;
             position: relative;
             z-index: 3;
             height: 45px;
             font-size: 15pt;
-       }
-        label{
-        font-size: 30pt;
-       }
+        }
+
+        label {
+            font-size: 30pt;
+        }
     </style>
 </head>
 
@@ -159,7 +165,7 @@ h1{
         </div>
     </section>
     <script>
-        var width = window.innerWidth/10;
+        var width = window.innerWidth / 10;
         var strokes = [];
         var pointarray = [];
         var paintings = [];
@@ -177,8 +183,8 @@ h1{
             return canvas.toDataURL();
         }
         var isNumber = function isNumber(value) {
-  return typeof value === 'number' && isFinite(value);
-}
+            return typeof value === 'number' && isFinite(value);
+        }
         var lasttouch = null, touch;
         var number = -1;
         const canvas = document.getElementById('drawing-board');
@@ -202,9 +208,9 @@ h1{
         let startX;
         let startY;
         var oilpat;
-        const oilim = new Image(50,50)
-        oilim.src="oil.jpg"
-        oilim.onload = ()=> {
+        const oilim = new Image(50, 50)
+        oilim.src = "oil.jpg"
+        oilim.onload = () => {
             oilpat = ctx.createPattern(oilim, "repeat")
         }
         canvas.height = screen.height * 0.7;
@@ -262,7 +268,7 @@ h1{
         function openDrawing(image, p, num) {
             number = num;
             document.querySelector("#toolbar").hidden = false;
-            ctx.drawImage(image, -width,0, canvas.width, canvas.height);
+            ctx.drawImage(image, -width, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
             restore();
@@ -270,42 +276,42 @@ h1{
         var imgs = 0;
         if (localStorage.getItem("canvas")) {
             arts.forEach(can => {
-                
+
                 var i = new Image();
-                i.src = can[can.length-1].canvas;
+                i.src = can[can.length - 1].canvas;
                 i.style.background = "white";
                 i.style.marginLeft = "13vw";
                 i.style.marginTop = "15vh";
-                
+
                 i.style.width = canvas.width / 6;
                 i.style.height = canvas.height / 6;
                 i.style.border = "1px solid black"
 
                 i.onclick = () => {
-                    strokes = can[can.length-1].strokes;
-                    openDrawing(i, can[can.length-1].points, can[can.length-1].number)
+                    strokes = can[can.length - 1].strokes;
+                    openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
                 };
                 document.getElementById("gallery").appendChild(i);
                 imgs++;
-                if(imgs % 4 === 0){
+                if (imgs % 4 === 0) {
                     document.getElementById("gallery").innerHTML += "<br>";
 
                 }
             });
-            
+
         }
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes })
+            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes })
             document.querySelector("#gallery").hidden = true;
-            number = arts.length-1;
+            number = arts.length - 1;
             restore();
-        } 
+        }
         function calculateAngle(x1, y1, x2, y2) {
-    return Math.atan2(y2 - y1, x2 - x1); // Angle in radians
-}
+            return Math.atan2(y2 - y1, x2 - x1); // Angle in radians
+        }
         const draw = (e) => {
             draws++;
             if (!isPainting) {
@@ -322,23 +328,27 @@ h1{
 
                 }
                 if (lasttouch) {
+                    ctx.globalAlpha = 0.3;
+                    ctx.beginPath();
+                    ctx.strokeStyle = shadeColor(color, -20);
+                    ctx.lineWidth = lineWidth;
+                    ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
+                    ctx.lineTo(e.clientX, e.clientY);
+                    ctx.stroke();
+                    ctx.beginPath();
+
+                    ctx.save();
+                    oilim.style.rotate = calculateAngle(lasttouch.clientX, lasttouch.clientY, e.clientX, e.clientY) + "rad";
+                    oilim.onload = () => {
+                        ctx.strokeStyle = ctx.createPattern(oilim, "repeat");
                         ctx.globalAlpha = 0.3;
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -20);
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                            ctx.lineTo(e.clientX, e.clientY);
-                            ctx.stroke();                   
-                            ctx.beginPath();
-                            ctx.strokeStyle = oilpat;
-                            ctx.globalAlpha = 0.3;
-                            ctx.lineWidth = lineWidth;
-                            ctx.save();
-                            ctx.rotate(calculateAngle( lasttouch.clientX, lasttouch.clientY,e.clientX, e.clientY))
-                            ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                            ctx.lineTo(0, 0);
-                            ctx.stroke();          
-                            ctx.restore();         
+                        ctx.lineWidth = lineWidth;
+                        ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
+                        ctx.lineTo(0, 0);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+
                     ctx.globalAlpha = 1;
                 }
                 else {
@@ -372,21 +382,21 @@ h1{
 
 
                 if (lasttouch) {
-                            ctx.globalAlpha = 0.3;
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -20);
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX , lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY);
-                            ctx.stroke();
-                            ctx.globalAlpha = 0.3;
-                            ctx.beginPath();
-                            ctx.strokeStyle = oilpat;
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX , lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY);
-                            ctx.stroke();
-                      
+                    ctx.globalAlpha = 0.3;
+                    ctx.beginPath();
+                    ctx.strokeStyle = shadeColor(color, -20);
+                    ctx.lineWidth = lineWidth;
+                    ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
+                    ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.stroke();
+                    ctx.globalAlpha = 0.3;
+                    ctx.beginPath();
+                    ctx.strokeStyle = oilpat;
+                    ctx.lineWidth = lineWidth;
+                    ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
+                    ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.stroke();
+
 
                 }
                 else {
@@ -427,22 +437,22 @@ h1{
 
         });
         canvas.addEventListener('touchstart', (e) => {
-          
+
             isPainting = true;
             color = document.querySelector("#stroke").value;
-           
+
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
-            
+
         });
         canvas.addEventListener('touchend', e => {
-         
-                isPainting = false;
+
+            isPainting = false;
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
             arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes });
-             });
+        });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
@@ -478,27 +488,27 @@ h1{
             localStorage.setItem("color", color)
             setTimeout(restore, 10)
         }
-        document.getElementById("undo").onclick = ()=> {
+        document.getElementById("undo").onclick = () => {
 
-            if(strokes.length > 0){
+            if (strokes.length > 0) {
 
-            
-arts[number].pop();
-strokes[strokes.length -1].forEach(p=> {
-    points.splice(points.indexOf(p), 1);
-});
-strokes.pop();
-var old = new Image(canvas.width, canvas.height);
-old.src = arts[number][arts[number].length-1].canvas;
-old.onload = ()=> {
-    ctx.fillRect(width,0,canvas.width, canvas.height);
-    ctx.drawImage(old, width,0, canvas.width, canvas.height);
-}
-}
-            
+
+                arts[number].pop();
+                strokes[strokes.length - 1].forEach(p => {
+                    points.splice(points.indexOf(p), 1);
+                });
+                strokes.pop();
+                var old = new Image(canvas.width, canvas.height);
+                old.src = arts[number][arts[number].length - 1].canvas;
+                old.onload = () => {
+                    ctx.fillRect(width, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
+                }
+            }
+
         }
-        document.onkeydown =  (e)=> {
-            if(e.key === "z" && (e.ctrlKey || e.metaKey)){
+        document.onkeydown = (e) => {
+            if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
                 document.querySelector("#undo").click();
             }
         }
