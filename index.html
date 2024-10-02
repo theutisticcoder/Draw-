@@ -323,7 +323,6 @@ h1{
                 }
                 if (lasttouch) {
                         ctx.globalAlpha = 0.3;
-                        ctx.rotate(calculateAngle( lasttouch.clientX, lasttouch.clientY,e.clientX, e.clientY))
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
@@ -335,6 +334,7 @@ h1{
                             ctx.globalAlpha = 0.3;
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
+                            ctx.rotate(calculateAngle( lasttouch.clientX, lasttouch.clientY,e.clientX, e.clientY))
                             ctx.lineTo(e.clientX, e.clientY);
                             ctx.stroke();                   
 
