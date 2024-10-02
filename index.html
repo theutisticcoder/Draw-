@@ -381,21 +381,33 @@
 
 
                 if (lasttouch) {
-                    ctx.globalAlpha = 0.3;
-                    ctx.beginPath();
-                    ctx.strokeStyle = shadeColor(color, -20);
-                    ctx.lineWidth = lineWidth;
-                    ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                    ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
-                    ctx.stroke();
-                    ctx.globalAlpha = 0.3;
-                    ctx.beginPath();
-                    ctx.strokeStyle = oilpat;
-                    ctx.lineWidth = lineWidth;
-                    ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                    ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
-                    ctx.stroke();
+        const currentX = e.offsetX;
+        const currentY = e.offsetY;
 
+        // Calculate the angle between the current and last points
+        const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
+
+        // Save the current canvas state
+        ctx.save();
+
+        // Move the context to the current position
+        ctx.translate(currentX, currentY);
+
+        // Rotate the context by the calculated angle
+        ctx.rotate(angle);
+
+        // Set the pattern as the stroke style
+        ctx.strokeStyle = oilpat;
+
+        // Draw a line segment at the rotated angle
+        ctx.lineWidth = lineWidth; // Adjust brush size
+        ctx.lineTo(0, 0);
+        ctx.stroke();
+
+        // Restore the canvas state to its original state
+        ctx.restore();
+
+    
 
                 }
                 else {
