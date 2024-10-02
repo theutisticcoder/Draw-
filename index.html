@@ -303,6 +303,9 @@ h1{
             number = arts.length-1;
             restore();
         } 
+        function calculateAngle(x1, y1, x2, y2) {
+    return Math.atan2(y2 - y1, x2 - x1); // Angle in radians
+}
         const draw = (e) => {
             draws++;
             if (!isPainting) {
@@ -320,11 +323,11 @@ h1{
                 }
                 if (lasttouch) {
                         ctx.globalAlpha = 0.3;
+                        ctx.rotate(calculateAngle(e.clientX, e.clientY, lasttouch.clientX, lasttouch.clientY))
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                            ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX, e.clientY);
                             ctx.stroke();                   
                             ctx.beginPath();
@@ -332,7 +335,6 @@ h1{
                             ctx.globalAlpha = 0.3;
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                            ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX, e.clientY);
                             ctx.stroke();                   
 
@@ -345,7 +347,6 @@ h1{
             }
             else {
                 ctx.lineWidth = lineWidth;
-                ctx.lineCap = 'round';
                 ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
             }
@@ -374,7 +375,6 @@ h1{
                             ctx.strokeStyle = shadeColor(color, -20);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX , lasttouch.clientY);
-                            ctx.lineCap = 'round';
                             ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY);
                             ctx.stroke();
                             ctx.globalAlpha = 0.3;
@@ -382,7 +382,6 @@ h1{
                             ctx.strokeStyle = oilpat;
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX , lasttouch.clientY);
-                            ctx.lineCap = 'round';
                             ctx.lineTo(e.touches[0].clientX , e.touches[0].clientY);
                             ctx.stroke();
                       
@@ -399,7 +398,6 @@ h1{
             }
             else {
                 ctx.lineWidth = lineWidth;
-                ctx.lineCap = 'round';
                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
