@@ -323,6 +323,7 @@ h1{
                 }
                 if (lasttouch) {
                         ctx.globalAlpha = 0.3;
+                        ctx.translate(width, 0);
                         ctx.rotate(calculateAngle(e.clientX, e.clientY, lasttouch.clientX, lasttouch.clientY))
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
