@@ -334,8 +334,8 @@ h1{
                             ctx.globalAlpha = 0.3;
                             ctx.lineWidth = lineWidth;
                             ctx.save();
-                            ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                             ctx.rotate(calculateAngle( lasttouch.clientX, lasttouch.clientY,e.clientX, e.clientY))
+                            ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                             ctx.lineTo(0, 0);
                             ctx.stroke();          
                             ctx.restore();         
