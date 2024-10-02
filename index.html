@@ -300,6 +300,25 @@
             });
 
         }
+        function drawRotatedBrush(x, y, angle) {
+    const size = lineWidth*4; // Set brush size (adjust based on your texture)
+    
+    // Save the canvas state
+    ctx.save();
+    
+    // Move to the drawing position
+    ctx.translate(x, y);
+    
+    // Rotate the canvas to the desired angle
+    ctx.rotate(angle);
+    
+    // Draw the image centered at the current point
+    ctx.drawImage(textureImage, -size / 2, -size / 2, size, size);
+    
+    // Restore the canvas state to avoid affecting future drawings
+    ctx.restore();
+}
+
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
@@ -334,25 +353,8 @@
         // Calculate the angle between the current and last points
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
 
-        // Save the current canvas state
-        ctx.save();
+        drawRotatedBrush(currentX, currentY, angle);
 
-        // Move the context to the current position
-        ctx.translate(currentX, currentY);
-
-        // Rotate the context by the calculated angle
-        ctx.rotate(angle);
-
-        // Set the pattern as the stroke style
-        ctx.strokeStyle = oilpat;
-
-        // Draw a line segment at the rotated angle
-        ctx.lineWidth = lineWidth; // Adjust brush size
-        ctx.lineTo(0, 0);
-        ctx.stroke();
-
-        // Restore the canvas state to its original state
-        ctx.restore();
 
                 }
                 else {
@@ -393,24 +395,7 @@
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
 
         // Save the current canvas state
-        ctx.save();
-
-        // Move the context to the current position
-        ctx.translate(currentX, currentY);
-
-        // Rotate the context by the calculated angle
-        ctx.rotate(angle);
-
-        // Set the pattern as the stroke style
-        ctx.strokeStyle = oilpat;
-
-        // Draw a line segment at the rotated angle
-        ctx.lineWidth = lineWidth; // Adjust brush size
-        ctx.lineTo(0, 0);
-        ctx.stroke();
-
-        // Restore the canvas state to its original state
-        ctx.restore();
+        drawRotatedBrush(currentX, currentY, angle);
 
     
 
