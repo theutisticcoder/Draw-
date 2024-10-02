@@ -328,9 +328,9 @@
 
                 }
                 if (lasttouch) {
-                    ctx.globalAlpha = 0.3;
+                    ctx.globalAlpha = 0.7;
                     ctx.beginPath();
-                    ctx.strokeStyle = shadeColor(color, -20);
+                    ctx.strokeStyle = color;
                     ctx.lineWidth = lineWidth;
                     ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
                     ctx.lineTo(e.clientX, e.clientY);
@@ -344,7 +344,7 @@
                         ctx.globalAlpha = 0.3;
                         ctx.lineWidth = lineWidth;
                         ctx.moveTo(lasttouch.clientX, lasttouch.clientY);
-                        ctx.lineTo(0, 0);
+                        ctx.lineTo(e.clientX, e.clientY);
                         ctx.stroke();
                         ctx.restore();
                     }
