@@ -318,11 +318,12 @@
   
     
     // Draw the image centered at the current point
-
+            ctx.globalAlpha = 0.5;
+            
     ctx.drawImage(oilim, -size / 2, -size / 2, size, size);
     
     ctx.globalCompositeOperation = 'source-atop'; // Set blend mode
-    ctx,globalAlpha = 0.2;
+    ctx,globalAlpha = 0.1;
     ctx.fillStyle = color; // Set tint color
     ctx.fillRect(-size / 2, -size / 2, size, size); // Fill with tint color
 
