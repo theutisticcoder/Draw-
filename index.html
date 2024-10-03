@@ -310,11 +310,12 @@
     // Save the canvas state
     ctx.save();
     // Move to the drawing position
-    ctx.translate(x, y);
-    ctx.linewidth = size;
+    ctx.linewidth = size*50;
     ctx.strokeStyle = color;
-    ctx.lineTo(x,y);
+    ctx.lineTo(-size/2,-size/2);
     ctx.stroke();
+    ctx.translate(x, y);
+
     ctx.globalAlpha = 0.4;
 
     // Rotate the canvas to the desired angle
