@@ -306,7 +306,6 @@
 
         function drawRotatedBrush(x, y, angle) {
     const size = lineWidth*4; // Set brush size (adjust based on your texture)
-    ctx.lineCap = "round";
     // Save the canvas state
     ctx.save();
     // Move to the drawing position
@@ -320,7 +319,7 @@
     ctx.lineWidth = size;
     ctx.beginPath();
     ctx.strokeStyle = color;
-    ctx.lineTo(-size/2,-size/2);
+    ctx.lineTo(0,0);
     ctx.stroke();
     // Draw the image centered at the current point
     ctx.globalAlpha = 0.4;
