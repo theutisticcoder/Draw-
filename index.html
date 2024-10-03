@@ -310,19 +310,20 @@
     // Save the canvas state
     ctx.save();
     // Move to the drawing position
-    ctx.linewidth = size*50;
-    ctx.strokeStyle = color;
-    ctx.lineTo(-size/2,-size/2);
-    ctx.stroke();
+ 
     ctx.translate(x+150, y);
 
     ctx.globalAlpha = 0.4;
 
     // Rotate the canvas to the desired angle
     ctx.rotate(angle);
-    
+    ctx.lineWidth = size;
+    ctx.strokeStyle = color;
+    ctx.lineTo(-size/2,-size/2);
+    ctx.stroke();
     // Draw the image centered at the current point
     ctx.drawImage(oilim, -size / 2, -size / 2, size, size);
+    
     
     // Restore the canvas state to avoid affecting future drawings
     ctx.restore();
