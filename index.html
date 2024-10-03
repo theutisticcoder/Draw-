@@ -406,7 +406,7 @@
 
 
                 if (lasttouch) {
-        const currentX = e.touches[0].clientX;
+        const currentX = e.touches[0].clientX +150;
         const currentY = e.touches[0].clientY;
         const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
@@ -425,11 +425,11 @@
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.moveTo(e.touches[0].clientX+150, e.touches[0].clientY);
 
 
                 }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
+                lasttouch = { clientX: e.touches[0].clientX+150, clientY: e.touches[0].clientY }
 
             }
             else {
