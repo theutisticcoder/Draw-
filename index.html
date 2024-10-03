@@ -321,12 +321,15 @@
     ctx.strokeStyle = color;
     ctx.lineTo(0,0);
     ctx.stroke();
+    
     // Draw the image centered at the current point
-    ctx.globalAlpha = 0.4;
 
     ctx.drawImage(oilim, -size / 2, -size / 2, size, size);
     
-    
+    ctx.globalCompositeOperation = 'source-atop'; // Set blend mode
+    ctx.fillStyle = color; // Set tint color
+    ctx.fillRect(-size / 2, -size / 2, size, size); // Fill with tint color
+
     // Restore the canvas state to avoid affecting future drawings
     ctx.restore();
 }
