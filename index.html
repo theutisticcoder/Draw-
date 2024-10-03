@@ -318,6 +318,7 @@
     // Rotate the canvas to the desired angle
     ctx.rotate(angle);
     ctx.lineWidth = size;
+    ctx.beginPath();
     ctx.strokeStyle = color;
     ctx.lineTo(-size/2,-size/2);
     ctx.stroke();
