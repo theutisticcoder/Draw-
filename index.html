@@ -313,7 +313,7 @@
  
     ctx.translate(x+150, y);
 
-    ctx.globalAlpha = 0.4;
+    ctx.globalAlpha = 0.1;
 
     // Rotate the canvas to the desired angle
     ctx.rotate(angle);
@@ -323,6 +323,8 @@
     ctx.lineTo(-size/2,-size/2);
     ctx.stroke();
     // Draw the image centered at the current point
+    ctx.globalAlpha = 0.4;
+
     ctx.drawImage(oilim, -size / 2, -size / 2, size, size);
     
     
