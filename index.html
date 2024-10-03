@@ -303,15 +303,20 @@
             });
 
         }
+
         function drawRotatedBrush(x, y, angle) {
     const size = lineWidth*4; // Set brush size (adjust based on your texture)
-    
+    ctx.lineCap = "round";
     // Save the canvas state
     ctx.save();
-    
     // Move to the drawing position
     ctx.translate(x, y);
-    
+    ctx.linewidth = size;
+    ctx.strokeStyle = color;
+    ctx.lineTo(x,y);
+    ctx.stroke();
+    ctx.globalAlpha = 0.4;
+
     // Rotate the canvas to the desired angle
     ctx.rotate(angle);
     
@@ -354,10 +359,10 @@
                     const currentX = e.offsetX;
         const currentY = e.offsetY;
     const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
-
+            
         // Calculate the angle between the current and last points
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
-        for (let i = 0; i < distance; i++) {
+        for (let i = 0; i < distance; i+=0.4) {
         const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
         const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
@@ -401,7 +406,7 @@
         const currentY = e.touches[0].offsetY;
         const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
-        for (let i = 0; i < distance; i++) {
+        for (let i = 0; i < distance; i+=0.4) {
         const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
         const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
