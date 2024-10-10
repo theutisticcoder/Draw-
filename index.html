@@ -329,6 +329,7 @@
 
     // Restore the canvas state to avoid affecting future drawings
     ctx.restore();
+    ctx.globalCompositeOperation = "normal"
 }
 
         document.getElementById("new").onclick = () => {
