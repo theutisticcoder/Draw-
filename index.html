@@ -210,7 +210,7 @@
         let startX;
         let startY;
         var oilpat;
-        const oilim = new Image(50, 50)
+        const oilim = new Image()
         oilim.src = "oil2.png"
         oilim.style.borderRadius = "2px";
         oilim.onload = () => {
@@ -322,7 +322,7 @@
 
     ctx.drawImage(oilim, -size / 2, -size / 2, size/2, size);
     
-    ctx.globalCompositeOperation = 'source-atop'; // Set blend mode
+    ctx.globalCompositeOperation = 'source-in'; // Set blend mode
     ctx,globalAlpha = 0.1;
     ctx.fillStyle = color; // Set tint color
     ctx.fillRect(-size / 2, -size / 2, size/2, size); // Fill with tint color
