@@ -411,7 +411,7 @@
         const currentY = e.touches[0].clientY;
         const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
-        for (let i = 0; i < distance; i+=(lineWidth*4)) {
+        for (let i = 0; i < distance; i+=(lineWidth*0.1)) {
         const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
         const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
