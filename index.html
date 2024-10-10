@@ -303,35 +303,32 @@
             });
 
         }
+        function drawRotatedBrush(x, y, angle) {
+    const size = lineWidth; // Set brush size (adjust based on your texture)
 
-        function drawRotatedBrush(x, y, angle, distance) {
-    const size = lineWidth*4; // Set brush size (adjust based on your texture)
     // Save the canvas state
     ctx.save();
+    
     // Move to the drawing position
- 
     ctx.translate(x+150, y);
-
-
+    
     // Rotate the canvas to the desired angle
     ctx.rotate(angle);
-  
     
-    // Draw the image centered at the current point
-            ctx.globalAlpha = 0.7;
+    // Draw the circular image centered at the current point
+    ctx.drawImage(oilim, -size / 2, -size / 2, size, size);
 
-    ctx.drawImage(oilim, -size / 2, -size / 2, size/2, size);
-    
-    ctx.globalCompositeOperation = 'source-in'; // Set blend mode
-    ctx,globalAlpha = 0.1;
-    ctx.fillStyle = color; // Set tint color
-    ctx.fillRect(-size / 2, -size / 2, size/2, size); // Fill with tint color
+    // Apply the tint color only to the non-transparent parts
+    ctx.globalCompositeOperation = 'source-in'; // Apply tint only to the visible pixels
+    ctx.fillStyle = color; // Set the tint color
+    ctx.fillRect(-size / 2, -size / 2, size, size); // Fill with the tint color
 
     // Restore the canvas state to avoid affecting future drawings
     ctx.restore();
-    ctx.globalCompositeOperation = "source-over"
-}
 
+    // Reset globalCompositeOperation for future drawings
+    ctx.globalCompositeOperation = 'source-over';
+}
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
