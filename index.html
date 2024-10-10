@@ -305,7 +305,7 @@
         }
 
         function drawRotatedBrush(x, y, angle, distance) {
-    const size = lineWidth*4; // Set brush size (adjust based on your texture)
+    const size = lineWidth; // Set brush size (adjust based on your texture)
     // Save the canvas state
     ctx.save();
     // Move to the drawing position
@@ -367,7 +367,7 @@
             
         // Calculate the angle between the current and last points
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
-        for (let i = 0; i < distance; i+=3) {
+        for (let i = 0; i < distance; i+=5) {
         const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
         const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
@@ -411,7 +411,7 @@
         const currentY = e.touches[0].clientY;
         const distance = calculateDistance(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
         const angle = calculateAngle(lasttouch.clientX, lasttouch.clientY, currentX, currentY);
-        for (let i = 0; i < distance; i+=3) {
+        for (let i = 0; i < distance; i+=5) {
         const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
         const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
