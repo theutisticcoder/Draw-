@@ -211,7 +211,7 @@
         let startY;
         var oilpat;
         const oilim = new Image(50, 50)
-        oilim.src = "oil.png"
+        oilim.src = "oil2.png"
         oilim.style.borderRadius = "2px";
         oilim.onload = () => {
             oilpat = ctx.createPattern(oilim, "repeat")
@@ -318,7 +318,7 @@
   
     
     // Draw the image centered at the current point
-            ctx.globalAlpha = 0.5;
+            ctx.globalAlpha = 0.7;
 
     ctx.drawImage(oilim, -size / 2, -size / 2, size/2, size);
     
