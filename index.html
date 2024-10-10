@@ -304,12 +304,13 @@
 
         }
 
-        function drawRotatedBrush(x, y, angle) {
+        function drawRotatedBrush(x, y, angle, distance) {
     const size = lineWidth*4; // Set brush size (adjust based on your texture)
     // Save the canvas state
     ctx.save();
     // Move to the drawing position
  
+    ctx.translate(x+150, y);
 
 
     // Rotate the canvas to the desired angle
@@ -319,12 +320,12 @@
     // Draw the image centered at the current point
             ctx.globalAlpha = 0.5;
 
-    ctx.drawImage(oilim, x-size / 2, y-size / 2, size, size);
+    ctx.drawImage(oilim, -size / 2, -size / 2, size, distance);
     
     ctx.globalCompositeOperation = 'source-atop'; // Set blend mode
     ctx,globalAlpha = 0.1;
     ctx.fillStyle = color; // Set tint color
-    ctx.fillRect(x-size / 2, y-size / 2, size, size); // Fill with tint color
+    ctx.fillRect(-size / 2, -size / 2, size, distance); // Fill with tint color
 
     // Restore the canvas state to avoid affecting future drawings
     ctx.restore();
@@ -369,7 +370,7 @@
         const interpolatedX = lasttouch.clientX + Math.cos(angle) * i;
         const interpolatedY = lasttouch.clientY + Math.sin(angle) * i;
 
-        drawRotatedBrush(interpolatedX, interpolatedY, angle);
+        drawRotatedBrush(interpolatedX, interpolatedY, angle, distance);
     }
 
 
