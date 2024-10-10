@@ -534,6 +534,7 @@
         }
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
                 document.querySelector("#undo").click();
             }
         }
