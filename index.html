@@ -458,7 +458,7 @@ var vid;
             strokes.push(pointarray);
             pointarray = [];
 
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -476,7 +476,7 @@ var vid;
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -548,7 +548,7 @@ old.onload = ()=> {
       if(oldvid){
         vid = oldvid + vid;
       }
-        arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+        arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
         restore();
     };
 
