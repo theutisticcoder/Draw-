@@ -545,7 +545,7 @@ old.onload = ()=> {
         }
         function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
-    const blob = new Blob([event.data], { type: 'video/mp4' });
+    const blob = new Blob([event.data], { type: 'video/webm' });
     const reader = new FileReader();
 
     reader.onloadend = function () {
