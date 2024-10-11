@@ -520,8 +520,8 @@ var vid;
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             recorder.start();
-                restore();
-        }, 1000)
+                setTimeout(restore, 1000);
+            }, 100)
            
         }
         document.getElementById("undo").onclick = ()=> {
