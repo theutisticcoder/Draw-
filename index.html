@@ -545,7 +545,9 @@ old.onload = ()=> {
 
     reader.onloadend = function () {
       vid = reader.result; // Store the Data URL in "vid"
+      if(oldvid){
         vid = oldvid + vid;
+      }
         arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
         restore();
     };
