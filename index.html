@@ -457,8 +457,8 @@ var vid;
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-
-            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            if(number != 0)arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -476,7 +476,8 @@ var vid;
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            if(number != 0)arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -508,10 +509,14 @@ var vid;
             a.click();
         }
         function restore() {
-            localStorage.setItem("canvas", JSON.stringify(arts));
+            recorder.stop();
+            setTimeout(()=> {
+                localStorage.setItem("canvas", JSON.stringify(arts));
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
-            setTimeout(restore, 10)
+            setTimeout(restore, 9000)
+            }, 1000)
+           
         }
         document.getElementById("undo").onclick = ()=> {
 
@@ -537,7 +542,6 @@ old.onload = ()=> {
                 document.querySelector("#undo").click();
             }
         }
-        window.onunload = recorder.stop();
         function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
     const blob = new Blob([event.data], { type: 'video/mp4' });
@@ -548,8 +552,8 @@ old.onload = ()=> {
       if(oldvid){
         vid = oldvid + vid;
       }
-        arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
-        restore();
+      if(number != 0)arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
     };
 
     reader.readAsDataURL(blob); // Convert Blob to Data URL
