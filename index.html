@@ -256,6 +256,8 @@ h1{
         function openDrawing(image, p, num) {
             number = num;
             document.querySelector("#toolbar").hidden = false;
+            ctx.fillStyle = "white"
+            ctx.fillRect(150,0,canvas.width, canvas.height)
             ctx.drawImage(image, -width,0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
@@ -294,6 +296,9 @@ recorder.start();
         document.getElementById("new").onclick = () => {
 
             recorder.start();    
+
+            ctx.fillStyle = "white"
+            ctx.fillRect(150,0,canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
@@ -515,8 +520,8 @@ var vid;
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             recorder.start();
-            setTimeout(restore, 9000);
-            }, 1000)
+                restore();
+        }, 100)
            
         }
         document.getElementById("undo").onclick = ()=> {
