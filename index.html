@@ -259,8 +259,10 @@ h1{
             ctx.drawImage(image, -width,0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
+recorder.start();    
             restore();
         }
+        var oldvid;
         var imgs = 0;
         if (localStorage.getItem("canvas")) {
             arts.forEach(can => {
@@ -277,6 +279,7 @@ h1{
 
                 i.onclick = () => {
                     strokes = can[can.length-1].strokes;
+                    oldvid = can[can.length-1].vid;
                     openDrawing(i, can[can.length-1].points, can[can.length-1].number)
                 };
                 document.getElementById("gallery").appendChild(i);
@@ -290,9 +293,10 @@ h1{
         }
         document.getElementById("new").onclick = () => {
 
+            recorder.start();    
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes })
+            arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
             document.querySelector("#gallery").hidden = true;
             number = arts.length-1;
             restore();
@@ -360,7 +364,15 @@ h1{
             }
 
         }
-        const draw2 = (e) => {
+
+ // Convert canvas to a video stream
+ var stream = canvas.captureStream();
+
+// Set up the MediaRecorder with the video stream
+var recorder = new MediaRecorder(stream);
+
+recorder.ondataavailable = handleDataAvailable;
+    const draw2 = (e) => {
             draws++;
 
             if (!isPainting) {
@@ -430,7 +442,7 @@ h1{
         }
 
 
-
+var vid;
 
         canvas.addEventListener('mousedown', (e) => {
             isPainting = true;
@@ -446,7 +458,7 @@ h1{
             strokes.push(pointarray);
             pointarray = [];
 
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -464,8 +476,8 @@ h1{
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes });
-             });
+            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+        });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
@@ -525,6 +537,22 @@ old.onload = ()=> {
                 document.querySelector("#undo").click();
             }
         }
+        window.onunload = recorder.stop();
+        function handleDataAvailable(event) {
+  if (event.data && event.data.size > 0) {
+    const blob = new Blob([event.data], { type: 'video/mp4' });
+    const reader = new FileReader();
+
+    reader.onloadend = function () {
+      vid = reader.result; // Store the Data URL in "vid"
+        vid = oldvid + vid;
+        arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
+        restore();
+    };
+
+    reader.readAsDataURL(blob); // Convert Blob to Data URL
+  }
+}
     </script>
 </body>
 
