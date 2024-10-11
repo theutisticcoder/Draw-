@@ -514,7 +514,8 @@ var vid;
                 localStorage.setItem("canvas", JSON.stringify(arts));
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
-            setTimeout(restore, 9000)
+            recorder.start();
+            setTimeout(restore, 9000);
             }, 1000)
            
         }
