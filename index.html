@@ -592,8 +592,8 @@
          function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
-               
-                    blob = new Blob([ oldblob, event.data], { type: 'video/webm' });
+               const blobnew = new Blob([event.data], { type: 'video/webm' })
+                    blob = new Blob([ oldblob, blobnew], { type: 'video/webm' });
 
                 
 
