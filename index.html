@@ -620,7 +620,7 @@
                 blob = new Blob([event.data], { type: 'video/webm' })
                 var url = URL.createObjectURL(blob)
                 fetch(url).then(res => res.arrayBuffer()).then(data => {
-                    sourceBuffer.appendBuffer(prevdata);
+                    if(prevdata) sourceBuffer.appendBuffer(prevdata);
                     sourceBuffer.appendBuffer(data);
                     sourceBuffer.onupdateend = () => {
                         mediaSource.endOfStream();
