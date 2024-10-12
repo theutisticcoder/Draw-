@@ -563,18 +563,33 @@
             }
         }
         var blob;
+        function retrieveBlobFromLocalStorage(base64String) {
+
+  if (base64String) {
+    const byteCharacters = atob(base64String.split(',')[1]);
+    const byteArrays = [];
+
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteArrays.push(byteCharacters.charCodeAt(i));
+    }
+
+    return new Blob([new Uint8Array(byteArrays)], { type: 'text/plain' });
+  }
+
+  return null;
+}
        async function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
                     if (oldvid) {
 
-                         blob = new Blob([new Blob([event.data], { type: 'video/mp4' }),oldvid], {type: 'video/mp4'});
+                         blob = new Blob([new Blob([event.data], { type: 'video/mp4' }),retrieveBlobFromLocalStorage(oldvid)], {type: 'video/mp4'});
                     }
                     else{
                         blob = new Blob([event.data], { type: 'video/mp4' });
 
                     }
-oldvid = blob;
+oldvid = URL.createObjectURL(blob);
                   recorder.start();
 
             }
