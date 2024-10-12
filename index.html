@@ -543,6 +543,11 @@
             a.download = name + ".png";
             a.click();
         }
+        function compareImageData(data1, data2) {
+    // Compare width, height and pixel data
+    if (data1.width !== data2.width || data1.height !== data2.height) return false;
+    return data1.data.every((value, index) => value === data2.data[index]);
+}
         function restore() {
 
                 localforage.setItem("canvas", arts);
@@ -552,9 +557,12 @@
 
         }
         function getdata(){
-            if(isPainting){
-            recorder.requestData();
+            if(imdata){
+                if(!compareImageData(ctx.getImageData(0,0,canvas.width, canvas.height), imdata)) recorder.requestData();
+
             }
+            else recorder.requestData();
+        
             setTimeout(getdata, 200);
         } 
         var chunks = [];
@@ -579,7 +587,7 @@
             }
 
         }
-       
+       var imdata;
         window.onbeforeunload = () => {
             recorder.stop();
 
@@ -602,6 +610,7 @@
         var blob;
         var oldblob;
          function handleDataAvailable(event) {
+            imdata = ctx.getImageData(0,0,canvas.width, canvas,height);
             if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
                 blob = new Blob(chunks, { type: 'video/webm' })
