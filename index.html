@@ -596,10 +596,6 @@
 
         }
         var imdata;
-        window.onbeforeunload = () => {
-            recorder.stop();
-
-        }
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
                 document.querySelector("#undo").click();
