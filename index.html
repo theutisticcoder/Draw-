@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="icon.png">
+    <script src="https://cdn.jsdelivr.net/npm/shorturl@0.0.3/index.min.js"></script>
     <style>
         button {
             color: white;
@@ -574,7 +575,7 @@
                         vid = oldvid + vid;
                         vid.replaceAll("=", "")
                     }
-                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: shorturl(vid) })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     localStorage.setItem("canvas", JSON.stringify(arts));
 
