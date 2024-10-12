@@ -171,7 +171,7 @@
         function saveVid() {
             // Create a download link
             const a = document.createElement('a');
-            a.href = oldvid;
+            a.href = vid;
             a.download = 'replay.webm'; // Specify the file name
 
             // Programmatically click the link to trigger the download
@@ -199,7 +199,7 @@
 
                     i.onclick = () => {
                         strokes = can[can.length - 1].strokes;
-                        oldvid = can[can.length - 1].vid;
+                        oldblob = can[can.length - 1].vid;
                         openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
                     };
                     document.getElementById("gallery").appendChild(i);
@@ -321,7 +321,6 @@
             setTimeout(getdata, 500)
             restore();
         }
-        var oldvid;
         var imgs = 0;
 
         document.getElementById("new").onclick = () => {
@@ -332,7 +331,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
@@ -493,8 +492,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -512,8 +511,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -589,12 +588,12 @@
             }
         }
         var blob;
-        var oldblob
+        var oldblob;
          function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
                
-                    blob = new Blob([event.data, oldblob], { type: 'video/webm' });
+                    blob = new Blob([ oldblob, event.data], { type: 'video/webm' });
 
                 
                 const reader = new FileReader();
