@@ -182,7 +182,7 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-            arts = localforage.getItem("canvas", (err, val)=> {
+           localforage.getItem("canvas", (err, val)=> {
                 if(val != null) arts = val;
         });
         
@@ -215,7 +215,7 @@
         let isPainting = false;
         let lineWidth = 5;
 
-         lineWidth = parseInt(localforage.getItem("lw"), (err, val)=> {
+         (localforage.getItem("lw"), (err, val)=> {
             if(!val){
                 linewidth = 5;
                 return;
@@ -223,10 +223,8 @@
             lineWidth = val;
             
         });
-        lineWidth = parseInt(localforage.getItem("color"), (err, val)=> {
-            if(!val) return;
-            
-            color = val;
+        (localforage.getItem("color"), (err, val)=> {
+            if(val) color = val;
             
         });
 
