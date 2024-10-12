@@ -602,14 +602,14 @@
         var oldblob;
         var sourceBuffer
         const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-        const mediaSource = getMediaSource();
+        const mediaSource = new MediaSource();
         setTimeout(() => {
             sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
         }, 100)
         function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
-                fetchAB(URL.createObjectURL(blob), (buf) => {
+                fetch(URL.createObjectURL(blob)).then(res=> res.arrayBuffer()).then( (buf) => {
                   
                     sourceBuffer.appendBuffer(buf);
                 });
