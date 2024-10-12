@@ -563,15 +563,16 @@
                 document.querySelector("#undo").click();
             }
         }
+        var blob;
        async function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
                     if (oldvid) {
 
-                        const blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
+                         blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
                     }
                     else{
-                        const blob = new Blob([event.data], { type: 'video/webm' });
+                        blob = new Blob([event.data], { type: 'video/webm' });
 
                     }
                     vid = URL.createObjectURL(blob); // Store the Data URL in "vid"
