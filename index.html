@@ -555,7 +555,8 @@
             recorder.stop();
             recorder.start();
             setTimeout(getdata, 500);
-        }
+        } 
+        var chunks = [];
         document.getElementById("undo").onclick = () => {
 
             if (strokes.length > 0) {
@@ -601,13 +602,9 @@
         var oldblob;
          function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
-                blob = new Blob([event.data], { type: 'video/webm' })
-                if(oldblob){
-                    concatBlobs(oldblob, blob).then(blo=> {
-                        blob = blo
-                       
-                    })
-                }
+                chunks.push(event.data);
+                blob = new Blob(chunks, { type: 'video/webm' })
+                
                 setTimeout(()=> {
                     vid = URL.createObjectURL(blob);
                     oldblob = blob;
