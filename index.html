@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="icon.png">
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 
     <style>
         button {
@@ -181,8 +182,8 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-        if (localStorage.canvas) {
-            arts = JSON.parse(localStorage.getItem("canvas"));
+        if (localforage.getItem("canvas")) {
+            arts = JSON.parse(localforage.getItem("canvas"));
         }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
@@ -213,8 +214,8 @@
         let isPainting = false;
         let lineWidth = 5;
 
-        if (isNumber(localStorage.getItem("lw"))) lineWidth = parseInt(localStorage.getItem("lw"));
-        if (localStorage.getItem("color")) color = localStorage.getItem("color");
+        if (isNumber(localforage.getItem("lw"))) lineWidth = parseInt(localforage.getItem("lw"));
+        if (localforage.getItem("color")) color = localforage.getItem("color");
 
         let startX;
         let startY;
@@ -283,7 +284,7 @@
         }
         var oldvid;
         var imgs = 0;
-        if (localStorage.getItem("canvas")) {
+        if (localforage.getItem("canvas")) {
             arts.forEach(can => {
 
                 var i = new Image();
@@ -534,9 +535,9 @@
             recorder.stop();
             setTimeout(() => {
 
-                localStorage.setItem("canvas", JSON.stringify(arts));
-                localStorage.setItem("lw", lineWidth)
-                localStorage.setItem("color", color)
+                localforage.setItem("canvas", JSON.stringify(arts));
+                localforage.setItem("lw", lineWidth)
+                localforage.setItem("color", color)
                 recorder.start();
                 setTimeout(restore, 1000);
             }, 100)
@@ -592,7 +593,7 @@
 
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    localStorage.setItem("canvas", JSON.stringify(arts));
+                    localforage.setItem("canvas", JSON.stringify(arts));
                 };
 
                 reader.readAsDataURL(blob);
