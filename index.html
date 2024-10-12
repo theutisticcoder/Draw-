@@ -171,6 +171,7 @@
         function saveVid() {
             // Create a download link
             const a = document.createElement('a');
+            mediaSource.endOfStream();
             a.href = vid;
             a.download = 'replay.webm'; // Specify the file name
 
@@ -545,13 +546,13 @@
         }
         function restore() {
 
-                localforage.setItem("canvas", arts);
-                localforage.setItem("lw", lineWidth)
-                localforage.setItem("color", color)
-                setTimeout(restore, 100);
+            localforage.setItem("canvas", arts);
+            localforage.setItem("lw", lineWidth)
+            localforage.setItem("color", color)
+            setTimeout(restore, 100);
 
         }
-        function getdata(){
+        function getdata() {
             recorder.stop();
             recorder.start();
             setTimeout(getdata, 500);
@@ -577,7 +578,7 @@
             }
 
         }
-       
+
         window.onbeforeunload = () => {
             recorder.stop();
 
@@ -588,31 +589,34 @@
             }
         }
         async function concatBlobs(blob1, blob2) {
-  const arrayBuffer1 = await blob1.arrayBuffer();
-  const arrayBuffer2 = await blob2.arrayBuffer();
+            const arrayBuffer1 = await blob1.arrayBuffer();
+            const arrayBuffer2 = await blob2.arrayBuffer();
 
-  const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
-  temp.set(new Uint8Array(arrayBuffer1), 0);
-  temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
+            const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
+            temp.set(new Uint8Array(arrayBuffer1), 0);
+            temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
 
-  return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
-}
+            return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
+        }
         var blob;
         var oldblob;
-         function handleDataAvailable(event) {
+        var sourceBuffer
+        const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+        const mediaSource = getMediaSource();
+        setTimeout(() => {
+            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+        }, 100)
+        function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
-                if(oldblob){
-                    concatBlobs(oldblob, blob).then(blo=> {
-                        blob = blo
-                       
-                    })
-                }
-                setTimeout(()=> {
-                    vid = URL.createObjectURL(blob);
-                    oldblob = blob;
+                fetchAB(URL.createObjectURL(blob), (buf) => {
+                  
+                    sourceBuffer.appendBuffer(buf);
+                });
+                setTimeout(() => {
+                    vid = URL.createObjectURL(mediaSource);
                 }, 80)
-              
+
             }
 
         }
