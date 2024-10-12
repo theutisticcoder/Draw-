@@ -520,8 +520,8 @@ var vid;
             localStorage.setItem("lw", lineWidth)
             localStorage.setItem("color", color)
             recorder.start();
-                setTimeout(restore, 1000);
-            }, 100)
+                setTimeout(restore, 10000);
+            }, 1000)
            
         }
         document.getElementById("undo").onclick = ()=> {
@@ -556,8 +556,8 @@ old.onload = ()=> {
     reader.onloadend = function () {
       vid = reader.result; // Store the Data URL in "vid"
       if(oldvid){
-        vid = vid.split("data:video/webm;base64,")[1];
-        oldvid = oldvid.split("=")[0];
+        vid = vid.replace("data:video/webm;base64,", "");
+        oldvid = oldvid.replace("=", "");
         vid = oldvid + vid;
       }
       if(number != 0)arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
