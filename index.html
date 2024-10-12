@@ -544,31 +544,33 @@
             a.click();
         }
         function compareImageData(data1, data2) {
-    // Compare width, height and pixel data
-    if (data1.width !== data2.width || data1.height !== data2.height) return false;
-    return data1.data.every((value, index) => value === data2.data[index]);
-}
+            // Compare width, height and pixel data
+            if (data1.width !== data2.width || data1.height !== data2.height) return false;
+            return data1.data.every((value, index) => value === data2.data[index]);
+        }
         function restore() {
 
-                localforage.setItem("canvas", arts);
-                localforage.setItem("lw", lineWidth)
-                localforage.setItem("color", color)
-                setTimeout(restore, 100);
+            localforage.setItem("canvas", arts);
+            localforage.setItem("lw", lineWidth)
+            localforage.setItem("color", color)
+            setTimeout(restore, 100);
 
         }
-        function getdata(){
-            var newdata = ctx.getImageData(0,0,canvas.width, canvas.height);
-            if(imdata){
-                if(!compareImageData(newdata, imdata)){
+        function getdata() {
+            var newdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            if (imdata) {
+                if (!compareImageData(newdata, imdata)) {
                     recorder.requestData();
-                    recorder.start()
-                } 
+                    if (recorder.state === 'inactive') {
+                        recorder.start();
+                    }
+                }
                 else recorder.stop();
             }
             else recorder.requestData();
-        
+
             setTimeout(getdata, 200);
-        } 
+        }
         var chunks = [];
         document.getElementById("undo").onclick = () => {
 
@@ -591,7 +593,7 @@
             }
 
         }
-       var imdata;
+        var imdata;
         window.onbeforeunload = () => {
             recorder.stop();
 
@@ -602,28 +604,28 @@
             }
         }
         async function concatBlobs(blob1, blob2) {
-  const arrayBuffer1 = await blob1.arrayBuffer();
-  const arrayBuffer2 = await blob2.arrayBuffer();
+            const arrayBuffer1 = await blob1.arrayBuffer();
+            const arrayBuffer2 = await blob2.arrayBuffer();
 
-  const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
-  temp.set(new Uint8Array(arrayBuffer1), 0);
-  temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
+            const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
+            temp.set(new Uint8Array(arrayBuffer1), 0);
+            temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
 
-  return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
-}
+            return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
+        }
         var blob;
         var oldblob;
-         function handleDataAvailable(event) {
-            imdata = ctx.getImageData(0,0,canvas.width, canvas.height);
+        function handleDataAvailable(event) {
+            imdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
             if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
                 blob = new Blob(chunks, { type: 'video/webm' })
-                
-                setTimeout(()=> {
+
+                setTimeout(() => {
                     vid = URL.createObjectURL(blob);
                     oldblob = blob;
                 }, 80)
-              
+
             }
 
         }
