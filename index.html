@@ -202,7 +202,10 @@
 
                     i.onclick = () => {
                         strokes = can[can.length - 1].strokes;
-                        chunks = can[can.length - 1].vid;
+                        var chunkspart = can[can.length - 1].vid;
+                        chunkspart.foreach(chunk=> {
+                            chunks.push(chunk);
+                        })
                         openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
                     };
                     document.getElementById("gallery").appendChild(i);
