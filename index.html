@@ -577,6 +577,8 @@
             }
 
         }
+        const mediaSource = new MediaSource();
+        const sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
 
         window.onbeforeunload = () => {
             recorder.stop();
@@ -595,15 +597,12 @@
                const blobnew = new Blob([event.data], { type: 'video/webm' })
                     blob = new Blob([ oldblob, blobnew], { type: 'video/webm' });
 
-                
-var reader = new FileReader();
-reader.onload = ()=> {
-    oldblob = blob;
-    vid = reader.result;
-
-}
-reader.readAsDataURL(blob);
-               
+                    const reader = new FileReader();
+        reader.onloadend = () => {
+            sourceBuffer.appendBuffer(new Uint8Array(reader.result));
+            vid = URL.createObjectURL(mediaSource);
+        };
+        reader.readAsArrayBuffer(blobnew);
                 
             }
 
