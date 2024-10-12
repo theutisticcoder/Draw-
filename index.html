@@ -572,7 +572,7 @@
                     if (oldvid) {
                         vid = vid.replace("data:video/webm;base64", "");
                         vid = oldvid + vid;
-                        vid.replace("==", "")
+                        vid.replace("=", "")
                     }
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
