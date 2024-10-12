@@ -317,7 +317,8 @@
             ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
-            recorder.start(1000);
+            recorder.start();
+            setTimeout(getdata, 500)
             restore();
         }
         var oldvid;
@@ -325,8 +326,8 @@
 
         document.getElementById("new").onclick = () => {
 
-            recorder.start(1000);
-
+            recorder.start();
+            setTimeout(getdata, 500)
             ctx.fillStyle = "white"
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
@@ -551,6 +552,10 @@
                 setTimeout(restore, 100);
 
         }
+        function getdata(){
+            recorder.requestData();
+            setTimeout(getdata, 500);
+        }
         document.getElementById("undo").onclick = () => {
 
             if (strokes.length > 0) {
@@ -595,9 +600,6 @@
                 reader.onload = function () {
                     vid = reader.result;
 
-                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    localforage.setItem("canvas", arts);
                 };
 
                 reader.readAsDataURL(blob);
