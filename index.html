@@ -166,16 +166,16 @@
             <canvas id="drawing-board"></canvas>
         </div>
     </section>
-    <script> 
-    function saveVid(){
-      // Create a download link
-      const a = document.createElement('a');
+    <script>
+        function saveVid() {
+            // Create a download link
+            const a = document.createElement('a');
             a.href = oldvid;
-            a.download = 'replay.webm'; // Specify the file name
+            a.download = 'replay.mp4'; // Specify the file name
 
             // Programmatically click the link to trigger the download
-            a.click();    
-    }
+            a.click();
+        }
         var width = window.innerWidth / 10;
         var strokes = [];
         var pointarray = [];
@@ -531,13 +531,15 @@
             a.click();
         }
         function restore() {
+            recorder.stop();
             setTimeout(() => {
+
                 localStorage.setItem("canvas", JSON.stringify(arts));
                 localStorage.setItem("lw", lineWidth)
                 localStorage.setItem("color", color)
-
-                setTimeout(restore, 10000);
-            }, 1000)
+                recorder.start();
+                setTimeout(restore, 1000);
+            }, 100)
 
         }
         document.getElementById("undo").onclick = () => {
@@ -561,9 +563,10 @@
             }
 
         }
+
         window.onbeforeunload = () => {
             recorder.stop();
-          
+
         }
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
@@ -576,10 +579,10 @@
 
                 if (oldvid) {
 
-                    blob = new Blob([ await fetch(oldvid).then(r => r.blob()),new Blob([event.data], { type: 'video/webm' })], { type: 'video/webm' });
+                    blob = new Blob([await fetch(oldvid).then(r => r.blob()), new Blob([event.data], { type: 'video/mp4' })], { type: 'video/mp4' });
                 }
                 else {
-                    blob = new Blob([event.data], { type: 'video/webm' });
+                    blob = new Blob([event.data], { type: 'video/mp4' });
 
                 }
                 const reader = new FileReader();
@@ -587,17 +590,17 @@
                 reader.onload = function () {
                     vid = reader.result;
 
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-            localStorage.setItem("canvas", JSON.stringify(arts));
+                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+                    else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+                    localStorage.setItem("canvas", JSON.stringify(arts));
                 };
 
                 reader.readAsDataURL(blob);
-            
+
             }
 
         }
-        
+
     </script>
 </body>
 
