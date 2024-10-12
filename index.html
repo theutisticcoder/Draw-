@@ -155,6 +155,7 @@
             <label style="font-size: 24pt;" for="lineWidth">Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
+            <button onclick="saveVid()">Save Replay</button>
             <br><br>
             <button id="undo">Undo</button>
             <button id="dry">Dry</button>
@@ -308,7 +309,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
@@ -469,8 +470,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -488,8 +489,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -521,13 +522,12 @@
             a.click();
         }
         function restore() {
-            setTimeout(() => {
+            recorder.stop();
                 localStorage.setItem("canvas", JSON.stringify(arts));
                 localStorage.setItem("lw", lineWidth)
                 localStorage.setItem("color", color)
 
-                setTimeout(restore, 10000);
-            }, 1000)
+                setTimeout(restore, 100);
 
         }
         document.getElementById("undo").onclick = () => {
@@ -551,13 +551,12 @@
             }
 
         }
-        window.onbeforeunload = ()=>{
-                    recorder.stop();
-                    window.onbeforeunload = ()=>{
-                    recorder.stop();
-                    
-                } 
-                } 
+        function saveVid(){
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(oldvid);
+            a.download = "video.mp4";
+            a.click();
+        }
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
                 document.querySelector("#undo").click();
@@ -569,18 +568,14 @@
 
                     if (oldvid) {
 
-                         blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
+                         blob = new Blob([new Blob([event.data], { type: 'video/mp4' }),oldvid], {type: 'video/mp4'});
                     }
                     else{
-                        blob = new Blob([event.data], { type: 'video/webm' });
+                        blob = new Blob([event.data], { type: 'video/mp4' });
 
                     }
-                    vid = URL.createObjectURL(blob); // Store the Data URL in "vid"
-
-                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    localStorage.setItem("canvas", JSON.stringify(arts));
-
+oldvid = blob;
+                  recorder.start();
 
             }
         }
