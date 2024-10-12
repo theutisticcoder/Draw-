@@ -605,11 +605,12 @@
                 if(oldblob){
                     concatBlobs(oldblob, blob).then(blo=> {
                         blob = blo
+                        vid = URL.createObjectURL(blob);
+                        oldblob = blob;
                     })
                 }
 
-            vid = URL.createObjectURL(blob);
-                oldblob = blob;
+           
             }
 
         }
