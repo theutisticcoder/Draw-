@@ -183,7 +183,7 @@
         var paintings = [];
         var arts = [];
             arts = localforage.getItem("canvas", (err, val)=> {
-            arts = val;
+                if(val != null) arts = val;
         });
         
         function recolorImage(img, newColor) {
