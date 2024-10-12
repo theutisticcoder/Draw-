@@ -577,9 +577,7 @@
             }
 
         }
-        const mediaSource = new MediaSource();
-        const sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
-
+       
         window.onbeforeunload = () => {
             recorder.stop();
 
@@ -593,16 +591,13 @@
         var oldblob;
          function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
+                blob = new Blob([event.data], { type: 'video/webm' })
+                if(oldblob){
+                    blob = new Blob([ oldblob, blob], { type: 'video/webm' });
 
-               const blobnew = new Blob([event.data], { type: 'video/webm' })
-                    blob = new Blob([ oldblob, blobnew], { type: 'video/webm' });
+                }
 
-                    const reader = new FileReader();
-        reader.onloadend = () => {
-            sourceBuffer.appendBuffer(new Uint8Array(reader.result));
-            vid = URL.createObjectURL(mediaSource);
-        };
-        reader.readAsArrayBuffer(blobnew);
+            vid = URL.createObjectURL(blob);
                 
             }
 
