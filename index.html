@@ -149,6 +149,7 @@
     </div>
     <section class="container">
         <div id="toolbar" hidden>
+            <video></video>
             <img id="name" height="100px" width="100px" src="icon.png">
             <label style="font-size: 24pt;" for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
@@ -171,7 +172,7 @@
         function saveVid() {
             // Create a download link
             const a = document.createElement('a');
-            a.href = vid;
+            a.href = document.querySelector("video").src
             a.download = 'replay.webm'; // Specify the file name
 
             // Programmatically click the link to trigger the download
@@ -620,9 +621,11 @@
             if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
                 blob = new Blob(chunks, { type: 'video/webm' })
-
+                
                 setTimeout(() => {
                     vid = URL.createObjectURL(blob);
+                    document.querySelector("video").src = vid;
+                    document.querySelector("video").playbackRate = 5.0;
                     oldblob = blob;
                 }, 80)
 
