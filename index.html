@@ -183,7 +183,9 @@
         var paintings = [];
         var arts = [];
         if (localforage.getItem("canvas")) {
-            arts = localforage.getItem("canvas");
+            arts = localforage.getItem("canvas", (err, val)=> {
+            arts = val;
+        });
         }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
@@ -214,8 +216,12 @@
         let isPainting = false;
         let lineWidth = 5;
 
-        if (isNumber(localforage.getItem("lw"))) lineWidth = parseInt(localforage.getItem("lw"));
-        if (localforage.getItem("color")) color = localforage.getItem("color");
+        if (isNumber(localforage.getItem("lw"))) lineWidth = parseInt(localforage.getItem("lw"), (err, val)=> {
+            lineWidth = val;
+        });
+        if (localforage.getItem("color")) color = localforage.getItem("color", (err, val)=> {
+            color = val;
+        });
 
         let startX;
         let startY;
@@ -284,7 +290,7 @@
         }
         var oldvid;
         var imgs = 0;
-        if (localforage.getItem("canvas")!= null) {
+        if (arts != []) {
             arts.forEach(can => {
 
                 var i = new Image();
