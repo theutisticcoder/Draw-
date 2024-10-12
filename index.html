@@ -552,9 +552,8 @@
 
         }
         function getdata(){
-            recorder.stop();
-            recorder.start();
-            setTimeout(getdata, 500);
+            recorder.requestData();
+            setTimeout(getdata, 1000);
         } 
         var chunks = [];
         document.getElementById("undo").onclick = () => {
