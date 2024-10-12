@@ -552,7 +552,10 @@
         }
         window.onbeforeunload = ()=>{
                     recorder.stop();
+                    window.onbeforeunload = ()=>{
+                    recorder.stop();
                     
+                } 
                 } 
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
@@ -572,6 +575,8 @@
                     }
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+                    localStorage.setItem("canvas", JSON.stringify(arts));
+
                 };
 
                 reader.readAsDataURL(blob); // Convert Blob to Data URL
