@@ -553,8 +553,10 @@
 
         }
         function getdata() {
+            if(ready){
             recorder.stop();
             recorder.start();
+            }
             setTimeout(getdata, 500);
         }
         document.getElementById("undo").onclick = () => {
@@ -612,7 +614,6 @@ sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
         function handleDataAvailable(event) {
 
             if (event.data && event.data.size > 0) {
-                if(ready){
                     blob = new Blob([event.data], { type: 'video/webm' })
                 fetch(URL.createObjectURL(blob)).then(res=> res.arrayBuffer()).then( (buf) => {
                   
@@ -621,7 +622,7 @@ sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
                 setTimeout(() => {
                     vid = URL.createObjectURL(mediaSource);
                 }, 80)
-                }
+                
                
 
             }
