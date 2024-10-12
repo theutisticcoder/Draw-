@@ -560,10 +560,10 @@
             var newdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
             if (imdata) {
                 if (!compareImageData(newdata, imdata)) {
-                    recorder.requestData();
                     if (recorder.state === 'inactive') {
                         recorder.start();
                     }
+                    recorder.requestData();
                 }
                 else recorder.stop();
             }
