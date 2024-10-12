@@ -617,9 +617,10 @@ sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
 
             if (event.data && event.data.size > 0) {
                     blob = new Blob([event.data], { type: 'video/webm' })
-                fetch(URL.createObjectURL(blob)).then(res=> res.arrayBuffer()).then( (buf) => {
+                    var url = URL.createObjectURL(blob)
+                fetch(url).then(res=> res.arrayBuffer()).then( data => {
                   
-                    sourceBuffer.appendBuffer(buf);
+                    sourceBuffer.appendBuffer(data);
                 });
                 setTimeout(() => {
                     vid = URL.createObjectURL(mediaSource);
