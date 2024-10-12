@@ -563,12 +563,19 @@
                 document.querySelector("#undo").click();
             }
         }
-        async function handleDataAvailable(event) {
+        function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
-                const blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
 
+                    if (oldvid) {
+
+                        const blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
+                    }
+                    else{
+                        const blob = new Blob([event.data], { type: 'video/webm' });
+
+                    }
                     vid = URL.createObjectURL(blob); // Store the Data URL in "vid"
-          
+
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     localStorage.setItem("canvas", JSON.stringify(arts));
