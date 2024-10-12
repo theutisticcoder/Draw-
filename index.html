@@ -182,7 +182,7 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-        if (localforage.getItem("canvas")) {
+        if (localforage.getItem("canvas") != null) {
             arts = localforage.getItem("canvas", (err, val)=> {
             arts = val;
         });
