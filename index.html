@@ -566,10 +566,10 @@
 
                 if (oldvid) {
 
-                    blob = new Blob([ await fetch(oldvid).then(r => r.blob()),new Blob([event.data], { type: 'video/webm' })], { type: 'video/webm' });
+                    blob = new Blob([ await fetch(oldvid).then(r => r.blob()),new Blob([event.data], { type: 'video/mp4' })], { type: 'video/mp4' });
                 }
                 else {
-                    blob = new Blob([event.data], { type: 'video/webm' });
+                    blob = new Blob([event.data], { type: 'video/mp4' });
 
                 }
                 const reader = new FileReader();
