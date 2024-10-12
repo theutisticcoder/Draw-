@@ -545,14 +545,12 @@
         }
         function restore() {
             recorder.stop();
-            setTimeout(() => {
 
                 localforage.setItem("canvas", arts);
                 localforage.setItem("lw", lineWidth)
                 localforage.setItem("color", color)
                 recorder.start();
-                setTimeout(restore, 1000);
-            }, 100)
+                setTimeout(restore, 500);
 
         }
         document.getElementById("undo").onclick = () => {
