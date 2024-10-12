@@ -557,7 +557,6 @@ old.onload = ()=> {
       vid = reader.result; // Store the Data URL in "vid"
       if(oldvid){
         vid = vid.replace("data:video/webm;base64,", "");
-        oldvid = oldvid.replace("=", "");
         vid = oldvid + vid;
       }
       if(number != 0)arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes , vid: vid})
