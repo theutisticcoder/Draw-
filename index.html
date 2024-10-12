@@ -557,8 +557,9 @@
 
         }
         function getdata(){
+            var newdata = ctx.getImageData(0,0,canvas.width, canvas.height);
             if(imdata){
-                if(!compareImageData(ctx.getImageData(0,0,canvas.width, canvas.height), imdata)) recorder.requestData();
+                if(!compareImageData(newdata, imdata)) recorder.requestData();
 
             }
             else recorder.requestData();
