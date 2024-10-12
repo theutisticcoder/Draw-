@@ -570,8 +570,9 @@
                     vid = URL.createObjectURL(blob); // Store the Data URL in "vid"
                     if (oldvid) {
                         vid = vid.replaceAll("data:video/webm;base64,", "");
+                        oldvid.replaceAll("=", "")
+
                         vid = oldvid + vid;
-                        vid.replaceAll("=", "")
                     }
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
