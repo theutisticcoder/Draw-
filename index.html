@@ -175,7 +175,7 @@
             // Create a download link
             const a = document.createElement('a');
             a.href = document.querySelector("video").src
-            a.download = 'replay.mov'; // Specify the file name
+            a.download = 'replay.mp4'; // Specify the file name
 
             // Programmatically click the link to trigger the download
             a.click();
@@ -408,7 +408,7 @@
         var stream = canvas.captureStream();
 
         // Set up the MediaRecorder with the video stream
-        var recorder = new MediaRecorder(stream, {mimeType: "video/mov"});
+        var recorder = new MediaRecorder(stream, {mimeType: "video/mp4"});
 
         recorder.ondataavailable = handleDataAvailable;
         const draw2 = (e) => {
@@ -618,7 +618,7 @@
             imdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
             if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
-                blob = new Blob(chunks, { type: 'video/mov' })
+                blob = new Blob(chunks, { type: 'video/mp4' })
                 
                 setTimeout(() => {
                     vid = URL.createObjectURL(blob);
