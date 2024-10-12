@@ -593,7 +593,7 @@
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
                 if(oldblob){
-                    blob = new Blob([ oldblob, blob], { type: 'video/webm' });
+                    blob = new Blob([ oldblob.arrayBuffer(), blob.arrayBuffer()], { type: 'video/webm' });
 
                 }
 
