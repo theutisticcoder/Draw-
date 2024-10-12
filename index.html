@@ -172,7 +172,8 @@
         function saveVid() {
             // Create a download link
             const a = document.createElement('a');
-            a.href = replay.src;
+            mediaSource.endOfStream();
+            a.href = vid;
             a.download = 'replay.webm'; // Specify the file name
 
             // Programmatically click the link to trigger the download
@@ -615,22 +616,16 @@
         var url;
         var prevdata;
         function handleDataAvailable(event) {
-
+           
+                
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
                  url = URL.createObjectURL(blob)
                 fetch(url).then(res => res.arrayBuffer()).then(data => {
-                    if(prevdata) sourceBuffer.appendBuffer(prevdata);
                     sourceBuffer.appendBuffer(data);
                     sourceBuffer.onupdateend = () => {
-                        mediaSource.endOfStream();
-                         prevdata = data  // Use your custom extract function
-                        document.querySelector("video").src = '';
-                   
-                        mediaSource = new MediaSource();
-                        ready = false;
-                        document.querySelector("video").src = URL.createObjectURL(mediaSource)
-                      }
+                    vid = URL.createObjectURL(mediaSource);
+                        }
                 });
                 setTimeout(() => {
                 }, 80)
