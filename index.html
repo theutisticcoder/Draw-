@@ -606,10 +606,9 @@
         var ready = false;
         mediaSource.onopen = ()=> {
 ready = true;
+sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+
         }
-        setTimeout(() => {
-            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-        }, 100)
         function handleDataAvailable(event) {
 
             if (event.data && event.data.size > 0) {
