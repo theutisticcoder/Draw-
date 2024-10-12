@@ -149,6 +149,7 @@
     </div>
     <section class="container">
         <div id="toolbar" hidden>
+            <video id="replay" hidden></video>
             <img id="name" height="100px" width="100px" src="icon.png">
             <label style="font-size: 24pt;" for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
@@ -606,6 +607,7 @@
         const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
         const mediaSource = new MediaSource();
         var ready = false;
+        document.querySelector("video").src = URL.createObjectURL(mediaSource)
         mediaSource.onsourceopen = ()=> {
 ready = true;
 sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
