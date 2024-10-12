@@ -169,6 +169,8 @@
         </div>
     </section>
     <script>
+                var chunks = [];
+
         function saveVid() {
             // Create a download link
             const a = document.createElement('a');
@@ -572,7 +574,6 @@
 
             setTimeout(getdata, 200);
         }
-        var chunks = [];
         document.getElementById("undo").onclick = () => {
 
             if (strokes.length > 0) {
