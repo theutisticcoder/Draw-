@@ -589,22 +589,23 @@
             }
         }
         var blob;
+        var oldblob
          function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
                
-                    blob = new Blob([event.data], { type: 'video/webm' });
+                    blob = new Blob([event.data, oldblob], { type: 'video/webm' });
 
                 
                 const reader = new FileReader();
 
                 reader.onload = function () {
                     vid = reader.result;
-
+                    oldblob = blob;
                 };
 
                 reader.readAsDataURL(blob);
-
+                
             }
 
         }
