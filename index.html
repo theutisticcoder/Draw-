@@ -155,7 +155,6 @@
             <label style="font-size: 24pt;" for="lineWidth">Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
-            <button onclick="saveVid()">Save Replay</button>
             <br><br>
             <button id="undo">Undo</button>
             <button id="dry">Dry</button>
@@ -309,7 +308,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
+            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
@@ -470,8 +469,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -489,8 +488,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldvid })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -522,12 +521,13 @@
             a.click();
         }
         function restore() {
-            recorder.stop();
+            setTimeout(() => {
                 localStorage.setItem("canvas", JSON.stringify(arts));
                 localStorage.setItem("lw", lineWidth)
                 localStorage.setItem("color", color)
 
-                setTimeout(restore, 100);
+                setTimeout(restore, 10000);
+            }, 1000)
 
         }
         document.getElementById("undo").onclick = () => {
@@ -551,46 +551,35 @@
             }
 
         }
-        function saveVid(){
-            var a = document.createElement("a");
-            a.href = URL.createObjectURL(oldvid);
-            a.download = "video.mp4";
-            a.click();
-        }
+        window.onbeforeunload = ()=>{
+                    recorder.stop();
+                    window.onbeforeunload = ()=>{
+                    recorder.stop();
+                    
+                } 
+                } 
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
                 document.querySelector("#undo").click();
             }
         }
         var blob;
-        function retrieveBlobFromLocalStorage(base64String) {
-
-  if (base64String) {
-    const byteCharacters = atob(base64String.split(',')[1]);
-    const byteArrays = [];
-
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteArrays.push(byteCharacters.charCodeAt(i));
-    }
-
-    return new Blob([new Uint8Array(byteArrays)], { type: 'text/plain' });
-  }
-
-  return null;
-}
        async function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
                     if (oldvid) {
 
-                         blob = new Blob([new Blob([event.data], { type: 'video/mp4' }),retrieveBlobFromLocalStorage(oldvid)], {type: 'video/mp4'});
+                         blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
                     }
                     else{
-                        blob = new Blob([event.data], { type: 'video/mp4' });
+                         blob = new Blob([event.data], { type: 'video/webm' });
 
                     }
-oldvid = URL.createObjectURL(blob);
-                  recorder.start();
+                    
+                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+                    else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+                    localStorage.setItem("canvas", JSON.stringify(arts));
+
 
             }
         }
