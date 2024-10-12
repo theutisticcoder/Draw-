@@ -606,7 +606,7 @@
         const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
         const mediaSource = new MediaSource();
         var ready = false;
-        mediaSource.onopen = ()=> {
+        mediaSource.onsourceopen = ()=> {
 ready = true;
 sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
 
