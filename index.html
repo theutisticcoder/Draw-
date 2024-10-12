@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="icon.png">
-    
+
     <style>
         button {
             color: white;
@@ -539,7 +539,7 @@
                 strokes[strokes.length - 1].forEach(p => {
                     points.splice(points.indexOf(p), 1);
                 });
-                
+
 
                 strokes.pop();
                 var old = new Image(canvas.width, canvas.height);
@@ -551,38 +551,42 @@
             }
 
         }
-        window.onbeforeunload = ()=>{
-                    recorder.stop();
-                    window.onbeforeunload = ()=>{
-                    recorder.stop();
-                    
-                } 
-                } 
+        window.onbeforeunload = () => {
+            recorder.stop();
+          
+        }
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
                 document.querySelector("#undo").click();
             }
         }
         var blob;
-       async function handleDataAvailable(event) {
+        async function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
-                    if (oldvid) {
+                if (oldvid) {
 
-                         blob = new Blob([new Blob([event.data], { type: 'video/webm' }),await fetch(oldvid).then(r => r.blob())], {type: 'video/webm'});
-                    }
-                    else{
-                         blob = new Blob([event.data], { type: 'video/webm' });
+                    blob = new Blob([new Blob([event.data], { type: 'video/webm' }), await fetch(oldvid).then(r => r.blob())], { type: 'video/webm' });
+                }
+                else {
+                    blob = new Blob([event.data], { type: 'video/webm' });
 
-                    }
-                    
-                    if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    localStorage.setItem("canvas", JSON.stringify(arts));
+                }
+                const reader = new FileReader();
 
+                reader.onload = function () {
+                    vid = reader.result;
+                };
 
+                reader.readAsDataURL(blob);
+            
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
+            localStorage.setItem("canvas", JSON.stringify(arts));
             }
+
         }
+        
     </script>
 </body>
 
