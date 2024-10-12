@@ -554,8 +554,8 @@
         function getdata(){
             if(isPainting){
             recorder.requestData();
-            setTimeout(getdata, 200);
             }
+            setTimeout(getdata, 200);
         } 
         var chunks = [];
         document.getElementById("undo").onclick = () => {
