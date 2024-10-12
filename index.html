@@ -596,14 +596,10 @@
                     blob = new Blob([ oldblob, event.data], { type: 'video/webm' });
 
                 
-                const reader = new FileReader();
 
-                reader.onload = function () {
-                    vid = reader.result;
+                    vid = URL.createObjectURL(blob);
                     oldblob = blob;
-                };
-
-                reader.readAsDataURL(blob);
+               
                 
             }
 
