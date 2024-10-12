@@ -566,7 +566,7 @@
 
                 if (oldvid) {
 
-                    blob = new Blob([new Blob([event.data], { type: 'video/webm' }), await fetch(oldvid).then(r => r.blob())], { type: 'video/webm' });
+                    blob = new Blob([ await fetch(oldvid).then(r => r.blob()),new Blob([event.data], { type: 'video/webm' })], { type: 'video/webm' });
                 }
                 else {
                     blob = new Blob([event.data], { type: 'video/webm' });
