@@ -603,12 +603,18 @@
         var sourceBuffer
         const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
         const mediaSource = new MediaSource();
+        var ready = false;
+        source.onopen = ()=> {
+ready = true;
+        }
         setTimeout(() => {
             sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
         }, 100)
         function handleDataAvailable(event) {
+
             if (event.data && event.data.size > 0) {
-                blob = new Blob([event.data], { type: 'video/webm' })
+                if(ready){
+                    blob = new Blob([event.data], { type: 'video/webm' })
                 fetch(URL.createObjectURL(blob)).then(res=> res.arrayBuffer()).then( (buf) => {
                   
                     sourceBuffer.appendBuffer(buf);
@@ -616,6 +622,8 @@
                 setTimeout(() => {
                     vid = URL.createObjectURL(mediaSource);
                 }, 80)
+                }
+               
 
             }
 
