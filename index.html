@@ -587,14 +587,23 @@
                 document.querySelector("#undo").click();
             }
         }
+        async function concatBlobs(blob1, blob2) {
+  const arrayBuffer1 = await blob1.arrayBuffer();
+  const arrayBuffer2 = await blob2.arrayBuffer();
+
+  const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
+  temp.set(new Uint8Array(arrayBuffer1), 0);
+  temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
+
+  return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
+}
         var blob;
         var oldblob;
          function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
                 if(oldblob){
-                    blob = new Blob([ oldblob.arrayBuffer(), blob.arrayBuffer()], { type: 'video/webm' });
-
+                    blob = concatBlobs(oldblob, blob)
                 }
 
             vid = URL.createObjectURL(blob);
