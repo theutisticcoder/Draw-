@@ -631,11 +631,7 @@
                         mediaSource = new MediaSource();
                         ready = false;
                         document.querySelector("video").src = URL.createObjectURL(mediaSource)
-                        mediaSource.onsourceopen = () => {
-                            ready = true;
-                            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-
-                        }
+                       
                     }
                 });
                 setTimeout(() => {
