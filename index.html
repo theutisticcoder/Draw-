@@ -185,7 +185,8 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-        localforage.getItem("canvas", (err, val) => {
+        setTimeout(()=> {
+            localforage.getItem("canvas", (err, val) => {
             if (val != null) {
                 arts = val;
                 arts.forEach(can => {
@@ -202,10 +203,8 @@
 
                     i.onclick = () => {
                         strokes = can[can.length - 1].strokes;
-                        var chunkspart = can[can.length - 1].vid;
-                        chunkspart.foreach(chunk=> {
-                            chunks.push(chunk);
-                        })
+                        chunks = can[can.length - 1].vid;
+                       
                         openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
                     };
                     document.getElementById("gallery").appendChild(i);
@@ -215,6 +214,8 @@
             }
 
         });
+        }, 200)
+        
 
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
