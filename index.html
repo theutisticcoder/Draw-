@@ -605,7 +605,7 @@
         var oldblob;
         var sourceBuffer
         const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-        const mediaSource = new MediaSource();
+        var mediaSource = new MediaSource();
         var ready = false;
         document.querySelector("video").src = URL.createObjectURL(mediaSource)
         mediaSource.onsourceopen = ()=> {
@@ -621,9 +621,24 @@ sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
                 fetch(url).then(res=> res.arrayBuffer()).then( data => {
                   
                     sourceBuffer.appendBuffer(data);
+                    sourcebuffer.onupdateend = ()=> {
+                        let start = sourceBuffer.buffered.start(0);
+        let end = sourceBuffer.buffered.end(0);
+        var prevdata = sourceBuffer.extract(start, end);  // Use your custom extract function
+         mediaSource.endOfStream();
+         vid = URL.createObjectURL(mediaSource);
+          mediaSource = new MediaSource();
+         ready = false;
+        document.querySelector("video").src = URL.createObjectURL(mediaSource)
+        mediaSource.onsourceopen = ()=> {
+ready = true;
+sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+sourceBuffer.appendBuffer(prevdata);
+
+        }
+                    }
                 });
                 setTimeout(() => {
-                    vid = URL.createObjectURL(mediaSource);
                 }, 80)
                 
                
