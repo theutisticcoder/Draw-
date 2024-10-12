@@ -200,7 +200,7 @@
 
                     i.onclick = () => {
                         strokes = can[can.length - 1].strokes;
-                        oldblob = can[can.length - 1].vid;
+                        chunks = can[can.length - 1].vid;
                         openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
                     };
                     document.getElementById("gallery").appendChild(i);
@@ -332,7 +332,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
+            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
@@ -493,8 +493,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -512,8 +512,8 @@
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: oldblob })
+            if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
