@@ -317,7 +317,7 @@
             ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
-            recorder.start();
+            recorder.start(100);
             restore();
         }
         var oldvid;
@@ -325,7 +325,7 @@
 
         document.getElementById("new").onclick = () => {
 
-            recorder.start();
+            recorder.start(100);
 
             ctx.fillStyle = "white"
             ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -544,13 +544,11 @@
             a.click();
         }
         function restore() {
-            recorder.stop();
 
                 localforage.setItem("canvas", arts);
                 localforage.setItem("lw", lineWidth)
                 localforage.setItem("color", color)
-                recorder.start();
-                setTimeout(restore, 500);
+                setTimeout(restore, 100);
 
         }
         document.getElementById("undo").onclick = () => {
