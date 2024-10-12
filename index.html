@@ -263,7 +263,7 @@
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(150, 0, canvas.width, canvas.height)
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
             ctx.drawImage(image, -width, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
@@ -304,7 +304,7 @@
             recorder.start();
 
             ctx.fillStyle = "white"
-            ctx.fillRect(150, 0, canvas.width, canvas.height)
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
