@@ -554,9 +554,9 @@
 
         }
         function getdata() {
-            if(ready){
-            recorder.stop();
-            recorder.start();
+            if (ready) {
+                recorder.stop();
+                recorder.start();
             }
             setTimeout(getdata, 500);
         }
@@ -608,40 +608,40 @@
         var mediaSource = new MediaSource();
         var ready = false;
         document.querySelector("video").src = URL.createObjectURL(mediaSource)
-        mediaSource.onsourceopen = ()=> {
-ready = true;
-sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+        mediaSource.onsourceopen = () => {
+            ready = true;
+            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
 
         }
         function handleDataAvailable(event) {
 
             if (event.data && event.data.size > 0) {
-                    blob = new Blob([event.data], { type: 'video/webm' })
-                    var url = URL.createObjectURL(blob)
-                fetch(url).then(res=> res.arrayBuffer()).then( data => {
-                  
-                    sourceBuffer.appendBuffer(data);
-                    sourceBuffer.onupdateend = ()=> {
-                        let start = sourceBuffer.buffered.start(0);
-        let end = sourceBuffer.buffered.end(0);
-        var prevdata = sourceBuffer.extract(start, end);  // Use your custom extract function
-         mediaSource.endOfStream();
-         vid = URL.createObjectURL(mediaSource);
-          mediaSource = new MediaSource();
-         ready = false;
-        document.querySelector("video").src = URL.createObjectURL(mediaSource)
-        mediaSource.onsourceopen = ()=> {
-ready = true;
-sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-sourceBuffer.appendBuffer(prevdata);
+                blob = new Blob([event.data], { type: 'video/webm' })
+                var url = URL.createObjectURL(blob)
+                fetch(url).then(res => res.arrayBuffer()).then(data => {
 
-        }
+                    sourceBuffer.appendBuffer(data);
+                    sourceBuffer.onupdateend = () => {
+                        mediaSource.endOfStream();
+                        let start = sourceBuffer.buffered.start(0);
+                        let end = sourceBuffer.buffered.end(0);
+                        var prevdata = sourceBuffer.extract(start, end);  // Use your custom extract function
+                        vid = URL.createObjectURL(mediaSource);
+                        mediaSource = new MediaSource();
+                        ready = false;
+                        document.querySelector("video").src = URL.createObjectURL(mediaSource)
+                        mediaSource.onsourceopen = () => {
+                            ready = true;
+                            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+                            sourceBuffer.appendBuffer(prevdata);
+
+                        }
                     }
                 });
                 setTimeout(() => {
                 }, 80)
-                
-               
+
+
 
             }
 
