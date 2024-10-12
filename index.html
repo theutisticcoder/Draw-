@@ -553,7 +553,8 @@
 
         }
         function getdata(){
-            recorder.requestData();
+            recorder.stop();
+            recorder.start();
             setTimeout(getdata, 2000);
         }
         document.getElementById("undo").onclick = () => {
