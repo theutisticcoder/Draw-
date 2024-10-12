@@ -626,7 +626,6 @@
                         mediaSource.endOfStream();
                          prevdata = data  // Use your custom extract function
                         vid = URL.createObjectURL(mediaSource);
-                        URL.revokeObjectURL(document.querySelector("video").src);
                         document.querySelector("video").src = '';
                    
                         mediaSource = new MediaSource();
