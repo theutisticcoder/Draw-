@@ -172,7 +172,7 @@
             // Create a download link
             const a = document.createElement('a');
             a.href = oldvid;
-            a.download = 'replay.mp4'; // Specify the file name
+            a.download = 'replay.webm'; // Specify the file name
 
             // Programmatically click the link to trigger the download
             a.click();
@@ -587,7 +587,7 @@
             if (event.data && event.data.size > 0) {
 
                
-                    blob = new Blob([event.data], { type: 'video/mp4' });
+                    blob = new Blob([event.data], { type: 'video/webm' });
 
                 
                 const reader = new FileReader();
