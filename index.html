@@ -182,11 +182,10 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-        if (localforage.getItem("canvas") != null) {
             arts = localforage.getItem("canvas", (err, val)=> {
             arts = val;
         });
-        }
+        
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -216,11 +215,19 @@
         let isPainting = false;
         let lineWidth = 5;
 
-        if (isNumber(localforage.getItem("lw"))) lineWidth = parseInt(localforage.getItem("lw"), (err, val)=> {
+         lineWidth = parseInt(localforage.getItem("lw"), (err, val)=> {
+            if(!val){
+                linewidth = 5;
+                return;
+            }
             lineWidth = val;
+            
         });
-        if (localforage.getItem("color")) color = localforage.getItem("color", (err, val)=> {
+        lineWidth = parseInt(localforage.getItem("color"), (err, val)=> {
+            if(!val) return;
+            
             color = val;
+            
         });
 
         let startX;
