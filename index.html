@@ -317,7 +317,7 @@
             ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
-            recorder.start(100);
+            recorder.start(1000);
             restore();
         }
         var oldvid;
@@ -325,7 +325,7 @@
 
         document.getElementById("new").onclick = () => {
 
-            recorder.start(100);
+            recorder.start(1000);
 
             ctx.fillStyle = "white"
             ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -548,7 +548,7 @@
                 localforage.setItem("canvas", arts);
                 localforage.setItem("lw", lineWidth)
                 localforage.setItem("color", color)
-                setTimeout(restore, 100);
+                setTimeout(restore, 10);
 
         }
         document.getElementById("undo").onclick = () => {
@@ -583,17 +583,13 @@
             }
         }
         var blob;
-        async function handleDataAvailable(event) {
+         function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
 
-                if (oldvid) {
-
-                    blob = new Blob([await fetch(oldvid).then(r => r.blob()), new Blob([event.data], { type: 'video/mp4' })], { type: 'video/mp4' });
-                }
-                else {
+               
                     blob = new Blob([event.data], { type: 'video/mp4' });
 
-                }
+                
                 const reader = new FileReader();
 
                 reader.onload = function () {
