@@ -538,7 +538,7 @@
                 strokes[strokes.length - 1].forEach(p => {
                     points.splice(points.indexOf(p), 1);
                 });
-                window.onbeforeunload = recorder.stop();
+                
 
                 strokes.pop();
                 var old = new Image(canvas.width, canvas.height);
@@ -550,6 +550,10 @@
             }
 
         }
+        window.onbeforeunload = ()=>{
+                    recorder.stop();
+                    
+                } 
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
                 document.querySelector("#undo").click();
@@ -568,7 +572,6 @@
                     }
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    localStorage.setItem("canvas", JSON.stringify(arts));
                 };
 
                 reader.readAsDataURL(blob); // Convert Blob to Data URL
