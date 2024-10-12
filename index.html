@@ -621,7 +621,7 @@ sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
                 fetch(url).then(res=> res.arrayBuffer()).then( data => {
                   
                     sourceBuffer.appendBuffer(data);
-                    sourcebuffer.onupdateend = ()=> {
+                    sourceBuffer.onupdateend = ()=> {
                         let start = sourceBuffer.buffered.start(0);
         let end = sourceBuffer.buffered.end(0);
         var prevdata = sourceBuffer.extract(start, end);  // Use your custom extract function
