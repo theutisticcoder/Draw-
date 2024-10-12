@@ -149,7 +149,6 @@
     </div>
     <section class="container">
         <div id="toolbar" hidden>
-            <video id="replay" hidden></video>
             <img id="name" height="100px" width="100px" src="icon.png">
             <label style="font-size: 24pt;" for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
@@ -172,13 +171,7 @@
         function saveVid() {
             // Create a download link
             const a = document.createElement('a');
-            mediaSource.endOfStream();
             a.href = vid;
-            document.querySelector("video").src = '';
-
-            mediaSource = new MediaSource();
-            ready = false;
-            document.querySelector("video").src = URL.createObjectURL(mediaSource)
             a.download = 'replay.webm'; // Specify the file name
 
             // Programmatically click the link to trigger the download
@@ -552,17 +545,15 @@
         }
         function restore() {
 
-            localforage.setItem("canvas", arts);
-            localforage.setItem("lw", lineWidth)
-            localforage.setItem("color", color)
-            setTimeout(restore, 100);
+                localforage.setItem("canvas", arts);
+                localforage.setItem("lw", lineWidth)
+                localforage.setItem("color", color)
+                setTimeout(restore, 100);
 
         }
-        function getdata() {
-            if (ready) {
-                recorder.stop();
-                recorder.start();
-            }
+        function getdata(){
+            recorder.stop();
+            recorder.start();
             setTimeout(getdata, 500);
         }
         document.getElementById("undo").onclick = () => {
@@ -586,7 +577,7 @@
             }
 
         }
-
+       
         window.onbeforeunload = () => {
             recorder.stop();
 
@@ -597,50 +588,31 @@
             }
         }
         async function concatBlobs(blob1, blob2) {
-            const arrayBuffer1 = await blob1.arrayBuffer();
-            const arrayBuffer2 = await blob2.arrayBuffer();
+  const arrayBuffer1 = await blob1.arrayBuffer();
+  const arrayBuffer2 = await blob2.arrayBuffer();
 
-            const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
-            temp.set(new Uint8Array(arrayBuffer1), 0);
-            temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
+  const temp = new Uint8Array(arrayBuffer1.byteLength + arrayBuffer2.byteLength);
+  temp.set(new Uint8Array(arrayBuffer1), 0);
+  temp.set(new Uint8Array(arrayBuffer2), arrayBuffer1.byteLength);
 
-            return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
-        }
+  return new Blob([temp], { type: blob1.type }); // Assuming both blobs have the same type
+}
         var blob;
         var oldblob;
-        var sourceBuffer;
-        const mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-        var mediaSource = new MediaSource();
-        var ready = false;
-        document.querySelector("video").src = URL.createObjectURL(mediaSource)
-        mediaSource.onsourceopen = () => {
-
-            ready = true;
-            sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-            if (prevdata) {
-                sourceBuffer.appendBuffer(prevdata);
-            }
-        }
-        var url;
-        var prevdata;
-        function handleDataAvailable(event) {
-
-
+         function handleDataAvailable(event) {
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
-                url = URL.createObjectURL(blob)
-                fetch(url).then(res => res.arrayBuffer()).then(data => {
-                    sourceBuffer.appendBuffer(data);
-                    prevdata = data;
-                    sourceBuffer.onupdateend = () => {
-                        vid = URL.createObjectURL(mediaSource);
-                    }
-                });
-                setTimeout(() => {
+                if(oldblob){
+                    concatBlobs(oldblob, blob).then(blo=> {
+                        blob = blo
+                       
+                    })
+                }
+                setTimeout(()=> {
+                    vid = URL.createObjectURL(blob);
+                    oldblob = blob;
                 }, 80)
-
-
-
+              
             }
 
         }
