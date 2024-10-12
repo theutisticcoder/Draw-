@@ -182,10 +182,37 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-           localforage.getItem("canvas", (err, val)=> {
-                if(val != null) arts = val;
+        localforage.getItem("canvas", (err, val) => {
+            if (val != null) {
+                arts = val;
+                arts.forEach(can => {
+
+                    var i = new Image();
+                    i.src = can[can.length - 1].canvas;
+                    i.style.background = "white";
+                    i.style.marginLeft = "13vw";
+                    i.style.marginTop = "15vh";
+
+                    i.style.width = canvas.width / 6;
+                    i.style.height = canvas.height / 6;
+                    i.style.border = "1px solid black"
+
+                    i.onclick = () => {
+                        strokes = can[can.length - 1].strokes;
+                        oldvid = can[can.length - 1].vid;
+                        openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
+                    };
+                    document.getElementById("gallery").appendChild(i);
+                    imgs++;
+                    if (imgs % 4 === 0) {
+                        document.getElementById("gallery").innerHTML += "<br>";
+
+                    }
+                });
+            }
+
         });
-        
+
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -215,17 +242,17 @@
         let isPainting = false;
         let lineWidth = 5;
 
-         (localforage.getItem("lw"), (err, val)=> {
-            if(!val){
+        (localforage.getItem("lw"), (err, val) => {
+            if (!val) {
                 linewidth = 5;
                 return;
             }
             lineWidth = val;
-            
+
         });
-        (localforage.getItem("color"), (err, val)=> {
-            if(val) color = val;
-            
+        (localforage.getItem("color"), (err, val) => {
+            if (val) color = val;
+
         });
 
         let startX;
@@ -295,33 +322,7 @@
         }
         var oldvid;
         var imgs = 0;
-        if (arts != null) {
-            arts.forEach(can => {
 
-                var i = new Image();
-                i.src = can[can.length - 1].canvas;
-                i.style.background = "white";
-                i.style.marginLeft = "13vw";
-                i.style.marginTop = "15vh";
-
-                i.style.width = canvas.width / 6;
-                i.style.height = canvas.height / 6;
-                i.style.border = "1px solid black"
-
-                i.onclick = () => {
-                    strokes = can[can.length - 1].strokes;
-                    oldvid = can[can.length - 1].vid;
-                    openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
-                };
-                document.getElementById("gallery").appendChild(i);
-                imgs++;
-                if (imgs % 4 === 0) {
-                    document.getElementById("gallery").innerHTML += "<br>";
-
-                }
-            });
-
-        }
         document.getElementById("new").onclick = () => {
 
             recorder.start();
@@ -604,7 +605,7 @@
 
                     if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
                     else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: vid })
-                    localforage.setItem("canvas",arts);
+                    localforage.setItem("canvas", arts);
                 };
 
                 reader.readAsDataURL(blob);
