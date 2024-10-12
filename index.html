@@ -174,6 +174,11 @@
             const a = document.createElement('a');
             mediaSource.endOfStream();
             a.href = vid;
+            document.querySelector("video").src = '';
+
+            mediaSource = new MediaSource();
+            ready = false;
+            document.querySelector("video").src = URL.createObjectURL(mediaSource)
             a.download = 'replay.webm'; // Specify the file name
 
             // Programmatically click the link to trigger the download
@@ -609,23 +614,27 @@
         var ready = false;
         document.querySelector("video").src = URL.createObjectURL(mediaSource)
         mediaSource.onsourceopen = () => {
+
             ready = true;
             sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-
+            if (prevdata) {
+                sourceBuffer.appendBuffer(prevdata);
+            }
         }
         var url;
         var prevdata;
         function handleDataAvailable(event) {
-           
-                
+
+
             if (event.data && event.data.size > 0) {
                 blob = new Blob([event.data], { type: 'video/webm' })
-                 url = URL.createObjectURL(blob)
+                url = URL.createObjectURL(blob)
                 fetch(url).then(res => res.arrayBuffer()).then(data => {
                     sourceBuffer.appendBuffer(data);
+                    prevdata = data;
                     sourceBuffer.onupdateend = () => {
-                    vid = URL.createObjectURL(mediaSource);
-                        }
+                        vid = URL.createObjectURL(mediaSource);
+                    }
                 });
                 setTimeout(() => {
                 }, 80)
