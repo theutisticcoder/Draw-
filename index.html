@@ -235,11 +235,10 @@
                 const t = i / steps;
                 const x = lerp(x1, x2, t);
                 const y = lerp(y1, y2, t);
-                ctx.translate(x-lineWidth*5,y-lineWidth*5);
                 ctx.globalAlpha = 0.7;
                 ctx.fillRect(0,0, lineWidth*10, lineWidth*10)
                 ctx.globalAlpha = 0.3
-                ctx.drawImage(brushImage,0,0, lineWidth*10, lineWidth*10);
+                ctx.drawImage(brushImage,x,y, lineWidth*10, lineWidth*10);
             }
             ctx.restore();
         }
