@@ -381,6 +381,8 @@
                 return;
             }
             if (isOil) {
+                ctx.globalCompositeOperation = 'lighter';  // or 'multiply' for darker blending
+
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.7)
                     points.push({ color: color, x: e.clientX, y: e.clientY })
@@ -391,6 +393,7 @@
 
                 }
                 if (lasttouch) {
+                    
                     for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
                             ctx.beginPath();
@@ -461,6 +464,7 @@
 
                 points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
                 pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                ctx.globalCompositeOperation = 'lighter';  // or 'multiply' for darker blending
 
 
                 if (lasttouch) {
@@ -561,7 +565,7 @@
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
         canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', imdraw);
+        canvas.addEventListener('mousemove', draw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
