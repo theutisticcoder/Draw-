@@ -169,7 +169,9 @@
         </div>
     </section>
     <script>
-                var chunks = [];
+        let brushImage = new Image();
+        brushImage.src = 'oil.png'; 
+        var chunks = [];
 
         function saveVid() {
             // Create a download link
@@ -185,37 +187,63 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
-        setTimeout(()=> {
+        setTimeout(() => {
             localforage.getItem("canvas", (err, val) => {
-            if (val != null) {
-                arts = val;
-                arts.forEach(can => {
+                if (val != null) {
+                    arts = val;
+                    arts.forEach(can => {
 
-                    var i = new Image();
-                    i.src = can[can.length - 1].canvas;
-                    i.style.background = "white";
-                    i.style.marginLeft = "13vw";
-                    i.style.marginTop = "15vh";
+                        var i = new Image();
+                        i.src = can[can.length - 1].canvas;
+                        i.style.background = "white";
+                        i.style.marginLeft = "13vw";
+                        i.style.marginTop = "15vh";
 
-                    i.style.width = canvas.width / 6;
-                    i.style.height = canvas.height / 6;
-                    i.style.border = "1px solid black"
+                        i.style.width = canvas.width / 6;
+                        i.style.height = canvas.height / 6;
+                        i.style.border = "1px solid black"
 
-                    i.onclick = () => {
-                        strokes = can[can.length - 1].strokes;
-                        chunks = can[can.length - 1].vid;
-                       
-                        openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
-                    };
-                    document.getElementById("gallery").appendChild(i);
-                    imgs++;
-                  
-                });
-            }
+                        i.onclick = () => {
+                            strokes = can[can.length - 1].strokes;
+                            chunks = can[can.length - 1].vid;
 
-        });
+                            openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
+                        };
+                        document.getElementById("gallery").appendChild(i);
+                        imgs++;
+
+                    });
+                }
+
+            });
         }, 200)
-        
+        let lastX = 0;
+        let lastY = 0;
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+        function smoothBrushStroke(x1, y1, x2, y2) {
+            const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const step = 10;  // Adjust step size for smoothness
+            const steps = Math.floor(distance / step);
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = lerp(x1, x2, t);
+                const y = lerp(y1, y2, t);
+
+                ctx.drawImage(brushImage, x - brushImage.width / 2, y - brushImage.height / 2);
+            }
+        }
+        const imdraw = (e) => {
+            if (!isPainting) return;
+            const [x, y] = [e.offsetX, e.offsetY];
+
+            // Draw the brush image between the last position and current position
+            smoothBrushStroke(lastX, lastY, x, y);
+
+            [lastX, lastY] = [x, y];
+        }
 
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
@@ -526,7 +554,7 @@
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
         canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mousemove', imdraw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
@@ -618,6 +646,7 @@
             imdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
             if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
+
                 blob = new Blob(chunks, { type: 'video/mp4' })
                 
                 setTimeout(() => {
