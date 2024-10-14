@@ -375,7 +375,10 @@
             number = arts.length - 1;
             restore();
         }
+        var paint = 1;
         const draw = (e) => {
+            ctx.globalAlpha = paint;
+            paint -= 0.01;
             draws++;
             if (!isPainting) {
                 return;
@@ -447,7 +450,8 @@
         recorder.ondataavailable = handleDataAvailable;
         const draw2 = (e) => {
             draws++;
-
+            ctx.globalAlpha = paint;
+            paint -= 0.01;
             if (!isPainting) {
                 return;
             }
@@ -521,6 +525,7 @@
 
         var tap = false;
         canvas.addEventListener('mouseup', e => {
+            paint = 1;
             isPainting = false;
             color = document.querySelector("#stroke").value;
             lasttouch = null;
@@ -540,7 +545,7 @@
 
         });
         canvas.addEventListener('touchend', e => {
-
+paint = 1;
             isPainting = false;
             lasttouch = null;
             strokes.push(pointarray);
