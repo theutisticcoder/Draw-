@@ -381,7 +381,7 @@
                 return;
             }
             if (isOil) {
-                ctx.globalCompositeOperation = 'screen';  // or 'multiply' for darker blending
+                ctx.globalCompositeOperation = 'overlay';  // or 'multiply' for darker blending
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.7)
