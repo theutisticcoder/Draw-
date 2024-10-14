@@ -227,7 +227,7 @@
             ctx.fillStyle = color;
             
             const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-            const step = lineWidth*5;  // Adjust step size for smoothness
+            const step = lineWidth*4.5;  // Adjust step size for smoothness
             const steps = Math.floor(distance / step);
 
             for (let i = 0; i <= steps; i++) {
@@ -235,6 +235,7 @@
                 const x = lerp(x1, x2, t);
                 const y = lerp(y1, y2, t);
                 ctx.globalAlpha = 0.7;
+                ctx.rotate(((x2-x1)/(y2-y1)*Math.PI/4))
                 ctx.fillRect(x,y, lineWidth*5, lineWidth*5)
                 ctx.globalAlpha = 0.3
                 ctx.drawImage(brushImage,x,y, lineWidth*5, lineWidth*5);
