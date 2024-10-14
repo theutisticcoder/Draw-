@@ -225,7 +225,6 @@
         function smoothBrushStroke(x1, y1, x2, y2) {
             ctx.save();
             ctx.fillStyle = color;
-            ctx.rotate(90/((y2-y1)/(x2-x1)))
             
             const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
             const step = 10;  // Adjust step size for smoothness
