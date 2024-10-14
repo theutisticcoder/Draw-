@@ -170,7 +170,7 @@
     </section>
     <script>
         let brushImage = new Image();
-        brushImage.src = 'oil.png'; 
+        brushImage.src = 'oil.png';
         var chunks = [];
 
         function saveVid() {
@@ -225,9 +225,9 @@
         function smoothBrushStroke(x1, y1, x2, y2) {
             ctx.save();
             ctx.fillStyle = color;
-            
+
             const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-            const step = lineWidth*4.5;  // Adjust step size for smoothness
+            const step = lineWidth * 4.5;  // Adjust step size for smoothness
             const steps = Math.floor(distance / step);
 
             for (let i = 0; i <= steps; i++) {
@@ -235,10 +235,10 @@
                 const x = lerp(x1, x2, t);
                 const y = lerp(y1, y2, t);
                 ctx.globalAlpha = 0.7;
-                ctx.rotate(((x2-x1)/(y2-y1)*Math.PI/4))
-                ctx.fillRect(x,y, lineWidth*5, lineWidth*5)
+                ctx.rotate(((x2 - x1) / (y2 - y1) * Math.PI / 4))
+                ctx.fillRect(x, y, lineWidth * 5, lineWidth * 5)
                 ctx.globalAlpha = 0.3
-                ctx.drawImage(brushImage,x,y, lineWidth*5, lineWidth*5);
+                ctx.drawImage(brushImage, x, y, lineWidth * 5, lineWidth * 5);
             }
             ctx.restore();
         }
@@ -393,7 +393,7 @@
 
                 }
                 if (lasttouch) {
-                    
+
                     for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
                             ctx.beginPath();
@@ -414,6 +414,15 @@
                             ctx.lineTo(e.clientX + i, e.clientY);
                             ctx.stroke();
 
+                        }
+                        else if (i === 7 * lineWidth) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, 90);
+                            ctx.lineWidth = lineWidth * 2;
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(e.clientX + i, e.clientY);
+                            ctx.stroke();
                         }
                         else {
                             ctx.beginPath();
@@ -446,7 +455,7 @@
         var stream = canvas.captureStream();
 
         // Set up the MediaRecorder with the video stream
-        var recorder = new MediaRecorder(stream, {mimeType: "video/mp4"});
+        var recorder = new MediaRecorder(stream, { mimeType: "video/mp4" });
 
         recorder.ondataavailable = handleDataAvailable;
         const draw2 = (e) => {
@@ -659,7 +668,7 @@
                 chunks.push(event.data);
 
                 blob = new Blob(chunks, { type: 'video/mp4' })
-                
+
                 setTimeout(() => {
                     vid = URL.createObjectURL(blob);
                     document.querySelector("video").src = vid;
