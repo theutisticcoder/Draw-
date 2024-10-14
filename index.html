@@ -236,9 +236,9 @@
                 const x = lerp(x1, x2, t);
                 const y = lerp(y1, y2, t);
                 ctx.globalAlpha = 0.7;
-                ctx.fillRect(0,0, lineWidth*10, lineWidth*10)
+                ctx.fillRect(x,y, lineWidth, lineWidth)
                 ctx.globalAlpha = 0.3
-                ctx.drawImage(brushImage,x,y, lineWidth*10, lineWidth*10);
+                ctx.drawImage(brushImage,x,y, lineWidth, lineWidth);
             }
             ctx.restore();
         }
