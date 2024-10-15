@@ -378,7 +378,6 @@
         var paint = 1;
         const draw = (e) => {
             ctx.globalAlpha = paint;
-            paint -= 0.001;
             draws++;
             if (!isPainting) {
                 return;
@@ -436,7 +435,7 @@
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -5);
+                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random()*30)-15);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.clientX + i, e.clientY);
@@ -469,7 +468,6 @@
         const draw2 = (e) => {
             draws++;
             ctx.globalAlpha = paint;
-            paint -= 0.001;
             if (!isPainting) {
                 return;
             }
@@ -524,7 +522,7 @@
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -5);
+                            ctx.strokeStyle = shadeColor(color, (Math.floor(Math.random()*30)-15));
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
