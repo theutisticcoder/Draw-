@@ -425,6 +425,15 @@
                             ctx.stroke();
 
                         }
+                        else if ((i-lineWidth) % (3*lineWidth) === 0) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, 70);
+                            ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.lineTo(e.clientX + i, e.clientY);
+                            ctx.stroke();
+
+                        }
                         else {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -5);
@@ -496,6 +505,15 @@
 
                         }
                         else if (i % (3*lineWidth) === 0) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, 70);
+                            ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
+                            ctx.stroke();
+
+                        }
+                        else if ((i-lineWidth) % (3*lineWidth) === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 70);
                             ctx.lineWidth = lineWidth;
