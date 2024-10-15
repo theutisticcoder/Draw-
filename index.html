@@ -638,9 +638,10 @@ paint = 1;
                     if (recorder.state === 'paused') {
                         recorder.resume();
                     }
-                    recorder.requestData();
-                }
+                 
                 else recorder.pause();
+                   recorder.requestData();
+                }
             }
             else recorder.requestData();
 
