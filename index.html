@@ -371,7 +371,7 @@
             ctx.fillRect(150, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            ctx.globalAlpha = 0.55
+            ctx.globalAlpha = 0.65
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
@@ -400,23 +400,22 @@
                     for (let i = 0; i < 8 * lineWidth; i += lineWidth/2) {
                         if (i === 14 * lineWidth || i === 15 * lineWidth) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -50);
-                            ctx.lineWidth = lineWidth;
+                            ctx.strokeStyle = shadeColor(color, -30);
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX + i, e.clientY);
                             ctx.stroke();
-
                         }
                         else if (i === 5 * lineWidth) {
                             ctx.beginPath();
+           
                             ctx.strokeStyle = shadeColor(color, 50);
                             ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                                                    ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.clientX + i, e.clientY);
                             ctx.stroke();
-
                         }
+
                         else if (i % (3*lineWidth) === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 30);
@@ -437,6 +436,7 @@
                         }
                         else {
                             ctx.beginPath();
+
                             ctx.strokeStyle = shadeColor(color, Math.floor(Math.random()*30)-15);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
@@ -581,7 +581,7 @@
 
         });
         canvas.addEventListener('touchend', e => {
-paint = 1;
+            paint = 1;
             isPainting = false;
             lasttouch = null;
             strokes.push(pointarray);
