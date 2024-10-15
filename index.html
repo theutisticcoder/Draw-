@@ -396,7 +396,7 @@
                 }
                 if (lasttouch) {
 
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
+                    for (let i = 0; i < 8 * lineWidth; i += lineWidth/2) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -50);
@@ -410,7 +410,16 @@
                         else if (i === 5 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 50);
-                            ctx.lineWidth = lineWidth * 2;
+                            ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.lineTo(e.clientX + i, e.clientY);
+                            ctx.stroke();
+
+                        }
+                        else if (i % (3*lineWidth) === 0) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, -70);
+                            ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.clientX + i, e.clientY);
                             ctx.stroke();
@@ -468,7 +477,7 @@
 
                 if (lasttouch) {
 
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
+                    for (let i = 0; i < 8 * lineWidth; i += lineWidth/2) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
@@ -480,7 +489,16 @@
                         else if (i === 5 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 20);
-                            ctx.lineWidth = lineWidth * 2;
+                            ctx.lineWidth = lineWidth;
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
+                            ctx.stroke();
+
+                        }
+                        else if (i % (3*lineWidth) === 0) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(color, -70);
+                            ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
                             ctx.stroke();
