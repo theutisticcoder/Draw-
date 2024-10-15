@@ -378,7 +378,7 @@
         var paint = 1;
         const draw = (e) => {
             ctx.globalAlpha = paint;
-            paint -= 0.01;
+            paint -= 0.001;
             draws++;
             if (!isPainting) {
                 return;
@@ -460,7 +460,7 @@
         const draw2 = (e) => {
             draws++;
             ctx.globalAlpha = paint;
-            paint -= 0.01;
+            paint -= 0.001;
             if (!isPainting) {
                 return;
             }
