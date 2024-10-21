@@ -246,6 +246,7 @@
         const brushTexture = createBrushTexture();
 
         const imdraw = (e) => {
+            if(!isPainting) return;
             const x = e.offsetX;
     const y = e.offsetY;
 
@@ -276,6 +277,8 @@
 
         }
         const mobimdraw = (e) => {
+            if(!isPainting) return;
+
             const x = e.touches[0].screenX;
     const y = e.touches[0].screenY;
 
