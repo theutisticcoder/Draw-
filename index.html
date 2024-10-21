@@ -243,14 +243,67 @@
             }
             ctx.restore();
         }
+        const brushTexture = createBrushTexture();
+
         const imdraw = (e) => {
-            if (!isPainting) return;
-            const [x, y] = [e.offsetX, e.offsetY];
+            const x = e.offsetX;
+    const y = e.offsetY;
 
-            // Draw the brush image between the last position and current position
-            smoothBrushStroke(lastX, lastY, x, y);
+    // Simulate color mixing by adjusting the blending mode
+    ctx.globalCompositeOperation = 'source-over';
 
-            [lastX, lastY] = [x, y];
+    // Set brush color
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 20;
+    ctx.lineCap = 'round';
+
+    // Use brush texture for a more realistic feel
+    const pattern = ctx.createPattern(brushTexture, 'repeat');
+    ctx.fillStyle = pattern;
+
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    // Simulate oil paint blending by smudging and using lighter colors
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineWidth = 15;
+    ctx.stroke();
+
+    lastX = x;
+    lastY = y;
+
+        }
+        const mobimdraw = (e) => {
+            const x = e.touches[0].screenX;
+    const y = e.touches[0].screenY;
+
+    // Simulate color mixing by adjusting the blending mode
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Set brush color
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 20;
+    ctx.lineCap = 'round';
+
+    // Use brush texture for a more realistic feel
+    const pattern = ctx.createPattern(brushTexture, 'repeat');
+    ctx.fillStyle = pattern;
+
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    // Simulate oil paint blending by smudging and using lighter colors
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineWidth = 15;
+    ctx.stroke();
+
+    lastX = x;
+    lastY = y;
+
         }
 
         function recolorImage(img, newColor) {
@@ -459,6 +512,24 @@
             }
 
         }
+        function createBrushTexture() {
+    const brushCanvas = document.createElement('canvas');
+    brushCanvas.width = 50;
+    brushCanvas.height = 50;
+    const brushCtx = brushCanvas.getContext('2d');
+    
+    // Generate noise or load an image of a brush stroke
+    const imageData = brushCtx.createImageData(50, 50);
+    for (let i = 0; i < imageData.data.length; i += 4) {
+        const randomNoise = Math.random() * 255;
+        imageData.data[i] = randomNoise;   // Red
+        imageData.data[i+1] = randomNoise; // Green
+        imageData.data[i+2] = randomNoise; // Blue
+        imageData.data[i+3] = randomNoise > 200 ? 255 : 0; // Transparency
+    }
+    brushCtx.putImageData(imageData, 0, 0);
+    return brushCanvas;
+}
 
         // Convert canvas to a video stream
         var stream = canvas.captureStream();
@@ -506,7 +577,7 @@
                         }
                         else if (i % (3*lineWidth) === 0) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, 50);
+                            ctx.strokeStyle = shadeColor(color, 25);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
@@ -515,7 +586,7 @@
                         }
                         else if ((i-lineWidth) % (3*lineWidth) === 0) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, 30);
+                            ctx.strokeStyle = shadeColor(color, 10);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
@@ -596,8 +667,8 @@
             const aHex = a.toString(16).padStart(2, '0');
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
-        canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', mobimdraw);
+        canvas.addEventListener('mousemove', imdraw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
