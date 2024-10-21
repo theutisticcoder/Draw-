@@ -252,8 +252,7 @@ const x = e.offsetX;
 const y = e.offsetY;
 
 // Vary brush thickness and color dynamically for a more realistic effect
-const brushThickness = Math.random() * 10 + 15; // Vary the thickness slightly
-const color = `rgba(255, 105, 180, ${Math.random() * 0.8 + 0.4})`; // Pink with random opacity
+const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
 // Paint the bristle strokes
 paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
@@ -295,8 +294,7 @@ const x = e.touches[0].screenX;
 const y = e.touches[0].screenY;
 
 // Vary brush thickness and color dynamically for a more realistic effect
-const brushThickness = Math.random() * 10 + 15; // Vary the thickness slightly
-const color = `rgba(255, 105, 180, ${Math.random() * 0.8 + 0.4})`; // Pink with random opacity
+const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
 // Paint the bristle strokes
 paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
