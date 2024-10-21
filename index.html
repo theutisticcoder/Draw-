@@ -246,66 +246,69 @@
         const brushTexture = createBrushTexture();
 
         const imdraw = (e) => {
-            if(!isPainting) return;
-            const x = e.offsetX;
-    const y = e.offsetY;
+            if (!isPainting) return;
 
-    // Simulate color mixing by adjusting the blending mode
-    ctx.globalCompositeOperation = 'source-over';
+const x = e.offsetX;
+const y = e.offsetY;
 
-    // Set brush color
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 20;
-    ctx.lineCap = 'round';
+// Vary brush thickness and color dynamically for a more realistic effect
+const brushThickness = Math.random() * 10 + 15; // Vary the thickness slightly
+const color = `rgba(255, 105, 180, ${Math.random() * 0.8 + 0.4})`; // Pink with random opacity
 
-    // Use brush texture for a more realistic feel
-    const pattern = ctx.createPattern(brushTexture, 'repeat');
-    ctx.fillStyle = pattern;
+// Paint the bristle strokes
+paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
 
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+// Simulate blending by layering slightly transparent strokes
+ctx.globalCompositeOperation = 'lighter';
 
-    // Simulate oil paint blending by smudging and using lighter colors
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.lineWidth = 15;
-    ctx.stroke();
+// Simulate another bristle stroke with a lighter blending mode
+paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
 
-    lastX = x;
-    lastY = y;
-
+lastX = x;
+lastY = y;
         }
+        function paintBristleStroke(x1, y1, x2, y2, thickness, color) {
+    const bristleCount = 10; // Number of bristles in the brush
+    const bristleSpacing = thickness / bristleCount;
+
+    for (let i = 0; i < bristleCount; i++) {
+        const offset = (i - bristleCount / 2) * bristleSpacing;
+
+        // Randomize the bristle thickness slightly for variation
+        const bristleThickness = thickness * (0.8 + Math.random() * 0.4);
+
+        ctx.beginPath();
+        ctx.moveTo(x1 + offset, y1);
+        ctx.lineTo(x2 + offset, y2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = bristleThickness;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    }
+}
+
         const mobimdraw = (e) => {
-            if(!isPainting) return;
+          
+            if (!isPainting) return;
 
-            const x = e.touches[0].screenX;
-    const y = e.touches[0].screenY;
+const x = e.touches[0].screenX;
+const y = e.touches[0].screenY;
 
-    // Simulate color mixing by adjusting the blending mode
-    ctx.globalCompositeOperation = 'source-over';
+// Vary brush thickness and color dynamically for a more realistic effect
+const brushThickness = Math.random() * 10 + 15; // Vary the thickness slightly
+const color = `rgba(255, 105, 180, ${Math.random() * 0.8 + 0.4})`; // Pink with random opacity
 
-    // Set brush color
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 20;
-    ctx.lineCap = 'round';
+// Paint the bristle strokes
+paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
 
-    // Use brush texture for a more realistic feel
-    const pattern = ctx.createPattern(brushTexture, 'repeat');
-    ctx.fillStyle = pattern;
+// Simulate blending by layering slightly transparent strokes
+ctx.globalCompositeOperation = 'lighter';
 
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+// Simulate another bristle stroke with a lighter blending mode
+paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
 
-    // Simulate oil paint blending by smudging and using lighter colors
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.lineWidth = 15;
-    ctx.stroke();
-
-    lastX = x;
-    lastY = y;
+lastX = x;
+lastY = y;
 
         }
 
