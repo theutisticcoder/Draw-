@@ -169,7 +169,7 @@
         </div>
     </section>
     <script>
-    
+
         let brushImage = new Image();
         brushImage.src = 'oil.png';
         var chunks = [];
@@ -247,66 +247,82 @@
 
         const imdraw = (e) => {
             if (!isPainting) return;
+            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.3)
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+            }
+            else {
+                points.push({ color: color, x: e.clientX, y: e.clientY })
 
-const x = e.offsetX;
-const y = e.offsetY;
+            }
+            const x = e.offsetX;
+            const y = e.offsetY;
 
-// Vary brush thickness and color dynamically for a more realistic effect
-const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
+            // Vary brush thickness and color dynamically for a more realistic effect
+            const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
-// Paint the bristle strokes
-paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
+            // Paint the bristle strokes
+            paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
 
-// Simulate blending by layering slightly transparent strokes
-ctx.globalCompositeOperation = 'lighter';
+            // Simulate blending by layering slightly transparent strokes
+            ctx.globalCompositeOperation = 'lighter';
 
-// Simulate another bristle stroke with a lighter blending mode
-paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
+            // Simulate another bristle stroke with a lighter blending mode
+            paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
 
-lastX = x;
-lastY = y;
+            lastX = x;
+            lastY = y;
         }
         function paintBristleStroke(x1, y1, x2, y2, thickness, color) {
-    const bristleCount = 10; // Number of bristles in the brush
-    const bristleSpacing = thickness / bristleCount;
+            const bristleCount = 10; // Number of bristles in the brush
+            const bristleSpacing = thickness / bristleCount;
 
-    for (let i = 0; i < bristleCount; i++) {
-        const offset = (i - bristleCount / 2) * bristleSpacing;
+            for (let i = 0; i < bristleCount; i++) {
+                const offset = (i - bristleCount / 2) * bristleSpacing;
 
-        // Randomize the bristle thickness slightly for variation
-        const bristleThickness = thickness * (0.8 + Math.random() * 0.4);
+                // Randomize the bristle thickness slightly for variation
+                const bristleThickness = thickness * (0.8 + Math.random() * 0.4);
 
-        ctx.beginPath();
-        ctx.moveTo(x1 + offset, y1);
-        ctx.lineTo(x2 + offset, y2);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = bristleThickness;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-    }
-}
+                ctx.beginPath();
+                ctx.moveTo(x1 + offset, y1);
+                ctx.lineTo(x2 + offset, y2);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = bristleThickness;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+        }
 
         const mobimdraw = (e) => {
-          
+
             if (!isPainting) return;
+            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.3)
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+            }
+            else {
+                points.push({ color: color, x: e.clientX, y: e.clientY })
 
-const x = e.touches[0].screenX;
-const y = e.touches[0].screenY;
+            }
+            const x = e.touches[0].screenX;
+            const y = e.touches[0].screenY;
 
-// Vary brush thickness and color dynamically for a more realistic effect
-const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
+            // Vary brush thickness and color dynamically for a more realistic effect
+            const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
-// Paint the bristle strokes
-paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
+            // Paint the bristle strokes
+            paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
 
-// Simulate blending by layering slightly transparent strokes
-ctx.globalCompositeOperation = 'lighter';
+            // Simulate blending by layering slightly transparent strokes
+            ctx.globalCompositeOperation = 'lighter';
 
-// Simulate another bristle stroke with a lighter blending mode
-paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
+            // Simulate another bristle stroke with a lighter blending mode
+            paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
 
-lastX = x;
-lastY = y;
+            lastX = x;
+            lastY = y;
 
         }
 
@@ -454,7 +470,7 @@ lastY = y;
                 }
                 if (lasttouch) {
 
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth/2) {
+                    for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
                         if (i === 14 * lineWidth || i === 15 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -30);
@@ -465,15 +481,15 @@ lastY = y;
                         }
                         else if (i === 5 * lineWidth) {
                             ctx.beginPath();
-           
+
                             ctx.strokeStyle = shadeColor(color, 50);
                             ctx.lineWidth = lineWidth;
-                                                    ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
+                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.clientX + i, e.clientY);
                             ctx.stroke();
                         }
 
-                        else if (i % (3*lineWidth) === 0) {
+                        else if (i % (3 * lineWidth) === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 30);
                             ctx.lineWidth = lineWidth;
@@ -482,7 +498,7 @@ lastY = y;
                             ctx.stroke();
 
                         }
-                        else if ((i-lineWidth) % (3*lineWidth) === 0) {
+                        else if ((i - lineWidth) % (3 * lineWidth) === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 50);
                             ctx.lineWidth = lineWidth;
@@ -494,7 +510,7 @@ lastY = y;
                         else {
                             ctx.beginPath();
 
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random()*30)-15);
+                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) - 15);
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.clientX + i, e.clientY);
@@ -517,23 +533,23 @@ lastY = y;
 
         }
         function createBrushTexture() {
-    const brushCanvas = document.createElement('canvas');
-    brushCanvas.width = 50;
-    brushCanvas.height = 50;
-    const brushCtx = brushCanvas.getContext('2d');
-    
-    // Generate noise or load an image of a brush stroke
-    const imageData = brushCtx.createImageData(50, 50);
-    for (let i = 0; i < imageData.data.length; i += 4) {
-        const randomNoise = Math.random() * 255;
-        imageData.data[i] = randomNoise;   // Red
-        imageData.data[i+1] = randomNoise; // Green
-        imageData.data[i+2] = randomNoise; // Blue
-        imageData.data[i+3] = randomNoise > 200 ? 255 : 0; // Transparency
-    }
-    brushCtx.putImageData(imageData, 0, 0);
-    return brushCanvas;
-}
+            const brushCanvas = document.createElement('canvas');
+            brushCanvas.width = 50;
+            brushCanvas.height = 50;
+            const brushCtx = brushCanvas.getContext('2d');
+
+            // Generate noise or load an image of a brush stroke
+            const imageData = brushCtx.createImageData(50, 50);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const randomNoise = Math.random() * 255;
+                imageData.data[i] = randomNoise;   // Red
+                imageData.data[i + 1] = randomNoise; // Green
+                imageData.data[i + 2] = randomNoise; // Blue
+                imageData.data[i + 3] = randomNoise > 200 ? 255 : 0; // Transparency
+            }
+            brushCtx.putImageData(imageData, 0, 0);
+            return brushCanvas;
+        }
 
         // Convert canvas to a video stream
         var stream = canvas.captureStream();
@@ -561,7 +577,7 @@ lastY = y;
 
                 if (lasttouch) {
 
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth/2) {
+                    for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, -20);
@@ -579,7 +595,7 @@ lastY = y;
                             ctx.stroke();
 
                         }
-                        else if (i % (3*lineWidth) === 0) {
+                        else if (i % (3 * lineWidth) === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 25);
                             ctx.lineWidth = lineWidth;
@@ -588,7 +604,7 @@ lastY = y;
                             ctx.stroke();
 
                         }
-                        else if ((i-lineWidth) % (3*lineWidth) === 0) {
+                        else if ((i - lineWidth) % (3 * lineWidth) === 0) {
                             ctx.beginPath();
                             ctx.strokeStyle = shadeColor(color, 10);
                             ctx.lineWidth = lineWidth;
@@ -599,7 +615,7 @@ lastY = y;
                         }
                         else {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, (Math.floor(Math.random()*30)-15));
+                            ctx.strokeStyle = shadeColor(color, (Math.floor(Math.random() * 30) - 15));
                             ctx.lineWidth = lineWidth;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
@@ -713,9 +729,9 @@ lastY = y;
                     if (recorder.state === 'paused') {
                         recorder.resume();
                     }
-                 
-                else recorder.pause();
-                   recorder.requestData();
+
+                    else recorder.pause();
+                    recorder.requestData();
                 }
             }
             else recorder.requestData();
