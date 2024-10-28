@@ -324,7 +324,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, -width, 0);
 
 
 
@@ -367,11 +367,11 @@
         let startY; 
         canvas.height = screen.height * 0.7;
         canvas.width = screen.width * 0.7;
-        canvas.style.left = screen.width * 0.3;
+
         canvas.style.height = screen.height * 0.7 + "px";
         canvas.style.width = screen.width * 0.7 + "px";
         var isOil = true;
-        ctx.translate(0, 0)
+        ctx.translate(width, 0)
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
