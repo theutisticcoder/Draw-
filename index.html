@@ -157,7 +157,7 @@
             <label style="font-size: 24pt;" for="lineWidth">Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
-            <button onclick="saveVid()">Save Replay</button>
+            <button onclick="saveVid()">View Replay</button>
             <br><br>
             <button id="undo">Undo</button>
             <button id="dry">Dry</button>
@@ -176,12 +176,7 @@
 
         function saveVid() {
             // Create a download link
-            const a = document.createElement('a');
-            a.href = document.querySelector("video").src
-            a.download = 'replay.mp4'; // Specify the file name
-
-            // Programmatically click the link to trigger the download
-            a.click();
+           window.open(document.querySelector("video").src);
         }
         var width = window.innerWidth / 10;
         var strokes = [];
@@ -431,7 +426,7 @@
             points = p;
             document.querySelector("#gallery").hidden = true;
             recorder.start();
-            setTimeout(getdata, 500)
+            setTimeout(getdata, 200)
             restore();
         }
         var imgs = 0;
@@ -439,7 +434,7 @@
         document.getElementById("new").onclick = () => {
 
             recorder.start();
-            setTimeout(getdata, 500)
+            setTimeout(getdata, 200)
             ctx.fillStyle = "white"
             ctx.fillRect(150, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
@@ -723,18 +718,7 @@
 
         }
         function getdata() {
-            var newdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            if (imdata) {
-                if (!compareImageData(newdata, imdata)) {
-                    if (recorder.state === 'paused') {
-                        recorder.resume();
-                    }
-
-                    else recorder.pause();
-                    recorder.requestData();
-                }
-            }
-            else recorder.requestData();
+             recorder.requestData();
 
             setTimeout(getdata, 200);
         }
@@ -778,7 +762,6 @@
         var blob;
         var oldblob;
         function handleDataAvailable(event) {
-            imdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
             if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
 
