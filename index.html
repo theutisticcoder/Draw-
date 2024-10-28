@@ -473,7 +473,7 @@
                     for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
                         if (i === 14 * lineWidth || i === 15 * lineWidth) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30)  -30);
+                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30)  -70);
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineCap = 'round';
                             ctx.lineTo(e.clientX + i, e.clientY);
@@ -580,7 +580,7 @@
                     for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
                         if (i === 2 * lineWidth || i === 4 * lineWidth) {
                             ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color,Math.floor(Math.random() * 30)  -20);
+                            ctx.strokeStyle = shadeColor(color,Math.floor(Math.random() * 30)  -70);
                             ctx.lineWidth = lineWidth*1.3;
                             ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
