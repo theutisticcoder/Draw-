@@ -212,7 +212,7 @@
                 }
 
             });
-        }, 200)
+        }, 1000)
         let lastX = 0;
         let lastY = 0;
         function lerp(a, b, t) {
@@ -427,7 +427,7 @@
             points = p;
             document.querySelector("#gallery").hidden = true;
             recorder.start();
-            setTimeout(getdata, 200)
+            setTimeout(getdata, 1000)
             restore();
         }
         var imgs = 0;
@@ -435,7 +435,7 @@
         document.getElementById("new").onclick = () => {
 
             recorder.start();
-            setTimeout(getdata, 200)
+            setTimeout(getdata, 1000)
             ctx.fillStyle = "white"
             ctx.fillRect(150, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
@@ -721,7 +721,7 @@
         function getdata() {
             recorder.requestData();
             recorder.stop();
-            setTimeout(getdata, 200);
+            setTimeout(getdata, 1000);
         }
         document.getElementById("undo").onclick = () => {
 
