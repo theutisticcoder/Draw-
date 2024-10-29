@@ -777,6 +777,7 @@
                 document.querySelector("video").src = vid;
                 oldblob = blob;
             }, 80)
+            recorder = new MediaRecorder(stream, {mimeType: "video/mp4"})
             recorder.start();
         }
     </script>
