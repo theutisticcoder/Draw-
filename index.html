@@ -763,7 +763,6 @@
         var blob;
         var oldblob;
         function handleDataAvailable(event) {
-            if (event.data && event.data.size > 0) {
                 chunks.push(event.data);
 
                 blob = new Blob(chunks, { type: 'video/mp4' })
@@ -775,8 +774,7 @@
                     oldblob = blob;
                 }, 80)
 
-            }
-
+        
         }
 
     </script>
