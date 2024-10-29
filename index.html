@@ -766,7 +766,7 @@
         function handleDataAvailable(event) {
             chunks.push(event.data);
             setTimeout(()=> {
-                blob = new Blob(chunks, { type: 'video/mp4' })
+                blob = new File(chunks, "replay.mp4", { type: 'video/mp4' })
 
             setTimeout(() => {
                 vid = URL.createObjectURL(blob);
