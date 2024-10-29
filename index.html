@@ -371,12 +371,12 @@
         canvas.style.height = screen.height * 0.7 + "px";
         canvas.style.width = screen.width * 0.7 + "px";
         var isOil = true;
-        ctx.translate(width, 0)
+        ctx.translate(-width, 0)
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
+                ctx.fillRect(150, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
             }
         });
