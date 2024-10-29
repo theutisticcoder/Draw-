@@ -764,22 +764,21 @@
         var blob;
         var oldblob;
         function handleDataAvailable(event) {
-            chunks.push(event.data);
-            setTimeout(()=> {
-                blob = new File(chunks, "replay.mp4", { type: 'video/mp4' })
+            if (event.data && event.data.size > 0) {
+                chunks.push(event.data);
+                blob = new Blob(chunks, { type: 'video/mp4' })
 
-            setTimeout(() => {
-                vid = URL.createObjectURL(blob);
-                document.querySelector("video").src = vid;
-                oldblob = blob;
-            }, 10)
-            }, 10)
-
+                setTimeout(() => {
+                    vid = URL.createObjectURL(blob);
+                    document.querySelector("video").src = vid;
+                    oldblob = blob;
+                }, 10)
 
 
+            }
         }
-            
-        
+
+
     </script>
 </body>
 
