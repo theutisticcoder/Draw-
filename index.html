@@ -720,7 +720,6 @@
         }
         function getdata() {
             recorder.requestData();
-            recorder.stop();
             setTimeout(getdata, 1000);
         }
         document.getElementById("undo").onclick = () => {
@@ -764,22 +763,21 @@
         var oldblob;
         function handleDataAvailable(event) {
             chunks.push(event.data);
-
-
-
-
-        }
-        recorder.onstop = () => {
-            blob = new Blob(chunks, { type: 'video/mp4' })
+            setTimeout(()=> {
+                blob = new Blob(chunks, { type: 'video/mp4' })
 
             setTimeout(() => {
                 vid = URL.createObjectURL(blob);
                 document.querySelector("video").src = vid;
                 oldblob = blob;
-            }, 80)
-            recorder = new MediaRecorder(stream, {mimeType: "video/mp4"})
-            recorder.start();
+            }, 10)
+            }, 10)
+
+
+
         }
+            
+        
     </script>
 </body>
 
