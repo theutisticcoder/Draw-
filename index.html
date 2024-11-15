@@ -157,9 +157,7 @@
             <label style="font-size: 24pt;" for="lineWidth">Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
-            <button onclick="saveVid()">View Replay</button>
             <br><br>
-            <button id="undo">Undo</button>
             <button id="dry">Dry</button>
             <button id="save">Save Image</button>
         </div>
@@ -732,31 +730,12 @@ ctx.lineCap = "round";
             recorder.requestData();
             setTimeout(getdata, 1000);
         }
-        document.getElementById("undo").onclick = () => {
+     
 
-            if (strokes.length > 0) {
-
-
-                arts[number].pop();
-                strokes[strokes.length - 1].forEach(p => {
-                    points.splice(points.indexOf(p), 1);
-                });
-
-
-                strokes.pop();
-                var old = new Image(canvas.width, canvas.height);
-                old.src = arts[number][arts[number].length - 1].canvas;
-                old.onload = () => {
-                    ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
-                }
-            }
-
-        }
+        
         var imdata;
         document.onkeydown = (e) => {
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
-                document.querySelector("#undo").click();
             }
         }
         async function concatBlobs(blob1, blob2) {
