@@ -743,7 +743,7 @@ alert(strokes.length);
             if (strokes.length > 0) {
 
 
-                arts[number][arts[number].length -1].pop();
+                arts[number-1][arts[number-1].length -1].pop();
                 strokes[strokes.length - 1].forEach(p => {
                     points.splice(points.indexOf(p), 1);
                 });
