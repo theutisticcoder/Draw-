@@ -458,7 +458,8 @@ ctx.lineCap = "round";
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.55)
+                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.6)
+                    
                     points.push({ color: color, x: e.clientX, y: e.clientY })
                     pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
