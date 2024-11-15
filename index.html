@@ -328,7 +328,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, -width, 0);
+            ctx.drawImage(img, width, 0);
 
 
 
@@ -429,7 +429,7 @@
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
             recorder.start();
@@ -748,7 +748,7 @@ ctx.lineCap = "round";
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, 0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
 
