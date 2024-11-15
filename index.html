@@ -673,7 +673,7 @@ ctx.lineCap = "round";
           
         });
         canvas.addEventListener('touchstart', (e) => {
-            if(e.touches.length === 2){
+            if(e.touches.length >= 2){
                 document.querySelector("#undo").click();
             }
             else{
@@ -685,6 +685,7 @@ ctx.lineCap = "round";
             }
         });
         canvas.addEventListener('touchend', e => {
+            if(isPainting){
             paint = 1;
             isPainting = false;
             lasttouch = null;
@@ -692,7 +693,8 @@ ctx.lineCap = "round";
             pointarray = [];
             if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-        });
+        }
+    });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
