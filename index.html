@@ -669,7 +669,7 @@ ctx.lineCap = "round";
             setTimeout(()=> {
                 pointarray = [];
             if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            else arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
 
             })
           
@@ -690,7 +690,7 @@ ctx.lineCap = "round";
             strokes.push(pointarray);
             pointarray = [];
             if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            else arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -742,7 +742,7 @@ ctx.lineCap = "round";
             if (strokes.length > 0) {
 
 
-                arts[number].pop();
+                arts[number-1].pop();
                 strokes[strokes.length - 1].forEach(p => {
                     points.splice(points.indexOf(p), 1);
                 });
@@ -750,7 +750,7 @@ ctx.lineCap = "round";
 
                 strokes.pop();
                 var old = new Image(canvas.width, canvas.height);
-                old.src = arts[number][arts[number].length - 1].canvas;
+                old.src = arts[number-1][arts[number-1].length - 1].canvas;
                 old.onload = () => {
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
