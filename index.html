@@ -244,13 +244,13 @@
             if (!isPainting) return;
             if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                 color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, modifier)
-                if(modifier < 1) modifier += 0.1;
+                if(modifier < 1) modifier += 0.2;
                 points.push({ color: color, x: e.clientX, y: e.clientY })
                 pointarray.push({ color: color, x: e.clientX, y: e.clientY })
             }
             else {
                 points.push({ color: color, x: e.clientX, y: e.clientY })
-                modifier = 0.1;
+                modifier = 0.2;
 
             }
             const x = e.offsetX;
@@ -271,7 +271,7 @@
             lastX = x;
             lastY = y;
         }
-        var modifier = 0.1;
+        var modifier = 0.2;
         function paintBristleStroke(x1, y1, x2, y2, thickness, color) {
             const bristleCount = 10; // Number of bristles in the brush
             const bristleSpacing = thickness / bristleCount;
@@ -297,13 +297,13 @@
             if (!isPainting) return;
             if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                 color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, modifier)
-                if(modifier < 1) modifier += 0.1;
+                if(modifier < 1) modifier += 0.2;
                 points.push({ color: color, x: e.clientX, y: e.clientY })
                 pointarray.push({ color: color, x: e.clientX, y: e.clientY })
             }
             else {
                 points.push({ color: color, x: e.clientX, y: e.clientY })
-                modifier = 0.1;
+                modifier = 0.2;
             }
             const x = e.touches[0].screenX;
             const y = e.touches[0].screenY;
@@ -463,14 +463,14 @@ ctx.lineCap = "round";
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, modifier)
-                    if(modifier < 1) modifier += 0.1;
+                    if(modifier < 1) modifier += 0.2;
 
                     points.push({ color: color, x: e.clientX, y: e.clientY })
                     pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
-                    modifier = 0.1;
+                    modifier = 0.2;
 
                 }
                 if (lasttouch) {
@@ -572,7 +572,7 @@ ctx.lineCap = "round";
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, modifier)
-                    if(modifier < 1) modifier += 0.1;
+                    if(modifier < 1) modifier += 0.2;
 
 
                 }
