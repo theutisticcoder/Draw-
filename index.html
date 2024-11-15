@@ -729,8 +729,6 @@ ctx.lineCap = "round";
         function restore() {
 
             localforage.setItem("canvas", arts);
-            localforage.setItem("lw", lineWidth)
-            localforage.setItem("color", color)
             setTimeout(restore, 100);
 
         }
