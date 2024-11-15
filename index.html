@@ -739,7 +739,6 @@ ctx.lineCap = "round";
             setTimeout(getdata, 1000);
         }
         document.getElementById("undo").onclick = () => {
-            alert(number);
             if (strokes.length > 0) {
 
 
@@ -761,7 +760,10 @@ ctx.lineCap = "round";
         }
         var imdata;
         document.onkeydown = (e) => {
+            
             if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
+                alert(number);
+
                 document.querySelector("#undo").click();
             }
         }
