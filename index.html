@@ -673,7 +673,8 @@ ctx.lineCap = "round";
           
         });
         canvas.addEventListener('touchstart', (e) => {
-            if(e.touches.length >= 2){
+            console.log(e.touches.length)
+            if(e.touches.length === 0){
                 document.querySelector("#undo").click();
             }
             else{
@@ -685,8 +686,7 @@ ctx.lineCap = "round";
             }
         });
         canvas.addEventListener('touchend', e => {
-            console.log(e.touches.length)
-            if(e.touches.length === 0){
+            if(e.touches.length === 1){
             paint = 1;
             isPainting = false;
             lasttouch = null;
