@@ -213,7 +213,7 @@
                 }
 
             });
-        }, 1000)
+        }, 50)
         let lastX = 0;
         let lastY = 0;
         function lerp(a, b, t) {
@@ -685,7 +685,7 @@ ctx.lineCap = "round";
             }
         });
         canvas.addEventListener('touchend', e => {
-            if(isPainting){
+            if(e.touches.length === 1){
             paint = 1;
             isPainting = false;
             lasttouch = null;
