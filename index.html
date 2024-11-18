@@ -686,7 +686,7 @@ ctx.lineCap = "round";
             }
         });
         canvas.addEventListener('touchend', e => {
-            if(e.touches.length === 1){
+            if(e.touches.length === 0){
             paint = 1;
             isPainting = false;
             lasttouch = null;
