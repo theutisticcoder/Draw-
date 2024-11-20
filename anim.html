@@ -820,13 +820,14 @@ image++;
 saver = new MediaRecorder(stream);
 saver.start();
 requestAnimationFrame(play);
-saver.onstop = (e)=> {
+saver.ondataavailable = (e)=> {
 var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
 window.open(exportvid);
 }
             }
        
         function addframe() {
+           points = [];
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             document.querySelector("#timeline").innerHTML += frame;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
