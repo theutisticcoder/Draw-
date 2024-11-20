@@ -217,6 +217,8 @@
 
                         i.onclick = () => {
                             strokes = can[can.length - 1].strokes;
+                            imagelist = can[can.length - 1].anim;
+
                             chunks = can[can.length - 1].vid;
 
                             openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
@@ -441,6 +443,10 @@
             return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
         }
         function openDrawing(image, p, num) {
+            imagelist.forEach(im=> {
+                ctx.drawImage(im, width, 0, canvas.width, canvas.height);
+                document.querySelector("#add").click();
+                        })
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
