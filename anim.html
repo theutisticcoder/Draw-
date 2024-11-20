@@ -681,7 +681,7 @@ ctx.lineCap = "round";
             strokes.push(pointarray);
             setTimeout(()=> {
                 pointarray = [];
-            if (number != 0) arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
 
             })
@@ -707,7 +707,7 @@ ctx.lineCap = "round";
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
         }
     });
