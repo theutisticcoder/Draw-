@@ -817,7 +817,7 @@ image++;
         var exportvid;
         var vids = [];
         document.querySelector("#save").onclick = ()=> {
-            speed = ParseInt(prompt("Choose a video speed between 1 and 30."));
+            speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
             ctx.clearRect(width,0,canvas.width, canvas.height);
