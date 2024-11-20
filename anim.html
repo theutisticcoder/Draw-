@@ -803,7 +803,7 @@ ctx.lineCap = "round";
             }
         }
         function play(){
-            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image]);
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
 image++;
             if(image< children.length){
                 requestAnimationFrame(play);
