@@ -681,8 +681,8 @@ ctx.lineCap = "round";
             strokes.push(pointarray);
             setTimeout(()=> {
                 pointarray = [];
-            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
 
             })
           
@@ -707,8 +707,8 @@ ctx.lineCap = "round";
             lasttouch = null;
             strokes.push(pointarray);
             pointarray = [];
-            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
         }
     });
         function rgbaToHex(r, g, b, a) {
@@ -739,7 +739,7 @@ ctx.lineCap = "round";
             return data1.data.every((value, index) => value === data2.data[index]);
         }
         function restore() {
-
+            
             localforage.setItem("canvas", arts);
             setTimeout(restore, 100);
 
@@ -835,11 +835,13 @@ vids = [];
 }
             }
        
+            var imagelist  = [];
         function addframe() {
            points = [];
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             document.querySelector("#timeline").innerHTML += frame;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
+            imagelist.push(canvas.toDataURL("image/png"));
         }
        
     </script>
