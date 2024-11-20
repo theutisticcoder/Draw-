@@ -847,7 +847,7 @@ vids = [];
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             document.querySelector("#timeline").innerHTML += frame;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
-            imagelist.push(canvas.toDataURL("image/png"));
+            imagelist.push(frame);
         }
        
     </script>
