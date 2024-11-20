@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DrawPaw - Free Oil Painting Online!</title>
+    <title>AnimationPaw - Free Animation Online!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
@@ -130,7 +130,20 @@
             background: darkblue;
 
         }
+        img{
 
+            margin: 50px;
+            border: white 2px solid;
+        }
+        #timeline{
+            position: absolute;
+            top: 80vh;
+            height: 20vh;
+            width: 100vw;
+            z-index: 10;
+            background: black;
+            overflow-x: scroll;
+        }
         #toolbar * {
             margin-bottom: 6px;
             position: relative;
@@ -159,6 +172,8 @@
             <label style="font-size: 24pt;" for="lineWidth">Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
+            <button id="add">Add Frame</button>
+            <div id="timeline"></div>
             <br><br>
             <button id="undo">Undo</button>
             <button id="dry">Dry</button>
@@ -170,15 +185,40 @@
         </div>
     </section>
     <script>
-
+        var image = 0;
         let brushImage = new Image();
         brushImage.src = 'oil.png';
         var chunks = [];
-
-        function saveVid() {
-            // Create a download link
-            window.open(vid);
+        var saver;
+        document.querySelector("save").onclick = ()=> {
+            document.querySelector("#add").click()
+            var stream = canvas.captureStream(15);
+            ctx.clearRect();
+saver = new MediaRecorder(stream);
+saver.start();
+requestAnimationFrame(play);
+saver.onstop = (e)=> {
+var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
+window.open(exportvid);
+}
+            }
+        function play(){
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image]);
+image++;
+            if(image< children.length){
+                requestAnimationFrame(play);
+                
+            }
+            else{
+                saver.stop();
+            }
         }
+        document.querySelector("#add").onclick = ()=> {
+            var frame = "<img src="+ canvas.toDataURL("image/png")+" style='height: 18vh; width: 15vw'>"
+            document.querySelector("#timeline").innerHTML += frame;
+            ctx.clearRect(width, 0, canvas.width, canvas.height);
+        }
+       
         var width = window.innerWidth / 10;
         var strokes = [];
         var pointarray = [];
@@ -717,14 +757,7 @@ ctx.lineCap = "round";
             }
         });
 
-        document.querySelector("#save").onclick = () => {
-            var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-            var a = document.createElement("a");
-            var name = prompt("Choose a name for your drawing.")
-            a.href = image;
-            a.download = name + ".png";
-            a.click();
-        }
+        
         function compareImageData(data1, data2) {
             // Compare width, height and pixel data
             if (data1.width !== data2.width || data1.height !== data2.height) return false;
