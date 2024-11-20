@@ -834,8 +834,10 @@ saver.ondataavailable = (e)=> {
 }
 saver.onstop = ()=> {
     exportvid = URL.createObjectURL(new Blob(vids, {type: "video/mp4"}));
-
-window.open(exportvid);
+var a = document.createElement("a");
+a.href = exportvid;
+a.download = "video.mp4"
+a.click();
 vids = [];
 }
             }
