@@ -802,19 +802,6 @@ ctx.lineCap = "round";
 
             }
         }
-
-        document.querySelector("save").onclick = ()=> {
-            document.querySelector("#add").click()
-            var stream = canvas.captureStream(15);
-            ctx.clearRect();
-saver = new MediaRecorder(stream);
-saver.start();
-requestAnimationFrame(play);
-saver.onstop = (e)=> {
-var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
-window.open(exportvid);
-}
-            }
         function play(){
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image]);
 image++;
@@ -826,6 +813,19 @@ image++;
                 saver.stop();
             }
         }
+        document.querySelector("#save").onclick = ()=> {
+            document.querySelector("#add").click()
+            var stream = canvas.captureStream(15);
+            ctx.clearRect();
+saver = new MediaRecorder(stream);
+saver.start();
+requestAnimationFrame(play);
+saver.onstop = (e)=> {
+var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
+window.open(exportvid);
+}
+            }
+       
         function addframe() {
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             document.querySelector("#timeline").innerHTML += frame;
