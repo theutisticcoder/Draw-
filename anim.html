@@ -191,35 +191,7 @@
         brushImage.src = 'oil.png';
         var chunks = [];
         var saver;
-        document.querySelector("save").onclick = ()=> {
-            document.querySelector("#add").click()
-            var stream = canvas.captureStream(15);
-            ctx.clearRect();
-saver = new MediaRecorder(stream);
-saver.start();
-requestAnimationFrame(play);
-saver.onstop = (e)=> {
-var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
-window.open(exportvid);
-}
-            }
-        function play(){
-            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image]);
-image++;
-            if(image< children.length){
-                requestAnimationFrame(play);
-                
-            }
-            else{
-                saver.stop();
-            }
-        }
-        document.querySelector("#add").onclick = ()=> {
-            var frame = "<img src="+ canvas.toDataURL("image/png")+" style='height: 18vh; width: 15vw'>"
-            document.querySelector("#timeline").innerHTML += frame;
-            ctx.clearRect(width, 0, canvas.width, canvas.height);
-        }
-       
+      
         var width = window.innerWidth / 10;
         var strokes = [];
         var pointarray = [];
@@ -829,7 +801,35 @@ ctx.lineCap = "round";
             }
         }
 
-
+        document.querySelector("save").onclick = ()=> {
+            document.querySelector("#add").click()
+            var stream = canvas.captureStream(15);
+            ctx.clearRect();
+saver = new MediaRecorder(stream);
+saver.start();
+requestAnimationFrame(play);
+saver.onstop = (e)=> {
+var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
+window.open(exportvid);
+}
+            }
+        function play(){
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image]);
+image++;
+            if(image< children.length){
+                requestAnimationFrame(play);
+                
+            }
+            else{
+                saver.stop();
+            }
+        }
+        document.querySelector("#add").onclick = ()=> {
+            var frame = "<img src="+ canvas.toDataURL("image/png")+" style='height: 18vh; width: 15vw'>"
+            document.querySelector("#timeline").innerHTML += frame;
+            ctx.clearRect(width, 0, canvas.width, canvas.height);
+        }
+       
     </script>
 </body>
 
