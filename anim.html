@@ -810,13 +810,12 @@ image++;
                 
             }
             else{
-                saver.requestData();
-                saver.stop();
+                setTimeout(saver.requestData(), 100)
             }
         }
         document.querySelector("#save").onclick = ()=> {
             document.querySelector("#add").click()
-            var stream = canvas.captureStream(15);
+            var stream = canvas.captureStream();
             ctx.clearRect(width,0,canvas.width, canvas.height);
 saver = new MediaRecorder(stream);
 saver.start();
