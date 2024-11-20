@@ -806,7 +806,7 @@ ctx.lineCap = "round";
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
 image++;
             if(image< Array.from(document.querySelector("#timeline").children).length){
-                requestAnimationFrame(play);
+               setTimeout(play, 100)
                 
             }
             else{
