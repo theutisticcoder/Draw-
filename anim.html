@@ -802,20 +802,22 @@ ctx.lineCap = "round";
 
             }
         }
+        var speed;
         function play(){
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
 image++;
             if(image< Array.from(document.querySelector("#timeline").children).length){
-               setTimeout(play, 100)
+               setTimeout(play, 1000/speed)
                 
             }
             else{
-                setTimeout(()=> {saver.stop()}, 100)
+                setTimeout(()=> {saver.stop()}, 1000/speed)
             }
         }
         var exportvid;
         var vids = [];
         document.querySelector("#save").onclick = ()=> {
+            speed = ParseInt(prompt("Choose a video speed between 1 and 30."));
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
             ctx.clearRect(width,0,canvas.width, canvas.height);
