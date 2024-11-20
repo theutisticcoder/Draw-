@@ -810,9 +810,11 @@ image++;
                 
             }
             else{
-                setTimeout(saver.requestData(), 100)
+                setTimeout(()=> {saver.stop()}, 100)
             }
         }
+        var exportvid;
+        var vids = [];
         document.querySelector("#save").onclick = ()=> {
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
@@ -821,8 +823,13 @@ saver = new MediaRecorder(stream);
 saver.start();
 setTimeout(play, 100)
 saver.ondataavailable = (e)=> {
-var exportvid = URL.createObjectURL(new Blob([e.data], {type: "video/mp4"}));
+    vids.push(e.data);
+}
+saver.onstop = ()=> {
+    exportvid = URL.createObjectURL(new Blob(vids, {type: "video/mp4"}));
+
 window.open(exportvid);
+vids = [];
 }
             }
        
