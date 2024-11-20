@@ -444,8 +444,7 @@
         }
         function openDrawing(image, p, num) {
             imagelist.forEach(im=> {
-                ctx.drawImage(im, width, 0, canvas.width, canvas.height);
-                document.querySelector("#add").click();
+               document.querySelector("#timeline").innerHTML += im;
                         })
             number = num;
             document.querySelector("#toolbar").hidden = false;
