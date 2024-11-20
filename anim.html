@@ -825,9 +825,9 @@ image++;
             }
         }
         document.querySelector("#add").onclick = ()=> {
-            var frame = "<img src="+ canvas.toDataURL("image/png")+" style='height: 18vh; width: 15vw'>"
+            var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             document.querySelector("#timeline").innerHTML += frame;
-            ctx.clearRect(width, 0, canvas.width, canvas.height);
+            ctx.clearRect(-width, 0, canvas.width, canvas.height);
         }
        
     </script>
