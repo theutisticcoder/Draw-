@@ -816,7 +816,7 @@ image++;
         document.querySelector("#save").onclick = ()=> {
             document.querySelector("#add").click()
             var stream = canvas.captureStream(15);
-            ctx.clearRect();
+            ctx.clearRect(width,0,canvas.width, canvas,height);
 saver = new MediaRecorder(stream);
 saver.start();
 requestAnimationFrame(play);
@@ -829,7 +829,7 @@ window.open(exportvid);
         function addframe() {
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             document.querySelector("#timeline").innerHTML += frame;
-            ctx.fillRect(-width, 0, canvas.width, canvas.height);
+            ctx.fillRect(width, 0, canvas.width, canvas.height);
         }
        
     </script>
