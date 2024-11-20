@@ -845,9 +845,9 @@ vids = [];
         function addframe() {
            points = [];
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
+            imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
-            imagelist.push(frame);
         }
        
     </script>
