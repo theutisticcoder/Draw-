@@ -858,6 +858,7 @@
 
         var imagelist = [];
         function addframe() {
+            ctx2.globalAlpha = 1.0;
             points = [];
             var frame = "<img src=" + canvas.toDataURL("image/png") + " style='z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
