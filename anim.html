@@ -855,11 +855,10 @@ ctx.fillStyle = "rgba(0,0,0,0)"
             var frame = "<img src=" + canvas.toDataURL("image/png") + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
-            ctx2.fillStyle = "white";
+            ctx2.fillStyle = "rgba(0,0,0,0.8)";
             var im = new Image();
             im.src = canvas.toDataURL("image/png");
             ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
-            ctx2.globalAlpha = 0.8;
             
             ctx2.fillRect(width, 0, canvas.width, canvas.height);
             ctx.clearRect(width, 0, canvas.width, canvas.height);
