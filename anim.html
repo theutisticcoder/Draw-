@@ -382,6 +382,8 @@
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
+        ctx.fillStyle = 'white'
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
         let isPainting = false;
         let lineWidth = 5;
 
@@ -415,7 +417,7 @@ ctx.fillStyle = "rgba(0,0,0,0)"
             toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
-                ctx.clearRect(0, 0, canvas.width * 3, canvas.height * 3);
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -772,7 +774,7 @@ ctx.fillStyle = "rgba(0,0,0,0)"
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-                    ctx.clearRect(width, 0, canvas.width, canvas.height);
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
@@ -814,7 +816,7 @@ ctx.fillStyle = "rgba(0,0,0,0)"
         }
         var speed;
         function play() {
-            ctx.clearRect(width, 0, canvas.width, canvas.height)
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
@@ -832,7 +834,7 @@ ctx.fillStyle = "rgba(0,0,0,0)"
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
-            ctx.clearRect(width, 0, canvas.width, canvas.height);
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
             saver = new MediaRecorder(stream);
             saver.start();
             setTimeout(play, 100)
@@ -855,7 +857,7 @@ ctx.fillStyle = "rgba(0,0,0,0)"
             var frame = "<img src=" + canvas.toDataURL("image/png") + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
-            ctx.clearRect(width, 0, canvas.width, canvas.height);
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
 
         }
 
