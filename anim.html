@@ -814,7 +814,7 @@ ctx.fillStyle = "rgba(0,0,0,0)"
         }
         var speed;
         function play() {
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
+            ctx.clearRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
