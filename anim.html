@@ -815,6 +815,7 @@ image++;
         var exportvid;
         var vids = [];
         document.querySelector("#save").onclick = ()=> {
+            ctx.globalAlpha = 1.0;
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
@@ -841,7 +842,9 @@ a.click();
             var frame = "<img src="+ canvas.toDataURL("image/png")+" style='z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
+            ctx.globalAlpha = 0.8;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
         }
        
     </script>
