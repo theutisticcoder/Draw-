@@ -433,16 +433,12 @@
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
-            recorder.start();
-            setTimeout(getdata, 1000)
             restore();
         }
         var imgs = 0;
 ctx.lineCap = "round";
         document.getElementById("new").onclick = () => {
 
-            recorder.start();
-            setTimeout(getdata, 1000)
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
