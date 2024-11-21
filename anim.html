@@ -866,7 +866,11 @@
             im.src = canvas.toDataURL("image/png");
             ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
             ctx2.globalAlpha = 0.8;
+            ctx.globalAlpha = 0.8;
             ctx2.fillRect(width, 0, canvas.width, canvas.height);
+            ctx.fillRect(width, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
+
         }
 
     </script>
