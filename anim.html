@@ -45,7 +45,20 @@
         #drawing-board {
             position: absolute;
             border: 1px solid black;
-            background-color: white;
+            height: 800px;
+            width: 450px;
+            left: 15vw;
+            top: 15vh;
+        }
+
+        #onion {
+            position: absolute;
+            border: 1px solid black;
+            height: 800px;
+            width: 450px;
+            left: 15vw;
+            top: 15vh;
+            background: white;
         }
 
         .container {
@@ -187,12 +200,15 @@
         </div>
         <div id="map"></div>
         <div class="drawing-board">
+            <canvas id="onion"></canvas>
             <canvas id="drawing-board"></canvas>
         </div>
         <div id="timeline"></div>
 
     </section>
     <script>
+        var onion = document.getElementById("onion");
+        var ctx2 = onion.getContext("2d");
         var image = 0;
         let brushImage = new Image();
         brushImage.src = 'oil.png';
@@ -351,7 +367,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, width, 0);
+            ctx.drawImage(img, 450, 0);
 
 
 
@@ -392,19 +408,14 @@
 
         let startX;
         let startY;
-        canvas.height = screen.height * 0.7;
-        canvas.width = screen.width * 0.7;
-
-        canvas.style.height = screen.height * 0.7 + "px";
-        canvas.style.width = screen.width * 0.7 + "px";
         var isOil = true;
-        ctx.translate(-width, 0)
+        ctx.translate(-450, 0)
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
-                ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
+                ctx.clearRect(450, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -454,8 +465,8 @@
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, width, 0, canvas.width, canvas.height);
+            ctx.fillRect(450, 0, canvas.width, canvas.height)
+            ctx.drawImage(image, 450, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
             restore();
@@ -465,7 +476,7 @@
         document.getElementById("new").onclick = () => {
 
             ctx.fillStyle = "white"
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
+            ctx.fillRect(450, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             ctx.globalAlpha = 1.0
@@ -765,8 +776,8 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-                    ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
+                    ctx.fillRect(450, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, 450, 0, canvas.width, canvas.height);
                 }
             }
 
@@ -807,7 +818,7 @@
         }
         var speed;
         function play() {
-            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], 450, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
                 setTimeout(play, 1000 / speed)
@@ -824,7 +835,7 @@
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
-            ctx.clearRect(width, 0, canvas.width, canvas.height);
+            ctx.clearRect(450, 0, canvas.width, canvas.height);
             saver = new MediaRecorder(stream);
             saver.start();
             setTimeout(play, 100)
@@ -847,24 +858,25 @@
             var frame = "<img src=" + canvas.toDataURL("image/png") + " style='z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
+            ctx.globalAlpha = 1.0;
+            ctx.clearRect(450, 0, canvas.width, canvas.height);
+
             if (Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5])) {
-                ctx.globalAlpha = 0.1;
-                ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5]))
+                ctx2.globalAlpha = 0.1;
+                ctx2.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5]))
             }
             if (Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4])) {
-                ctx.globalAlpha = 0.2;
-                tx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4]))
+                ctx2.globalAlpha = 0.2;
+                ctx2.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4]))
             }
             if (Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3])) {
-                ctx.globalAlpha = 0.3;
-                ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3]))
+                ctx2.globalAlpha = 0.3;
+                ctx2.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3]))
             }
             if (Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2])) {
-                ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2]))
-                ctx.globalAlpha = 0.4;
+                ctx2.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2]))
+                ctx2.globalAlpha = 0.4;
             }
-            ctx.globalAlpha = 1.0;
-            ctx.fillRect(width, 0, canvas.width, canvas.height);
         }
 
     </script>
