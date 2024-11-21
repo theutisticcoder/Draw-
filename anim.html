@@ -411,10 +411,8 @@ ctx.fillStyle = "rgba(0,0,0,0)"
         document.querySelector("#onion").style.width = screen.width * 0.7 + "px";
         var isOil = true;
         ctx.translate(-width, 0)
-        ctx.fillStyle = "white";
-        toolbar.addEventListener('click', e => {
+            toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
-                ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
                 ctx.clearRect(0, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
@@ -465,7 +463,6 @@ ctx.fillStyle = "rgba(0,0,0,0)"
             })
             number = num;
             document.querySelector("#toolbar").hidden = false;
-            ctx.fillStyle = "white"
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
@@ -475,7 +472,6 @@ ctx.fillStyle = "rgba(0,0,0,0)"
         ctx.lineCap = "round";
         document.getElementById("new").onclick = () => {
 
-            ctx.fillStyle = "white"
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             ctx.globalAlpha = 1.0
