@@ -48,7 +48,7 @@
             border: 1px solid black;
             height: 70vh;
             width: 90vw;
-            left: 450px;
+            left: 10vw;
         }
 
         #onion {
@@ -56,7 +56,7 @@
             border: 1px solid black;
             height: 70vh;
             width: 90vw;
-            left: 450px;
+            left: 10vw;
             background: white;
         }
 
@@ -366,7 +366,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 450, 0);
+            ctx.drawImage(img, window.innerwidth/10, 0);
 
 
 
@@ -408,13 +408,13 @@
         let startX;
         let startY;
         var isOil = true;
-        ctx.translate(-450, 0)
+        ctx.translate(-window.innerwidth/10, 0)
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
-                ctx.clearRect(450, 0, canvas.width * 3, canvas.height * 3);
+                ctx.clearRect(window.innerwidth/10, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -466,8 +466,8 @@
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(450, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, 450, 0, canvas.width, canvas.height);
+            ctx.fillRect(window.innerwidth/10, 0, canvas.width, canvas.height)
+            ctx.drawImage(image, window.innerwidth/10, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
             restore();
@@ -478,7 +478,7 @@
             onion.hidden = false;
             canvas.hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(450, 0, canvas.width, canvas.height)
+            ctx.fillRect(window.innerwidth/10, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             ctx.globalAlpha = 1.0
@@ -778,8 +778,8 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-                    ctx.fillRect(450, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, 450, 0, canvas.width, canvas.height);
+                    ctx.fillRect(window.innerwidth/10, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, window.innerwidth/10, 0, canvas.width, canvas.height);
                 }
             }
 
@@ -820,7 +820,7 @@
         }
         var speed;
         function play() {
-            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], 450, 0, canvas.width, canvas.height);
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], window.innerwidth/10, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
                 setTimeout(play, 1000 / speed)
@@ -837,7 +837,7 @@
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             document.querySelector("#add").click()
             var stream = canvas.captureStream();
-            ctx.clearRect(450, 0, canvas.width, canvas.height);
+            ctx.clearRect(window.innerwidth/10, 0, canvas.width, canvas.height);
             saver = new MediaRecorder(stream);
             saver.start();
             setTimeout(play, 100)
@@ -861,7 +861,7 @@
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
             ctx.globalAlpha = 1.0;
-            ctx.clearRect(450, 0, canvas.width, canvas.height);
+            ctx.clearRect(window.innerwidth/10, 0, canvas.width, canvas.height);
 
             if (Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5])) {
                 ctx2.globalAlpha = 0.1;
