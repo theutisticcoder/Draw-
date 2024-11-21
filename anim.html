@@ -200,8 +200,8 @@
         </div>
         <div id="map"></div>
         <div class="drawing-board">
-            <canvas id="onion"></canvas>
-            <canvas id="drawing-board"></canvas>
+            <canvas hidden id="onion"></canvas>
+            <canvas hidden id="drawing-board"></canvas>
         </div>
         <div id="timeline"></div>
 
@@ -462,6 +462,8 @@
             imagelist.forEach(im => {
                 document.querySelector("#timeline").innerHTML += im;
             })
+            onion.hidden = false;
+            canvas.hidden = false;
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
@@ -474,7 +476,8 @@
         var imgs = 0;
         ctx.lineCap = "round";
         document.getElementById("new").onclick = () => {
-
+            onion.hidden = false;
+            canvas.hidden = false;
             ctx.fillStyle = "white"
             ctx.fillRect(450, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
