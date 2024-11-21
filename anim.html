@@ -843,13 +843,13 @@ a.click();
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
             ctx.globalAlpha = 0.1;
-             if(  ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5]))) ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5]))
+             if(  Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5])) ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 5]))
             ctx.globalAlpha = 0.2;
-            if(  ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4]))) ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4]))
+            if( Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4]))tx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 4]))
             ctx.globalAlpha = 0.3;
-            if(  ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3]))) ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3]))
+            if( Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3])) ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 3]))
             ctx.globalAlpha = 0.4;
-            if(  ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2])))  ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2]))
+            if(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2]))  ctx.drawImage(Array.from(document.querySelector("#timeline").children[Array.from(document.querySelector("#timeline").children).length - 2]))
             ctx.fillRect(width, 0, canvas.width, canvas.height);
             ctx.globalAlpha = 1.0;
         }
