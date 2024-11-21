@@ -418,7 +418,7 @@
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
-                ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
+                ctx.clearRect(0, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -468,7 +468,6 @@
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
             document.querySelector("#gallery").hidden = true;
@@ -479,7 +478,6 @@
         document.getElementById("new").onclick = () => {
 
             ctx.fillStyle = "white"
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             ctx.globalAlpha = 1.0
