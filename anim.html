@@ -855,6 +855,8 @@
             var frame = "<img src=" + canvas.toDataURL("image/png") + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
+            ctx.fillStyle = 'white'
+
         ctx.fillRect(width, 0, canvas.width, canvas.height)
 
         }
