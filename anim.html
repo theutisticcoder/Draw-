@@ -812,7 +812,7 @@
 
             }
         }
-        var speed;
+        var speed = 10;
         function play() {
         ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
@@ -829,6 +829,7 @@
         var vids = [];
         document.querySelector("#save").onclick = () => {
             ctx.globalAlpha = 1.0;
+            var name = prompt("Name your work:")
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             var stream = canvas.captureStream();
         ctx.fillRect(width, 0, canvas.width, canvas.height)
@@ -842,7 +843,7 @@
                 exportvid = URL.createObjectURL(new Blob(vids, { type: "video/mp4" }));
                 var a = document.createElement("a");
                 a.href = exportvid;
-                a.download = "video.mp4"
+                a.download = name + ".mp4"
                 a.click();
 
             }
