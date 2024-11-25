@@ -830,7 +830,6 @@
         document.querySelector("#save").onclick = () => {
             ctx.globalAlpha = 1.0;
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
-            document.querySelector("#add").click()
             var stream = canvas.captureStream();
         ctx.fillRect(width, 0, canvas.width, canvas.height)
             saver = new MediaRecorder(stream);
