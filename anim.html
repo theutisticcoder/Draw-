@@ -381,7 +381,6 @@
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
-        ctx.fillStyle = 'white'
         ctx.clearRect(width, 0, canvas.width, canvas.height)
         let isPainting = false;
         let lineWidth = 5;
@@ -856,9 +855,8 @@
             var frame = "<img src=" + tempim + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
-var im = new Image();
-im.src = tempim;
-     
+            var im = new Image();
+            im.src = tempim;
             ctx.clearRect(width, 0, canvas.width, canvas.height)
             ctx2.globalAlpha = 0.1;
             ctx2.fillStyle = "white"
