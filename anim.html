@@ -731,8 +731,8 @@
             const aHex = a.toString(16).padStart(2, '0');
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
-        canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', draw);
+        document.getElementById("onion").addEventListener('touchmove', draw2);
+        document.getElementById("onion").addEventListener('mousemove', draw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
