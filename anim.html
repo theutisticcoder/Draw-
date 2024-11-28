@@ -168,6 +168,7 @@
             z-index: 3;
             background-color: white;
             position: absolute;
+            opacity: 0.2;
         }
     </style>
 </head>
@@ -858,10 +859,8 @@
             document.querySelector("#timeline").innerHTML += frame;
             var im = new Image();
             im.src = tempim;
-            ctx2.globalAlpha = 0.1;
             ctx2.fillStyle = "white";
             ctx2.fillRect(width, 0, canvas.width, canvas.height)
-            ctx2.globalAlpha = 0.2;
             ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
             ctx.clearRect(width, 0, canvas.width, canvas.height)
         }
