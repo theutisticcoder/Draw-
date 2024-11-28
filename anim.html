@@ -45,7 +45,6 @@
         #drawing-board {
             position: absolute;
             border: 1px solid black;
-            background: white;
             background: none;
         }
 
@@ -166,9 +165,8 @@
 
         #onion {
             border: 1px solid black;
-            z-index: 3;
+            background-color: white;
             position: absolute;
-            opacity: 0.2;
         }
     </style>
 </head>
@@ -732,8 +730,8 @@
             const aHex = a.toString(16).padStart(2, '0');
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
-        document.getElementById("onion").addEventListener('touchmove', draw2);
-        document.getElementById("onion").addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', draw2);
+        canvas.addEventListener('mousemove', draw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
