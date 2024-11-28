@@ -43,9 +43,9 @@
         }
 
         #drawing-board {
+            background: white;
             position: absolute;
             border: 1px solid black;
-            background: none;
         }
 
         .container {
@@ -381,7 +381,8 @@
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
-        ctx.clearRect(width, 0, canvas.width, canvas.height)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
         let isPainting = false;
         let lineWidth = 5;
 
@@ -411,10 +412,10 @@
         document.querySelector("#onion").style.width = screen.width * 0.7 + "px";
         var isOil = true;
         ctx.translate(-width, 0)
-        toolbar.addEventListener('click', e => {
+            toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
-                ctx.clearRect(width, 0, canvas.width, canvas.height)
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -771,7 +772,7 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-                    ctx.clearRect(width, 0, canvas.width, canvas.height)
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
@@ -813,7 +814,7 @@
         }
         var speed = 10;
         function play() {
-            ctx.clearRect(width, 0, canvas.width, canvas.height)
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
@@ -831,7 +832,7 @@
             var name = prompt("Name your work:")
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             var stream = canvas.captureStream();
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
             saver = new MediaRecorder(stream);
             saver.start();
             setTimeout(play, 100)
@@ -851,18 +852,13 @@
         var imagelist = [];
         function addframe() {
             points = [];
-            var tempim = canvas.toDataURL("image/png")
-            var frame = "<img src=" + tempim + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
+            var frame = "<img src=" + canvas.toDataURL("image/png") + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
             document.querySelector("#timeline").innerHTML += frame;
-            var im = new Image();
-            im.src = tempim;
-            ctx2.globalAlpha = 0.1;
-            ctx2.fillStyle = "white";
-            ctx2.fillRect(width, 0, canvas.width, canvas.height)
-            ctx2.globalAlpha = 0.2;
-            ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
-            ctx.clearRect(width, 0, canvas.width, canvas.height)
+            ctx.fillStyle = 'white'
+
+        ctx.fillRect(width, 0, canvas.width, canvas.height)
+
         }
 
     </script>
