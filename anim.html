@@ -43,7 +43,6 @@
         }
 
         #drawing-board {
-            z-index: 2;
             position: absolute;
             border: 1px solid black;
             background: none;
@@ -858,12 +857,12 @@
             document.querySelector("#timeline").innerHTML += frame;
             var im = new Image();
             im.src = tempim;
-            ctx.clearRect(width, 0, canvas.width, canvas.height)
             ctx2.globalAlpha = 0.1;
             ctx2.fillStyle = "white";
             ctx2.fillRect(width, 0, canvas.width, canvas.height)
             ctx2.globalAlpha = 0.2;
             ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
+            ctx.clearRect(width, 0, canvas.width, canvas.height)
         }
 
     </script>
