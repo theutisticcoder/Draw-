@@ -43,7 +43,7 @@
         }
 
         #drawing-board {
-            background: white;
+            z-index: 2;
             position: absolute;
             border: 1px solid black;
         }
@@ -411,10 +411,10 @@
         document.querySelector("#onion").style.width = screen.width * 0.7 + "px";
         var isOil = true;
         ctx.translate(-width, 0)
-            toolbar.addEventListener('click', e => {
+        toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
-        ctx.clearRect(width, 0, canvas.width, canvas.height)
+                ctx.clearRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -771,7 +771,7 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-        ctx.clearRect(width, 0, canvas.width, canvas.height)
+                    ctx.clearRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
@@ -813,7 +813,7 @@
         }
         var speed = 10;
         function play() {
-        ctx.clearRect(width, 0, canvas.width, canvas.height)
+            ctx.clearRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
@@ -831,7 +831,7 @@
             var name = prompt("Name your work:")
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             var stream = canvas.captureStream();
-        ctx.fillRect(width, 0, canvas.width, canvas.height)
+            ctx.fillRect(width, 0, canvas.width, canvas.height)
             saver = new MediaRecorder(stream);
             saver.start();
             setTimeout(play, 100)
