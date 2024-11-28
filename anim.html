@@ -852,7 +852,6 @@
         var imagelist = [];
         function addframe() {
             points = [];
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
             var tempim = canvas.toDataURL("image/png")
             var frame = "<img src=" + tempim + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
             imagelist.push(frame);
@@ -861,8 +860,11 @@ var im = new Image();
 im.src = tempim;
      
             ctx.clearRect(width, 0, canvas.width, canvas.height)
+            ctx2.globalAlpha = 0.1;
+            ctx2.fillStyle = "white"
             ctx2.globalAlpha = 0.2;
-ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
+            ctx2.fillRect(width, 0, canvas.width, canvas.height)
+            ctx2.drawImage(im, width, 0, canvas.width, canvas.height)
         }
 
     </script>
