@@ -463,7 +463,8 @@
             imagelist.forEach(imurl => {
                 var im = new Image();
                 im.src = imurl;
-                im.style.size = "70px 50px";
+                im.style.width = "70px";
+                im.style.height = "50px";
                 im.style.background = "white"
                 document.querySelector("#timeline").appendChild(im);
             })
