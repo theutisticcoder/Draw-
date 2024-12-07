@@ -858,12 +858,12 @@ var frameurl = canvas.toDataURL("image/png")
         
             var frame = new Image();
             frame.src = frameurl;
-            
+            frame.style.backgroundColor = "white";
             imagelist.push(frame);
             document.querySelector("#timeline").appendChild(frame);
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx2.globalAlpha = 0.3
-            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+            ctx2.drawImage(frame, 0, 0, canvas.width, canvas.height);
         }
 
     </script>
