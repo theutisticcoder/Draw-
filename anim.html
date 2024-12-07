@@ -204,7 +204,7 @@
         brushImage.src = 'oil.png';
         var chunks = [];
         var saver;
-
+        var frame;
         var width = window.innerWidth / 10;
         var strokes = [];
         var pointarray = [];
@@ -414,7 +414,7 @@
             toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
-        ctx.fillRect(width, 0, canvas.width, canvas.height)
+        ctx.clearRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -817,7 +817,6 @@
         }
         var speed = 10;
         function play() {
-        ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
@@ -835,7 +834,6 @@
             var name = prompt("Name your work:")
             speed = parseInt(prompt("Choose a video speed between 1 and 30."));
             var stream = canvas.captureStream();
-        ctx.fillRect(width, 0, canvas.width, canvas.height)
             saver = new MediaRecorder(stream);
             saver.start();
             setTimeout(play, 100)
@@ -858,7 +856,7 @@
 
 var frameurl = canvas.toDataURL("image/png")
         
-            var frame = new Image();
+            frame = new Image();
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
             imagelist.push(frameurl);
