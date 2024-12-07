@@ -213,7 +213,7 @@
         setTimeout(() => {
             localforage.getItem("canvas", (err, val) => {
                 if (val != null) {
-                    arts = val;
+                    arts = JSON.parse(val);
                     arts.forEach(can => {
 
                         var i = new Image();
@@ -228,7 +228,7 @@
 
                         i.onclick = () => {
                             strokes = can[can.length - 1].strokes;
-                            imagelist = JSON.parse(can[can.length - 1].anim);
+                            imagelist = can[can.length - 1].anim;
 
                             chunks = can[can.length - 1].vid;
 
@@ -460,7 +460,6 @@
             return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
         }
         function openDrawing(image, p, num) {
-
             imagelist.forEach(im => {
                 document.querySelector("#timeline").appendChild(im);
             })
@@ -696,8 +695,8 @@
             strokes.push(pointarray);
             setTimeout(() => {
                 pointarray = [];
-                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: JSON.stringify(imagelist) })
-                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: JSON.stringify(imagelist) })
+                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
+                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
 
             })
 
@@ -722,8 +721,8 @@
                 lasttouch = null;
                 strokes.push(pointarray);
                 pointarray = [];
-                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: JSON.stringify(imagelist) })
-                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: JSON.stringify(imagelist) })
+                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
+                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
             }
         });
         function rgbaToHex(r, g, b, a) {
@@ -755,7 +754,7 @@
         }
         function restore() {
 
-            localforage.setItem("canvas", arts);
+            localforage.setItem("canvas", JSON.stringify(arts));
             setTimeout(restore, 100);
 
         }
