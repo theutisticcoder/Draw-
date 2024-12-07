@@ -460,7 +460,11 @@
             return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
         }
         function openDrawing(image, p, num) {
-            imagelist.forEach(im => {
+            imagelist.forEach(imurl => {
+                var im = new Image();
+                im.src = imurl;
+                im.style.size = "70px 50px";
+                im.style.background = "white"
                 document.querySelector("#timeline").appendChild(im);
             })
             number = num;
@@ -859,7 +863,7 @@ var frameurl = canvas.toDataURL("image/png")
             var frame = new Image();
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
-            imagelist.push(frame);
+            imagelist.push(frameurl);
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
