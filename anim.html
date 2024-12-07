@@ -382,8 +382,6 @@
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
-        ctx.fillStyle = 'white'
-        ctx.fillRect(width, 0, canvas.width, canvas.height)
         let isPainting = false;
         let lineWidth = 5;
 
@@ -778,7 +776,6 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-        ctx.fillRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
