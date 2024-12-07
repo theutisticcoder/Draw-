@@ -856,9 +856,11 @@
 
 var frameurl = canvas.toDataURL("image/png")
         
-            var frame = "<img src=" + frameurl + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
+            var frame = new Image();
+            frame.src = frameurl;
+            
             imagelist.push(frame);
-            document.querySelector("#timeline").innerHTML += frame;
+            document.querySelector("#timeline").appendChild(frame);
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx2.globalAlpha = 0.3
             ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
