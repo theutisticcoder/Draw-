@@ -860,7 +860,8 @@ var frameurl = canvas.toDataURL("image/png")
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
             imagelist.push(frame);
-            frame.style.scale = "0.2 0.2 0.2"
+            frame.style.height = "50px"
+            frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx2.globalAlpha = 0.3
