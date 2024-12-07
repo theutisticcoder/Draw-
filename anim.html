@@ -193,8 +193,8 @@
         </div>
         <div id="map"></div>
         <div class="drawing-board">
-            <canvas id="onion"></canvas>
             <canvas id="drawing-board"></canvas>
+            <canvas id="onion"></canvas>
         </div>
         <div id="timeline"></div>
 
@@ -377,7 +377,9 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
-        const ctx2 = document.getElementById("onion").getContext('2d');
+        var ctx2 = document.getElementById("onion").getContext('2d');
+        ctx2.fillStyle = "white";
+        ctx2.fillRect(0,0,canvas.width, canvas.height);
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
@@ -852,13 +854,17 @@
         var imagelist = [];
         function addframe() {
             points = [];
-            var frame = "<img src=" + canvas.toDataURL("image/png") + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
-            imagelist.push(frame);
-            document.querySelector("#timeline").innerHTML += frame;
             ctx.fillStyle = 'white'
 
         ctx.fillRect(width, 0, canvas.width, canvas.height)
-
+var frameurl = canvas.toDataURL("image/png")
+        
+            var frame = "<img src=" + frameurl + " style='background: white; z-index: 11; height: 18vh; width: 15vw'>"
+            imagelist.push(frame);
+            document.querySelector("#timeline").innerHTML += frame;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx2.globalAlpha = 0.3
+            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
         }
 
     </script>
