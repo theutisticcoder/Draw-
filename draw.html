@@ -307,6 +307,7 @@
 
             // Paint the bristle strokes
             ctx.drawImage(brushImage,x,y, brushThickness,brushThickness)
+            ctx.drawImage(brushImage,(x-lastx)/2,(y-lasty)/2, brushThickness,brushThickness)
             // Simulate blending by layering slightly transparent strokes
 
             // Simulate another bristle stroke with a lighter blending mode
