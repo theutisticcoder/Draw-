@@ -530,6 +530,7 @@ ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,bru
 // Paint the bristle strokes
 ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,brushThickness)
                     
+ctx.drawImage(brushImage,e.touches[0].clientX-lasttouch.clientX,e.touches[0].clientY-lasttouch.clientY, brushThickness,brushThickness)
 
                 }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
