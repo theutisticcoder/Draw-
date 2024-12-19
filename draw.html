@@ -528,11 +528,14 @@ ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,bru
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
 // Paint the bristle strokes
-for(let i = 0; i< 15; i++){
-ctx.drawImage(brushImage,lasttouch.clientX+i,lasttouch.clientY, brushThickness,brushThickness)
-
+ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,brushThickness)
+var col = hexToRgb(color);
+ctx.globalCompositeOperation = "source-atop";
+ctx.fillStyle = col;
+ctx.fillRect(lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+ctx.globalCompositeOperation = "source-over";
+        
 }
-                }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
             }
