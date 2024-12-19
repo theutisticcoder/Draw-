@@ -260,13 +260,7 @@
             const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
             // Paint the bristle strokes
-            paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
-
-            // Simulate blending by layering slightly transparent strokes
-            ctx.globalCompositeOperation = 'lighter';
-
-            // Simulate another bristle stroke with a lighter blending mode
-            paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
+            ctx.drawImage(brushImage,0,0,x,y)
 
             lastX = x;
             lastY = y;
@@ -312,13 +306,10 @@
             const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
             // Paint the bristle strokes
-            paintBristleStroke(lastX, lastY, x, y, brushThickness, color);
-
+ctx.drawImage(brushImage,0,0,x,y)
             // Simulate blending by layering slightly transparent strokes
-            ctx.globalCompositeOperation = 'lighter';
 
             // Simulate another bristle stroke with a lighter blending mode
-            paintBristleStroke(lastX, lastY, x, y, brushThickness * 0.8, color);
 
             lastX = x;
             lastY = y;
