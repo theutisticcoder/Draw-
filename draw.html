@@ -467,6 +467,11 @@ ctx.lineCap = "round";
 
 // Paint the bristle strokes
 ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,brushThickness)
+var col = hexToRgb(color);
+ctx.globalCompositeOperation = "source-atop";
+ctx.fillStyle = col;
+ctx.fillRect(lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+ctx.globalCompositeOperation = "source-over";
                  }
                  lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
