@@ -529,7 +529,7 @@ ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,bru
 
 // Paint the bristle strokes
 for(let i = 0; i< 15; i++){
-ctx.drawImage(brushImage,lasttouch.clientX+ i,lasttouch.clientY + i, brushThickness,brushThickness)
+ctx.drawImage(brushImage,lasttouch.clientX+ i*2,lasttouch.clientY + i*2, brushThickness,brushThickness)
 
 }
                 }
