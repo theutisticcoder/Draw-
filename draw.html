@@ -528,10 +528,10 @@ ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,bru
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
 // Paint the bristle strokes
-ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,brushThickness)
-                    
-ctx.drawImage(brushImage,(e.touches[0].clientX-lasttouch.clientX)/2 + e.touches[0].clientX,(e.touches[0].clientY-lasttouch.clientY)/2+e.touches[0].clientY, brushThickness,brushThickness)
+for(let i = 0; i< 15; i++){
+ctx.drawImage(brushImage,lasttouch.clientX+ i,lasttouch.clientY + i, brushThickness,brushThickness)
 
+}
                 }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
 
