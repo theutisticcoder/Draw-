@@ -698,8 +698,8 @@ ctx.lineCap = "round";
             const aHex = a.toString(16).padStart(2, '0');
             return `#${rHex}${gHex}${bHex}${aHex}`;
         }
-        canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', mobimdraw);
+        canvas.addEventListener('mousemove', imdraw);
 
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'erase') {
