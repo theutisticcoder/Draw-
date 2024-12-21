@@ -399,7 +399,8 @@
             return result ? {
                 r: parseInt(result[1], 16),
                 g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
+                b: parseInt(result[3], 16),
+                a: 0.5
             } : null;
         }
         function lerpColor(color1, color2, amount) {
@@ -465,20 +466,14 @@
                 if (lasttouch) {
 
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
-                    var c = document.createElement("canvas");
-                    c.getContext("2d").drawImage(brushImage, 0, 0, 50, 50);
-                    c.globalCompositeOperation = "source-atop";
-                    c.fillStyle = color;
-                    c.globalAlpha = 0.3
-                    c.getContext("2d").fillRect(0, 0, 50, 50);
-                    var i = new Image();
-                    i.src = capture;
-                    capture = c.toDataURL("image/png");
+                  
                     // Paint the bristle strokes
 
-        brushImage.style.background = color;
-        brushImage.style.mixBlendMode = "multiply";
                     ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+                    ctx.fillStyle = hexToRgb(color);
+                    ctx.globalCompositeOperation = "source-atop";
+                    ctx.fillRect(lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+                    ctx.globalCompositeOperation = "source-over"
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
