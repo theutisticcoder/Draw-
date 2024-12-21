@@ -538,8 +538,9 @@
 
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
                     var c = document.createElement("canvas");
+                    c.height ="50px"
+                    c.width = "50px"
                     c.getContext("2d").drawImage(brushImage, 0, 0, 50, 50);
-                    c.globalCompositeOperation = "source-atop";
                     c.fillStyle = color;
                     c.globalAlpha = 0.3
                     c.getContext("2d").fillRect(0, 0, 50, 50);
