@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="icon.png">
-    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 
     <style>
         button {
@@ -476,6 +475,9 @@
                     i.src = capture;
                     capture = c.toDataURL("image/png");
                     // Paint the bristle strokes
+
+        brushImage.style.background = color;
+        brushImage.style.mixBlendMode = "multiply";
                     ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
@@ -546,6 +548,9 @@
                     c.getContext("2d").fillRect(0, 0, 50, 50);
                     capture = c.toDataURL("image/png");
                     // Paint the bristle strokes
+
+        brushImage.style.background = color;
+        brushImage.style.mixBlendMode = "multiply";
                     ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
 
                 }
