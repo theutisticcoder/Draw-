@@ -466,6 +466,7 @@ ctx.lineCap = "round";
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
 // Paint the bristle strokes
+
 ctx.drawImage(brushImage,lasttouch.clientX,lasttouch.clientY, brushThickness,brushThickness)
 var col = hexToRgb(color);
 ctx.globalCompositeOperation = "source-atop";
@@ -620,7 +621,12 @@ ctx.globalCompositeOperation = "source-over";
                 ctx.strokeStyle = color;
             }
         });
-
+        function applyTint(x,y, color, width, height) {
+  ctx.globalCompositeOperation = 'source-atop'; // Keeps only the non-transparent parts of the image
+  ctx.fillStyle = color; // The tint color
+  ctx.fillRect(x, y, width, height); // Fill the canvas with the tint color
+  ctx.globalCompositeOperation = 'source-over'; // Reset to default
+}
         document.querySelector("#save").onclick = () => {
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
             var a = document.createElement("a");
