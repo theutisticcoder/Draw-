@@ -471,6 +471,8 @@
                     c.globalCompositeOperation = "source-atop";
 
                     c.getContext("2d").fillRect(0, 0, 50, 50);
+                    var i = new Image();
+                    i.src = capture;
                     capture = c.toDataURL("image/png");
                     // Paint the bristle strokes
                     ctx.drawImage(capture, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
