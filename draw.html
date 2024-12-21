@@ -534,10 +534,14 @@
                 if (lasttouch) {
 
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
+                    var c = document.createElement("canvas");
+                    c.getContext("2d").drawImage(brushImage, 0,0, 50,50);
+                    c.globalCompositeOperation = "source-atop";
 
+                    c.getContext("2d").fillRect(0,0, 50,50);
+                    var capture = c.toDataURL("image/png");
                     // Paint the bristle strokes
-                    ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
-                   applyTint(lasttouch.clientX, lasttouch.clientY, color, brushThickness, brushThickness)
+                    ctx.drawImage(capture, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
 
                 }
                 lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
