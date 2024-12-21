@@ -475,7 +475,7 @@
                     i.src = capture;
                     capture = c.toDataURL("image/png");
                     // Paint the bristle strokes
-                    ctx.drawImage(capture, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+                    ctx.drawImage(i, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
