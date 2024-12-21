@@ -466,14 +466,17 @@
                 if (lasttouch) {
 
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
-                  
+                    var c = document.createElement("canvas");
+                    c.style.height = "50px"
+                    c.style.width = "50px"
+                    c.getContext("2d").drawImage(brushImage, 0, 0, 50, 50);
+                    c.globalCompositeOperation = "source-atop";
+                    c.fillStyle = color;
+                    c.globalAlpha = 0.3
+                    c.getContext("2d").fillRect(0, 0, 50, 50);
+                    
                     // Paint the bristle strokes
-
-                    ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
-                    ctx.fillStyle = hexToRgb(color);
-                    ctx.globalCompositeOperation = "source-in";
-                    ctx.fillRect(lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
-                    ctx.globalCompositeOperation = "source-over"
+                    ctx.drawImage(c, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
