@@ -476,7 +476,11 @@
                     c.getContext("2d").fillRect(0, 0, 50, 50);
                     
                     // Paint the bristle strokes
-                    ctx.drawImage(c, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+                   ctx.fillStyle = color;
+                   ctx.globalAlpha = 0.5
+                    ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
+                    ctx.globalAlpha = 0.5
+                    ctx.fillRect(lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
 
