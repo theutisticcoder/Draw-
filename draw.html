@@ -469,7 +469,8 @@
                     var c = document.createElement("canvas");
                     c.getContext("2d").drawImage(brushImage, 0, 0, 50, 50);
                     c.globalCompositeOperation = "source-atop";
-
+                    c.fillStyle = color;
+                    c.globalAlpha = 0.3
                     c.getContext("2d").fillRect(0, 0, 50, 50);
                     var i = new Image();
                     i.src = capture;
@@ -539,7 +540,8 @@
                     var c = document.createElement("canvas");
                     c.getContext("2d").drawImage(brushImage, 0, 0, 50, 50);
                     c.globalCompositeOperation = "source-atop";
-
+                    c.fillStyle = color;
+                    c.globalAlpha = 0.3
                     c.getContext("2d").fillRect(0, 0, 50, 50);
                     capture = c.toDataURL("image/png");
                     // Paint the bristle strokes
