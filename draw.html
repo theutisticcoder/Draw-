@@ -471,7 +471,7 @@
 
                     ctx.drawImage(brushImage, lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
                     ctx.fillStyle = hexToRgb(color);
-                    ctx.globalCompositeOperation = "source-atop";
+                    ctx.globalCompositeOperation = "source-in";
                     ctx.fillRect(lasttouch.clientX, lasttouch.clientY, brushThickness, brushThickness)
                     ctx.globalCompositeOperation = "source-over"
                 }
