@@ -874,12 +874,14 @@
             ctx2.drawImage(frame, 0, 0, canvas.width, canvas.height);
         }
         window.onclick = (e) => {
-            clicked = e.target
+            if (e.target.parentElement === document.getElementById("timeline")) {
+                clicked = e.target
+            }
         }
         function saveFrame(fr) {
             fr.src = canvas.toDataURL("image/png")
             setTimeout(() => {
-                if (clicked === fr) {
+                if () {
                     saveframe(fr)
                 }
             }, 10)
@@ -906,7 +908,7 @@
                 document.querySelector("#timeline").appendChild(frame);
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
-                    ctx.clearRect(150,0,canvas.width, canvas.height)
+                    ctx.clearRect(150, 0, canvas.width, canvas.height)
                     setTimeout(() => {
                         ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
                         saveFrame(e.target);
