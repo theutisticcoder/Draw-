@@ -497,6 +497,8 @@
                 setTimeout(() => {
                     ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
                     child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
+                    alert(child)
+
                 }, 10)
             }
             document.getElementById("timeline").appendChild(first);
@@ -902,6 +904,7 @@ saveFrame(document.querySelector("#timeline").children[child])
             var frameurl = canvas.toDataURL("image/png")
 
             frame = new Image();
+            alert(child)
 
             imagelist.push(frameurl);
             ctx.clearRect(width, 0, canvas.width, canvas.height);
@@ -922,7 +925,8 @@ saveFrame(document.querySelector("#timeline").children[child])
                     setTimeout(() => {
                         ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
                         child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
-                   
+                        alert(child)
+
                     }, 10)
                 }
             }, 50)
@@ -939,12 +943,14 @@ saveFrame(document.querySelector("#timeline").children[child])
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
             child = document.querySelector("#timeline").children.length - 1;
+            alert(child)
 
             frame.onclick = (e) => {
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
+                
                     ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
                     child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
-
+alert(child)
             }
         }
     </script>
