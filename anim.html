@@ -494,7 +494,7 @@
             first.style.background = "white"
             first.src = "";
             first.onclick = (e) => {
-                child = document.querySelector("#timeline").children.findIndex(x=> x.src === e.target.src);
+                child = e.target;
 
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
@@ -586,7 +586,7 @@
                 ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
             }
-            saveFrame(document.querySelector("#timeline").children[child])
+            saveFrame(child)
         }
         function createBrushTexture() {
             const brushCanvas = document.createElement('canvas');
@@ -695,7 +695,7 @@
                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
-            saveFrame(document.querySelector("#timeline").children[child])
+            saveFrame(child)
         }
 
 
@@ -914,12 +914,11 @@
 
 
                 document.querySelector("#timeline").appendChild(frame);
-                child = document.querySelector("#timeline").children.length - 1;
+                child = frame;
 
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
-                    child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
-
+                    child = e.target
                     ctx.clearRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
 
@@ -937,11 +936,10 @@
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
-            child = document.querySelector("#timeline").children.length - 1;
+            child = frame
 
             frame.onclick = (e) => {
-                child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
-
+                child = e.target;
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
 
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
