@@ -489,11 +489,8 @@
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
-            var first = new Image();
-            first.height = 50 + "px";
-            first.width = 75 + "px";
+            var first = new Image(75,50);
             document.getElementById("timeline").appendChild(first);
-            imagelist.push("");
             restore();
         }
         var paint = 1;
