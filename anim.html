@@ -893,9 +893,9 @@
 
             frame = new Image();
             frame.src = frameurl;
-         
+
             imagelist.push(frameurl);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(150, 0, canvas.width, canvas.height);
             setTimeout(() => {
                 ctx.globalAlpha = 0.03
                 ctx.drawImage(frame, 150, 0, canvas.width, canvas.height);
@@ -906,14 +906,14 @@
                 document.querySelector("#timeline").appendChild(frame);
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
-                ctx.clearRect()
-                setTimeout(() => {
-                    ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
-                    saveFrame(e.target);
-                }, 10)
-            }
+                    ctx.clearRect(150,0,canvas.width, canvas.height)
+                    setTimeout(() => {
+                        ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
+                        saveFrame(e.target);
+                    }, 10)
+                }
             }, 50)
-           
+
         }
         document.querySelector("#duplicate").onclick = () => {
             var frameurl = canvas.toDataURL("image/png")
