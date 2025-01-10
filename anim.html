@@ -873,11 +873,6 @@
             ctx2.globalAlpha = 0.3
             ctx2.drawImage(frame, 0, 0, canvas.width, canvas.height);
         }
-        window.onclick = (e) => {
-            if (e.target.parentElement === document.getElementById("timeline")) {
-                clicked = e.target
-            }
-        }
         function saveFrame(fr) {
             fr.src = canvas.toDataURL("image/png")
             setTimeout(() => {
@@ -886,6 +881,12 @@
                 }
             }, 10)
         }
+        window.onclick = (e) => {
+            if (e.target.parentElement === document.getElementById("timeline")) {
+                clicked = e.target
+            }
+        }
+      
         var clicked;
         function addframe() {
             points = [];
