@@ -492,6 +492,13 @@
             var first = new Image(75,50);
             first.style.background = "white"
             first.src = "";
+            first.onclick = (e) => {
+                ctx.clearRect(150, 0, canvas.width, canvas.height)
+                setTimeout(() => {
+                    ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
+                    child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
+                }, 10)
+            }
             document.getElementById("timeline").appendChild(first);
             restore();
         }
