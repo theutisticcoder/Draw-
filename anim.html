@@ -913,12 +913,15 @@ saveFrame(document.querySelector("#timeline").children[child])
                 frame.style.backgroundColor = "white";
 
                 document.querySelector("#timeline").appendChild(frame);
+                child = document.querySelector("#timeline").children.length - 1;
+
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
                     ctx.clearRect(150, 0, canvas.width, canvas.height)
                     setTimeout(() => {
                         ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
                         child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
+                   
                     }, 10)
                 }
             }, 50)
@@ -934,6 +937,8 @@ saveFrame(document.querySelector("#timeline").children[child])
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
+            child = document.querySelector("#timeline").children.length - 1;
+
             frame.onclick = (e) => {
                 ctx.clearRect(150, 0, canvas.width, canvas.height)
                 setTimeout(() => {
