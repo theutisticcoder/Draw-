@@ -175,7 +175,7 @@
     </section>
     <script>
         let brushImage = new Image();
-        brushImage.src = 'oil.png';
+        brushImage.src = 'oil3.png';
         brushImage.id = "bi"
         var chunks = [];
 
@@ -540,7 +540,7 @@
                 pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
 
 
-                if (lasttouch) {
+                if (lasttouch) { 
 
                     const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
                     var c = document.createElement("canvas");
