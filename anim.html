@@ -205,6 +205,7 @@
 
     </section>
     <script>
+                var child = 0;
         var image = 0;
         let brushImage = new Image();
         brushImage.src = 'oil.png';
@@ -493,7 +494,7 @@
             first.style.background = "white"
             first.src = "";
             first.onclick = (e) => {
-                child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
+                child = document.querySelector("#timeline").children.findIndex(x=> x.src === e.target.src);
 
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
@@ -779,7 +780,6 @@
             setTimeout(restore, 100);
 
         }
-        var child = 0;
         document.getElementById("undo").onclick = () => {
             if (strokes.length > 0) {
 
