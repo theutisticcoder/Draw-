@@ -881,15 +881,19 @@ var frameurl = canvas.toDataURL("image/png")
             frame.src = frameurl;
             imagelist.push(frameurl);
             ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.globalAlpha = 0.1
+            setTimeout(()=>{
+                ctx.globalAlpha = 0.1
             ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
             frame.style.height = "50px"
             frame.style.width = "70px"
             frame.style.backgroundColor = "white";
 
             document.querySelector("#timeline").appendChild(frame);
+            
+            }, 50)
             }
 document.querySelector("#duplicate").onclick = ()=> {
+    var frameurl = canvas.toDataURL("image/png")
 
     frame = new Image();
             frame.src = frameurl;
