@@ -881,7 +881,7 @@
         function saveFrame(fr) {
             fr.src = canvas.toDataURL("image/png")
             setTimeout(() => {
-                if () {
+                if (clicked === fr) {
                     saveframe(fr)
                 }
             }, 10)
