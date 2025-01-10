@@ -493,10 +493,10 @@
             first.style.background = "white"
             first.src = "";
             first.onclick = (e) => {
+                child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
+
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-                child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
-                alert(child)
 
             }
             document.getElementById("timeline").appendChild(first);
@@ -918,9 +918,10 @@
 
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
+                    child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
+
                     ctx.clearRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-                    child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
 
                 }
             }, 50)
@@ -939,10 +940,11 @@
             child = document.querySelector("#timeline").children.length - 1;
 
             frame.onclick = (e) => {
+                child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
+
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
 
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-                child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
             }
         }
     </script>
