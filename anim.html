@@ -168,7 +168,8 @@
             background-color: white;
             position: absolute;
         }
-        #duplicate{
+
+        #duplicate {
             font-size: medium;
         }
     </style>
@@ -383,7 +384,7 @@
         const ctx = canvas.getContext('2d');
         var ctx2 = document.getElementById("onion").getContext('2d');
         ctx2.fillStyle = "white";
-        ctx2.fillRect(0,0,canvas.width, canvas.height);
+        ctx2.fillRect(0, 0, canvas.width, canvas.height);
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
@@ -416,10 +417,10 @@
         document.querySelector("#onion").style.width = screen.width * 0.7 + "px";
         var isOil = true;
         ctx.translate(-width, 0)
-            toolbar.addEventListener('click', e => {
+        toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
-        ctx.clearRect(width, 0, canvas.width, canvas.height)
+                ctx.clearRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -859,8 +860,8 @@
         function addframe() {
             points = [];
 
-var frameurl = canvas.toDataURL("image/png")
-        
+            var frameurl = canvas.toDataURL("image/png")
+
             frame = new Image();
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
@@ -868,41 +869,59 @@ var frameurl = canvas.toDataURL("image/png")
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
-            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx2.globalAlpha = 0.3
             ctx2.drawImage(frame, 0, 0, canvas.width, canvas.height);
         }
+        window.onclick = (e) => {
+            clicked = e.target
+        }
+        function saveFrame(fr) {
+            fr.src = canvas.toDataURL("image/png")
+            setTimeout(() => {
+                if (clicked === fr) {
+                    saveframe(fr)
+                }
+            }, 10)
+        }
+        var clicked;
         function addframe() {
             points = [];
 
-var frameurl = canvas.toDataURL("image/png")
-        
+
+            var frameurl = canvas.toDataURL("image/png")
+
             frame = new Image();
             frame.src = frameurl;
-            imagelist.push(frameurl);
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            setTimeout(()=>{
-                ctx.globalAlpha = 0.03
-            ctx.drawImage(frame, 150, 0, canvas.width, canvas.height);
-            frame.style.height = "50px"
-            frame.style.width = "70px"
-            frame.style.backgroundColor = "white";
-
-            document.querySelector("#timeline").appendChild(frame);
-        ctx.globalAlpha = 1.0
-            }, 50)
+            frame.onclick = (e) => {
+                ctx.clearRect()
+                ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
+                saveFrame(e.target);
             }
-document.querySelector("#duplicate").onclick = ()=> {
-    var frameurl = canvas.toDataURL("image/png")
+            imagelist.push(frameurl);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            setTimeout(() => {
+                ctx.globalAlpha = 0.03
+                ctx.drawImage(frame, 150, 0, canvas.width, canvas.height);
+                frame.style.height = "50px"
+                frame.style.width = "70px"
+                frame.style.backgroundColor = "white";
 
-    frame = new Image();
+                document.querySelector("#timeline").appendChild(frame);
+                ctx.globalAlpha = 1.0
+            }, 50)
+        }
+        document.querySelector("#duplicate").onclick = () => {
+            var frameurl = canvas.toDataURL("image/png")
+
+            frame = new Image();
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
             imagelist.push(frameurl);
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
-}
+        }
     </script>
 </body>
 
