@@ -484,19 +484,19 @@
         document.getElementById("new").onclick = () => {
 
             document.querySelector("#toolbar").hidden = false;
-            arts.unshift([])
+            arts.push([])
             ctx.globalAlpha = 1.0
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
-            var first = new Image(75,50);
+            var first = new Image(75, 50);
             first.style.background = "white"
             first.src = "";
             first.onclick = (e) => {
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
-                    ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-                    child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
-                    alert(child)
+                ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
+                child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
+                alert(child)
 
             }
             document.getElementById("timeline").appendChild(first);
@@ -694,7 +694,7 @@
                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
-saveFrame(document.querySelector("#timeline").children[child])
+            saveFrame(document.querySelector("#timeline").children[child])
         }
 
 
@@ -902,7 +902,6 @@ saveFrame(document.querySelector("#timeline").children[child])
             var frameurl = canvas.toDataURL("image/png")
 
             frame = new Image();
-            alert(child)
 
             imagelist.push(frameurl);
             ctx.clearRect(width, 0, canvas.width, canvas.height);
@@ -912,7 +911,7 @@ saveFrame(document.querySelector("#timeline").children[child])
                 frame.style.height = "50px"
                 frame.style.width = "70px"
                 frame.style.backgroundColor = "white";
-                
+
 
                 document.querySelector("#timeline").appendChild(frame);
                 child = document.querySelector("#timeline").children.length - 1;
@@ -920,9 +919,8 @@ saveFrame(document.querySelector("#timeline").children[child])
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
                     ctx.clearRect(width, 0, canvas.width, canvas.height)
-                        ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-                        child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
-                        alert(child)
+                    ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
+                    child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
 
                 }
             }, 50)
@@ -939,14 +937,12 @@ saveFrame(document.querySelector("#timeline").children[child])
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
             child = document.querySelector("#timeline").children.length - 1;
-            alert(child)
 
             frame.onclick = (e) => {
                 ctx.clearRect(width, 0, canvas.width, canvas.height)
-                
-                    ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-                    child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
-alert(child)
+
+                ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
+                child = document.querySelector("#timeline").children.findIndex(x=> x.src=== e.target.src);
             }
         }
     </script>
