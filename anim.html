@@ -928,6 +928,13 @@
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
+            frame.onclick = (e) => {
+                    ctx.clearRect(150, 0, canvas.width, canvas.height)
+                    setTimeout(() => {
+                        ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
+                        saveFrame(e.target);
+                    }, 10)
+                }
         }
     </script>
 </body>
