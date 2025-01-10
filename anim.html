@@ -879,13 +879,14 @@ var frameurl = canvas.toDataURL("image/png")
         
             frame = new Image();
             frame.src = frameurl;
-            frame.style.backgroundColor = "white";
             imagelist.push(frameurl);
             ctx.clearRect(0,0,canvas.width,canvas.height);
             ctx.globalAlpha = 0.1
             ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
             frame.style.height = "50px"
             frame.style.width = "70px"
+            frame.style.backgroundColor = "white";
+
             document.querySelector("#timeline").appendChild(frame);
             }
 document.querySelector("#duplicate").onclick = ()=> {
