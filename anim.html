@@ -883,7 +883,7 @@ var frameurl = canvas.toDataURL("image/png")
             ctx.clearRect(0,0,canvas.width,canvas.height);
             setTimeout(()=>{
                 ctx.globalAlpha = 0.1
-            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(frame, -150, 0, canvas.width, canvas.height);
             frame.style.height = "50px"
             frame.style.width = "70px"
             frame.style.backgroundColor = "white";
