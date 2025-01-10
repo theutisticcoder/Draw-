@@ -489,6 +489,11 @@
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
+            var first = new Image();
+            first.height = 50 + "px";
+            first.width = 75 + "px";
+            document.getElementById("timeline").appendChild(first);
+            imagelist.push("");
             restore();
         }
         var paint = 1;
@@ -574,7 +579,7 @@
                 ctx.lineTo(e.clientX, e.clientY);
                 ctx.stroke();
             }
-
+            saveFrame(document.querySelector("#timeline").children[child])
         }
         function createBrushTexture() {
             const brushCanvas = document.createElement('canvas');
@@ -683,7 +688,7 @@
                 ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
                 ctx.stroke();
             }
-
+saveFrame(document.querySelector("#timeline").children[child])
         }
 
 
@@ -756,6 +761,7 @@
         });
 
 
+
         function compareImageData(data1, data2) {
             // Compare width, height and pixel data
             if (data1.width !== data2.width || data1.height !== data2.height) return false;
@@ -767,7 +773,7 @@
             setTimeout(restore, 100);
 
         }
-
+        var child = 0;
         document.getElementById("undo").onclick = () => {
             if (strokes.length > 0) {
 
@@ -886,7 +892,7 @@
                 clicked = e.target
             }
         }
-      
+
         var clicked;
         function addframe() {
             points = [];
@@ -912,7 +918,7 @@
                     ctx.clearRect(150, 0, canvas.width, canvas.height)
                     setTimeout(() => {
                         ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
-                        saveFrame(e.target);
+                        child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
                     }, 10)
                 }
             }, 50)
@@ -929,12 +935,13 @@
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
             frame.onclick = (e) => {
-                    ctx.clearRect(150, 0, canvas.width, canvas.height)
-                    setTimeout(() => {
-                        ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
-                        saveFrame(e.target);
-                    }, 10)
-                }
+                ctx.clearRect(150, 0, canvas.width, canvas.height)
+                setTimeout(() => {
+                    ctx.drawImage(e.target, 150, 0, canvas.width, canvas.height)
+                    child = document.querySelector("#timeline").children.findIndex(x => x === e.target);
+                }, 10)
+
+            }
         }
     </script>
 </body>
