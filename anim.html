@@ -422,6 +422,7 @@
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
+                ctx.fillStyle = "white";
                 ctx.fillRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
