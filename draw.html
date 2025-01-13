@@ -568,7 +568,11 @@ else {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.7)
                     if (modifier < 1) modifier += 0.2;
-
+                    points.forEach(p => {
+                        if (points.findIndex(x => x.x === e.touches[0].clientX) === points[p].x && points.findIndex(y => y.y === e.touches[0].clientY) === points[p].y) {
+                            points[p].color = color;
+                        }
+                    })
 
                 }
 
