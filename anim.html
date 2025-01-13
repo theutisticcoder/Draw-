@@ -838,6 +838,7 @@
         }
         var speed = 10;
         function play() {
+            ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
             image++;
             if (image < Array.from(document.querySelector("#timeline").children).length) {
