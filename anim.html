@@ -421,7 +421,7 @@
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.globalAlpha = 1.0;
-                ctx.clearRect(width, 0, canvas.width, canvas.height)
+                ctx.fillRect(width, 0, canvas.width, canvas.height)
                 points = [];
                 ctx.globalAlpha = 1.0
             }
@@ -497,7 +497,7 @@
             first.onclick = (e) => {
                 child = e.target;
 
-                ctx.clearRect(width, 0, canvas.width, canvas.height)
+                ctx.fillRect(width, 0, canvas.width, canvas.height)
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
 
             }
@@ -882,7 +882,7 @@
             frame.style.height = "50px"
             frame.style.width = "70px"
             document.querySelector("#timeline").appendChild(frame);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx2.globalAlpha = 0.3
             ctx2.drawImage(frame, 0, 0, canvas.width, canvas.height);
         }
@@ -905,7 +905,7 @@
             frame = new Image();
 
             imagelist.push(frameurl);
-            ctx.clearRect(width, 0, canvas.width, canvas.height);
+            ctx.fillRect(width, 0, canvas.width, canvas.height);
             setTimeout(() => {
                 ctx.globalAlpha = 0.03
                 ctx.drawImage(frame, width, 0, canvas.width, canvas.height);
@@ -920,7 +920,7 @@
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
                     child = e.target
-                    ctx.clearRect(width, 0, canvas.width, canvas.height)
+                    ctx.fillRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
 
                 }
@@ -941,8 +941,7 @@
 
             frame.onclick = (e) => {
                 child = e.target;
-                ctx.clearRect(width, 0, canvas.width, canvas.height)
-
+                ctx.fillRect(width, 0, canvas.width, canvas.height)
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
             }
         }
