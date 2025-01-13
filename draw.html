@@ -441,7 +441,7 @@
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            ctx.globalAlpha = 0.65
+            ctx.globalAlpha = 0.53
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
