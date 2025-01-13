@@ -905,6 +905,7 @@
             var frameurl = canvas.toDataURL("image/png")
 
             frame = new Image();
+             ctx.fillStyle = "white"
 
             imagelist.push(frameurl);
             ctx.fillRect(width, 0, canvas.width, canvas.height);
@@ -931,6 +932,7 @@
         }
         document.querySelector("#duplicate").onclick = () => {
             var frameurl = canvas.toDataURL("image/png")
+            ctx.fillStyle = "white"
 
             frame = new Image();
             frame.src = frameurl;
