@@ -342,7 +342,7 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
-ctx.globalCompositeOperation = "luminosity"
+ctx.globalCompositeOperation = "difference"
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
