@@ -383,8 +383,9 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
-        var ctx2 = document.getElementById("onion").getContext('2d');
         ctx2.fillStyle = "white";
+
+        var ctx2 = document.getElementById("onion").getContext('2d');
         ctx2.fillRect(0, 0, canvas.width, canvas.height);
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
