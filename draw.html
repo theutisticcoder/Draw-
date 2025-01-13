@@ -460,7 +460,7 @@
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.clientX) === points[p].x && points.findIndex(y => y.y === e.clientY) === points[p].y) {
+                        if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
                         }
                     })
