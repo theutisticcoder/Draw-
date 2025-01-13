@@ -449,6 +449,7 @@
         var paint = 1;
         const draw = (e) => {
 
+            var grad = false
 draws++;
 if (!isPainting) {
     return;
@@ -456,9 +457,9 @@ if (!isPainting) {
 if (isOil) {
 
     if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-        color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.6)
-        if (modifier < 1) modifier += 0.2;
 
+if (modifier < 1) modifier += 0.2;
+grad = true;
         points.push({ color: color, x: e.clientX, y: e.clientY })
         pointarray.push({ color: color, x: e.clientX, y: e.clientY })
     }
@@ -468,7 +469,15 @@ if (isOil) {
 
     }
     if (lasttouch) {
-
+        if(grad){
+            var gradient = ctx.createLinearGradient(lasttouch.clientX, lasttousch.clientY, e.clientX, e.clientY)
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, points.find(x => x.x === e.clientX).color);
+            ctx.strokeStyle = gradient;
+        }
+        else{
+            ctx.strokeStyle = color
+        }
         for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
             if (i === 14 * lineWidth || i === 15 * lineWidth) {
                 ctx.beginPath();
