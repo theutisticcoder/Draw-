@@ -463,6 +463,7 @@ if (isOil) {
         pointarray.push({ color: color, x: e.clientX, y: e.clientY })
     }
     else {
+        color = document.querySelector("#stroke").value;
         points.push({ color: color, x: e.clientX, y: e.clientY })
         modifier = 0.2;
 
