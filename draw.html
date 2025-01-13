@@ -460,13 +460,12 @@ if (isOil) {
 
 if (modifier < 1) modifier += 0.2;
 grad = true;
-        points.push({ color: color, x: e.clientX, y: e.clientY })
+       
         pointarray.push({ color: color, x: e.clientX, y: e.clientY })
     }
     else {
-        points.push({ color: color, x: e.clientX, y: e.clientY })
         modifier = 0.2;
-
+        grad = false;
     }
     if (lasttouch) {
         if(grad){
@@ -531,7 +530,7 @@ grad = true;
         ctx.moveTo(e.clientX, e.clientY);
     }
     lasttouch = { clientX: e.clientX, clientY: e.clientY }
-
+    points.push({ color: color, x: e.clientX, y: e.clientY })
 }
 else {
     ctx.lineWidth = lineWidth * 1.3;
