@@ -480,6 +480,7 @@
                 ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
            
                 }
+                child = im
                 document.querySelector("#timeline").appendChild(im);
             })
             number = num;
@@ -959,7 +960,7 @@
                 frame.style.backgroundColor = "white";
 
 
-                document.querySelector("#timeline").appendChild(frame);
+                document.querySelector("#timeline").insertBefore(frame, child);
                 child = frame;
 
                 ctx.globalAlpha = 1.0
@@ -982,7 +983,7 @@
             imagelist.push(frameurl);
             frame.style.height = "50px"
             frame.style.width = "70px"
-            document.querySelector("#timeline").appendChild(frame);
+            document.querySelector("#timeline").insertBefore(frame, child);
             child = frame
 
             frame.onclick = (e) => {
