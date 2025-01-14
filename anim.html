@@ -474,6 +474,12 @@
                 im.style.width = "70px";
                 im.style.height = "50px";
                 im.style.background = "white"
+                im.onclick = (e)=> {
+                    child = e.target;
+                ctx.fillRect(width, 0, canvas.width, canvas.height)
+                ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
+           
+                }
                 document.querySelector("#timeline").appendChild(im);
             })
             number = num;
