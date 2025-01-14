@@ -960,7 +960,7 @@
                 frame.style.backgroundColor = "white";
 
 
-                document.querySelector("#timeline").insertBefore(frame, child);
+                child.insertAdjacentElement("afterend",frame);
                 child = frame;
 
                 ctx.globalAlpha = 1.0
@@ -983,7 +983,7 @@
             imagelist.push(frameurl);
             frame.style.height = "50px"
             frame.style.width = "70px"
-            document.querySelector("#timeline").insertBefore(frame, child);
+            child.insertAdjacentElement("afterend",frame);
             child = frame
 
             frame.onclick = (e) => {
