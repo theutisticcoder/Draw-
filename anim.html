@@ -192,6 +192,7 @@
             <button id="add" onclick="addframe()">Add Frame</button>
             <button id="duplicate">Duplicate Frame</button>
             <br><br>
+            <button id="test" onclick="playmation()">Play Animation</button>
             <button id="undo">Undo</button>
             <button id="dry">Dry</button>
             <button id="save">Save Video</button>
@@ -850,6 +851,37 @@
                 setTimeout(() => { saver.stop() }, 1000 / speed)
             }
         }
+           function play() {
+            ctx.fillStyle = "white"
+            ctx.fillRect(width, 0, canvas.width, canvas.height)
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
+            image++;
+            if (image < Array.from(document.querySelector("#timeline").children).length) {
+                setTimeout(play, 1000 / speed)
+
+            }
+            else {
+                setTimeout(() => { saver.stop() }, 1000 / speed)
+            }
+        }
+        function playmation() {
+            if(image === 0){
+                speed = prompt("choose a video speed (FPS)")
+            }
+            ctx.fillStyle = "white"
+            ctx.fillRect(width, 0, canvas.width, canvas.height)
+            ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
+            image++;
+            if (image < Array.from(document.querySelector("#timeline").children).length) {
+                setTimeout(play, 1000 / speed)
+
+            }
+            else{
+                image = 0;
+                return 0;
+            }
+
+        }
         var exportvid;
         var vids = [];
         document.querySelector("#save").onclick = () => {
@@ -869,7 +901,9 @@
                 a.href = exportvid;
                 a.download = name + ".mp4"
                 a.click();
-
+                ctx.fillStyle = "white"
+                ctx.fillRect(width, 0, canvas.width, canvas.height)
+                
             }
         }
 
