@@ -219,7 +219,7 @@
         var paintings = [];
         var arts = [];
         setTimeout(() => {
-            localforage.getItem("canvas", (err, val) => {
+            localforage.getItem("animation", (err, val) => {
                 if (val != null) {
                     arts = JSON.parse(val);
                     arts.forEach(can => {
@@ -787,7 +787,7 @@
         }
         function restore() {
 
-            localforage.setItem("canvas", JSON.stringify(arts));
+            localforage.setItem("animation", JSON.stringify(arts));
             setTimeout(restore, 100);
 
         }

@@ -190,7 +190,7 @@
         var paintings = [];
         var arts = [];
         setTimeout(() => {
-            localforage.getItem("canvas", (err, val) => {
+            localforage.getItem("drawing", (err, val) => {
                 if (val != null) {
                     arts = val;
                     arts.forEach(can => {
@@ -736,7 +736,7 @@
         }
         function restore() {
 
-            localforage.setItem("canvas", arts);
+            localforage.setItem("drawing", arts);
             setTimeout(restore, 100);
 
         }
