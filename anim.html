@@ -34,6 +34,16 @@
             background-color: black;
         }
 
+        #timeline {
+            overflow-x: scroll;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        img {
+            display: inline-block;
+        }
+
         h1 {
             background: #7F7FD5;
             background: linear-gradient(to right, blue, green, orange);
@@ -141,9 +151,9 @@
 
         #timeline {
             position: absolute;
-            top: 80vh;
+            top: 90vh;
             left: 10vw;
-            height: 20vh;
+            height: 10vh;
             z-index: 10;
             background: black;
             overflow-x: scroll;
@@ -206,7 +216,7 @@
 
     </section>
     <script>
-                var child = 0;
+        var child = 0;
         var image = 0;
         let brushImage = new Image();
         brushImage.src = 'oil.png';
@@ -471,14 +481,14 @@
             imagelist.forEach(imurl => {
                 var im = new Image();
                 im.src = imurl;
-                im.style.width = "70px";
-                im.style.height = "50px";
+                im.style.width = "35px";
+                im.style.height = "25px";
                 im.style.background = "white"
-                im.onclick = (e)=> {
+                im.onclick = (e) => {
                     child = e.target;
-                ctx.fillRect(width, 0, canvas.width, canvas.height)
-                ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
-           
+                    ctx.fillRect(width, 0, canvas.width, canvas.height)
+                    ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
+
                 }
                 child = im
                 document.querySelector("#timeline").appendChild(im);
@@ -858,7 +868,7 @@
                 setTimeout(() => { saver.stop() }, 1000 / speed)
             }
         }
-           function play() {
+        function play() {
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(Array.from(document.querySelector("#timeline").children)[image], width, 0, canvas.width, canvas.height);
@@ -872,7 +882,7 @@
             }
         }
         function playmation() {
-            if(image === 0){
+            if (image === 0) {
                 speed = prompt("choose a video speed (FPS)")
             }
             ctx.fillStyle = "white"
@@ -883,7 +893,7 @@
                 setTimeout(play, 1000 / speed)
 
             }
-            else{
+            else {
                 image = 0;
                 return 0;
             }
@@ -910,7 +920,7 @@
                 a.click();
                 ctx.fillStyle = "white"
                 ctx.fillRect(width, 0, canvas.width, canvas.height)
-                
+
             }
         }
 
@@ -924,8 +934,8 @@
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
             imagelist.push(frameurl);
-            frame.style.height = "50px"
-            frame.style.width = "70px"
+            frame.style.height = "25px"
+            frame.style.width = "35px"
             document.querySelector("#timeline").appendChild(frame);
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx2.globalAlpha = 0.3
@@ -948,19 +958,19 @@
             var frameurl = canvas.toDataURL("image/png")
 
             frame = new Image();
-             ctx.fillStyle = "white"
+            ctx.fillStyle = "white"
 
             imagelist.push(frameurl);
             ctx.fillRect(width, 0, canvas.width, canvas.height);
             setTimeout(() => {
                 ctx.globalAlpha = 0.03
                 ctx.drawImage(frame, width, 0, canvas.width, canvas.height);
-                frame.style.height = "50px"
-                frame.style.width = "70px"
+                frame.style.height = "25px"
+                frame.style.width = "35px"
                 frame.style.backgroundColor = "white";
 
 
-                child.insertAdjacentElement("afterend",frame);
+                child.insertAdjacentElement("afterend", frame);
                 child = frame;
 
                 ctx.globalAlpha = 1.0
@@ -981,9 +991,9 @@
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
             imagelist.push(frameurl);
-            frame.style.height = "50px"
-            frame.style.width = "70px"
-            child.insertAdjacentElement("afterend",frame);
+            frame.style.height = "25px"
+            frame.style.width = "35px"
+            child.insertAdjacentElement("afterend", frame);
             child = frame
 
             frame.onclick = (e) => {
