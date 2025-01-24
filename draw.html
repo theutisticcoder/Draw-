@@ -261,12 +261,21 @@
             }
             const x = e.offsetX;
             const y = e.offsetY;
-
+            var testcan = document.createElement("canvas");
+            var testctx = testcan.getContext("2d");
+            testcan.height = 50;
+            testcan.with = 50;
+            testctx.drawImage(brushImage,0,0,50,50);
+            testctx.fillStyle = color;
+            testctx.globalCompositeOperation = "source-in";
+            testctx.fillRect(0,0,50,50);
+            var testim = new Image();
+            testim.src = testcan.toDataURL("image/png");
             // Vary brush thickness and color dynamically for a more realistic effect
             const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
 
             // Paint the bristle strokes
-            ctx.drawImage(brushImage, x, y, brushThickness, brushThickness)
+            ctx.drawImage(testim, x, y, brushThickness, brushThickness)
 
             lastX = x;
             lastY = y;
