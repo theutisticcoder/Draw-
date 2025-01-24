@@ -269,7 +269,7 @@
             testctx.fillStyle = color;
             testctx.globalCompositeOperation = "source-in";
             testctx.fillRect(0,0,50,50);
-            var testim = new Image();
+            var testim = new Image(50,50);
             testim.src = testcan.toDataURL("image/png");
             // Vary brush thickness and color dynamically for a more realistic effect
             const brushThickness = Math.random() * lineWidth + 15; // Vary the thickness slightly
