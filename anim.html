@@ -601,6 +601,7 @@
                     ctx.moveTo(e.clientX, e.clientY);
                 }
                 lasttouch = { clientX: e.clientX, clientY: e.clientY }
+                saveFrame(clicked);
 
             }
             else {
@@ -700,6 +701,7 @@
                             ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
                             ctx.stroke();
                         }
+                        saveFrame(clicked);
                     }
 
                 }
@@ -976,6 +978,7 @@
 
                 ctx.globalAlpha = 1.0
                 frame.onclick = (e) => {
+
                     child = e.target
                     ctx.fillRect(width, 0, canvas.width, canvas.height)
                     ctx.drawImage(e.target, width, 0, canvas.width, canvas.height)
@@ -992,6 +995,7 @@
             frame.src = frameurl;
             frame.style.backgroundColor = "white";
             imagelist.push(frameurl);
+
             frame.style.height = "25px"
             frame.style.width = "35px"
             child.insertAdjacentElement("afterend", frame);
