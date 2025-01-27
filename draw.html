@@ -447,7 +447,7 @@
             ctx.globalAlpha = 1.0
             document.querySelector("#gallery").hidden = true;
             restore();
-            ctx.globalCompositeOperation = "soft-light"
+            ctx.globalCompositeOperation = "source-over"
 
 
         }
@@ -465,7 +465,7 @@
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
-            ctx.globalCompositeOperation = "soft-light"
+            ctx.globalCompositeOperation = "source-over"
 
         }
         var paint = 1;
@@ -479,13 +479,16 @@
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    if (modifier < 1) modifier += 0.2;
+                    var data = ctx.getImageData(e.clientX, e.clientY,e.clientX + 10, e.clientY +10)
+                    var color1 = getAverageColor(data)
+                    color = {r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2)}
                     points.forEach(p => {
-                        if (points.find(x => x.x === e.clientX).x === points[p].x && points.find(y => y.y === e.clientY).y === points[p].y) {
+                        if (points.find(x => x.x === e.touches[0].clientX).x === points[p].x && points.find(y => y.y === e.touches[0].clientY).y === points[p].y) {
                             points[p].color = color;
-                        }
+
+                        }                  
                     })
-                    ctx.globalCompositeOperation = "soft-light"
+                    ctx.globalCompositeOperation = "source-over"
 
                 }
                 else {
@@ -612,7 +615,7 @@
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
                     if (modifier < 1) modifier += 0.2;
-                    var data = ctx.getImageData(lastTouch.clientX, lastTouch.clientY,lastTouch.clientX + 10, lastTouch.clientY +10)
+                    var data = ctx.getImageData(e.touches[0].clientX, e.touches[0].clientY,e.touches[0].clientX + 10, e.touches[0].clientY +10)
                     var color1 = getAverageColor(data)
                     color = {r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2)}
                     points.forEach(p => {
@@ -621,7 +624,7 @@
 
                         }
                     })
-                    ctx.globalCompositeOperation = "soft-light"
+                    ctx.globalCompositeOperation = "source-over"
 
                 }
                 else {
