@@ -456,7 +456,7 @@
             ctx.globalAlpha = 1.0
             document.querySelector("#gallery").hidden = true;
             restore();
-            ctx.globalCompositeOperation = "source-over"
+            ctx.globalCompositeOperation = "lighter"
 
 
         }
@@ -474,7 +474,7 @@
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
-            ctx.globalCompositeOperation = "source-over"
+            ctx.globalCompositeOperation = "lighter"
 
         }
         var paint = 1;
@@ -495,7 +495,7 @@
 
                         }                  
                     })
-                    ctx.globalCompositeOperation = "source-over"
+                    ctx.globalCompositeOperation = "lighter"
 
                 }
                 else {
@@ -630,7 +630,7 @@
 
                         }
                     })
-                    ctx.globalCompositeOperation = "source-over"
+                    ctx.globalCompositeOperation = "lighter"
 
                 }
                 else {
@@ -779,7 +779,7 @@
             var pattern = ctx.createPattern(blank, "repeat");
             ctx.fillStyle = pattern;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
-            ctx.globalCompositeOperation = 'source-over'; // Reset to default
+            ctx.globalCompositeOperation = 'lighter'; // Reset to default
         }
         document.querySelector("#save").onclick = () => {
             var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
