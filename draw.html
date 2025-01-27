@@ -475,7 +475,6 @@
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, modifier)
                     if (modifier < 1) modifier += 0.2;
                         points.forEach(p => {
                         if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
@@ -587,7 +586,6 @@
             }
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, modifier)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.touches[0].clientX) === points[p].x && points.findIndex(y => y.y === e.touches[0].clientY) === points[p].y) {
