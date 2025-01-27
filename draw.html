@@ -465,6 +465,7 @@
             restore();
         }
         var paint = 1;
+        var blend = 0;
         const draw = (e) => {
 
             draws++;
@@ -474,7 +475,7 @@
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
@@ -483,6 +484,7 @@
                     })
                 }
                 else {
+                    color = document.querySelector("#stroke").value
                     points.push({ color: color, x: e.clientX, y: e.clientY })
                     modifier = 0.2;
 
@@ -593,6 +595,10 @@
                             points[p].color = color;
                         }
                     })
+
+                }
+                else{
+                    color = document.querySelector("#stroke").value
 
                 }
 
