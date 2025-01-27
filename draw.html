@@ -359,7 +359,7 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
-ctx.globalCompositeOperation = "luminosity"
+        ctx.globalCompositeOperation = "source-over"
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
@@ -475,8 +475,9 @@ ctx.globalCompositeOperation = "luminosity"
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.3)
                     if (modifier < 1) modifier += 0.2;
+                    ctx.globalCompositeOperation = "lighter"
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
@@ -484,6 +485,7 @@ ctx.globalCompositeOperation = "luminosity"
                     })
                 }
                 else {
+                    ctx.globalCompositeOperation = "source-over"
                     points.push({ color: color, x: e.clientX, y: e.clientY })
                     modifier = 0.2;
 
@@ -587,17 +589,17 @@ ctx.globalCompositeOperation = "luminosity"
             }
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.75)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.3)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.touches[0].clientX) === points[p].x && points.findIndex(y => y.y === e.touches[0].clientY) === points[p].y) {
                             points[p].color = color;
                         }
                     })
-
+                    ctx.globalCompositeOperation = "lighter"
                 }
-                else{
-
+                else {
+                    ctx.globalCompositeOperation = "source-over"
                 }
 
                 points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
