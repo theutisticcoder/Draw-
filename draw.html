@@ -175,6 +175,14 @@
         </div>
     </section>
     <script>
+        function blendColors(color1, color2, alpha = 0.5) {
+    const c1 = color1.match(/\d+/g).map(Number);
+    const c2 = color2.match(/\d+/g).map(Number);
+    const r = Math.round(c1[0] * alpha + c2[0] * (1 - alpha));
+    const g = Math.round(c1[1] * alpha + c2[1] * (1 - alpha));
+    const b = Math.round(c1[2] * alpha + c2[2] * (1 - alpha));
+    return `rgb(${r}, ${g}, ${b})`;
+}
         var blank = new Image(100, 75);
         blank.src = "canvas.jpeg";
         let brushImage = new Image();
@@ -480,9 +488,7 @@
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    var color1 = hexToRgb(points.find(x => x.x === e.clientX).color)
-                    color = {r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2), a: 1.0}
-                    color = rgbaToHex(color)
+                  color = blendColors(color, points.find(x => x.x === e.clientX).color, 0.5)
                     points.forEach(p => {
                         if (points.find(x => x.x === e[0].clientX).x === points[p].x && points.find(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
@@ -616,10 +622,7 @@
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
                     if (modifier < 1) modifier += 0.2;
-                    var data = ctx.getImageData(e.touches[0].clientX, e.touches[0].clientY,e.touches[0].clientX + 10, e.touches[0].clientY +10)
-                    var color1 = hexToRgb(points.find(x => x === e.touches[0].clientX).color)
-                    color = {r: (color1.r + hexToRgb(color).r)/2, g: (color1.g + hexToRgb(color).g)/2, b: (color1.b + hexToRgb(color).b)/2, a: 1.0}
-                    color = rgbaToHex(color)
+                    color = blendColors(color, points.find(x => x.x === e.touches[0].clientX).color, 0.5)
 
                     points.forEach(p => {
                         if (points.find(x => x.x === e.touches[0].clientX).x === points[p].x && points.find(y => y.y === e.touches[0].clientY).y === points[p].y) {
