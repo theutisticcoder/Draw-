@@ -411,7 +411,7 @@
 
         });
         function shadeColor(color, amount) {
-            return {r: color.r * (1 + 100/amount), g:  color.g * (1 + 100/amount), b: color.b * (1 + 100/amount)}
+            return `${{r: color.r * (1 - 100/amount), g:  color.g * (1 - 100/amount), b: color.b * (1 - 100/amount)}}`
         }
         function hexToRgb(hex) {
             
