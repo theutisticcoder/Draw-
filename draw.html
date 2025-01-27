@@ -490,8 +490,8 @@
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                   color = blendColors(color, points.find(x => x.x === e.clientX).color, 0.5)
                     points.forEach(p => {
-                        if (points.find(x => x.x === e.clientX).x === points[p].x && points.find(y => y.y === e.clientY).y === points[p].y) {
-                            points[p].color = color;
+                        if (points.find(x => x.x === e.clientX).x === p.x && points.find(y => y.y === e.clientY).y === p.y) {
+                            p.color = color;
 
                         }                  
                     })
@@ -625,8 +625,8 @@
                     color = blendColors(color, points.find(x => x.x === e.touches[0].clientX).color, 0.5)
 
                     points.forEach(p => {
-                        if (points.find(x => x.x === e.touches[0].clientX).x === points[p].x && points.find(y => y.y === e.touches[0].clientY).y === points[p].y) {
-                            points[p].color = color;
+                        if (points.find(x => x.x === e.touches[0].clientX).x === p.x && points.find(y => y.y === e.touches[0].clientY).y === p.y) {
+                            p.color = color;
 
                         }
                     })
