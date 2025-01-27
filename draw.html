@@ -359,7 +359,7 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
-        ctx.globalCompositeOperation = "lighter"
+        ctx.globalCompositeOperation = "multiply"
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
@@ -477,8 +477,7 @@
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, modifier)
                     if (modifier < 1) modifier += 0.2;
-                    ctx.globalCompositeOperation = "lighter"
-                    points.forEach(p => {
+                        points.forEach(p => {
                         if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
                         }
