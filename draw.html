@@ -447,6 +447,7 @@
             ctx.globalAlpha = 1.0
             document.querySelector("#gallery").hidden = true;
             restore();
+            ctx.globalCompositeOperation = "screen"
 
 
         }
@@ -464,6 +465,7 @@
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
+            ctx.globalCompositeOperation = "screen"
 
         }
         var paint = 1;
@@ -478,7 +480,7 @@
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     if (modifier < 1) modifier += 0.2;
-                        points.forEach(p => {
+                    points.forEach(p => {
                         if (points.find(x => x.x === e.clientX).x === points[p].x && points.find(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
                         }
@@ -489,7 +491,6 @@
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
                     modifier = 0.2;
-                    ctx.globalCompositeOperation = "source-over"
 
                 }
                 if (lasttouch) {
@@ -601,7 +602,6 @@
 
                 }
                 else {
-                    ctx.globalCompositeOperation = "source-over"
 
                 }
 
