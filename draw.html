@@ -411,7 +411,7 @@
 
         });
         function shadeColor(color, amount) {
-            return `${{r: color.r * (1 - 100/amount), g:  color.g * (1 - 100/amount), b: color.b * (1 - 100/amount)}}`
+            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
         }
         function hexToRgb(hex) {
             
@@ -481,7 +481,8 @@
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     var color1 = hexToRgb(points.find(x => x.x === e.clientX).color)
-                    color = `${{r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2)}}`
+                    color = {r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2), a: 1.0}
+                    color = rgbaToHex(color)
                     points.forEach(p => {
                         if (points.find(x => x.x === e[0].clientX).x === points[p].x && points.find(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
@@ -617,7 +618,9 @@
                     if (modifier < 1) modifier += 0.2;
                     var data = ctx.getImageData(e.touches[0].clientX, e.touches[0].clientY,e.touches[0].clientX + 10, e.touches[0].clientY +10)
                     var color1 = hexToRgb(points.find(x => x === e.touches[0].clientX).color)
-                    color = {r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2)}
+                    color = {r: (color1.r + hexToRgb(color).r/2), g: (color1.g + hexToRgb(color).g/2), b: (color1.b + hexToRgb(color).b/2), a: 1.0}
+                    color = rgbaToHex(color)
+
                     points.forEach(p => {
                         if (points.find(x => x.x === e.touches[0].clientX).x === points[p].x && points.find(y => y.y === e.touches[0].clientY).y === points[p].y) {
                             points[p].color = color;
