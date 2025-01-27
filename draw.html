@@ -238,7 +238,7 @@
                 const t = i / steps;
                 const x = lerp(x1, x2, t);
                 const y = lerp(y1, y2, t);
-                ctx.globalAlpha = 0.5;
+                ctx.globalAlpha = 0.6;
                 ctx.rotate(((x2 - x1) / (y2 - y1) * Math.PI / 4))
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
@@ -249,6 +249,7 @@
             ctx.restore();
         }
         const brushTexture = createBrushTexture();
+
 
         const imdraw = (e) => {
             if (!isPainting) return;
@@ -395,7 +396,7 @@
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
                 ctx.fillRect(width, 0, canvas.width, canvas.height); points = [];
-                ctx.globalAlpha = 0.5;
+                ctx.globalAlpha = 0.6;
             }
         });
         var draws = 0;
@@ -444,7 +445,7 @@
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
-            ctx.globalAlpha = 0.5
+            ctx.globalAlpha = 0.6
             document.querySelector("#gallery").hidden = true;
             restore();
         }
@@ -457,7 +458,7 @@
             ctx.fillStyle = pattern;
             ctx.fillRect(width, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            ctx.globalAlpha = 0.5
+            ctx.globalAlpha = 0.6
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
@@ -778,7 +779,7 @@
                     ctx.fillStyle = pattern;
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
-                    ctx.globalAlpha = 0.5;
+                    ctx.globalAlpha = 0.6;
                 }
             }
 
