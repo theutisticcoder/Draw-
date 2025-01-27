@@ -447,7 +447,7 @@
             ctx.globalAlpha = 0.5
             document.querySelector("#gallery").hidden = true;
             restore();
-            ctx.globalCompositeOperation = "screen"
+            ctx.globalCompositeOperation = "source-over"
 
         }
         var imgs = 0;
@@ -464,7 +464,7 @@
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
-            ctx.globalCompositeOperation = "screen"
+            ctx.globalCompositeOperation = "source-over"
 
         }
         var paint = 1;
@@ -484,10 +484,13 @@
                             points[p].color = color;
                         }
                     })
+                    ctx.globalCompositeOperation = "screen"
+
                 }
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
                     modifier = 0.2;
+                    ctx.globalCompositeOperation = "source-over"
 
                 }
                 if (lasttouch) {
@@ -595,8 +598,12 @@
                             points[p].color = color;
                         }
                     })
+                    ctx.globalCompositeOperation = "screen"
+
                 }
                 else {
+                    ctx.globalCompositeOperation = "source-over"
+
                 }
 
                 points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
