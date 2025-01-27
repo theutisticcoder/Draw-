@@ -240,7 +240,7 @@
                 const y = lerp(y1, y2, t);
                 ctx.globalAlpha = 0.5;
                 ctx.rotate(((x2 - x1) / (y2 - y1) * Math.PI / 4))
-                ctx.drawImage(blank, x, y, lineWidth * 5, lineWidth * 5)
+                ctx.createPattern(blank, "repeat");
                 ctx.globalAlpha = 0.2
                 ctx.drawImage(brushImage, x, y, lineWidth * 5, lineWidth * 5);
             }
@@ -390,7 +390,7 @@
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
-                ctx.drawImage(blank, 0, 0, canvas.width * 3, canvas.height * 3);
+                ctx.createPattern(blank, "repeat");
                 points = [];
                 ctx.globalAlpha = 0.75;
             }
@@ -450,7 +450,7 @@
         document.getElementById("new").onclick = () => {
 
             ctx.fillStyle = "white"
-            ctx.drawImage(blank, width, 0, canvas.width, canvas.height)
+            ctx.createPattern(blank, "repeat");
             document.querySelector("#toolbar").hidden = false;
             arts.push([])
             ctx.globalAlpha = 0.75
@@ -730,7 +730,7 @@
         function applyTint(x, y, color, width, height) {
             ctx.globalCompositeOperation = 'source-atop'; // Keeps only the non-transparent parts of the image
             ctx.fillStyle = color; // The tint color
-            ctx.drawImage(blank, x, y, width, height); // Fill the canvas with the tint color
+            ctx.createPattern(blank, "repeat");
             ctx.globalCompositeOperation = 'source-over'; // Reset to default
         }
         document.querySelector("#save").onclick = () => {
@@ -767,8 +767,10 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-                    ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
+                    ctx.globalAlpha = 1.0;
+                    ctx.createPattern(blank, "repeat");
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
+                    ctx.globalAlpha = 0.75;
                 }
             }
 
