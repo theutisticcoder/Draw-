@@ -175,7 +175,7 @@
         </div>
     </section>
     <script>
-        function blendColors(color1, color2, alpha = 0.3) {
+        function blendColors(color1, color2, alpha = 0.8) {
     const c1 = color1.match(/\d+/g).map(Number);
     const c2 = color2.match(/\d+/g).map(Number);
     const r = Math.round(c1[0] * alpha + c2[0] * (1 - alpha));
