@@ -447,7 +447,7 @@
             ctx.globalAlpha = 1.0
             document.querySelector("#gallery").hidden = true;
             restore();
-            ctx.globalCompositeOperation = "multiply"
+            ctx.globalCompositeOperation = "color-dodge"
 
 
         }
@@ -465,7 +465,7 @@
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
-            ctx.globalCompositeOperation = "multiply"
+            ctx.globalCompositeOperation = "color-dodge"
 
         }
         var paint = 1;
@@ -485,7 +485,7 @@
                             points[p].color = color;
                         }
                     })
-                    ctx.globalCompositeOperation = "multiply"
+                    ctx.globalCompositeOperation = "color-dodge"
 
                 }
                 else {
@@ -598,7 +598,7 @@
                             points[p].color = color;
                         }
                     })
-                    ctx.globalCompositeOperation = "multiply"
+                    ctx.globalCompositeOperation = "color-dodge"
 
                 }
                 else {
