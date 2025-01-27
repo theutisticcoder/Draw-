@@ -447,7 +447,7 @@
             ctx.globalAlpha = 0.5
             document.querySelector("#gallery").hidden = true;
             restore();
-            ctx.globalCompositeOperation = "source-over"
+            ctx.globalCompositeOperation = "screen"
 
         }
         var imgs = 0;
@@ -464,7 +464,7 @@
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
-            ctx.globalCompositeOperation = "source-over"
+            ctx.globalCompositeOperation ="screen"
 
         }
         var paint = 1;
@@ -480,7 +480,7 @@
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     if (modifier < 1) modifier += 0.2;
                         points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
+                        if (points.find(x => x.x === e.clientX).x === points[p].x && points.find(y => y.y === e.clientY).y === points[p].y) {
                             points[p].color = color;
                         }
                     })
@@ -594,7 +594,7 @@
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.touches[0].clientX) === points[p].x && points.findIndex(y => y.y === e.touches[0].clientY) === points[p].y) {
+                        if (points.find(x => x.x === e.touches[0].clientX).x === points[p].x && points.find(y => y.y === e.touches[0].clientY).y === points[p].y) {
                             points[p].color = color;
                         }
                     })
