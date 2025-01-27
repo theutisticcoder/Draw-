@@ -392,7 +392,7 @@
                 ctx.globalAlpha = 1.0;
                 ctx.drawImage(blank, 0, 0, canvas.width * 3, canvas.height * 3);
                 points = [];
-                ctx.globalAlpha = 0.5
+                ctx.globalAlpha = 0.75;
             }
         });
         var draws = 0;
@@ -441,6 +441,7 @@
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
+            ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
             restore();
         }
