@@ -181,7 +181,7 @@
     const r = Math.round(c1[0] * alpha + c2[0] * (1 - alpha));
     const g = Math.round(c1[1] * alpha + c2[1] * (1 - alpha));
     const b = Math.round(c1[2] * alpha + c2[2] * (1 - alpha));
-    return `rgb(${r}, ${g}, ${b})`;
+    return rgbaToHex(r,g,b,0.7)
 }
         var blank = new Image(100, 75);
         blank.src = "canvas.jpeg";
