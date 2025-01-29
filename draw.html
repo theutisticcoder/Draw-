@@ -391,7 +391,7 @@
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
-                ctx.globalAlpha = 1.0;
+                ctx.globalAlpha = 0.65;
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
                 ctx.fillRect(width, 0, canvas.width, canvas.height); points = [];
@@ -773,7 +773,7 @@
                 var old = new Image(canvas.width, canvas.height);
                 old.src = arts[number][arts[number].length - 1].canvas;
                 old.onload = () => {
-                    ctx.globalAlpha = 1.0;
+                    ctx.globalAlpha = 0.65;
                     var pattern = ctx.createPattern(blank, "repeat");
                     ctx.fillStyle = pattern;
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
