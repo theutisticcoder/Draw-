@@ -476,8 +476,8 @@
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
-                            points[p].color = color;
+                        if (points.findIndex(x => x.x === e.clientX).x === p.x && points.findIndex(y => y.y === e.clientY).y === p.y) {
+                            p.color = color;
                         }
                     })
                 }
@@ -588,8 +588,8 @@
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.touches[0].clientX) === points[p].x && points.findIndex(y => y.y === e.touches[0].clientY) === points[p].y) {
-                            points[p].color = color;
+                        if (points.findIndex(x => x.x === e.touches[0].clientX) === p.x && points.findIndex(y => y.y === e.touches[0].clientY) === p.y) {
+                            p.color = color;
                         }
                     })
 
