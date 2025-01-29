@@ -460,7 +460,7 @@
             ctx.globalAlpha = 0.75
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
-            number = 0;
+            number = -1;
             restore();
         }
         var paint = 1;
