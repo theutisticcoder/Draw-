@@ -175,14 +175,6 @@
         </div>
     </section>
     <script>
-        function blendColors(color1, color2, alpha = 0.8) {
-    const c1 = color1.match(/\d+/g).map(Number);
-    const c2 = color2.match(/\d+/g).map(Number);
-    const r = Math.round(c1[0] * alpha + c2[0] * (1 - alpha));
-    const g = Math.round(c1[1] * alpha + c2[1] * (1 - alpha));
-    const b = Math.round(c1[2] * alpha + c2[2] * (1 - alpha));
-    return rgbaToHex(r,g,b,0.7)
-}
         var blank = new Image(100, 75);
         blank.src = "canvas.jpeg";
         let brushImage = new Image();
@@ -246,7 +238,7 @@
                 const t = i / steps;
                 const x = lerp(x1, x2, t);
                 const y = lerp(y1, y2, t);
-                ctx.globalAlpha = 1.0;
+                ctx.globalAlpha = 0.5;
                 ctx.rotate(((x2 - x1) / (y2 - y1) * Math.PI / 4))
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
@@ -257,7 +249,6 @@
             ctx.restore();
         }
         const brushTexture = createBrushTexture();
-
 
         const imdraw = (e) => {
             if (!isPainting) return;
@@ -338,7 +329,7 @@
             ctx.drawImage(brushImage, (x - lastx) / 2, (y - lasty) / 2, brushThickness, brushThickness)
             // Simulate blending by layering slightly transparent strokes
 
-            // Simulate another bristle stroke with a source-over blending mode
+            // Simulate another bristle stroke with a lighter blending mode
 
             lastX = x;
             lastY = y;
@@ -367,6 +358,7 @@
         }
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
+
         const canvasOffsetX = canvas.offsetLeft;
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
@@ -403,7 +395,7 @@
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
                 ctx.fillRect(width, 0, canvas.width, canvas.height); points = [];
-                ctx.globalAlpha = 1.0;
+                ctx.globalAlpha = 0.75;
             }
         });
         var draws = 0;
@@ -418,11 +410,10 @@
             }
 
         });
-        function shadeColor(col, amount) {
-            return ('#' + col.replace(/^#/, '').replace(/../g, col => ('0' + Math.min(255, Math.max(0, parseInt(col, 16) + amount)).toString(16)).substr(-2)));
+        function shadeColor(color, amount) {
+            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
         }
         function hexToRgb(hex) {
-            
             var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
                 r: parseInt(result[1], 16),
@@ -453,12 +444,9 @@
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
-            ctx.globalAlpha = 1.0
+            ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
             restore();
-            ctx.globalCompositeOperation = "source-over"
-
-
         }
         var imgs = 0;
         ctx.lineCap = "round";
@@ -469,16 +457,13 @@
             ctx.fillStyle = pattern;
             ctx.fillRect(width, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
             arts.push([])
-            ctx.globalAlpha = 1.0
+            ctx.globalAlpha = 0.75
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = arts.length - 1;
             restore();
-            ctx.globalCompositeOperation = "source-over"
-
         }
         var paint = 1;
-        var blend = 0;
         const draw = (e) => {
 
             draws++;
@@ -488,15 +473,13 @@
             if (isOil) {
 
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                  color = blendColors(color, points.find(x => x.x === e.clientX).color, 0.5)
+                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+                    if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.find(x => x.x === e.clientX).x === p.x && points.find(y => y.y === e.clientY).y === p.y) {
-                            p.color = color;
-
-                        }                  
+                        if (points.findIndex(x => x.x === e.clientX).x === points[p].x && points.findIndex(y => y.y === e.clientY).y === points[p].y) {
+                            points[p].color = color;
+                        }
                     })
-                    ctx.globalCompositeOperation = "source-over"
-
                 }
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
@@ -567,25 +550,6 @@
             }
 
         }
-        function getAverageColor(imageData) {
-  let totalRed = 0;
-  let totalGreen = 0;
-  let totalBlue = 0;
-  let pixelCount = 0;
-
-  for (let i = 0; i < imageData.data.length; i += 4) {
-    totalRed += imageData.data[i];
-    totalGreen += imageData.data[i + 1];
-    totalBlue += imageData.data[i + 2];
-    pixelCount++;
-  }
-
-  const avgRed = Math.round(totalRed / pixelCount);
-  const avgGreen = Math.round(totalGreen / pixelCount);
-  const avgBlue = Math.round(totalBlue / pixelCount);
-
-  return { r: avgRed, g: avgGreen, b: avgBlue };
-}
         var capture;
         function createBrushTexture() {
             const brushCanvas = document.createElement('canvas');
@@ -621,19 +585,13 @@
             }
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
+                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
-                    color = blendColors(color, points.find(x => x.x === e.touches[0].clientX).color, 0.5)
-
                     points.forEach(p => {
-                        if (points.find(x => x.x === e.touches[0].clientX).x === p.x && points.find(y => y.y === e.touches[0].clientY).y === p.y) {
-                            p.color = color;
-
+                        if (points.findIndex(x => x.x === e.touches[0].clientX) === points[p].x && points.findIndex(y => y.y === e.touches[0].clientY) === points[p].y) {
+                            points[p].color = color;
                         }
                     })
-                    ctx.globalCompositeOperation = "source-over"
-
-                }
-                else {
 
                 }
 
@@ -820,7 +778,7 @@
                     ctx.fillStyle = pattern;
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
-                    ctx.globalAlpha = 1.0;
+                    ctx.globalAlpha = 0.75;
                 }
             }
 
