@@ -522,7 +522,7 @@
                 ctx.shadowOffsetY = 1;
 
                 // Draw paint stroke
-                ctx.drawImage(brushCanvas, x - 10, y - 10, 30, 30);
+                ctx.drawImage(brushCanvas, e.clientX - 10, e.clientY - 10, 30, 30);
 
                 // Reset shadow for next strokes
                 ctx.shadowBlur = 0;
