@@ -541,7 +541,7 @@
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndexf(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
+                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
                             p.color = color;
                         }
                     })
@@ -689,7 +689,7 @@
             ctx.globalCompositeOperation = "source-over"
             setTimeout(() => {
                 pointarray = [];
-                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+                if (number != 0) arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
 
             })
