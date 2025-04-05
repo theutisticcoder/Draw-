@@ -538,7 +538,7 @@
             if (!isPainting) return;
             if (isOil) {
                 if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.offsetX)].color, 0.85)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.offsetX) === p.x && points.findIndex(y => y.y === e.offsetY) === p.y) {
