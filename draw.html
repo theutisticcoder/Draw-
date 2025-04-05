@@ -339,7 +339,7 @@
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, width, 0);
+            ctx.drawImage(img, 0, 0);
 
 
 
@@ -460,7 +460,7 @@
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, width, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
             points = p;
             ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
@@ -785,7 +785,7 @@
                     var pattern = ctx.createPattern(blank, "repeat");
                     ctx.fillStyle = pattern;
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, 0, 0, canvas.width, canvas.height);
                     ctx.globalAlpha = 0.75;
                 }
             }
