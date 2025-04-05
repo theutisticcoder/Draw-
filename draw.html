@@ -252,14 +252,14 @@
 
         const imdraw = (e) => {
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
             }
             else {
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
                 modifier = 0.2;
 
             }
@@ -308,14 +308,14 @@
         const mobimdraw = (e) => {
 
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
             }
             else {
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
                 modifier = 0.2;
             }
             const x = e.touches[0].screenX;
@@ -537,19 +537,19 @@
         function draw(e) {
             if (!isPainting) return;
             if (isOil) {
-                if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+                if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
+                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
+                        if (points.findIndex(x => x.x === e.offsetX) === p.x && points.findIndex(y => y.y === e.offsetY) === p.y) {
                             p.color = color;
                         }
                     })
 
                 }
 
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
                 interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
                 lastX = e.offsetX;
                 lastY = e.offsetY;
@@ -673,8 +673,8 @@
 
         canvas.addEventListener('mousedown', (e) => {
             isPainting = true;
-            startX = e.clientX;
-            startY = e.clientY;
+            startX = e.offsetX;
+            startY = e.offsetY;
         });
 
         var tap = false;
