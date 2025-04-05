@@ -532,6 +532,8 @@
             ctx.arc(x + 5, y + 5, 5, 0, Math.PI * 2);
             ctx.fill();
             ctx.globalAlpha = 0.7;
+            lastX = x;
+                lastY = y;
 
         }
         function draw(e) {
@@ -551,8 +553,7 @@
                 points.push({ color: color, x: e.offsetX, y: e.offsetY })
                 pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
                 interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
-                lastX = e.offsetX;
-                lastY = e.offsetY;
+                
             }
         }
         var capture;
