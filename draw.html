@@ -550,7 +550,7 @@
             }
         }
         function draw(e) {
-            if (!painting) return;
+            if (!isPainting) return;
             interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
             lastX = e.offsetX;
             lastY = e.offsetY;
