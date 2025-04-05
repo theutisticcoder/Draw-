@@ -252,19 +252,19 @@
 
         const imdraw = (e) => {
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
-                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
             }
             else {
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
                 modifier = 0.2;
 
             }
-            const x = e.offsetX;
-            const y = e.offsetY;
+            const x = e.clientX;
+            const y = e.clientY;
             var testcan = document.createElement("canvas");
             var testctx = testcan.getContext("2d");
             testcan.height = 50;
@@ -308,14 +308,14 @@
         const mobimdraw = (e) => {
 
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
-                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
             }
             else {
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
                 modifier = 0.2;
             }
             const x = e.touches[0].screenX;
@@ -359,8 +359,8 @@
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
 
-        const canvasOffsetX = canvas.offsetLeft;
-        const canvasOffsetY = canvas.offsetTop;
+        const canvasclientX = canvas.offsetLeft;
+        const canvasclientY = canvas.offsetTop;
         var color = "#000000";
         let isPainting = false;
         let lineWidth = 5;
@@ -514,16 +514,16 @@
             // Draw shadow
             ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
             ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 1;
+            ctx.shadowclientX = 1;
+            ctx.shadowclientY = 1;
 
             // Draw paint stroke
             ctx.drawImage(brushCanvas, x - 10, y - 10, 30, 30);
 
             // Reset shadow for next strokes
             ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+            ctx.shadowclientX = 0;
+            ctx.shadowclientY = 0;
 
             // Add highlights (fake light effect)
             ctx.globalAlpha = 0.2;
@@ -539,20 +539,20 @@
         function draw(e) {
             if (!isPainting) return;
             if (isOil) {
-                if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.offsetX)].color, 0.85)
+                if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.85)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.offsetX) === p.x && points.findIndex(y => y.y === e.offsetY) === p.y) {
+                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
                             p.color = color;
                         }
                     })
 
                 }
 
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
-                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
-                interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
                 
             }
         }
@@ -675,8 +675,8 @@
 
         canvas.addEventListener('mousedown', (e) => {
             isPainting = true;
-            startX = e.offsetX;
-            startY = e.offsetY;
+            startX = e.clientX;
+            startY = e.clientY;
         });
 
         var tap = false;
