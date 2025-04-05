@@ -695,6 +695,8 @@
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
 
             })
+            lastx = null;
+            lasty =null;
 
         });
         canvas.addEventListener('touchstart', (e) => {
