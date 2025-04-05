@@ -466,6 +466,17 @@
             document.querySelector("#gallery").hidden = true;
             restore();
         }
+        function interpolateAndDraw(x0, y0, x1, y1) {
+            const distance = Math.hypot(x1 - x0, y1 - y0);
+            const steps = Math.ceil(distance / 5); // Adjust step size for smoothness
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = x0 + (x1 - x0) * t;
+                const y = y0 + (y1 - y0) * t;
+                paintStroke(x, y);
+            }
+        }
         var imgs = 0;
         ctx.lineCap = "round";
         document.getElementById("new").onclick = () => {
@@ -493,7 +504,7 @@
         const brushCanvas = document.createElement("canvas");
         const brushCtx = brushCanvas.getContext("2d");
         var paint = 1;
-        const draw = (e) => {
+        const paintStroke= (x,y) => {
             if (!isPainting) {
                 return;
             }
@@ -502,7 +513,7 @@
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
+                        if (points.findIndexf(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
                             p.color = color;
                         }
                     })
@@ -522,7 +533,7 @@
                 ctx.shadowOffsetY = 1;
 
                 // Draw paint stroke
-                ctx.drawImage(brushCanvas, e.clientX - 10, e.clientY - 10, 30, 30);
+                ctx.drawImage(brushCanvas, x - 10, y - 10, 30, 30);
 
                 // Reset shadow for next strokes
                 ctx.shadowBlur = 0;
@@ -533,10 +544,16 @@
                 ctx.globalAlpha = 0.2;
                 ctx.fillStyle = "white";
                 ctx.beginPath();
-                ctx.arc(e.clientX + 5, e.clientY + 5, 5, 0, Math.PI * 2);
+                ctx.arc(x + 5, y + 5, 5, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.globalAlpha = 0.7;
             }
+        }
+        function draw(e) {
+            if (!painting) return;
+            interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
+            lastX = e.offsetX;
+            lastY = e.offsetY;
         }
         var capture;
         function createBrushTexture() {
