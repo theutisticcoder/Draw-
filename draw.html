@@ -502,7 +502,7 @@
                     color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
-                        if (points.findIndexf(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
+                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
                             p.color = color;
                         }
                     })
@@ -533,7 +533,7 @@
                 ctx.globalAlpha = 0.2;
                 ctx.fillStyle = "white";
                 ctx.beginPath();
-                ctx.arc(x + 5, y + 5, 5, 0, Math.PI * 2);
+                ctx.arc(e.clientX + 5, e.clientY + 5, 5, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.globalAlpha = 0.7;
             }
