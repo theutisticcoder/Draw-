@@ -609,6 +609,8 @@
 
         canvas.addEventListener('mousedown', (e) => {
             isPainting = true;
+            color = document.querySelector("input").value
+
             lastX = e.clientX;
             lastY = e.clientY;
         });
@@ -635,6 +637,8 @@
         });
         canvas.addEventListener('touchstart', (e) => {
             console.log(e.touches.length)
+            color = document.querySelector("input").value
+
             if (e.touches.length >= 2) {
                 document.querySelector("#undo").click();
             }
