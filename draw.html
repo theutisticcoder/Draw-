@@ -552,8 +552,9 @@
                 }
                 else {
                     points.push({ color: color, x: e.clientX, y: e.clientY })
+
+                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
 
             }
