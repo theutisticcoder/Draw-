@@ -410,7 +410,8 @@
                 ctx.globalAlpha = 1.0;
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
-                ctx.fillRect(width, 0, canvas.width, canvas.height); points = [];
+                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                points = [];
                 ctx.globalAlpha = 0.75;
             }
         });
@@ -533,7 +534,7 @@
             ctx.fill();
             ctx.globalAlpha = 0.7;
             lastX = x;
-                lastY = y;
+            lastY = y;
 
         }
         function draw(e) {
@@ -549,11 +550,12 @@
                     })
 
                 }
-
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                else {
+                    points.push({ color: color, x: e.clientX, y: e.clientY })
+                }
                 pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
-                
+
             }
         }
         function draw2(e) {
@@ -570,11 +572,13 @@
                     })
 
                 }
+                else {
 
-                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-                pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                    points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                    pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                }
                 interpolateAndDraw(lastX, lastY, e.touches[0].clientX, e.touches[0].clientY);
-                
+
             }
         }
         var capture;
@@ -604,7 +608,7 @@
         var recorder = new MediaRecorder(stream, { mimeType: "video/mp4" });
 
         recorder.ondataavailable = handleDataAvailable;
-      
+
         var vid;
 
         canvas.addEventListener('mousedown', (e) => {
@@ -627,12 +631,12 @@
             ctx.globalCompositeOperation = "source-over"
             setTimeout(() => {
                 pointarray = [];
-                if (number != 0) arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+                if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
 
             })
             lastX = null;
-            lastY =null;
+            lastY = null;
 
         });
         canvas.addEventListener('touchstart', (e) => {
