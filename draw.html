@@ -567,7 +567,7 @@
             }
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.1)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.15)
                     updateBrushColor();
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
