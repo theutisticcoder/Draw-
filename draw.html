@@ -578,6 +578,7 @@
 
                 }
                 else {
+                    color = lerpColor(document.querySelector("input").value, color, 0.15)
 
                     points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
                     pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
