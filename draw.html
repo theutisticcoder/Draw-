@@ -542,7 +542,6 @@
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                     color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.15)
                     updateBrushColor();
-                    if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
                             p.color = color;
@@ -643,8 +642,8 @@
                 isPainting = true;
                 color = document.querySelector("#stroke").value;
 
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
+                lastX = e.touches[0].clientX;
+                lastY = e.touches[0].clientY;
             }
         });
         canvas.addEventListener('touchend', e => {
