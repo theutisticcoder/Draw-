@@ -662,7 +662,7 @@
                 lasttouch = null;
                 strokes.push(pointarray);
                 pointarray = [];
-                if (number != 0) arts[number-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             }
         });
@@ -715,7 +715,7 @@
         }
 
         document.getElementById("undo").onclick = () => {
-            if (strokes.length > -1) {
+            if (strokes.length > 0) {
 
 
                 arts[number].pop();
@@ -735,6 +735,11 @@
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                     ctx.globalAlpha = 0.75;
                 }
+            }
+            else{
+                var pattern = ctx.createPattern(blank, "repeat");
+                ctx.fillStyle = pattern;
+                ctx.fillRect(width, 0, canvas.width, canvas.height);
             }
 
         }
