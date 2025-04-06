@@ -460,7 +460,7 @@
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, width, 0, canvas.width, canvas.height);
             points = p;
             ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
@@ -518,7 +518,7 @@
             ctx.shadowclientY = 1;
 
             // Draw paint stroke
-            ctx.drawImage(brushCanvas, x - 10, y - 10, 30, 30);
+            ctx.drawImage(brushCanvas, width+x - 10, y - 10, 30, 30);
 
             // Reset shadow for next strokes
             ctx.shadowBlur = 0;
@@ -790,7 +790,7 @@
                     var pattern = ctx.createPattern(blank, "repeat");
                     ctx.fillStyle = pattern;
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, 0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                     ctx.globalAlpha = 0.75;
                 }
             }
