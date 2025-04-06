@@ -675,8 +675,8 @@
 
         canvas.addEventListener('mousedown', (e) => {
             isPainting = true;
-            lastX = e.clientX;
-            lastY = e.clientY;
+            lastX = e.offsetX;
+            lastY = e.offsetY;
         });
 
         var tap = false;
