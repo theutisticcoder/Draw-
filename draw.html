@@ -386,9 +386,9 @@
 
             for (let i = 0; i < pixels.length; i += 4) {
                 if (pixels[i + 3] > 0) { // Color only non-transparent pixels
-                    pixels[i] = parseInt(color.slice(1, 3), 16); // R
-                    pixels[i + 1] = parseInt(color.slice(3, 5), 16); // G
-                    pixels[i + 2] = parseInt(color.slice(5, 7), 16); // B
+                    pixels[i] = parseInt(hexToRgb(color).slice(1, 3), 16); // R
+                    pixels[i + 1] = parseInt(hexToRgb(color).slice(3, 5), 16); // G
+                    pixels[i + 2] = parseInt(hexToRgb(color).slice(5, 7), 16); // B
                 }
             }
 
@@ -453,7 +453,7 @@
             const g = Math.round(g1 + amount * (g2 - g1));
             const b = Math.round(b1 + amount * (b2 - b1));
 
-            return `rgba(${r}, ${b}, ${g}, 1.0)`;
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
         }
         function openDrawing(image, p, num) {
             number = num;
@@ -540,7 +540,7 @@
             if (!isPainting) return;
             if (isOil) {
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(rgbaToHex(color), points[points.findIndex(p => p.x === e.clientX)].color, 0.7)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.85)
                     updateBrushColor();
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
