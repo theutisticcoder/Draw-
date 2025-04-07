@@ -673,11 +673,13 @@
             pointarray = [];
             if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            tempCtx.globalCompositeOperation = 'source-atop';
+           ctx.globalAlpha = 0.15
             const texturePattern = tempCtx.createPattern(blank, 'repeat');
             tempCtx.fillStyle = texturePattern;
             tempCtx.fillRect(width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
+            ctx.globalAlpha = 1.0
+
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
