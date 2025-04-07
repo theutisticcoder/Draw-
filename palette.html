@@ -172,7 +172,6 @@
             <label style="font-size: 30pt;" for="lineWidth">↔️</label>
             <input id="lineWidth" name='lineWidth' style="writing-mode: vertical-lr;direction: rtl;" type="range" 
                 min="1" max="40" value="5">
-            <button style="font-size: 30pt;" id="clear">🗑️</button>
             <button style="font-size: 30pt;" id="undo">↩️</button>
             <button style="font-size: 30pt;" id="dry">𖣘</button>
             <button style="font-size: 30pt;" id="save">💾</button>
@@ -180,11 +179,18 @@
         <div id="map"></div>
         <div class="drawing-board">
             <label style="font-size: 30pt;" for="stroke">🎨</label>
+            <button style="font-size: 30pt;" id="clear">🗑️</button>
+
             <button onclick="yellow()" style="background: transparent">🟡</button>
+            <br>
             <button onclick="red()" style="background: transparent">🔴</button>
+            <br>
             <button onclick="blue()" style="background: transparent">🔵</button>
+            <br>
             <button onclick="black()" style="background: transparent">⚫</button>
+            <br>
             <button onclick="white()" style="background: transparent">⚪</button>
+            <br>
             <canvas id="drawing-board"></canvas>
         </div>
     </section>
@@ -430,6 +436,16 @@
         canvas.style.width = screen.width * 0.7 + "px";
         var isOil = true;
         ctx.translate(-width, 0)
+        document.getElementById("clear").onclick = ()=> {
+            ctx.fillStyle = "white";
+                ctx.globalAlpha = 1.0;
+                ctx.globalCompositeOperation = "source-over"
+                var pattern = ctx.createPattern(blank, "repeat");
+                ctx.fillStyle = pattern;
+                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                points = [];
+                ctx.globalAlpha = 0.75;
+        }
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
