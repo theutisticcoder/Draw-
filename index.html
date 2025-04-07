@@ -170,23 +170,26 @@
             <label style="font-size: 30pt;" for="stroke">🎨</label>
             <input id="stroke" name='stroke' type="color">
             <label style="font-size: 30pt;" for="lineWidth">↔️</label>
-            <input id="lineWidth" name='lineWidth' style="writing-mode: vertical-lr;direction: rtl;" type="range" 
+            <input id="lineWidth" name='lineWidth' style="writing-mode: vertical-lr;direction: rtl;" type="range"
                 min="1" max="40" value="5">
             <button style="font-size: 30pt;" id="clear">🗑️</button>
             <button style="font-size: 30pt;" id="undo">↩️</button>
             <button style="font-size: 30pt;" id="dry">𖣘</button>
             <button style="font-size: 30pt;" id="save">💾</button>
-            <button id="select">Select<br>Color</button>
         </div>
         <div id="map"></div>
         <div class="drawing-board">
             <canvas id="drawing-board"></canvas>
 
-            <iframe src="palette.html" style="width: 40vw; height: 40vh;position: relative; left: 60vw;"  frameborder="2"></iframe>
+            <iframe src="palette.html" style="width: 40vw; height: 40vh;position: relative; left: 60vw;"
+                frameborder="2"></iframe>
+            <br>
+            <button id="select">Select<br>Color</button>
+
         </div>
     </section>
     <script>
-    
+
         var blank = new Image();
         blank.src = "canvas.jpeg";
         let brushImage = new Image();
@@ -675,8 +678,8 @@
             pointarray = [];
             if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-           ctx.globalAlpha = 0.15
-           ctx.globalCompositeOperation = "multiply"
+            ctx.globalAlpha = 0.15
+            ctx.globalCompositeOperation = "multiply"
             const texturePattern = tempCtx.createPattern(blank, 'repeat');
             tempCtx.fillStyle = texturePattern;
             tempCtx.fillRect(width, 0, canvas.width, canvas.height);
@@ -784,11 +787,11 @@
 
             }
         }
-document.getElementById("select").onclick = (e)=> {
-    color = document.querySelector("iframe").contentWindow.color;
-    document.querySelector("#stroke").value = document.querySelector("iframe").contentWindow.color;
+        document.getElementById("select").onclick = (e) => {
+            color = document.querySelector("iframe").contentWindow.color;
+            document.querySelector("#stroke").value = document.querySelector("iframe").contentWindow.color;
 
-}
+        }
 
     </script>
 </body>
