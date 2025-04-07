@@ -280,7 +280,7 @@
             testcan.width = 50;
             testctx.drawImage(brushImage, 0, 0, 50, 50);
             testctx.fillStyle = color;
-            testctx.globalCompositeOperation = "destination-in";
+            testctx.globalCompositeOperation = "source-over";
             testctx.fillRect(0, 0, 50, 50);
             var testim = new Image(50, 50);
             testim.src = testcan.toDataURL("image/png");
@@ -649,7 +649,7 @@
 
         });
         canvas.addEventListener('touchstart', (e) => {
-            ctx.globalCompositeOperation = 'destination-in';
+            ctx.globalCompositeOperation = 'source-over';
 
             console.log(e.touches.length)
             color = document.querySelector("input").value
