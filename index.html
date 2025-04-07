@@ -184,7 +184,7 @@
         </div>
     </section>
     <script>
-        var blank = new Image(100, 75);
+        var blank = new Image();
         blank.src = "canvas.jpeg";
         let brushImage = new Image();
         brushImage.src = 'oil5.png';
@@ -280,7 +280,7 @@
             testcan.width = 50;
             testctx.drawImage(brushImage, 0, 0, 50, 50);
             testctx.fillStyle = color;
-            testctx.globalCompositeOperation = "source-in";
+            testctx.globalCompositeOperation = "destination-in";
             testctx.fillRect(0, 0, 50, 50);
             var testim = new Image(50, 50);
             testim.src = testcan.toDataURL("image/png");
