@@ -666,16 +666,19 @@
             }
         });
         canvas.addEventListener('touchend', e => {
-                paint = 1;
-                isPainting = false;
-                lasttouch = null;
-                strokes.push(pointarray);
-                pointarray = [];
-                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            
-                ctx.globalCompositeOperation = 'source-over';
-            });
+            paint = 1;
+            isPainting = false;
+            lasttouch = null;
+            strokes.push(pointarray);
+            pointarray = [];
+            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            tempCtx.globalCompositeOperation = 'source-atop';
+            const texturePattern = tempCtx.createPattern(blank, 'repeat');
+            tempCtx.fillStyle = texturePattern;
+            tempCtx.fillRect(width, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-over';
+        });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
             const gHex = g.toString(16).padStart(2, '0');
