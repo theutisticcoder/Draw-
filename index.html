@@ -42,7 +42,7 @@
         }
 
         #drawing-board {
-            cursor:crosshair;
+            cursor: crosshair;
             position: absolute;
             border: 1px solid black;
             background-color: white;
@@ -150,6 +150,7 @@
         #bi {
             background: black;
         }
+
         button {
             font-size: 45pt;
             width: fit-content;
@@ -169,7 +170,8 @@
             <label style="font-size: 30pt;" for="stroke">🎨</label>
             <input id="stroke" name='stroke' type="color">
             <label style="font-size: 30pt;" for="lineWidth">↔️</label>
-            <input id="lineWidth" name='lineWidth'style="writing-mode: vertical-lr;direction: rtl;" type="range" min="1" max="40" value="5">
+            <input id="lineWidth" name='lineWidth' style="writing-mode: vertical-lr;direction: rtl;" type="range"
+                min="1" max="40" value="5">
             <button style="font-size: 30pt;" id="clear">🗑️</button>
             <br><br>
             <button style="font-size: 30pt;" id="undo">↩️</button>
@@ -517,7 +519,7 @@
 
 
 
-            ctx.globalAlpha =1.0;
+            ctx.globalAlpha = 1.0;
 
             // Draw shadow
             ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
@@ -526,7 +528,7 @@
             ctx.shadowclientY = 1;
 
             // Draw paint stroke
-            ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth *6, lineWidth *6);
+            ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth * 6, lineWidth * 6);
 
             // Reset shadow for next strokes
             ctx.shadowBlur = 0;
@@ -568,7 +570,7 @@
         }
         function draw2(e) {
             if (!isPainting) return;
-           
+
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
                     color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.15)
@@ -673,6 +675,11 @@
                 if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             }
+            ctx.globalCompositeOperation = 'multiply';
+            const texturePattern = ctx.createPattern(blank, 'repeat');
+            ctx.fillStyle = texturePattern;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-over';
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
@@ -743,7 +750,7 @@
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
-            else{
+            else {
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
                 ctx.fillRect(width, 0, canvas.width, canvas.height);
