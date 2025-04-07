@@ -666,7 +666,6 @@
             }
         });
         canvas.addEventListener('touchend', e => {
-            if (e.touches.length === 0) {
                 paint = 1;
                 isPainting = false;
                 lasttouch = null;
@@ -674,7 +673,7 @@
                 pointarray = [];
                 if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            }
+            
             ctx.globalCompositeOperation = 'color-burn';
             const texturePattern = ctx.createPattern(blank, 'repeat');
             ctx.fillStyle = texturePattern;
