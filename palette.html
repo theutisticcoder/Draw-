@@ -165,6 +165,11 @@
     </div>
     <section class="container">
         <label style="font-size: 30pt;" for="stroke">🎨</label>
+        <button onclick="yellow()" style="background: transparent">🟡</button>
+        <button onclick="red()" style="background: transparent">🔴</button>
+        <button onclick="blue()" style="background: transparent">🔵</button>
+        <button onclick="black()" style="background: transparent">⚫</button>
+        <button onclick="white()" style="background: transparent">⚪</button>
         <div id="toolbar" hidden style="display: none;">
             <video hidden></video>
             <img onclick="location.reload()" id="name" height="50px" width="50px" src="icon.png">
@@ -199,6 +204,21 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
+        function black(){
+            color = "#000000"
+        }
+        function red(){
+            color = "#ff0000"
+        }
+        function yellow(){
+            color = "#ffff00"
+        }
+        function blue(){
+            color = "#0000ff"
+        }
+        function white(){
+            color = "#ffffff"
+        }
         setTimeout(() => {
             localforage.getItem("drawing", (err, val) => {
                 if (val != null) {
