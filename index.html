@@ -344,7 +344,6 @@
             lastY = y;
 
         }
-        ctx.globalCompositeOperation = 'destination-in';
 
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
@@ -638,9 +637,7 @@
             color = document.querySelector("#stroke").value;
             lasttouch = null;
             strokes.push(pointarray);
-            ctx.globalCompositeOperation = 'destination-in';
             ctx.createPattern(blank, "repeat");
-            ctx.globalCompositeOperation = 'destination-in';
             setTimeout(() => {
                 pointarray = [];
                 if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
@@ -652,6 +649,8 @@
 
         });
         canvas.addEventListener('touchstart', (e) => {
+            ctx.globalCompositeOperation = 'destination-in';
+
             console.log(e.touches.length)
             color = document.querySelector("input").value
 
@@ -675,7 +674,7 @@
                 if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             
-                ctx.globalCompositeOperation = 'destination-in';
+                ctx.globalCompositeOperation = 'source-over';
             });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
