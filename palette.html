@@ -653,15 +653,12 @@
         canvas.addEventListener('mouseup', e => {
             paint = 1;
             isPainting = false;
-            color = document.querySelector("#stroke").value;
             lasttouch = null;
             strokes.push(pointarray);
             ctx.createPattern(blank, "repeat");
             setTimeout(() => {
                 pointarray = [];
-                if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-
+                
             })
             lastX = null;
             lastY = null;
