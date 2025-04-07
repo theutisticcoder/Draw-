@@ -423,7 +423,7 @@
                 ctx.globalAlpha = 1.0;
                 ctx.globalCompositeOperation = "source-over"
                 var pattern = ctx.createPattern(blank, "repeat");
-                ctx.fillStyle = pattern;
+                ctx.fillStyle = white;
                 ctx.fillRect(width, 0, canvas.width, canvas.height);
                 points = [];
                 ctx.globalAlpha = 0.75;
@@ -498,7 +498,6 @@
 
             ctx.fillStyle = "white"
             var pattern = ctx.createPattern(blank, "repeat");
-            ctx.fillStyle = pattern;
             ctx.fillRect(width, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
             arts.unshift([])
             ctx.globalAlpha = 0.75
@@ -681,7 +680,7 @@
             ctx.globalAlpha = 0.15
             ctx.globalCompositeOperation = "multiply"
             const texturePattern = tempCtx.createPattern(blank, 'repeat');
-            tempCtx.fillStyle = texturePattern;
+            tempCtx.fillStyle = "white";
             tempCtx.fillRect(width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0
@@ -701,7 +700,6 @@
             ctx.globalCompositeOperation = 'source-atop'; // Keeps only the non-transparent parts of the image
             ctx.fillStyle = color; // The tint color
             var pattern = ctx.createPattern(blank, "repeat");
-            ctx.fillStyle = pattern;
             ctx.fillRect(width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over'; // Reset to default
         }
@@ -741,14 +739,14 @@
                 old.onload = () => {
                     ctx.globalAlpha = 1.0;
                     var pattern = ctx.createPattern(blank, "repeat");
-                    ctx.fillStyle = pattern;
+                    ctx.fillStyle = "white";
                     ctx.fillRect(width, 0, canvas.width, canvas.height);
                     ctx.drawImage(old, width, 0, canvas.width, canvas.height);
                 }
             }
             else {
                 var pattern = ctx.createPattern(blank, "repeat");
-                ctx.fillStyle = pattern;
+                ctx.fillStyle = "white";
                 ctx.fillRect(width, 0, canvas.width, canvas.height);
             }
 
