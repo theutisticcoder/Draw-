@@ -685,10 +685,7 @@
         canvas.addEventListener('mousemove', draw);
 
         toolbar.addEventListener('click', e => {
-            if (e.target.id === 'erase') {
-                eraser.style.backgroundColor = "#b58691";
-                ctx.strokeStyle = 'white';
-            }
+          
             
         });
         function applyTint(x, y, color, width, height) {
