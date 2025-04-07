@@ -636,7 +636,7 @@
         canvas.addEventListener('mouseup', e => {
             paint = 1;
             isPainting = false;
-            ctx.arc(e.clientX, e.clientY, lineWidth * 6, 0, 2 * Math.PI);
+            ctx.arc(e.clientX, e.clientY, lineWidth * 4, 0, 2 * Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
             color = document.querySelector("#stroke").value;
@@ -671,15 +671,17 @@
             }
         });
         canvas.addEventListener('touchend', e => {
-            if (e.touches.length === 0) {
-                paint = 1;
-                isPainting = false;
-                lasttouch = null;
-                strokes.push(pointarray);
-                pointarray = [];
-                if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-                else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-            }
+            paint = 1;
+            isPainting = false;
+            lasttouch = null;
+            strokes.push(pointarray);
+            pointarray = [];
+            ctx.arc(e.clientX, e.clientY, lineWidth * 4, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+            if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+            else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
