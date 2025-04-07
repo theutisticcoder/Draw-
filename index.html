@@ -344,6 +344,7 @@
             lastY = y;
 
         }
+        ctx.globalCompositeOperation = 'destination-in';
 
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
