@@ -637,9 +637,9 @@
             color = document.querySelector("#stroke").value;
             lasttouch = null;
             strokes.push(pointarray);
-            ctx.globalCompositeOperation = "multiply"
+            ctx.globalCompositeOperation = "color-burn"
             ctx.createPattern(blank, "repeat");
-            ctx.globalCompositeOperation = "multiply"
+            ctx.globalCompositeOperation = "color-burn"
             setTimeout(() => {
                 pointarray = [];
                 if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
@@ -674,7 +674,7 @@
                 if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             
-            ctx.globalCompositeOperation = 'multiply';
+            ctx.globalCompositeOperation = 'color-burn';
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
