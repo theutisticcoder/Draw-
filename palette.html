@@ -164,12 +164,7 @@
         <button id="new">+<br><br></button>
     </div>
     <section class="container">
-        <label style="font-size: 30pt;" for="stroke">🎨</label>
-        <button onclick="yellow()" style="background: transparent">🟡</button>
-        <button onclick="red()" style="background: transparent">🔴</button>
-        <button onclick="blue()" style="background: transparent">🔵</button>
-        <button onclick="black()" style="background: transparent">⚫</button>
-        <button onclick="white()" style="background: transparent">⚪</button>
+       
         <div id="toolbar" hidden style="display: none;">
             <video hidden></video>
             <img onclick="location.reload()" id="name" height="50px" width="50px" src="icon.png">
@@ -184,6 +179,12 @@
         </div>
         <div id="map"></div>
         <div class="drawing-board">
+            <label style="font-size: 30pt;" for="stroke">🎨</label>
+            <button onclick="yellow()" style="background: transparent">🟡</button>
+            <button onclick="red()" style="background: transparent">🔴</button>
+            <button onclick="blue()" style="background: transparent">🔵</button>
+            <button onclick="black()" style="background: transparent">⚫</button>
+            <button onclick="white()" style="background: transparent">⚪</button>
             <canvas id="drawing-board"></canvas>
         </div>
     </section>
