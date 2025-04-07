@@ -176,6 +176,7 @@
             <button style="font-size: 30pt;" id="undo">↩️</button>
             <button style="font-size: 30pt;" id="dry">𖣘</button>
             <button style="font-size: 30pt;" id="save">💾</button>
+            <button id="select">Select<br>Color</button>
         </div>
         <div id="map"></div>
         <div class="drawing-board">
@@ -183,6 +184,7 @@
         </div>
     </section>
     <script>
+    
         var blank = new Image();
         blank.src = "canvas.jpeg";
         let brushImage = new Image();
@@ -780,7 +782,11 @@
 
             }
         }
+document.getElementById("select").onclick = (e)=> {
+    color = document.querySelector("iframe").contentWindow.color;
+    document.querySelector("#stroke").value = document.querySelector("iframe").contentWindow.color;
 
+}
 
     </script>
 </body>
