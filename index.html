@@ -634,8 +634,6 @@
             color = document.querySelector("#stroke").value;
             lasttouch = null;
             strokes.push(pointarray);
-            ctx.globalCompositeOperation = "multiply"
-            ctx.globalCompositeOperation = "source-over"
             setTimeout(() => {
                 pointarray = [];
                 if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
