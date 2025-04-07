@@ -350,7 +350,6 @@
             ctx.drawImage(img, 0, 0);
 
 
-
             return canvas.toDataURL();
         }
         var isNumber = function isNumber(value) {
@@ -416,6 +415,7 @@
             if (e.target.id === 'clear') {
                 ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
+                ctx.globalCompositeOperation = "source-over"
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
                 ctx.fillRect(width, 0, canvas.width, canvas.height);
