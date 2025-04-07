@@ -208,18 +208,23 @@
         var arts = [];
         function black(){
             color = "#000000"
+            updateBrushColor();
         }
         function red(){
             color = "#ff0000"
+            updateBrushColor();
         }
         function yellow(){
             color = "#ffff00"
+            updateBrushColor();
         }
         function blue(){
             color = "#0000ff"
+            updateBrushColor();
         }
         function white(){
             color = "#ffffff"
+            updateBrushColor();
         }
         setTimeout(() => {
             localforage.getItem("drawing", (err, val) => {
