@@ -183,6 +183,7 @@
             <button onclick="yellow()" style="background: transparent">🟡</button>
             <button onclick="red()" style="background: transparent">🔴</button>
             <button onclick="blue()" style="background: transparent">🔵</button>
+            <button onclick="green()" style="background: transparent">🟢</button>
             <button onclick="black()" style="background: transparent">⚫</button>
             <button onclick="white()" style="background: transparent">⚪</button>
             <br>
@@ -208,6 +209,11 @@
         var arts = [];
         function black(){
             color = "#000000"
+            document.querySelector("#stroke").value = color;
+            updateBrushColor();
+        }
+        function green(){
+            color = "#00ff00"
             document.querySelector("#stroke").value = color;
             updateBrushColor();
         }
