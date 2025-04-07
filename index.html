@@ -689,10 +689,7 @@
                 eraser.style.backgroundColor = "#b58691";
                 ctx.strokeStyle = 'white';
             }
-            if (e.target.id != 'erase' && eraser.style.backgroundColor === '#b58691') {
-                eraser.style.backgroundColor = "black";
-                ctx.strokeStyle = color;
-            }
+            
         });
         function applyTint(x, y, color, width, height) {
             ctx.globalCompositeOperation = 'source-atop'; // Keeps only the non-transparent parts of the image
