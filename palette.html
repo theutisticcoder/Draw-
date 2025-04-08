@@ -457,7 +457,6 @@
             ctx.fillStyle = "white";
                 ctx.globalAlpha = 1.0;
                 ctx.globalCompositeOperation = "source-over"
-                var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillRect(0, 50, canvas.width, canvas.height);
                 points = [];
                 ctx.globalAlpha = 0.75;
@@ -469,7 +468,6 @@
                 ctx.globalAlpha = 1.0;
                 ctx.globalCompositeOperation = "source-over"
                 var pattern = ctx.createPattern(blank, "repeat");
-                ctx.fillStyle = pattern;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 points = [];
                 ctx.globalAlpha = 0.75;
