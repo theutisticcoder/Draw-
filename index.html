@@ -850,12 +850,9 @@
         g: Math.round(gTotal / count),
         b: Math.round(bTotal / count)
     };
-            document.querySelector("iframe").contentWindow.ctx.clearRect(0,50,document.querySelector("iframe").contentWindow.canvas.width, document.querySelector("iframe").contentWindow.canvas.height)
             document.querySelector("#stroke").value = color;
             updateBrushColor();
-            document.querySelector("iframe").contentWindow.color = color;
-            document.querySelector("iframe").contentWindow.document.querySelector("#toolbar").innerHTML += "<button style='height: 20px; width: 20px background: "+ color +"; border-radius; 50%;' onclick= 'changeColor("+ color +")'><button>"
-        }
+                   }
 
     </script>
 </body>
