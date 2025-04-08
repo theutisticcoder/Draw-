@@ -822,7 +822,7 @@
 
         document.getElementById("select").onclick = (e) => {
             
-    const imageData = document.querySelector("iframe").contentWindow.ctx.getImageData(0, 50, canvas.width, canvas.height);
+    const imageData = document.querySelector("iframe").contentWindow.data;
     const data = imageData.data;
 
     let rTotal = 0, gTotal = 0, bTotal = 0;

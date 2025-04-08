@@ -682,6 +682,7 @@
         });
 
         var tap = false;
+        var data;
         canvas.addEventListener('mouseup', e => {
             paint = 1;
             isPainting = false;
@@ -694,7 +695,7 @@
             })
             lastX = null;
             lastY = null;
-
+            data = ctx.getImageData(0,50, canvas.width, canvas.height)
         });
         canvas.addEventListener('touchstart', (e) => {
             ctx.globalCompositeOperation = 'source-over';
