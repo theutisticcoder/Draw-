@@ -726,6 +726,7 @@
             tempCtx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0
+            data = ctx.getImageData(0,50, canvas.width, canvas.height)
 
         });
         function rgbaToHex(r, g, b, a) {
