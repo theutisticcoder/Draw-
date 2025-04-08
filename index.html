@@ -59,9 +59,9 @@
             position: relative;
             z-index: 2;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             padding: 5px;
-            width: 10vw;
+            height: 50px;
             background-color: lightblue;
         }
 
@@ -172,7 +172,7 @@
             <label style="font-size: 30pt;" for="stroke">🎨</label>
             <input id="stroke" name='stroke' type="color">
             <label style="font-size: 30pt;" for="lineWidth">↔️</label>
-            <input id="lineWidth" name='lineWidth' style="writing-mode: vertical-lr;direction: rtl;" type="range"
+            <input id="lineWidth" name='lineWidth' type="range"
                 min="1" max="40" value="5">
             <button style="font-size: 30pt;" id="clear">🗑️</button>
             <button style="font-size: 30pt;" id="undo" hidden>↩️</button>
@@ -259,7 +259,7 @@
                 ctx.rotate(((x2 - x1) / (y2 - y1) * Math.PI / 4))
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
-                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 50, canvas.width, canvas.height);
                 ctx.globalAlpha = 0.2
                 ctx.drawImage(brushImage, x, y, lineWidth * 5, lineWidth * 5);
             }
@@ -286,10 +286,10 @@
             var testctx = testcan.getContext("2d");
             testcan.height = 50;
             testcan.width = 50;
-            testctx.drawImage(brushImage, 0, 0, 50, 50);
+            testctx.drawImage(brushImage, 0, 50, 50, 50);
             testctx.fillStyle = color;
             testctx.globalCompositeOperation = "source-over";
-            testctx.fillRect(0, 0, 50, 50);
+            testctx.fillRect(0, 50, 50, 50);
             var testim = new Image(50, 50);
             testim.src = testcan.toDataURL("image/png");
             // Vary brush thickness and color dynamically for a more realistic effect
@@ -393,10 +393,10 @@
 
         });
         function updateBrushColor() {
-            brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
+            brushCtx.clearRect(0, 50, brushCanvas.width, brushCanvas.height);
             brushCtx.drawImage(brush, 0, 0);
 
-            let imgData = brushCtx.getImageData(0, 0, brushCanvas.width, brushCanvas.height);
+            let imgData = brushCtx.getImageData(0, 50, brushCanvas.width, brushCanvas.height);
             let pixels = imgData.data;
 
             for (let i = 0; i < pixels.length; i += 4) {
@@ -426,7 +426,7 @@
                 ctx.globalCompositeOperation = "source-over"
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = white;
-                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 50, canvas.width, canvas.height);
                 points = [];
                 ctx.globalAlpha = 0.75;
             }
@@ -476,8 +476,8 @@
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, width, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 50, canvas.width, canvas.height)
+            ctx.drawImage(image, 0, 50, canvas.width, canvas.height);
             points = p;
             ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
@@ -500,7 +500,7 @@
 
             ctx.fillStyle = "white"
             var pattern = ctx.createPattern(blank, "repeat");
-            ctx.fillRect(width, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
+            ctx.fillRect(0, 50, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
             arts.unshift([])
             ctx.globalAlpha = 0.75
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
@@ -683,7 +683,7 @@
             ctx.globalCompositeOperation = "multiply"
             const texturePattern = tempCtx.createPattern(blank, 'repeat');
             tempCtx.fillStyle = "white";
-            tempCtx.fillRect(width, 0, canvas.width, canvas.height);
+            tempCtx.fillRect(0, 50, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0
 
@@ -702,7 +702,7 @@
             ctx.globalCompositeOperation = 'source-atop'; // Keeps only the non-transparent parts of the image
             ctx.fillStyle = color; // The tint color
             var pattern = ctx.createPattern(blank, "repeat");
-            ctx.fillRect(width, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 50, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over'; // Reset to default
         }
         document.querySelector("#save").onclick = () => {
@@ -742,14 +742,14 @@
                     ctx.globalAlpha = 1.0;
                     var pattern = ctx.createPattern(blank, "repeat");
                     ctx.fillStyle = "white";
-                    ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 50, canvas.width, canvas.height);
+                    ctx.drawImage(old, 0, 50, canvas.width, canvas.height);
                 }
             }
             else {
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = "white";
-                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 50, canvas.width, canvas.height);
             }
 
         }
