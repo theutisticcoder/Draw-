@@ -269,19 +269,19 @@
 
         const imdraw = (e) => {
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
-                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
             }
             else {
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
                 modifier = 0.2;
 
             }
-            const x = e.offsetX;
-            const y = e.offsetY;
+            const x = e.clientX;
+            const y = e.clientY;
             var testcan = document.createElement("canvas");
             var testctx = testcan.getContext("2d");
             testcan.height = 50;
@@ -325,14 +325,14 @@
         const mobimdraw = (e) => {
 
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
-                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
             }
             else {
-                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                points.push({ color: color, x: e.clientX, y: e.clientY })
                 modifier = 0.2;
             }
             const x = e.touches[0].screenX;
@@ -555,22 +555,22 @@
         function draw(e) {
             if (!isPainting) return;
             if (isOil) {
-                if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.offsetX)].color, 0.15)
+                if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.15)
                     updateBrushColor();
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.offsetX) === p.x && points.findIndex(y => y.y === e.offsetY) === p.y) {
+                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
                             p.color = color;
                         }
                     })
 
                 }
                 else {
-                    points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                    points.push({ color: color, x: e.clientX, y: e.clientY })
 
-                    pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
+                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
-                interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
+                interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
 
             }
         }
@@ -632,8 +632,8 @@
             isPainting = true;
             color = document.querySelector("#stroke").value
 
-            lastX = e.offsetX;
-            lastY = e.offsetY;
+            lastX = e.clientX;
+            lastY = e.clientY;
         });
 
         var tap = false;
