@@ -213,6 +213,11 @@
             document.querySelector("#stroke").value = color;
             updateBrushColor();
         }
+        function changeColor(c){
+            color = c
+            document.querySelector("#stroke").value = c;
+            updateBrushColor();
+        }
         function green(){
             color = "#00ff00"
             document.querySelector("#stroke").value = color;
