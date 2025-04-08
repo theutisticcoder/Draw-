@@ -821,7 +821,35 @@
 }
 
         document.getElementById("select").onclick = (e) => {
-            color = averageNonWhiteColor(document.querySelector("iframe").contentWindow.canvas)
+            
+    const imageData = document.querySelector("iframe").contentWindow.ctx.getImageData(0, 50, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    let rTotal = 0, gTotal = 0, bTotal = 0;
+    let count = 0;
+
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        // Skip white (255, 255, 255) and fully transparent pixels
+        if (!(r === 255 && g === 255 && b === 255) && a !== 0) {
+            rTotal += r;
+            gTotal += g;
+            bTotal += b;
+            count++;
+        }
+    }
+
+    if (count === 0) return { r: 255, g: 255, b: 255 }; // fallback to white
+
+    color =  {
+        r: Math.round(rTotal / count),
+        g: Math.round(gTotal / count),
+        b: Math.round(bTotal / count)
+    };
             document.querySelector("iframe").contentWindow.ctx.clearRect(0,50,document.querySelector("iframe").contentWindow.canvas.width, document.querySelector("iframe").contentWindow.canvas.height)
             document.querySelector("#stroke").value = color;
             updateBrushColor();
