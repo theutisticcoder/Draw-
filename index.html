@@ -845,11 +845,7 @@
 
     if (count === 0) return { r: 255, g: 255, b: 255 }; // fallback to white
 
-    color =  {
-        r: Math.round(rTotal / count),
-        g: Math.round(gTotal / count),
-        b: Math.round(bTotal / count)
-    };
+    color = `#${Math.round(rTotal / count).toString(16).padStart(2, '0')}${Math.round(gTotal / count).toString(16).padStart(2, '0')}${Math.round(bTotal / count).toString(16).padStart(2, '0')}`
             document.querySelector("#stroke").value = color;
             updateBrushColor();
                    }
