@@ -259,7 +259,7 @@
                 ctx.rotate(((x2 - x1) / (y2 - y1) * Math.PI / 4))
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = pattern;
-                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.globalAlpha = 0.2
                 ctx.drawImage(brushImage, x, y, lineWidth * 5, lineWidth * 5);
             }
@@ -269,19 +269,19 @@
 
         const imdraw = (e) => {
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
             }
             else {
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
                 modifier = 0.2;
 
             }
-            const x = e.clientX;
-            const y = e.clientY;
+            const x = e.offsetX;
+            const y = e.offsetY;
             var testcan = document.createElement("canvas");
             var testctx = testcan.getContext("2d");
             testcan.height = 50;
@@ -325,14 +325,14 @@
         const mobimdraw = (e) => {
 
             if (!isPainting) return;
-            if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
+            if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
+                color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.offsetX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
+                pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
             }
             else {
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.offsetX, y: e.offsetY })
                 modifier = 0.2;
             }
             const x = e.touches[0].screenX;
@@ -417,7 +417,7 @@
         canvas.style.height = screen.height * 0.7 + "px";
         canvas.style.width = screen.width * 0.5 + "px";
         var isOil = true;
-        ctx.translate(-width, 0)
+        ctx.translate(0, 0)
         ctx.fillStyle = "white";
         toolbar.addEventListener('click', e => {
             if (e.target.id === 'clear') {
@@ -426,7 +426,7 @@
                 ctx.globalCompositeOperation = "source-over"
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = white;
-                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 points = [];
                 ctx.globalAlpha = 0.75;
             }
@@ -476,8 +476,8 @@
             number = num;
             document.querySelector("#toolbar").hidden = false;
             ctx.fillStyle = "white"
-            ctx.fillRect(width, 0, canvas.width, canvas.height)
-            ctx.drawImage(image, width, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
             points = p;
             ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
@@ -500,7 +500,7 @@
 
             ctx.fillStyle = "white"
             var pattern = ctx.createPattern(blank, "repeat");
-            ctx.fillRect(width, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
+            ctx.fillRect(0, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
             arts.unshift([])
             ctx.globalAlpha = 0.75
             arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
@@ -555,22 +555,22 @@
         function draw(e) {
             if (!isPainting) return;
             if (isOil) {
-                if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.15)
+                if (points.findIndex(x => x.x === e.offsetX) > -1 && points.findIndex(y => y.y === e.offsetY) > -1) {
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.offsetX)].color, 0.15)
                     updateBrushColor();
                     points.forEach(p => {
-                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
+                        if (points.findIndex(x => x.x === e.offsetX) === p.x && points.findIndex(y => y.y === e.offsetY) === p.y) {
                             p.color = color;
                         }
                     })
 
                 }
                 else {
-                    points.push({ color: color, x: e.clientX, y: e.clientY })
+                    points.push({ color: color, x: e.offsetX, y: e.offsetY })
 
-                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                    pointarray.push({ color: color, x: e.offsetX, y: e.offsetY })
                 }
-                interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
+                interpolateAndDraw(lastX, lastY, e.offsetX, e.offsetY);
 
             }
         }
@@ -632,8 +632,8 @@
             isPainting = true;
             color = document.querySelector("#stroke").value
 
-            lastX = e.clientX;
-            lastY = e.clientY;
+            lastX = e.offsetX;
+            lastY = e.offsetY;
         });
 
         var tap = false;
@@ -683,7 +683,7 @@
             ctx.globalCompositeOperation = "multiply"
             const texturePattern = tempCtx.createPattern(blank, 'repeat');
             tempCtx.fillStyle = "white";
-            tempCtx.fillRect(width, 0, canvas.width, canvas.height);
+            tempCtx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0
 
@@ -702,7 +702,7 @@
             ctx.globalCompositeOperation = 'source-atop'; // Keeps only the non-transparent parts of the image
             ctx.fillStyle = color; // The tint color
             var pattern = ctx.createPattern(blank, "repeat");
-            ctx.fillRect(width, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over'; // Reset to default
         }
         document.querySelector("#save").onclick = () => {
@@ -742,14 +742,14 @@
                     ctx.globalAlpha = 1.0;
                     var pattern = ctx.createPattern(blank, "repeat");
                     ctx.fillStyle = "white";
-                    ctx.fillRect(width, 0, canvas.width, canvas.height);
-                    ctx.drawImage(old, width, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(old, 0, 0, canvas.width, canvas.height);
                 }
             }
             else {
                 var pattern = ctx.createPattern(blank, "repeat");
                 ctx.fillStyle = "white";
-                ctx.fillRect(width, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
         }
