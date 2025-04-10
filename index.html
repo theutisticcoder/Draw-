@@ -534,10 +534,10 @@
            
 
             // Add highlights (fake light effect)
-            ctx.globalAlpha = 0.2;
+            ctx.globalAlpha = 0.1;
             ctx.fillStyle = "white";
             ctx.beginPath();
-            ctx.arc(x - lineWidth/2, y - lineWidth/2, 5, 0, Math.PI * 2);
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
             ctx.fill();
             ctx.globalAlpha = 1.0;
             lastX = x;
