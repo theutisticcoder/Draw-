@@ -13,6 +13,11 @@
     <script src="service-worker.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <style>
+        html,
+        body {
+            overscroll-behavior-x: none;
+        }
+
         button {
             color: white;
             background-color: blue;
@@ -531,7 +536,7 @@
             // Draw paint stroke
             ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth * 6, lineWidth * 6);
 
-           
+
 
             // Add highlights (fake light effect)
             ctx.globalAlpha = 0.1;
@@ -809,7 +814,7 @@
                 r: Math.round(rTotal / count),
                 g: Math.round(gTotal / count),
                 b: Math.round(bTotal / count)
-            }; 
+            };
         }
 
         document.getElementById("select").onclick = (e) => {
