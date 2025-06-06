@@ -257,7 +257,7 @@
             points.forEach(stroke => {
                 color = stroke.color;
                 updateBrushColor();
-                interpolateAndDraw(lastX, lastY, stroke.x, stroke.y)
+                interpolateAndDraw(stroke.lastX, stroke.lastY, stroke.x, stroke.y)
             });
 
             // Draw the overlay image on top with the specified blend mode
