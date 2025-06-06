@@ -265,8 +265,8 @@
 
             // Set the composite operation for the image to 'color-burn'
             // This is the closest equivalent to 'linear-burn' in canvas blend modes.
-                ctx.globalCompositeOperation = 'color-burn';
-                ctx.drawImage(blank, 0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
                 ctx.globalCompositeOperation = 'source-over';
             // Draw optional text on top of the image
 
