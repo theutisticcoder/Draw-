@@ -707,8 +707,56 @@
             })
             lastX = null;
             lastY = null;
-                            redrawCanvas();
+ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Redraw all stored strokes
+            points.forEach(stroke => {
+                color = stroke.color;
+                updateBrushColor();
+                
+               const distance = Math.hypot(stroke.x - lastX, stroke.y - lastY);
+            const steps = Math.ceil(distance / 5); // Adjust step size for smoothness
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = lastX + (stroke.x - lastX) * t;
+                const y = lastY + (stroke.y - lastY) * t;
+                
+
+            ctx.globalAlpha = 0.75;
+
+
+            // Draw paint stroke
+            ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth * 6, lineWidth * 6);
+
+
+
+            // Add highlights (fake light effect)
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            lastX = x;
+            lastY = y;
+
+            }
+            });
+
+            // Draw the overlay image on top with the specified blend mode
+                // Save the current composite operation state
+                ctx.save();
+                // Set the composite operation for the image to 'color-burn'
+                // This is the closest equivalent to 'linear-burn' in canvas blend modes.
+                ctx.globalCompositeOperation = 'color-burn';
+                ctx.drawImage(blank, 0, 0, canvas,width, canvas.height);
+                // Draw optional text on top of the image
+                
+                // Restore the composite operation state to default ('source-over')
+                // This ensures subsequent drawings (like new strokes) are not affected.
+                ctx.restore();
+         
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -743,8 +791,56 @@
             tempCtx.fillRect(width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0
-            redrawCanvas();
+ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Redraw all stored strokes
+            points.forEach(stroke => {
+                color = stroke.color;
+                updateBrushColor();
+                
+               const distance = Math.hypot(stroke.x - lastX, stroke.y - lastY);
+            const steps = Math.ceil(distance / 5); // Adjust step size for smoothness
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = lastX + (stroke.x - lastX) * t;
+                const y = lastY + (stroke.y - lastY) * t;
+                
+
+            ctx.globalAlpha = 0.75;
+
+
+            // Draw paint stroke
+            ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth * 6, lineWidth * 6);
+
+
+
+            // Add highlights (fake light effect)
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            lastX = x;
+            lastY = y;
+
+            }
+            });
+
+            // Draw the overlay image on top with the specified blend mode
+                // Save the current composite operation state
+                ctx.save();
+                // Set the composite operation for the image to 'color-burn'
+                // This is the closest equivalent to 'linear-burn' in canvas blend modes.
+                ctx.globalCompositeOperation = 'color-burn';
+                ctx.drawImage(blank, 0, 0, canvas,width, canvas.height);
+                // Draw optional text on top of the image
+                
+                // Restore the composite operation state to default ('source-over')
+                // This ensures subsequent drawings (like new strokes) are not affected.
+                ctx.restore();
+         
 
         });
         function rgbaToHex(r, g, b, a) {
