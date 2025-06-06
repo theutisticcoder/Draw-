@@ -508,7 +508,7 @@
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
-            ctx.globalCompositeOperation = "color-burn";
+            ctx.globalCompositeOperation = "multiply";
             ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = "source-over";
             points = p;
@@ -538,7 +538,7 @@
             ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
             number = 0;
-            ctx.globalCompositeOperation = "color-burn";
+            ctx.globalCompositeOperation = "multiply";
             ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = "source-over";
             restore();
