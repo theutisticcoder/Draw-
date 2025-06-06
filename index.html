@@ -252,8 +252,8 @@
           function redrawCanvas() {
             // Clear the entire canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             // Redraw all stored strokes
+            var count = 0;
             points.forEach(stroke => {
                 color = stroke.color;
                 updateBrushColor();
@@ -262,18 +262,18 @@
 
             // Draw the overlay image on top with the specified blend mode
                 // Save the current composite operation state
-                ctx.save();
                                 blank.onload = ()=> {
 
                 // Set the composite operation for the image to 'color-burn'
                 // This is the closest equivalent to 'linear-burn' in canvas blend modes.
-                ctx.globalCompositeOperation = 'color-burn';
+                ctx.globalCompositeOperation = 'multiply';
                 ctx.drawImage(blank, 0, 0, canvas,width, canvas.height);
+                                ctx.globalCompositeOperation = 'source-over';
+
                 // Draw optional text on top of the image
                 
                 // Restore the composite operation state to default ('source-over')
                 // This ensures subsequent drawings (like new strokes) are not affected.
-                ctx.restore();
                                 }
         }
         function smoothBrushStroke(x1, y1, x2, y2) {
@@ -305,11 +305,11 @@
             if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                 color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY, lastX: lastX, lastY: lastY })
             }
             else {
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
                 modifier = 0.2;
 
             }
@@ -361,11 +361,11 @@
             if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
                 color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.75)
                 if (modifier < 1) modifier += 0.2;
-                points.push({ color: color, x: e.clientX, y: e.clientY })
-                pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
+                pointarray.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
             }
             else {
-                points.push({ color: color, x: e.clientX, y: e.clientY })
+                points.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
                 modifier = 0.2;
             }
             const x = e.touches[0].screenX;
@@ -597,9 +597,9 @@
 
                 }
                 else {
-                    points.push({ color: color, x: e.clientX, y: e.clientY })
+                    points.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
 
-                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
+                    pointarray.push({ color: color, x: e.clientX, y: e.clientY , lastX: lastX, lastY: lastY})
                 }
                 interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
             }
@@ -621,8 +621,8 @@
                 }
                 else {
 
-                    points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-                    pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
+                    points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY, lastX: lastX, lastY: lastY })
+                    pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY , lastX: lastX, lastY: lastY})
                 }
                 interpolateAndDraw(lastX, lastY, e.touches[0].clientX, e.touches[0].clientY);
             }
