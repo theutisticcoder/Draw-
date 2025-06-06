@@ -257,7 +257,16 @@
             points.forEach(stroke => {
                 color = stroke.color;
                 updateBrushColor();
-                interpolateAndDraw(lastX, lastY, stroke.x, stroke.y)
+                
+               const distance = Math.hypot(stroke.x - lastX, stroke.y - lastY);
+            const steps = Math.ceil(distance / 5); // Adjust step size for smoothness
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = lastX + (stroke.x - lastX) * t;
+                const y = lastY + (stroke.y - lastY) * t;
+                paintStroke(x, y);
+            }
             });
 
             // Draw the overlay image on top with the specified blend mode
