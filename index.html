@@ -265,7 +265,26 @@
                 const t = i / steps;
                 const x = lastX + (stroke.x - lastX) * t;
                 const y = lastY + (stroke.y - lastY) * t;
-                paintStroke(x, y);
+                
+
+            ctx.globalAlpha = 0.75;
+
+
+            // Draw paint stroke
+            ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth * 6, lineWidth * 6);
+
+
+
+            // Add highlights (fake light effect)
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            lastX = x;
+            lastY = y;
+
             }
             });
 
