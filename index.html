@@ -249,6 +249,31 @@
         function lerp(a, b, t) {
             return a + (b - a) * t;
         }
+          function redrawCanvas() {
+            // Clear the entire canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Redraw all stored strokes
+            points.forEach(stroke => {
+                color = stroke.color;
+                updateBrushColor();
+                interpolateAndDraw(lastX, lastY, stroke.x, stroke.y)
+            });
+
+            // Draw the overlay image on top with the specified blend mode
+                // Save the current composite operation state
+                ctx.save();
+                // Set the composite operation for the image to 'color-burn'
+                // This is the closest equivalent to 'linear-burn' in canvas blend modes.
+                ctx.globalCompositeOperation = 'color-burn';
+                ctx.drawImage(blank, 0, 0, canvas,width, canvas.height);
+                // Draw optional text on top of the image
+                
+                // Restore the composite operation state to default ('source-over')
+                // This ensures subsequent drawings (like new strokes) are not affected.
+                ctx.restore();
+            
+        }
         function smoothBrushStroke(x1, y1, x2, y2) {
             ctx.save();
             ctx.fillStyle = color;
@@ -483,6 +508,9 @@
             ctx.fillStyle = "white"
             ctx.fillRect(width, 0, canvas.width, canvas.height)
             ctx.drawImage(image, width, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "color-burn";
+            ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "source-over";
             points = p;
             ctx.globalAlpha = 0.75
             document.querySelector("#gallery").hidden = true;
