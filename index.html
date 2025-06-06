@@ -602,7 +602,6 @@
                     pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
                 interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
-                redrawCanvas();
             }
         }
         function draw2(e) {
@@ -626,7 +625,6 @@
                     pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
                 }
                 interpolateAndDraw(lastX, lastY, e.touches[0].clientX, e.touches[0].clientY);
-                redrawCanvas()
             }
         }
         var capture;
@@ -683,6 +681,7 @@
             })
             lastX = null;
             lastY = null;
+                redrawCanvas()
 
         });
         canvas.addEventListener('touchstart', (e) => {
@@ -717,6 +716,7 @@
             tempCtx.fillRect(width, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-over';
             ctx.globalAlpha = 1.0
+                redrawCanvas()
 
         });
         function rgbaToHex(r, g, b, a) {
