@@ -536,10 +536,14 @@
             ctx.fillRect(width, 0, canvas.width, canvas.height); document.querySelector("#toolbar").hidden = false;
             arts.unshift([])
             ctx.globalAlpha = 0.75
-            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             document.querySelector("#gallery").hidden = true;
             number = 0;
-            restore();
+            ctx.globalCompositeOperation = "color-burn";
+            ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "source-over";
+            restore();            
+            arts[arts.length - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
+
         }
         const brush = new Image();
         brush.src = "oil7.png"; // Replace with a better texture if needed
@@ -596,7 +600,7 @@
                     pointarray.push({ color: color, x: e.clientX, y: e.clientY })
                 }
                 interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
-
+                redrawCanvas();
             }
         }
         function draw2(e) {
@@ -620,7 +624,7 @@
                     pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
                 }
                 interpolateAndDraw(lastX, lastY, e.touches[0].clientX, e.touches[0].clientY);
-
+                redrawCanvas();
             }
         }
         var capture;
