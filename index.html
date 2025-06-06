@@ -251,7 +251,7 @@
         }
         function redrawCanvas() {
             // Clear the entire canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(width, 0, canvas.width, canvas.height);
             // Redraw all stored strokes
             var count = 0;
             points.forEach(stroke => {
@@ -266,7 +266,7 @@
             // Set the composite operation for the image to 'color-burn'
             // This is the closest equivalent to 'linear-burn' in canvas blend modes.
                 ctx.globalCompositeOperation = 'multiply';
-                ctx.drawImage(blank, -width, 0, canvas.width, canvas.height);
+                ctx.drawImage(blank, width, 0, canvas.width, canvas.height);
                 ctx.globalCompositeOperation = 'source-over';
             // Draw optional text on top of the image
 
