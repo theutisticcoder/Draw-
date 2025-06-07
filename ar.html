@@ -1,102 +1,93 @@
 <html>
-  <head>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.8.0/dist/aframe-ar.min.js"></script>
-    <style>
-      #enterAR {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        padding: 8px;
-        background: white;
-        z-index: 10;
-      }
-    </style>
-  </head>
 
-  <body>
-    <button id="enterAR">Enter AR</button>
+<head>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.8.0/dist/aframe-ar.min.js"></script>
+  <style>
+    #enterAR {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 8px;
+      background: white;
+      z-index: 10;
+    }
+  </style>
+</head>
 
-    <a-scene
-      embedded
-      vr-mode-ui="enabled: false"
-      renderer="logarithmicDepthBuffer: true;"
-      xrweb="allowedDevices: any"
-      xr-mode="ar"
-      device-orientation-permission-ui="enabled: false"
-      ar-hit-test="target: #placementReticle;"
-    >
-      <!-- Reticle -->
-      <a-entity
-        id="placementReticle"
-        geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.08"
-        material="color: green; shader: flat"
-        visible="false"
-      ></a-entity>
+<body>
+  <button id="enterAR">Enter AR</button>
 
-      <!-- Camera -->
-      <a-camera position="0 0 0" look-controls-enabled="false" wasd-controls-enabled="false"></a-camera>
-    </a-scene>
-
-    <script>
-      const scene = document.querySelector("a-scene");
-      const reticle = document.querySelector("#placementReticle");
-      let artPlaced = false;
-
-      // Load position from localStorage/localForage
-      localforage.getItem("artPosition").then((pos) => {
-        if (pos) {
-          placeArt(pos);
-        }
-      });
-
-      // Add touch listener to place new art
-      scene.addEventListener("click", () => {
-        if (!reticle.object3D.visible || artPlaced) return;
-
-        const position = reticle.object3D.position;
-        const rotation = reticle.object3D.rotation;
-
-        const artData = {
-          position: {
-            x: position.x,
-            y: position.y,
-            z: position.z,
-          },
-          rotation: {
-            x: rotation.x,
-            y: rotation.y,
-            z: rotation.z,
-          },
-        };
-
-        placeArt(artData);
-        localforage.setItem("artPosition", artData);
-        artPlaced = true;
-      });
-
-      // Function to place art
-      function placeArt(data) {
-        const art = document.createElement("a-plane");
-        art.setAttribute("src", "#artTexture");
-        art.setAttribute("height", "1");
-        art.setAttribute("width", "0.75");
-        art.setAttribute("material", "side: double; transparent: true");
-        art.setAttribute("position", `${data.position.x} ${data.position.y} ${data.position.z}`);
-        art.setAttribute("rotation", `${data.rotation.x} ${data.rotation.y} ${data.rotation.z}`);
-        scene.appendChild(art);
-        localforage.getItem("works").then(w=>
-          w.forEach(work=> {
-            document.querySelector("a-assets").innerHTML += '<img src = "'+ work+ '">'
-          })
-        )
-      }
-    </script>
-
-    <!-- Image as asset (could be a data URL!) -->
+  <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true;" xrweb="allowedDevices: any"
+    xr-mode="ar" device-orientation-permission-ui="enabled: false" ar-hit-test="target: #placementReticle;">
+    <!-- Reticle -->
+    <a-entity id="placementReticle" geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.08"
+      material="color: green; shader: flat" visible="false"></a-entity>
     <a-assets>
     </a-assets>
-  </body>
+    <!-- Camera -->
+    <a-camera position="0 0 0" look-controls-enabled="false" wasd-controls-enabled="false"></a-camera>
+  </a-scene>
+
+  <script>
+    const scene = document.querySelector("a-scene");
+    const reticle = document.querySelector("#placementReticle");
+    let artPlaced = false;
+
+    // Load position from localStorage/localForage
+    localforage.getItem("artPosition").then((pos) => {
+      if (pos) {
+        placeArt(pos);
+      }
+    });
+
+    // Add touch listener to place new art
+    scene.addEventListener("click", () => {
+      if (!reticle.object3D.visible || artPlaced) return;
+
+      const position = reticle.object3D.position;
+      const rotation = reticle.object3D.rotation;
+
+      const artData = {
+        position: {
+          x: position.x,
+          y: position.y,
+          z: position.z,
+        },
+        rotation: {
+          x: rotation.x,
+          y: rotation.y,
+          z: rotation.z,
+        },
+      };
+
+      placeArt(artData);
+      localforage.setItem("artPosition", artData);
+      artPlaced = true;
+    });
+
+    // Function to place art
+    function placeArt(data) {
+      const art = document.createElement("a-plane");
+      art.setAttribute("src", "#artTexture");
+      art.setAttribute("height", "1");
+      art.setAttribute("width", "0.75");
+      art.setAttribute("material", "side: double; transparent: true");
+      art.setAttribute("position", `${data.position.x} ${data.position.y} ${data.position.z}`);
+      art.setAttribute("rotation", `${data.rotation.x} ${data.rotation.y} ${data.rotation.z}`);
+      scene.appendChild(art);
+      localforage.getItem("works").then(w =>
+        w.forEach(work => {
+          document.querySelector("a-assets").innerHTML += '<img src = "' + work + '">'
+        })
+      )
+    }
+  </script>
+
+  <!-- Image as asset (could be a data URL!) -->
+
+</body>
+
 </html>
