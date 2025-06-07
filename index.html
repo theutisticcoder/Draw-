@@ -214,6 +214,7 @@
         var pointarray = [];
         var paintings = [];
         var arts = [];
+        var works = [];
         setTimeout(() => {
             localforage.getItem("drawing", (err, val) => {
                 if (val != null) {
@@ -237,9 +238,11 @@
                             openDrawing(i, can[can.length - 1].points, can[can.length - 1].number)
                         };
                         document.getElementById("gallery").appendChild(i);
+                        works.push(i.src)
                         imgs++;
 
                     });
+                    localforage.setItem("works", works)
                 }
 
             });
@@ -680,7 +683,6 @@
             lastX = null;
             lastY = null;
             redrawCanvas()
-
         });
         canvas.addEventListener('touchstart', (e) => {
             ctx.globalCompositeOperation = 'source-over';
