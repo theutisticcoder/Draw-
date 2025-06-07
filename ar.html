@@ -1,146 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Museum</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-    #enter-ar { position: absolute; top: 10px; left: 10px; padding: 10px; background: white; z-index: 1; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
-</head>
-<body>
-  <button id="enter-ar">Enter AR</button>
-  <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three@0.160.1';
-    import { ARButton } from 'https://esm.sh/three@0.160.1/examples/jsm/webxr/ARButton.js';
-
-    let camera, scene, renderer;
-    let controller;
-    let reticle;
-    let hitTestSource = null;
-    let hitTestSourceRequested = false;
-    let anchors = [];
-    let imageDataURLs = [];
-    let currentArtIndex = 0;
-
-    init();
-    async function init() {
-      var works = localforage.getItem("works");
-      works.forEach(url => {
-        imageDataURLs.push(url);
-      })
-      
-
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.xr.enabled = true;
-      document.body.appendChild(renderer.domElement);
-
-      document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
-
-      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-      light.position.set(0.5, 1, 0.25);
-      scene.add(light);
-
-      controller = renderer.xr.getController(0);
-      controller.addEventListener('select', onSelect);
-      scene.add(controller);
-
-      const geometry = new THREE.RingGeometry(0.07, 0.09, 32).rotateX(-Math.PI / 2);
-      const material = new THREE.MeshBasicMaterial({ color: 0x0fff00 });
-      reticle = new THREE.Mesh(geometry, material);
-      reticle.matrixAutoUpdate = false;
-      reticle.visible = false;
-      scene.add(reticle);
-
-      loadSavedAnchors();
-      renderer.setAnimationLoop(render);
-    }
-
-    function onSelect() {
-      if (!reticle.visible || imageDataURLs.length === 0) return;
-
-      const anchorGroup = new THREE.Group();
-      anchorGroup.matrixAutoUpdate = false;
-      anchorGroup.matrix.copy(reticle.matrix);
-      scene.add(anchorGroup);
-
-      const texture = new THREE.TextureLoader().load(imageDataURLs[currentArtIndex % imageDataURLs.length]);
-      const artGeometry = new THREE.PlaneGeometry(0.5, 0.7);
-      const artMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-      const art = new THREE.Mesh(artGeometry, artMaterial);
-      anchorGroup.add(art);
-
-      anchors.push({ matrix: anchorGroup.matrix.toArray(), index: currentArtIndex % imageDataURLs.length });
-      saveAnchors();
-
-      currentArtIndex++;
-    }
-
-    function saveAnchors() {
-      localStorage.setItem('anchorMatrices', JSON.stringify(anchors));
-    }
-
-    function loadSavedAnchors() {
-      const stored = JSON.parse(localStorage.getItem('anchorMatrices')) || [];
-      for (const { matrix, index } of stored) {
-        const anchorGroup = new THREE.Group();
-        anchorGroup.matrixAutoUpdate = false;
-        anchorGroup.matrix.fromArray(matrix);
-        scene.add(anchorGroup);
-
-        const texture = new THREE.TextureLoader().load(imageDataURLs[index % imageDataURLs.length]);
-        const artGeometry = new THREE.PlaneGeometry(0.5, 0.7);
-        const artMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-        const art = new THREE.Mesh(artGeometry, artMaterial);
-        anchorGroup.add(art);
-
-        anchors.push({ matrix, index });
-        currentArtIndex++;
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.8.0/dist/aframe-ar.min.js"></script>
+    <style>
+      #enterAR {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 8px;
+        background: white;
+        z-index: 10;
       }
-    }
+    </style>
+  </head>
 
-    function render(timestamp, frame) {
-      if (frame) {
-        const referenceSpace = renderer.xr.getReferenceSpace();
-        const session = renderer.xr.getSession();
+  <body>
+    <button id="enterAR">Enter AR</button>
 
-        if (!hitTestSourceRequested) {
-          session.requestReferenceSpace('viewer').then(viewerRefSpace => {
-            session.requestHitTestSource({ space: viewerRefSpace }).then(source => {
-              hitTestSource = source;
-            });
-          });
+    <a-scene
+      embedded
+      vr-mode-ui="enabled: false"
+      renderer="logarithmicDepthBuffer: true;"
+      xrweb="allowedDevices: any"
+      xr-mode="ar"
+      device-orientation-permission-ui="enabled: false"
+      ar-hit-test="target: #placementReticle;"
+    >
+      <!-- Reticle -->
+      <a-entity
+        id="placementReticle"
+        geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.08"
+        material="color: green; shader: flat"
+        visible="false"
+      ></a-entity>
 
-          session.addEventListener('end', () => {
-            hitTestSourceRequested = false;
-            hitTestSource = null;
-          });
+      <!-- Camera -->
+      <a-camera position="0 0 0" look-controls-enabled="false" wasd-controls-enabled="false"></a-camera>
+    </a-scene>
 
-          hitTestSourceRequested = true;
+    <script>
+      const scene = document.querySelector("a-scene");
+      const reticle = document.querySelector("#placementReticle");
+      let artPlaced = false;
+
+      // Load position from localStorage/localForage
+      localforage.getItem("artPosition").then((pos) => {
+        if (pos) {
+          placeArt(pos);
         }
+      });
 
-        if (hitTestSource) {
-          const hitTestResults = frame.getHitTestResults(hitTestSource);
-          if (hitTestResults.length > 0) {
-            const hit = hitTestResults[0];
-            const pose = hit.getPose(referenceSpace);
-            reticle.visible = true;
-            reticle.matrix.fromArray(pose.transform.matrix);
-          } else {
-            reticle.visible = false;
-          }
-        }
+      // Add touch listener to place new art
+      scene.addEventListener("click", () => {
+        if (!reticle.object3D.visible || artPlaced) return;
+
+        const position = reticle.object3D.position;
+        const rotation = reticle.object3D.rotation;
+
+        const artData = {
+          position: {
+            x: position.x,
+            y: position.y,
+            z: position.z,
+          },
+          rotation: {
+            x: rotation.x,
+            y: rotation.y,
+            z: rotation.z,
+          },
+        };
+
+        placeArt(artData);
+        localforage.setItem("artPosition", artData);
+        artPlaced = true;
+      });
+
+      // Function to place art
+      function placeArt(data) {
+        const art = document.createElement("a-plane");
+        art.setAttribute("src", "#artTexture");
+        art.setAttribute("height", "1");
+        art.setAttribute("width", "0.75");
+        art.setAttribute("material", "side: double; transparent: true");
+        art.setAttribute("position", `${data.position.x} ${data.position.y} ${data.position.z}`);
+        art.setAttribute("rotation", `${data.rotation.x} ${data.rotation.y} ${data.rotation.z}`);
+        scene.appendChild(art);
+        localforage.getItem("works").then(w=>
+          w.forEach(work=> {
+            document.querySelector("a-assets").innerHTML += '<img src = "'+ work+ '">'
+          })
+        )
       }
+    </script>
 
-      renderer.render(scene, camera);
-    }
-  </script>
-</body>
+    <!-- Image as asset (could be a data URL!) -->
+    <a-assets>
+    </a-assets>
+  </body>
 </html>
