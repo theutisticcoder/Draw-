@@ -1,86 +1,210 @@
+<!DOCTYPE html>
 <html>
 
 <head>
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.8.0/dist/aframe-ar.min.js"></script>
-  <style>
+  <meta charset="utf-8">
+  <title>AR Wall Image Placement</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.0/aframe/build/aframe-ar.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #ar-button-container {
+      position: fixed;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      z-index: 9999;
+    }
+
+    #ar-button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
+  <div id="ar-button-container">
+    <button id="ar-button">Start AR</button>
+  </div>
 
-  <a-scene embedded vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true;" xrweb="allowedDevices: any"
-    xr-mode="ar" device-orientation-permission-ui="enabled: false" ar-hit-test="target: #placementReticle;">
-    <!-- Reticle -->
-    <a-entity id="placementReticle" geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.08"
-      material="color: green; shader: flat" visible="false"></a-entity>
-
-    <!-- Camera -->
-    <a-camera position="0 0 0" look-controls-enabled="false" wasd-controls-enabled="false"></a-camera>
-      <a-assets>
-  </a-assets>
+  <a-scene xr-mode-ui="enabled: false" vr-mode-ui="enabled: false">
+    <a-entity camera></a-entity>
+    <a-entity id="placed-image" visible="false"></a-entity>
   </a-scene>
 
   <script>
-    const scene = document.querySelector("a-scene");
-    const reticle = document.querySelector("#placementReticle");
-    let artPlaced = false;
+    document.addEventListener('DOMContentLoaded', () => {
+      const arButton = document.getElementById('ar-button');
+      const scene = document.querySelector('a-scene');
+      const placedImage = document.getElementById('placed-image');
 
-    // Load position from localStorage/localForage
-    localforage.getItem("artPosition").then((pos) => {
-      if (pos) {
-        placeArt(pos);
+      let xrSession = null;
+      let xrRefSpace = null;
+      let hitTestSource = null;
+
+      // Helper to create a plane with the image texture
+      function createImagePlane(imageUrl) {
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load(imageUrl);
+        const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true });
+        const geometry = new THREE.PlaneGeometry(0.5, 0.5); // Adjust size as needed
+        const mesh = new THREE.Mesh(geometry, material);
+        return mesh;
       }
+
+      async function startAR() {
+        try {
+          // Request an immersive AR session
+          xrSession = await navigator.xr.requestSession('immersive-ar', {
+            requiredFeatures: ['hit-test', 'dom-overlay'], // Request hit-test and DOM overlay for UI
+            optionalFeatures: ['dom-overlay'],
+            domOverlay: { presenter: document.body }
+          });
+          scene.setAttribute('arjs', 'sourceType: webcam;'); // AR.js for camera feed
+
+          // Set up reference space for tracking
+          xrRefSpace = await xrSession.requestReferenceSpace('local');
+
+          // Request hit test source
+          hitTestSource = await xrSession.requestHitTestSource({ space: xrRefSpace });
+
+          // Start the AR render loop
+          xrSession.requestAnimationFrame(onXRFrame);
+
+          arButton.style.display = 'none'; // Hide the button
+
+          // Load saved position
+          loadImagePosition();
+
+          // Handle taps for placing the image
+          scene.addEventListener('click', onSceneClick);
+
+        } catch (error) {
+          console.error('Failed to start AR session:', error);
+          alert('AR is not supported on this device or browser, or access was denied. Please try a compatible device (e.g., Android with ARCore, iOS with ARKit) and browser (Chrome, Safari).');
+        }
+      }
+
+      function onXRFrame(time, frame) {
+        const session = frame.session;
+        session.requestAnimationFrame(onXRFrame);
+
+        const viewerPose = frame.getViewerPose(xrRefSpace);
+
+        if (viewerPose) {
+          // Perform hit test to find surfaces
+          if (hitTestSource) {
+            const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+            if (hitTestResults.length > 0) {
+              const hitPose = hitTestResults[0].getPose(xrRefSpace);
+              // You can render a reticle here to show where the object will be placed
+              // For simplicity, we'll just use the first hit result
+            }
+          }
+        }
+      }
+
+      function onSceneClick(event) {
+        if (!xrSession || !hitTestSource) return;
+
+        // Get the ray from the tap coordinates
+        const x = event.detail.intersection.x; // A-Frame provides intersection data
+        const y = event.detail.intersection.y;
+        const z = event.detail.intersection.z;
+
+        // Find the hit point on a real-world surface closest to the tap
+        const hitTestResults = xrSession.requestHitTest(
+          new XRRay(
+            { x: 0, y: 0, z: 0 }, // Origin relative to camera, but ray is complex
+            event.detail.intersection.ray.direction // Use ray direction from A-Frame click
+          ),
+          xrRefSpace
+        );
+
+        hitTestResults.then(results => {
+          if (results.length > 0) {
+            const hitPose = results[0].getPose(xrRefSpace);
+            const position = hitPose.transform.position;
+            const orientation = hitPose.transform.orientation; // Quaternion for rotation
+
+            // Update the placed image's position and rotation
+            placedImage.setAttribute('position', `${position.x} ${position.y} ${position.z}`);
+            placedImage.setAttribute('rotation', `${THREE.MathUtils.radToDeg(new THREE.Quaternion(orientation.x, orientation.y, orientation.z, orientation.w).toEuler().x)} ${THREE.MathUtils.radToDeg(new THREE.Quaternion(orientation.x, orientation.y, orientation.z, orientation.w).toEuler().y)} ${THREE.MathUtils.radToDeg(new THREE.Quaternion(orientation.x, orientation.y, orientation.z, orientation.w).toEuler().z)}`);
+
+            if (!placedImage.hasChildNodes()) {
+              // Create and add the image plane if it's the first placement
+              var works = localforage.getItem("works");
+              works.forEach(work=> {
+                  const imageMesh = createImagePlane(work); // Replace with your image
+                  placedImage.object3D.add(imageMesh);
+              })
+            
+            }
+            placedImage.setAttribute('visible', true);
+
+            saveImagePosition(position, orientation);
+          }
+        });
+      }
+
+      // Save position and orientation using localforage
+      function saveImagePosition(position, orientation) {
+        localforage.setItem('arImageX', position.x);
+        localforage.setItem('arImageY', position.y);
+        localforage.setItem('arImageZ', position.z);
+        localforage.setItem('arImageQX', orientation.x);
+        localforage.setItem('arImageQY', orientation.y);
+        localforage.setItem('arImageQZ', orientation.z);
+        localforage.setItem('arImageQW', orientation.w);
+        console.log("AR image position and orientation saved.");
+      }
+
+      // Load position and orientation from localforage
+      function loadImagePosition() {
+        const x = localforage.getItem('arImageX');
+        const y = localforage.getItem('arImageY');
+        const z = localforage.getItem('arImageZ');
+        const qx = localforage.getItem('arImageQX');
+        const qy = localforage.getItem('arImageQY');
+        const qz = localforage.getItem('arImageQZ');
+        const qw = localforage.getItem('arImageQW');
+
+        if (x !== null && y !== null && z !== null && qx !== null && qy !== null && qz !== null && qw !== null) {
+          const position = { x: parseFloat(x), y: parseFloat(y), z: parseFloat(z) };
+          const orientation = { x: parseFloat(qx), y: parseFloat(qy), z: parseFloat(qz), w: parseFloat(qw) };
+
+          // Apply position and rotation to the A-Frame entity
+          placedImage.setAttribute('position', `${position.x} ${position.y} ${position.z}`);
+          placedImage.setAttribute('rotation', `${THREE.MathUtils.radToDeg(new THREE.Quaternion(orientation.x, orientation.y, orientation.z, orientation.w).toEuler().x)} ${THREE.MathUtils.radToDeg(new THREE.Quaternion(orientation.x, orientation.y, orientation.z, orientation.w).toEuler().y)} ${THREE.MathUtils.radToDeg(new THREE.Quaternion(orientation.x, orientation.y, orientation.z, orientation.w).toEuler().z)}`);
+
+          // Add the image plane if it's not already there
+          if (!placedImage.hasChildNodes()) {
+            const imageMesh = createImagePlane('path/to/your/virtual_image.png'); // Replace with your image
+            placedImage.object3D.add(imageMesh);
+          }
+          placedImage.setAttribute('visible', true);
+          console.log("AR image position and orientation loaded.");
+        } else {
+          console.log("No saved AR image position found.");
+        }
+      }
+
+      arButton.addEventListener('click', startAR);
     });
-
-    // Add touch listener to place new art
-    scene.addEventListener("click", () => {
-      if (!reticle.object3D.visible || artPlaced) return;
-
-      const position = reticle.object3D.position;
-      const rotation = reticle.object3D.rotation;
-
-      const artData = {
-        position: {
-          x: position.x,
-          y: position.y,
-          z: position.z,
-        },
-        rotation: {
-          x: rotation.x,
-          y: rotation.y,
-          z: rotation.z,
-        },
-      };
-
-      placeArt(artData);
-      localforage.setItem("artPosition", artData);
-      artPlaced = true;
-    });
-
-    // Function to place art
-    function placeArt(data) {
-      const art = document.createElement("a-plane");
-      art.setAttribute("src", "#artTexture");
-      art.setAttribute("height", "1");
-      art.setAttribute("width", "0.75");
-      art.setAttribute("material", "side: double; transparent: true");
-      art.setAttribute("position", `${data.position.x} ${data.position.y} ${data.position.z}`);
-      art.setAttribute("rotation", `${data.rotation.x} ${data.rotation.y} ${data.rotation.z}`);
-      scene.appendChild(art);
-      localforage.getItem("works").then(w =>
-        w.forEach(work => {
-          document.querySelector("a-assets").innerHTML += '<img src = "' + work + '">'
-        })
-      )
-    }
   </script>
-
-  <!-- Image as asset (could be a data URL!) -->
-
 </body>
 
 </html>
