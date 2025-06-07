@@ -69,7 +69,6 @@
           // Request an immersive AR session
           xrSession = await navigator.xr.requestSession('immersive-ar', {
             requiredFeatures: ['hit-test', 'dom-overlay'], // Request hit-test and DOM overlay for UI
-            optionalFeatures: ['dom-overlay'],
             domOverlay: { presenter: document.body }
           });
           scene.setAttribute('arjs', 'sourceType: webcam;'); // AR.js for camera feed
