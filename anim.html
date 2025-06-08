@@ -571,12 +571,14 @@
                     pointarray.push({ color: color, x: e.clientX, y: e.clientY, lastX: lastX, lastY: lastY })
                 }
                  ctx.strokeStyle = color;
-                ctx.moveTo(lastX, lastY);
                 ctx.beginPath()
+                ctx.moveTo(lastX, lastY);
                 ctx.lineTo(e.clientX, e.clientY)
                 ctx.stroke()
             }
             saveFrame(child)
+            lastX = e.clientX
+            lasty = e.clientY
         }
 
 
