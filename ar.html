@@ -22,10 +22,10 @@
   </style>
 
   <!-- Load Three.js globally -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.174.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
 
-  <!-- Zappar ThreeJS exposes global ZapparThree -->
-  <script src="https://libs.zappar.com/zappar-threejs/2.5.2/zappar-threejs.min.js"></script>
+  <!-- Zappar ThreeJS UMD version (exposes ZapparThree globally) -->
+  <script src="https://libs.zappar.com/zappar-threejs/2.0.4/zappar-threejs.umd.js"></script>
 
   <!-- LocalForage -->
   <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
@@ -35,7 +35,7 @@
   <button id="startButton">Start AR</button>
   <button id="nextButton">Next Artwork</button>
 
-  <!-- Main script (loads last, after all CDNs are defined) -->
+  <!-- Main script -->
   <script>
     const startButton = document.getElementById('startButton');
     const nextButton = document.getElementById('nextButton');
@@ -67,96 +67,123 @@
     }
 
     async function startAR() {
+      console.log("Starting AR...");
       startButton.style.display = 'none';
       nextButton.style.display = 'inline-block';
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.xr.enabled = true;
-      document.body.appendChild(renderer.domElement);
-
-      scene = new THREE.Scene();
-      camera = new ZapparThree.Camera();
-      scene.add(camera);
-
-      const sessionManager = new ZapparThree.SessionManager();
-      sessionManager.start();
-
-      const session = await navigator.xr.requestSession("immersive-ar", {
-        requiredFeatures: ["hit-test"]
-      });
-
-      renderer.xr.setSession(session);
-      refSpace = await session.requestReferenceSpace("viewer");
-      hitTestSource = await session.requestHitTestSource({ space: refSpace });
-
-      anchorGroup = new THREE.Group();
-      scene.add(anchorGroup);
-
-      const urls = await loadArtworks();
-      if (!urls.length) return;
-
-      const loader = new THREE.TextureLoader();
-
-      for (let i = 0; i < urls.length; i++) {
-        const tex = await loader.loadAsync(urls[i]);
-        const mesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(1, 1),
-          new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide })
-        );
-        mesh.visible = false;
-
-        const placement = await loadPlacement(i);
-        if (placement) {
-          mesh.position.fromArray(placement.position);
-          mesh.quaternion.fromArray(placement.quaternion);
-          mesh.visible = true;
+      try {
+        if (!navigator.xr) {
+          alert("WebXR not supported on this device.");
+          return;
         }
 
-        anchorGroup.add(mesh);
-        artworks.push(mesh);
-      }
+        const isSupported = await navigator.xr.isSessionSupported("immersive-ar");
+        if (!isSupported) {
+          alert("Immersive AR not supported.");
+          return;
+        }
 
-      if (artworks[0]) artworks[0].visible = true;
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.xr.enabled = true;
+        document.body.appendChild(renderer.domElement);
 
-      window.addEventListener('click', () => {
-        if (!lastHitPose || !artworks[currentIndex]) return;
-        const mesh = artworks[currentIndex];
-        mesh.position.copy(lastHitPose.position);
-        mesh.quaternion.copy(lastHitPose.quaternion);
-        mesh.visible = true;
-        savePlacement(currentIndex, mesh);
-      });
+        scene = new THREE.Scene();
+        const sessionManager = new ZapparThree.SessionManager();
+        await sessionManager.start();
 
-      nextButton.onclick = () => {
-        artworks[currentIndex].visible = false;
-        currentIndex = (currentIndex + 1) % artworks.length;
-        artworks[currentIndex].visible = true;
-      };
+        camera = new ZapparThree.Camera({ renderer, scene, session: sessionManager });
+        scene.add(camera);
 
-      renderer.setAnimationLoop((_, frame) => {
-        if (frame) {
-          const hits = frame.getHitTestResults(hitTestSource);
-          if (hits.length > 0) {
-            const pose = hits[0].getPose(refSpace);
-            lastHitPose = {
-              position: new THREE.Vector3(
-                pose.transform.position.x,
-                pose.transform.position.y,
-                pose.transform.position.z
-              ),
-              quaternion: new THREE.Quaternion(
-                pose.transform.orientation.x,
-                pose.transform.orientation.y,
-                pose.transform.orientation.z,
-                pose.transform.orientation.w
-              )
-            };
+        const session = await navigator.xr.requestSession("immersive-ar", {
+          requiredFeatures: ["hit-test"]
+        });
+
+        console.log("XR Session started");
+
+        renderer.xr.setSession(session);
+        refSpace = await session.requestReferenceSpace("viewer");
+        hitTestSource = await session.requestHitTestSource({ space: refSpace });
+
+        anchorGroup = new THREE.Group();
+        scene.add(anchorGroup);
+
+        const urls = await loadArtworks();
+        if (!urls.length) {
+          console.warn("No artwork URLs found.");
+          return;
+        }
+
+        const loader = new THREE.TextureLoader();
+
+        for (let i = 0; i < urls.length; i++) {
+          try {
+            const tex = await loader.loadAsync(urls[i]);
+            const mesh = new THREE.Mesh(
+              new THREE.PlaneGeometry(1, 1),
+              new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide })
+            );
+            mesh.visible = false;
+
+            const placement = await loadPlacement(i);
+            if (placement) {
+              mesh.position.fromArray(placement.position);
+              mesh.quaternion.fromArray(placement.quaternion);
+              mesh.visible = true;
+            }
+
+            anchorGroup.add(mesh);
+            artworks.push(mesh);
+          } catch (err) {
+            console.error(`Error loading artwork ${i}:`, err);
           }
         }
 
-        renderer.render(scene, camera);
-      });
+        if (artworks[0]) artworks[0].visible = true;
+
+        window.addEventListener('click', () => {
+          if (!lastHitPose || !artworks[currentIndex]) return;
+          const mesh = artworks[currentIndex];
+          mesh.position.copy(lastHitPose.position);
+          mesh.quaternion.copy(lastHitPose.quaternion);
+          mesh.visible = true;
+          savePlacement(currentIndex, mesh);
+        });
+
+        nextButton.onclick = () => {
+          artworks[currentIndex].visible = false;
+          currentIndex = (currentIndex + 1) % artworks.length;
+          artworks[currentIndex].visible = true;
+        };
+
+        renderer.setAnimationLoop((_, frame) => {
+          if (frame) {
+            const hits = frame.getHitTestResults(hitTestSource);
+            if (hits.length > 0) {
+              const pose = hits[0].getPose(refSpace);
+              lastHitPose = {
+                position: new THREE.Vector3(
+                  pose.transform.position.x,
+                  pose.transform.position.y,
+                  pose.transform.position.z
+                ),
+                quaternion: new THREE.Quaternion(
+                  pose.transform.orientation.x,
+                  pose.transform.orientation.y,
+                  pose.transform.orientation.z,
+                  pose.transform.orientation.w
+                )
+              };
+            }
+          }
+
+          renderer.render(scene, camera);
+        });
+
+      } catch (e) {
+        console.error("Error during startAR:", e);
+        alert("Failed to start AR: " + e.message);
+      }
     }
 
     startButton.onclick = startAR;
