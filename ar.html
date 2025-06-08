@@ -79,8 +79,6 @@ import * as ZapparThree from "https://cdn.jsdelivr.net/npm/@zappar/zappar-threej
     scene = new THREE.Scene();
 
     arCamera = new ZapparThree.Camera();
-    arSessionManager = new ZapparThree.SessionManager();
-    arSessionManager.start();
     scene.add(arCamera);
 
     const dataUrls = await loadArtworks();
@@ -128,7 +126,6 @@ import * as ZapparThree from "https://cdn.jsdelivr.net/npm/@zappar/zappar-threej
     }
 
     const session = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] });
-    arSessionManager.xrSession = session;
     arCamera.updateFrame(session);
 
     const referenceSpace = await session.requestReferenceSpace('viewer');
