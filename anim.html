@@ -217,6 +217,9 @@
 
     </section>
     <script>
+         const brushCanvas = document.createElement("canvas");
+        const brushCtx = brushCanvas.getContext("2d");
+        var paint = 1;
         var child = 0;
         var image = 0;
         let brushImage = new Image();
