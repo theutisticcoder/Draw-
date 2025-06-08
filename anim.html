@@ -220,7 +220,7 @@
         var child = 0;
         var image = 0;
         let brushImage = new Image();
-        brushImage.src = 'oil3.png';
+        brushImage.src = 'oil.png';
         var chunks = [];
         var saver;
         var frame;
@@ -605,7 +605,41 @@
             saveFrame(child)
         }
 
+function interpolateAndDraw(x0, y0, x1, y1) {
+            const distance = Math.hypot(x1 - x0, y1 - y0);
+            const steps = Math.ceil(distance / 5); // Adjust step size for smoothness
 
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = x0 + (x1 - x0) * t;
+                const y = y0 + (y1 - y0) * t;
+                paintStroke(x, y);
+            }
+        }
+         const paintStroke = (x, y) => {
+
+
+
+
+            ctx.globalAlpha = 0.75;
+
+
+            // Draw paint stroke
+            ctx.drawImage(brushCanvas, x - 10, y - 10, lineWidth * 6, lineWidth * 6);
+
+
+
+            // Add highlights (fake light effect)
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            lastX = x;
+            lastY = y;
+
+        }
         var vid;
 
         canvas.addEventListener('mousedown', (e) => {
