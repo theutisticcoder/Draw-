@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>My ArtFusion</title>
   <style>
-    body, html { margin: 0; overflow: hidden; }
-    #startButton, #nextButton {
+    body,
+    html {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #startButton,
+    #nextButton {
       position: absolute;
       z-index: 2;
       top: 10px;
@@ -18,176 +25,185 @@
       cursor: pointer;
       user-select: none;
     }
-    #startButton { left: 10px; }
-    #nextButton { left: 150px; display: none; }
+
+    #startButton {
+      left: 10px;
+    }
+
+    #nextButton {
+      left: 150px;
+      display: none;
+    }
   </style>
 </head>
+
 <body>
 
-<button id="startButton">Start AR</button>
-<button id="nextButton">Next Artwork</button>
+  <button id="startButton">Start AR</button>
+  <button id="nextButton">Next Artwork</button>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-<script type="module">
-  import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.177.0/build/three.module.min.js';
-  import { ZapparThree } from 'https://cdn.jsdelivr.net/npm/@zappar/zappar-threejs@2.5.2/lib/index.min.js';
- 
-  const startButton = document.getElementById('startButton');
-  const nextButton = document.getElementById('nextButton');
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.177.0/build/three.module.min.js';
+    import zapparzapparThreejs from 'https://cdn.jsdelivr.net/npm/@zappar/zappar-threejs@2.5.2/+esm'
 
-  let camera, scene, renderer;
-  let arCamera, arSessionManager;
-  let artworks = [];  // { mesh, index }
-  let currentIndex = 0;
-  let lastHitPose = null;
+    const startButton = document.getElementById('startButton');
+    const nextButton = document.getElementById('nextButton');
 
-  async function savePlacement(index, position, quaternion) {
-    const placement = {
-      position: { x: position.x, y: position.y, z: position.z },
-      quaternion: { x: quaternion.x, y: quaternion.y, z: quaternion.z, w: quaternion.w }
-    };
-    await localforage.setItem(`placement_${index}`, placement).catch(console.error);
-  }
+    let camera, scene, renderer;
+    let arCamera, arSessionManager;
+    let artworks = [];  // { mesh, index }
+    let currentIndex = 0;
+    let lastHitPose = null;
 
-  async function loadPlacement(index) {
-    try {
-      return await localforage.getItem(`placement_${index}`);
-    } catch {
-      return null;
+    async function savePlacement(index, position, quaternion) {
+      const placement = {
+        position: { x: position.x, y: position.y, z: position.z },
+        quaternion: { x: quaternion.x, y: quaternion.y, z: quaternion.z, w: quaternion.w }
+      };
+      await localforage.setItem(`placement_${index}`, placement).catch(console.error);
     }
-  }
 
-  async function loadArtworks() {
-    const dataUrls = await localforage.getItem('works');
-    if (!Array.isArray(dataUrls) || dataUrls.length === 0) {
-      alert('No artworks found in localforage under "works" key or it is not an array!');
-      return [];
+    async function loadPlacement(index) {
+      try {
+        return await localforage.getItem(`placement_${index}`);
+      } catch {
+        return null;
+      }
     }
-    return dataUrls;
-  }
 
-  startButton.onclick = async () => {
-    startButton.style.display = 'none';
-    nextButton.style.display = 'inline-block';
+    async function loadArtworks() {
+      const dataUrls = await localforage.getItem('works');
+      if (!Array.isArray(dataUrls) || dataUrls.length === 0) {
+        alert('No artworks found in localforage under "works" key or it is not an array!');
+        return [];
+      }
+      return dataUrls;
+    }
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
-    document.body.appendChild(renderer.domElement);
+    startButton.onclick = async () => {
+      startButton.style.display = 'none';
+      nextButton.style.display = 'inline-block';
 
-    scene = new THREE.Scene();
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 0);
+      document.body.appendChild(renderer.domElement);
 
-    arCamera = new ZapparThree.Camera();
-    arSessionManager = new ZapparThree.SessionManager();
-    arSessionManager.start();
-    scene.add(arCamera);
+      scene = new THREE.Scene();
 
-    const dataUrls = await loadArtworks();
-    if (dataUrls.length === 0) return;
+      arCamera = new zapparzapparThreejs.Camera();
+      arSessionManager = new zapparzapparThreejs.SessionManager();
+      arSessionManager.start();
+      scene.add(arCamera);
 
-    const textureLoader = new THREE.TextureLoader();
+      const dataUrls = await loadArtworks();
+      if (dataUrls.length === 0) return;
 
-    // Load all artworks and create meshes
-    for (let i = 0; i < dataUrls.length; i++) {
-      await new Promise((resolve) => {
-        textureLoader.load(dataUrls[i], async (texture) => {
-          const mesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(1, 1),
-            new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })
-          );
-          mesh.visible = false;
+      const textureLoader = new THREE.TextureLoader();
 
-          // Try to load saved placement for each artwork
-          const placement = await loadPlacement(i);
-          if (placement) {
-            mesh.position.set(
-              placement.position.x,
-              placement.position.y,
-              placement.position.z
+      // Load all artworks and create meshes
+      for (let i = 0; i < dataUrls.length; i++) {
+        await new Promise((resolve) => {
+          textureLoader.load(dataUrls[i], async (texture) => {
+            const mesh = new THREE.Mesh(
+              new THREE.PlaneGeometry(1, 1),
+              new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })
             );
-            mesh.quaternion.set(
-              placement.quaternion.x,
-              placement.quaternion.y,
-              placement.quaternion.z,
-              placement.quaternion.w
-            );
-            mesh.visible = true;
-          }
+            mesh.visible = false;
 
-          scene.add(mesh);
-          artworks.push({ mesh, index: i });
-          resolve();
+            // Try to load saved placement for each artwork
+            const placement = await loadPlacement(i);
+            if (placement) {
+              mesh.position.set(
+                placement.position.x,
+                placement.position.y,
+                placement.position.z
+              );
+              mesh.quaternion.set(
+                placement.quaternion.x,
+                placement.quaternion.y,
+                placement.quaternion.z,
+                placement.quaternion.w
+              );
+              mesh.visible = true;
+            }
+
+            scene.add(mesh);
+            artworks.push({ mesh, index: i });
+            resolve();
+          });
         });
-      });
-    }
-
-    // Show first artwork mesh if none placed yet
-    if (!artworks.some(a => a.mesh.visible)) {
-      artworks[0].mesh.visible = true;
-    }
-
-    const session = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] });
-    arSessionManager.xrSession = session;
-    arCamera.updateFrame(session);
-
-    const referenceSpace = await session.requestReferenceSpace('viewer');
-    const hitTestSource = await session.requestHitTestSource({ space: referenceSpace });
-
-    session.requestAnimationFrame(onXRFrame);
-
-    // Place or move current artwork on tap
-    window.addEventListener('click', () => {
-      if (!lastHitPose) return;
-      const current = artworks[currentIndex];
-      if (!current) return;
-
-      current.mesh.position.set(lastHitPose.x, lastHitPose.y, lastHitPose.z);
-      current.mesh.quaternion.set(lastHitPose.qx, lastHitPose.qy, lastHitPose.qz, lastHitPose.qw);
-      current.mesh.visible = true;
-      savePlacement(current.index, current.mesh.position, current.mesh.quaternion);
-    });
-
-    // Cycle to next artwork (only visible one at a time)
-    nextButton.onclick = () => {
-      if (artworks.length < 2) return;
-      artworks[currentIndex].mesh.visible = false;
-      currentIndex = (currentIndex + 1) % artworks.length;
-      artworks[currentIndex].mesh.visible = true;
-    };
-
-    function onXRFrame(time, frame) {
-      const session = frame.session;
-      const pose = frame.getViewerPose(referenceSpace);
-
-      if (pose) {
-        const xrViewer = pose.views[0];
-        arCamera.cameraMatrix.fromArray(xrViewer.transform.matrix);
-        arCamera.cameraMatrix.decompose(arCamera.position, arCamera.quaternion, arCamera.scale);
-        arCamera.updateMatrixWorld(true);
-
-        const hitTestResults = frame.getHitTestResults(hitTestSource);
-        if (hitTestResults.length > 0) {
-          const hit = hitTestResults[0];
-          const hitPose = hit.getPose(referenceSpace);
-          if (hitPose) {
-            lastHitPose = {
-              x: hitPose.transform.position.x,
-              y: hitPose.transform.position.y,
-              z: hitPose.transform.position.z,
-              qx: hitPose.transform.orientation.x,
-              qy: hitPose.transform.orientation.y,
-              qz: hitPose.transform.orientation.z,
-              qw: hitPose.transform.orientation.w,
-            };
-          }
-        }
       }
 
-      renderer.render(scene, arCamera);
+      // Show first artwork mesh if none placed yet
+      if (!artworks.some(a => a.mesh.visible)) {
+        artworks[0].mesh.visible = true;
+      }
+
+      const session = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] });
+      arSessionManager.xrSession = session;
+      arCamera.updateFrame(session);
+
+      const referenceSpace = await session.requestReferenceSpace('viewer');
+      const hitTestSource = await session.requestHitTestSource({ space: referenceSpace });
+
       session.requestAnimationFrame(onXRFrame);
-    }
-  };
-</script>
+
+      // Place or move current artwork on tap
+      window.addEventListener('click', () => {
+        if (!lastHitPose) return;
+        const current = artworks[currentIndex];
+        if (!current) return;
+
+        current.mesh.position.set(lastHitPose.x, lastHitPose.y, lastHitPose.z);
+        current.mesh.quaternion.set(lastHitPose.qx, lastHitPose.qy, lastHitPose.qz, lastHitPose.qw);
+        current.mesh.visible = true;
+        savePlacement(current.index, current.mesh.position, current.mesh.quaternion);
+      });
+
+      // Cycle to next artwork (only visible one at a time)
+      nextButton.onclick = () => {
+        if (artworks.length < 2) return;
+        artworks[currentIndex].mesh.visible = false;
+        currentIndex = (currentIndex + 1) % artworks.length;
+        artworks[currentIndex].mesh.visible = true;
+      };
+
+      function onXRFrame(time, frame) {
+        const session = frame.session;
+        const pose = frame.getViewerPose(referenceSpace);
+
+        if (pose) {
+          const xrViewer = pose.views[0];
+          arCamera.cameraMatrix.fromArray(xrViewer.transform.matrix);
+          arCamera.cameraMatrix.decompose(arCamera.position, arCamera.quaternion, arCamera.scale);
+          arCamera.updateMatrixWorld(true);
+
+          const hitTestResults = frame.getHitTestResults(hitTestSource);
+          if (hitTestResults.length > 0) {
+            const hit = hitTestResults[0];
+            const hitPose = hit.getPose(referenceSpace);
+            if (hitPose) {
+              lastHitPose = {
+                x: hitPose.transform.position.x,
+                y: hitPose.transform.position.y,
+                z: hitPose.transform.position.z,
+                qx: hitPose.transform.orientation.x,
+                qy: hitPose.transform.orientation.y,
+                qz: hitPose.transform.orientation.z,
+                qw: hitPose.transform.orientation.w,
+              };
+            }
+          }
+        }
+
+        renderer.render(scene, arCamera);
+        session.requestAnimationFrame(onXRFrame);
+      }
+    };
+  </script>
 
 </body>
+
 </html>
