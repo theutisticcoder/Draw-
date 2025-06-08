@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>My Museum</title>
   <style>
-    html, body { margin: 0; overflow: hidden; }
+    html,
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
     button {
       position: absolute;
       top: 10px;
@@ -17,10 +23,17 @@
       cursor: pointer;
       z-index: 999;
     }
-    #startButton { left: 10px; }
-    #nextButton { left: 130px; display: none; }
-  </style>
 
+    #startButton {
+      left: 10px;
+    }
+
+    #nextButton {
+      left: 130px;
+      display: none;
+    }
+  </style>
+  <script src="https://launchar.app/sdk/v1?key=25q5s4a5yBftUZA8i6SW02na9TlsEbub&redirect=true"></script>
   <!-- Load Three.js globally -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
 
@@ -30,6 +43,7 @@
   <!-- LocalForage -->
   <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 </head>
+
 <body>
 
   <button id="startButton">Start AR</button>
@@ -189,4 +203,5 @@
     startButton.onclick = startAR;
   </script>
 </body>
+
 </html>
