@@ -692,7 +692,6 @@ function interpolateAndDraw(x0, y0, x1, y1) {
 
         });
         canvas.addEventListener('touchstart', (e) => {
-            console.log(e.touches.length)
             if (e.touches.length >= 2) {
                 document.querySelector("#undo").click();
             }
@@ -700,8 +699,8 @@ function interpolateAndDraw(x0, y0, x1, y1) {
                 isPainting = true;
                 color = document.querySelector("#stroke").value;
 
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
+                lastX = e.touches[0].clientX;
+                lastY = e.touches[0].clientY;
             }
         });
         canvas.addEventListener('touchend', e => {
@@ -714,9 +713,6 @@ function interpolateAndDraw(x0, y0, x1, y1) {
                 if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks, anim: imagelist })
             }
-
-            lastX = null;
-            lastY = null;
         });
         function rgbaToHex(r, g, b, a) {
             const rHex = r.toString(16).padStart(2, '0');
