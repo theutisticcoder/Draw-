@@ -528,6 +528,13 @@
             document.getElementById("timeline").appendChild(first);
             restore();
         }
+         const brush = new Image();
+        brush.src = "oil7.png"; // Replace with a better texture if needed
+        brush.onload = function () {
+            brushCanvas.width = brush.width;
+            brushCanvas.height = brush.height;
+            updateBrushColor();
+        };
  function updateBrushColor() {
             brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
             brushCtx.drawImage(brush, 0, 0);
