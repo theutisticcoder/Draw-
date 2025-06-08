@@ -217,7 +217,7 @@
 
     </section>
     <script>
-        const brushCanvas = document.createElement("canvas");
+         const brushCanvas = document.createElement("canvas");
         const brushCtx = brushCanvas.getContext("2d");
         var paint = 1;
         var child = 0;
@@ -528,14 +528,14 @@
             document.getElementById("timeline").appendChild(first);
             restore();
         }
-        const brush = new Image();
+         const brush = new Image();
         brush.src = "oil7.png"; // Replace with a better texture if needed
         brush.onload = function () {
             brushCanvas.width = brush.width;
             brushCanvas.height = brush.height;
             updateBrushColor();
         };
-        function updateBrushColor() {
+ function updateBrushColor() {
             brushCtx.clearRect(0, 0, brushCanvas.width, brushCanvas.height);
             brushCtx.drawImage(brush, 0, 0);
 
@@ -551,12 +551,13 @@
             }
 
             brushCtx.putImageData(imgData, 0, 0);
-        }
-        function draw(e) {
-            draws++
+        }        
+ function draw(e) {
+    draws++
             if (!isPainting) return;
             if (isOil) {
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.15)
                     updateBrushColor();
                     points.forEach(p => {
                         if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
@@ -570,18 +571,12 @@
 
                     pointarray.push({ color: color, x: e.clientX, y: e.clientY, lastX: lastX, lastY: lastY })
                 }
-                 ctx.strokeStyle = color;
-                ctx.beginPath()
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.clientX, e.clientY)
-                ctx.stroke()
+                    interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
             }
-            saveFrame(child)
-            lastX = e.clientX
-            lasty = e.clientY
+                        saveFrame(child)
         }
-
-
+           
+        
         function createBrushTexture() {
             const brushCanvas = document.createElement('canvas');
             brushCanvas.width = 50;
@@ -614,6 +609,7 @@
 
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.15)
                     updateBrushColor();
                     if (modifier < 1) modifier += 0.2;
                     points.forEach(p => {
@@ -624,21 +620,18 @@
 
                 }
                 else {
+
                     points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY, lastX: lastX, lastY: lastY })
                     pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY, lastX: lastX, lastY: lastY })
                 }
-                ctx.strokeStyle = color;
-                ctx.beginPath()
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY)
-                ctx.stroke();
+                interpolateAndDraw(lastX, lastY, e.touches[0].clientX, e.touches[0].clientY);
             }
-
-
+        
+ 
             saveFrame(child)
         }
 
-        function interpolateAndDraw(x0, y0, x1, y1) {
+function interpolateAndDraw(x0, y0, x1, y1) {
             const distance = Math.hypot(x1 - x0, y1 - y0);
             const steps = Math.ceil(distance / 5); // Adjust step size for smoothness
 
@@ -649,7 +642,7 @@
                 paintStroke(x, y);
             }
         }
-        const paintStroke = (x, y) => {
+         const paintStroke = (x, y) => {
 
 
 
