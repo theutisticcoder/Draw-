@@ -526,91 +526,31 @@
             restore();
         }
         var paint = 1;
-        const draw = (e) => {
-
-            draws++;
-            if (!isPainting) {
-                return;
-            }
+ function draw(e) {
+    draws++
+            if (!isPainting) return;
             if (isOil) {
-
                 if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.6)
-                    if (modifier < 1) modifier += 0.2;
-
-                    points.push({ color: color, x: e.clientX, y: e.clientY })
-                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
-                }
-                else {
-                    points.push({ color: color, x: e.clientX, y: e.clientY })
-                    modifier = 0.2;
-
-                }
-                if (lasttouch) {
-
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
-                        if (i === 14 * lineWidth || i === 15 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) - 70);
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.bezierCurveTo(e.clientX + 1 + i, e.clientY + 1, e.clientX + 2 + i, e.clientY + 2, e.clientX + i, e.clientY);
-                            ctx.stroke();
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.clientX)].color, 0.15)
+                    updateBrushColor();
+                    points.forEach(p => {
+                        if (points.findIndex(x => x.x === e.clientX) === p.x && points.findIndex(y => y.y === e.clientY) === p.y) {
+                            p.color = color;
                         }
-                        else if (i === 5 * lineWidth) {
-                            ctx.beginPath();
-
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) + 20);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.bezierCurveTo(e.clientX + 1 + i, e.clientY + 1, e.clientX + 2 + i, e.clientY + 2, e.clientX + i, e.clientY);
-                            ctx.stroke();
-                        }
-
-                        else if (i % (3 * lineWidth) === 0) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) + 25);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.bezierCurveTo(e.clientX + 1 + i, e.clientY + 1, e.clientX + 2 + i, e.clientY + 2, e.clientX + i, e.clientY);
-                            ctx.stroke();
-
-                        }
-                        else if ((i - lineWidth) % (3 * lineWidth) === 0) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) + 10);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.bezierCurveTo(e.clientX + 1 + i, e.clientY + 1, e.clientX + 2 + i, e.clientY + 2, e.clientX + i, e.clientY);
-                            ctx.stroke();
-
-                        }
-                        else {
-                            ctx.beginPath();
-
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) - 15);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.bezierCurveTo(e.clientX + 1 + i, e.clientY + 1, e.clientX + 2 + i, e.clientY + 2, e.clientX + i, e.clientY);
-                            ctx.stroke();
-                        }
-                    }
+                    })
 
                 }
                 else {
-                    ctx.moveTo(e.clientX, e.clientY);
-                }
-                lasttouch = { clientX: e.clientX, clientY: e.clientY }
-                saveFrame(clicked);
+                    points.push({ color: color, x: e.clientX, y: e.clientY, lastX: lastX, lastY: lastY })
 
+                    pointarray.push({ color: color, x: e.clientX, y: e.clientY, lastX: lastX, lastY: lastY })
+                }
+                interpolateAndDraw(lastX, lastY, e.clientX, e.clientY);
             }
-            else {
-                ctx.lineWidth = lineWidth * 1.3;
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.stroke();
-            }
-            saveFrame(child)
+                        saveFrame(child)
         }
+           
+        
         function createBrushTexture() {
             const brushCanvas = document.createElement('canvas');
             brushCanvas.width = 50;
@@ -637,88 +577,31 @@
         var recorder = new MediaRecorder(stream, { mimeType: "video/mp4" });
 
         recorder.ondataavailable = handleDataAvailable;
-        const draw2 = (e) => {
+        function draw2(e) {
             draws++;
+            if (!isPainting) return;
 
-            if (!isPainting) {
-                return;
-            }
             if (isOil) {
                 if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.6)
+                    color = lerpColor(color, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.15)
+                    updateBrushColor();
                     if (modifier < 1) modifier += 0.2;
-
-
-                }
-
-                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-                pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-
-
-                if (lasttouch) {
-
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth / 2) {
-                        if (i === 2 * lineWidth || i === 4 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) - 70);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
+                    points.forEach(p => {
+                        if (points.findIndex(x => x.x === e.touches[0].clientX) === p.x && points.findIndex(y => y.y === e.touches[0].clientY) === p.y) {
+                            p.color = color;
                         }
-                        else if (i === 5 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) + 20);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-
-                        }
-                        else if (i % (3 * lineWidth) === 0) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) + 25);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-
-                        }
-                        else if ((i - lineWidth) % (3 * lineWidth) === 0) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, Math.floor(Math.random() * 30) + 10);
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-
-                        }
-                        else {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, (Math.floor(Math.random() * 30) - 15));
-                            ctx.lineWidth = lineWidth * 1.3;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-                        }
-                        saveFrame(clicked);
-                    }
+                    })
 
                 }
                 else {
 
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
-
-
+                    points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY, lastX: lastX, lastY: lastY })
+                    pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY, lastX: lastX, lastY: lastY })
                 }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
-
+                interpolateAndDraw(lastX, lastY, e.touches[0].clientX, e.touches[0].clientY);
             }
-            else {
-                ctx.lineWidth = lineWidth * 1.3;
-                ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
-                ctx.stroke();
-            }
+        
+ 
             saveFrame(child)
         }
 
