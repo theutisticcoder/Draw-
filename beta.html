@@ -1,527 +1,106 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Oil Paint Studio — Realistic Painting Simulation</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root{
-      --bg:#121212;
-      --panel:#1b1b1b;
-      --ink:#eaeaea;
-      --muted:#a9a9a9;
-      --accent:#e3b567;
-      --accent-2:#8a5a44;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; background:radial-gradient(1200px 800px at 20% -10%, #1f1a14 0%, transparent 60%), var(--bg);
-      color:var(--ink); font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-    }
-    header{
-      position:sticky; top:0; z-index:10; backdrop-filter: blur(8px);
-      background:rgba(18,18,18,.7); border-bottom:1px solid #262626;
-    }
-    .wrap{max-width:1200px; margin:auto; padding:10px 16px}
-    .brand{display:flex; align-items:center; gap:12px}
-    .brand__dot{width:12px; height:12px; border-radius:50%; background:conic-gradient(#e8d8b8, #b88b5a, #8a5a44, #e8d8b8); box-shadow:0 0 0 2px #3a2d1e inset}
-    .grid{
-      display:grid; grid-template-columns: 320px 1fr; gap:16px; align-items:start; padding:16px;
-      max-width:1200px; margin:0 auto;
-    }
-    @media (max-width: 980px){
-      .grid{grid-template-columns: 1fr}
-    }
+function drawTo(x,y){
+    // --- START: Changes ---
+    // Convert normalized coordinates (0-1) to pixel coordinates for accurate distance calculation
+    const currentPixel = { x: x * paint.width, y: y * paint.height };
+    const lastPixel = last ? { x: last[0] * paint.width, y: last[1] * paint.height } : null;
+    // --- END: Changes ---
 
-    /* Controls panel */
-    .panel{
-      background:var(--panel); border:1px solid #262626; border-radius:12px; padding:12px;
-      position:sticky; top:72px;
-    }
-    .section{margin-bottom:14px; padding-bottom:12px; border-bottom:1px dashed #2d2d2d}
-    .section:last-child{border-bottom:none; margin-bottom:0}
-    .row{display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; margin:8px 0}
-    .label{color:var(--muted)}
-    input[type="range"]{width:160px}
-    input[type="color"]{
-      -webkit-appearance:none; appearance:none; border:none; width:36px; height:28px; border-radius:6px; padding:0; background:transparent
-    }
-    .swatches{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
-    .swatch{
-      width:26px; height:26px; border-radius:6px; border:1px solid #333; cursor:pointer; box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)
-    }
-    .tools{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
-    button, .btn{
-      background:#242424; color:#e8e8e8; border:1px solid #333; padding:8px 10px; border-radius:8px; cursor:pointer;
-    }
-    button:hover{border-color:#444}
-    .btn-primary{background:linear-gradient(#8a5a44,#6e4536); border-color:#5a392e}
-    .btn-danger{background:linear-gradient(#3a2420,#2b1a17); border-color:#3a2020}
-    .hint{color:#8e8e8e; font-size:12px}
+    const s = parseFloat(sizeEl.value)*pixelRatio;
+    const flow = parseFloat(flowEl.value)/100; // coverage
+    const wet = parseFloat(wetEl.value)/100;   // mixing
+    const imp = parseFloat(impEl.value)/100;   // height
+    const [br, bg, bb] = hexToRgb(colorEl.value);
 
-    /* Canvas area */
-    .stage{
-      background:repeating-linear-gradient(45deg, #1c1c1c, #1c1c1c 12px, #191919 12px, #191919 24px);
-      border:1px solid #262626; border-radius:12px; position:relative; overflow:hidden; min-height:360px;
-    }
-    .canvas-wrap{
-      position:relative; width:100%; height:70vh; min-height:420px; max-height:78vh;
-    }
-    canvas{
-      position:absolute; inset:0; width:100%; height:100%; image-rendering: auto;
-    }
-    .footer{
-      display:flex; justify-content:space-between; align-items:center; color:#bdbdbd; font-size:12px; padding:10px 16px
-    }
-    .kbd{
-      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; border:1px solid #333; border-bottom-color:#222;
-      background:#1d1d1d; padding:0 6px; border-radius:6px; font-size:12px; color:#ddd
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="wrap brand">
-      <div class="brand__dot" aria-hidden="true"></div>
-      <div>
-        <div style="font-weight:700; letter-spacing:.2px">Oil Paint Studio</div>
-        <div class="hint">Realistic oil brush, smudge, impasto, and lighting</div>
-      </div>
-    </div>
-  </header>
+    const tool = toolEl.value;
+    // --- START: Changes ---
+    // Calculate distance in pixels, not normalized units. This is the key fix.
+    const dist = lastPixel ? Math.hypot(currentPixel.x - lastPixel.x, currentPixel.y - lastPixel.y) : 0;
+    // Now that 'dist' is in pixels, this calculation correctly determines how many dabs are needed to fill the gap.
+    const steps = 1 + ((dist/(s*0.35))|0);
+    // --- END: Changes ---
 
-  <main class="grid">
-    <aside class="panel" aria-label="Controls">
-      <div class="section">
-        <div class="row">
-          <div class="label">Color</div>
-          <input id="color" type="color" value="#a0462c" />
-        </div>
-        <div class="swatches" id="swatches"></div>
-      </div>
+    for(let i=1;i<=steps;i++){
+      // The interpolation itself is still done with normalized coordinates, which is correct.
+      const t = i/steps;
+      const tx = last? lerp(last[0], x, t) : x;
+      const ty = last? lerp(last[1], y, t) : y;
+      const px = (tx*paint.width)|0, py = (ty*paint.height)|0; // centers in px
+      const r = (s/2)|0; const dSize = (r*2)|0;
 
-      <div class="section">
-        <div class="row">
-          <div class="label">Brush Size</div>
-          <input id="size" type="range" min="4" max="120" value="50" />
-        </div>
-        <div class="row">
-          <div class="label">Bristle Density</div>
-          <input id="hairs" type="range" min="50" max="900" value="420" />
-        </div>
-        <div class="row">
-          <div class="label">Paint Load</div>
-          <input id="load" type="range" min="0" max="1" step="0.01" value="0.65" />
-        </div>
-        <div class="row">
-          <div class="label">Smudge Strength</div>
-          <input id="smudge" type="range" min="0" max="1" step="0.01" value="0.55" />
-        </div>
-        <div class="row">
-          <div class="label">Viscosity / Thickness</div>
-          <input id="visc" type="range" min="0" max="1" step="0.01" value="0.6" />
-        </div>
-        <div class="row">
-          <div class="label">Knife Mode</div>
-          <input id="knife" type="checkbox" />
-        </div>
-        <div class="tools">
-          <button id="undo" title="Undo (Ctrl+Z)"><span>Undo</span></button>
-          <button id="redo" title="Redo (Ctrl+Shift+Z)"><span>Redo</span></button>
-          <button id="clear" class="btn-danger" title="Clear canvas"><span>Clear</span></button>
-          <button id="save" class="btn-primary" title="Save PNG"><span>Save</span></button>
-        </div>
-      </div>
+      // Create dab
+      const dab = bristleMask; // already sized ~s
 
-      <div class="section">
-        <div class="row">
-          <div class="label">Light Azimuth</div>
-          <input id="az" type="range" min="-180" max="180" value="35" />
-        </div>
-        <div class="row">
-          <div class="label">Light Elevation</div>
-          <input id="el" type="range" min="5" max="85" value="35" />
-        </div>
-        <div class="row">
-          <div class="label">Specular</div>
-          <input id="spec" type="range" min="0" max="1" step="0.01" value="0.6" />
-        </div>
-        <div class="tools">
-          <button id="relight">Relight</button>
-        </div>
-      </div>
+      if(tool==='brush'){
+        ctxP.save();
+        // Mix existing pixels underneath by drawing lighter on alpha, then tint
+        // Draw the colored dab to a temp canvas to control alpha
+        const temp = document.createElement('canvas'); temp.width=dab.width; temp.height=dab.height; const tc=temp.getContext('2d');
+        tc.drawImage(dab,0,0);
+        // tint
+        tc.globalCompositeOperation='source-in'; tc.fillStyle=`rgba(${br},${bg},${bb},${flow})`; tc.fillRect(0,0,temp.width,temp.height);
 
-      <div class="section hint">
-        Tips: slower strokes increase pressure; toggle knife for crisp scrapes; use Relight after big passes for best highlights.
-      </div>
-    </aside>
+        // color pickup: read small sample at center and blend into brush color (wetness)
+        const sampleSize = Math.max(2, (s*0.25)|0);
+        try{
+          const sample = ctxP.getImageData(px-sampleSize/2, py-sampleSize/2, sampleSize, sampleSize).data;
+          let sr=0, sg=0, sb=0, count=0; for(let k=0;k<sample.length;k+=4){ const a=sample[k+3]/255; sr += sample[k]*a; sg += sample[k+1]*a; sb += sample[k+2]*a; count+=a; }
+          if(count>0){ sr/=count; sg/=count; sb/=count; pickupColor=[sr,sg,sb]; }
+        }catch(e){}
+        const mr = lerp(br, pickupColor[0], wet), mg = lerp(bg, pickupColor[1], wet), mb = lerp(bb, pickupColor[2], wet);
+        // retint with mixed color
+        tc.globalCompositeOperation='source-in'; tc.fillStyle=`rgba(${mr|0},${mg|0},${mb|0},1)`; tc.fillRect(0,0,temp.width,temp.height);
 
-    <section aria-label="Canvas" class="stage">
-      <div class="canvas-wrap" id="canvasWrap">
-        <!-- Paint (color), Height (impasto), Shading overlay, Composite display -->
-        <canvas id="paint"></canvas>
-        <canvas id="height"></canvas>
-        <canvas id="shade"></canvas>
-        <canvas id="display"></canvas>
-      </div>
-      <div class="footer">
-        <div>Hold <span class="kbd">Space</span> to pan • <span class="kbd">Ctrl</span> + wheel to zoom • <span class="kbd">Ctrl+Z</span> undo</div>
-        <div>© <span id="year"></span> Oil Paint Studio</div>
-      </div>
-    </section>
-  </main>
+        // lay paint
+        ctxP.globalAlpha = 1; ctxP.globalCompositeOperation='source-over';
+        ctxP.drawImage(temp, px-r, py-r, dSize, dSize);
+        ctxP.restore();
 
-  <script>
-  (() => {
-    const paint = document.getElementById('paint');
-    const height = document.getElementById('height');
-    const shade = document.getElementById('shade');
-    const display = document.getElementById('display');
-    const wrap = document.getElementById('canvasWrap');
-    const W0 = 1100, H0 = 700;
+        // raise height map (impasto). We fake via soft highlight + shadow into height canvas
+        ctxH.save();
+        ctxH.globalCompositeOperation='source-over';
+        // positive bump
+        ctxH.filter = 'blur(0.5px)';
+        ctxH.fillStyle = `rgba(255,255,255,${imp*0.5})`;
+        ctxH.beginPath(); ctxH.arc(px,py,r*0.85,0,Math.PI*2); ctxH.fill();
+        // slight trough around
+        ctxH.globalCompositeOperation='destination-out';
+        ctxH.beginPath(); ctxH.arc(px,py,r,0,Math.PI*2); ctxH.lineWidth = r*0.25; ctxH.stroke();
+        ctxH.restore();
 
-    const ctxP = paint.getContext('2d', { alpha: true });
-    const ctxH = height.getContext('2d', { alpha: true });
-    const ctxS = shade.getContext('2d', { alpha: true });
-    const ctxD = display.getContext('2d', { alpha: true });
-
-    // UI
-    const ui = {
-      color: document.getElementById('color'),
-      size: document.getElementById('size'),
-      hairs: document.getElementById('hairs'),
-      load: document.getElementById('load'),
-      smudge: document.getElementById('smudge'),
-      visc: document.getElementById('visc'),
-      knife: document.getElementById('knife'),
-      undo: document.getElementById('undo'),
-      redo: document.getElementById('redo'),
-      clear: document.getElementById('clear'),
-      save: document.getElementById('save'),
-      az: document.getElementById('az'),
-      el: document.getElementById('el'),
-      spec: document.getElementById('spec'),
-      relight: document.getElementById('relight'),
-      swatches: document.getElementById('swatches')
-    };
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Swatches (basic warm/cool palette)
-    const SW = [
-      '#2d2d2d','#ffffff',
-      '#6b8aba','#1b3a65','#0e223a',
-      '#b83a2d','#a0462c','#8a5a44',
-      '#c9ad7b','#937a48','#5d4a2a',
-      '#4a7a46','#2e5a2c','#183818'
-    ];
-    SW.forEach(c => {
-      const b = document.createElement('button');
-      b.className='swatch'; b.style.background=c; b.title=c;
-      b.addEventListener('click', ()=> ui.color.value = toHex(parseColor(c)));
-      ui.swatches.appendChild(b);
-    });
-
-    // Canvas sizing + zoom/pan
-    let scale = 1, offX = 0, offY = 0, panning = false, lastPan = null;
-    const setSize = () => {
-      const r = wrap.getBoundingClientRect();
-      const ratio = Math.min(r.width / W0, r.height / H0);
-      scale = ratio;
-      [paint, height, shade, display].forEach(cv => {
-        cv.width = W0; cv.height = H0;
-        cv.style.transformOrigin='0 0';
-        cv.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
-      });
-      redraw();
-    };
-    new ResizeObserver(setSize).observe(wrap);
-
-    // State
-    const state = {
-      drawing: false,
-      knife: false,
-      brushStamp: null,
-      brushStampMask: null,
-      brushColor: [160,70,44],
-      brushLoad: 0.65,
-      smudge: 0.55,
-      viscosity: 0.6,
-      hairs: 420,
-      size: 50,
-      last: null,
-      light: { az: deg2rad(35), el: deg2rad(35), spec: 0.6 },
-      strokeBBox: null
-    };
-
-    // Undo/Redo
-    const stack = []; let idx = -1; const MAX = 15;
-    function pushState() {
-      // Store both layers
-      const p = paint.toDataURL('image/png');
-      const h = height.toDataURL('image/png');
-      stack.splice(idx+1);
-      stack.push({p,h});
-      if (stack.length > MAX) stack.shift();
-      idx = stack.length - 1;
-      updateUndoRedo();
-    }
-    function updateUndoRedo(){
-      ui.undo.disabled = idx<=0;
-      ui.redo.disabled = idx>=stack.length-1;
-    }
-    function restore(snapshot){
-      return new Promise(resolve=>{
-        const ip = new Image(), ih = new Image(); let got=0;
-        ip.onload = ()=>{ctxP.clearRect(0,0,W0,H0); ctxP.drawImage(ip,0,0); if(++got===2){relight(); resolve();}};
-        ih.onload = ()=>{ctxH.clearRect(0,0,W0,H0); ctxH.drawImage(ih,0,0); if(++got===2){relight(); resolve();}};
-        ip.src = snapshot.p; ih.src = snapshot.h;
-      });
-    }
-
-    // Utilities
-    function deg2rad(d){return d*Math.PI/180}
-    function clamp(v,a,b){return Math.max(a, Math.min(b, v))}
-    function lerp(a,b,t){return a+(b-a)*t}
-    function parseColor(hex){
-      if (hex.startsWith('#')) {
-        const s = hex.length===4 ? hex.replace(/./g, m => m+m) : hex;
-        const n = parseInt(s.slice(1),16);
-        return [(n>>16)&255, (n>>8)&255, n&255];
-      }
-      // rgb(...)
-      const m = hex.match(/\d+/g).map(Number); return m.slice(0,3);
-    }
-    function toHex([r,g,b]){
-      const h = (n)=> n.toString(16).padStart(2,'0');
-      return `#${h(r)}${h(g)}${h(b)}`
-    }
-
-    // Brush creation (grayscale mask + tinted stamp)
-    function makeBrush(size, hairs){
-      const cvs = document.createElement('canvas'); cvs.width = cvs.height = size*2;
-      const ctx = cvs.getContext('2d');
-      ctx.clearRect(0,0,cvs.width,cvs.height);
-      ctx.fillStyle='rgba(255,255,255,.9)';
-      const r = size*0.5, cx = size, cy = size;
-      // Random bristle tips as elongated ovals
-      for(let i=0;i<hairs;i++){
-        const a = Math.random()*Math.PI*2;
-        const rr = Math.sqrt(Math.random())*r;
-        const x = cx + Math.cos(a)*rr + (Math.random()-0.5)*2;
-        const y = cy + Math.sin(a)*rr + (Math.random()-0.5)*2;
-        const w = 0.7 + Math.random()*1.8;
-        const h = w * (1.5 + Math.random()*2.5);
-        ctx.save();
-        ctx.translate(x,y);
-        ctx.rotate(a + (Math.random()-0.5)*0.6);
-        roundRect(ctx, -w/2, -h/2, w, h, w/2);
-        ctx.fill();
-        ctx.restore();
-      }
-      // Soft fringe
-      const grad = ctx.createRadialGradient(cx,cy, r*0.5, cx,cy, r*1.2);
-      grad.addColorStop(0,'rgba(255,255,255,0)');
-      grad.addColorStop(1,'rgba(255,255,255,.25)');
-      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(cx,cy,r*1.2,0,Math.PI*2); ctx.fill();
-      return cvs;
-    }
-    function tintBrush(maskCanvas, color){
-      // tint by drawing color then masking with destination-in
-      const cvs = document.createElement('canvas'); cvs.width = maskCanvas.width; cvs.height = maskCanvas.height;
-      const ctx = cvs.getContext('2d');
-      ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
-      ctx.fillRect(0,0,cvs.width,cvs.height);
-      ctx.globalCompositeOperation='destination-in';
-      ctx.drawImage(maskCanvas,0,0);
-      ctx.globalCompositeOperation='source-over';
-      return cvs;
-    }
-    function roundRect(ctx,x,y,w,h,r){ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();}
-
-    // Sampling helper to average a small area color
-    function sampleAvgColor(x,y,rad){
-      const sx = clamp(Math.floor(x - rad),0,W0-1),
-            sy = clamp(Math.floor(y - rad),0,H0-1),
-            ex = clamp(Math.ceil(x + rad),0,W0),
-            ey = clamp(Math.ceil(y + rad),0,H0);
-      const w = ex - sx, h = ey - sy;
-      if (w<=0 || h<=0) return [0,0,0];
-      const img = ctxP.getImageData(sx,sy,w,h).data;
-      let r=0,g=0,b=0,count=0;
-      for(let i=0;i<img.length;i+=4){ r+=img[i]; g+=img[i+1]; b+=img[i+2]; count++; }
-      return [r/count|0, g/count|0, b/count|0];
-    }
-
-    // Painting
-    function beginStroke(pt, pressure=0.5){
-      state.drawing = true;
-      state.last = pt;
-      state.brushColor = parseColor(ui.color.value);
-      state.brushLoad = parseFloat(ui.load.value);
-      state.smudge = parseFloat(ui.smudge.value);
-      state.viscosity = parseFloat(ui.visc.value);
-      state.hairs = parseInt(ui.hairs.value,10);
-      state.size = parseInt(ui.size.value,10);
-      state.knife = ui.knife.checked;
-      state.brushStampMask = makeBrush(state.size, state.hairs);
-      state.brushStamp = tintBrush(state.brushStampMask, state.brushColor);
-      state.strokeBBox = {x:pt.x, y:pt.y, x2:pt.x, y2:pt.y};
-      // immediate pigment load: blend with local average for more natural first touch
-      const pick = sampleAvgColor(pt.x, pt.y, state.size*0.25);
-      state.brushColor = mixColor(state.brushColor, pick, state.smudge*0.5);
-      state.brushStamp = tintBrush(state.brushStampMask, state.brushColor);
-    }
-    function mixColor(a,b,t){
-      return [lerp(a[0],b[0],t)|0, lerp(a[1],b[1],t)|0, lerp(a[2],b[2],t)|0];
-    }
-    function extendBBox(x,y){
-      const b = state.strokeBBox;
-      b.x = Math.min(b.x, x - state.size), b.y = Math.min(b.y, y - state.size);
-      b.x2 = Math.max(b.x2, x + state.size), b.y2 = Math.max(b.y2, y + state.size);
-    }
-    function strokeTo(pt, pressure=0.5){
-      const dx = pt.x - state.last.x, dy = pt.y - state.last.y;
-      const dist = Math.hypot(dx,dy);
-      const steps = Math.max(1, Math.floor(dist / (state.size*0.18)));
-      for(let i=1;i<=steps;i++){
-        const t = i/steps;
-        const x = state.last.x + dx*t, y = state.last.y + dy*t;
-        const v = clamp(dist/steps, 0, 12); // velocity proxy
-        const press = clamp(pressure || (1 - v/12), 0.1, 1);
-        if (state.knife) knifeDab(x,y,press);
-        else paintDab(x,y,press);
-        extendBBox(x,y);
-      }
-      state.last = pt;
-      // quick live composite (paint only during stroke for performance)
-      quickComposite();
-    }
-    function endStroke(){
-      state.drawing = false;
-      relight(state.strokeBBox);
-      pushState();
-    }
-    function paintDab(x,y,press){
-      // smudge: pick from canvas -> update brush color a bit
-      const pick = sampleAvgColor(x,y, state.size*0.2);
-      state.brushColor = mixColor(state.brushColor, pick, state.smudge*0.35);
-      state.brushStamp = tintBrush(state.brushStampMask, state.brushColor);
-
-      // deposit: influenced by load and pressure
-      const alpha = clamp(state.brushLoad*press*0.85 + 0.05, 0.02, 0.95);
-      ctxP.globalAlpha = alpha;
-      ctxP.globalCompositeOperation='source-over';
-      ctxP.drawImage(state.brushStamp, x - state.size, y - state.size);
-
-      // height (impasto)
-      const hAlpha = clamp(state.viscosity * press * 0.55 + 0.05, 0, 0.8);
-      ctxH.globalAlpha = hAlpha;
-      ctxH.globalCompositeOperation='source-over';
-      // use the mask (grayscale) as thickness deposit
-      ctxH.drawImage(state.brushStampMask, x - state.size, y - state.size);
-      ctxH.globalAlpha = 1;
-    }
-    function knifeDab(x,y,press){
-      // knife smudges color (drag) and scrapes height (reduce)
-      const rad = state.size*0.6;
-      // Blur/drag color slightly along direction by sampling and redrawing
-      const img = ctxP.getImageData(
-        clamp(Math.floor(x-rad),0,W0-1),
-        clamp(Math.floor(y-rad),0,H0-1),
-        Math.ceil(rad*2), Math.ceil(rad*2)
-      );
-      // Simple directional smear towards movement
-      const dirx = x - state.last.x, diry = y - state.last.y;
-      const len = Math.hypot(dirx,diry)||1; const nx = dirx/len, ny = diry/len;
-      const w = img.width, h = img.height, d = img.data, shift = (nx+ny)*2;
-      for(let yy=0; yy<h; yy++){
-        for(let xx=0; xx<w; xx++){
-          const srcX = clamp(Math.round(xx - nx*shift), 0, w-1);
-          const srcY = clamp(Math.round(yy - ny*shift), 0, h-1);
-          const si = (srcY*w+srcX)*4, i = (yy*w+xx)*4;
-          d[i]=d[si]; d[i+1]=d[si+1]; d[i+2]=d[si+2];
+      } else if(tool==='knife'){
+        // Drag paint in the movement direction (like a smear) and flatten height
+        if(last){
+          const dx = x-last[0], dy = y-last[1];
+          const len = Math.hypot(dx,dy)||1; const nx=dx/len, ny=dy/len;
+          const w = s*1.2, l = s*1.8;
+          const sx = (last[0]*paint.width - w/2)|0; const sy = (last[1]*paint.height - l/2)|0;
+          const sw = (w)|0; const sh=(l)|0;
+          try{
+            const slice = ctxP.getImageData(sx,sy,sw,sh);
+            // simple directional smear by shifting rows/cols
+            for(let row=0; row<sh; row++){
+              const offset = ((row*nx+row*ny)|0); // crude but fast
+            }
+            // Draw the slice slightly offset in motion direction to create smear
+            ctxP.putImageData(slice, sx + (dx*pixelRatio)|0, sy + (dy*pixelRatio)|0);
+          }catch(e){}
+          // flatten
+          ctxH.save(); ctxH.globalAlpha = .6; ctxH.globalCompositeOperation='destination-out';
+          ctxH.beginPath(); ctxH.ellipse(px,py, s*0.6, s*0.25, Math.atan2(dy,dx), 0, Math.PI*2); ctxH.fill(); ctxH.restore();
         }
+      } else if(tool==='smudge'){
+        // pick up and re-apply color (no new pigment)
+        try{
+          const area = ctxP.getImageData(px-r,py-r,dSize,dSize);
+          ctxP.putImageData(area, px-r + ((x-(last?.[0]??x))*pixelRatio)|0, py-r + ((y-(last?.[1]??y))*pixelRatio)|0);
+        }catch(e){}
+        // slight height blur
+        ctxH.save(); ctxH.filter='blur(1.2px)'; ctxH.globalAlpha=.6; ctxH.drawImage(height, px-r,py-r,dSize,dSize, px-r,py-r,dSize,dSize); ctxH.restore();
+      } else if(tool==='eraser'){
+        ctxP.save(); ctxP.globalCompositeOperation='destination-out'; ctxP.drawImage(dab, px-r, py-r, dSize, dSize); ctxP.restore();
+        ctxH.save(); ctxH.globalCompositeOperation='destination-out'; ctxH.drawImage(dab, px-r, py-r, dSize, dSize); ctxH.restore();
       }
-      ctxP.putImageData(img, clamp(Math.floor(x-rad),0,W0-1), clamp(Math.floor(y-rad),0,H0-1));
-
-      // Scrape height by eroding alpha in the area
-      ctxH.save();
-      ctxH.globalCompositeOperation='destination-out';
-      ctxH.globalAlpha = clamp(0.35*press,0,1);
-      ctxH.beginPath(); ctxH.arc(x,y, rad, 0, Math.PI*2); ctxH.fill();
-      ctxH.restore();
     }
-
-    function quickComposite(){
-      ctxD.clearRect(0,0,W0,H0);
-      ctxD.drawImage(paint,0,0);
-      // draw last known shading on top (so highlights remain visible)
-      ctxD.globalCompositeOperation='overlay';
-      ctxD.drawImage(shade,0,0);
-      ctxD.globalCompositeOperation='source-over';
-    }
-
-    // Lighting — compute shading from height normals
-    function relight(rect){
-      // read height map
-      const src = ctxH.getImageData(0,0,W0,H0);
-      const d = src.data;
-      const out = ctxS.createImageData(W0,H0);
-      const o = out.data;
-      const az = parseFloat(ui.az.value), el = parseFloat(ui.el.value);
-      const L = sph2vec(deg2rad(az), deg2rad(el));
-      const specPow = lerp(10, 60, parseFloat(ui.spec.value));
-
-      // iterate
-      for(let y=1; y<H0-1; y++){
-        for(let x=1; x<W0-1; x++){
-          const i = (y*W0 + x)<<2;
-          // derive "height" from alpha (0..1)
-          const hL = d[i-4+3]/255, hR = d[i+4+3]/255, hT = d[i-(W0<<2)+3]/255, hB = d[i+(W0<<2)+3]/255;
-          const sx = (hR - hL);
-          const sy = (hB - hT);
-          const nx = -sx, ny = -sy, nz = 1.0;
-          const invLen = 1/Math.hypot(nx,ny,nz);
-          const Nx = nx*invLen, Ny = ny*invLen, Nz = nz*invLen;
-
-          const diff = clamp(Nx*L.x + Ny*L.y + Nz*L.z, 0, 1); // Lambert
-          // simple specular facing camera (0,0,1)
-          const Rz = clamp(2*diff*Nz - L.z, -1, 1);
-          const spec = Math.pow(Math.max(0, Rz), specPow);
-
-          // map to neutral gray (128) + highlight and shadow
-          const shadeVal = clamp(128 + (diff-0.5)*90 + spec*90, 0, 255)|0;
-          o[i]=o[i+1]=o[i+2]=shadeVal; o[i+3]=180; // semi-opaque overlay
-        }
-      }
-      ctxS.putImageData(out,0,0);
-
-      // composite full
-      ctxD.clearRect(0,0,W0,H0);
-      ctxD.drawImage(paint,0,0);
-      ctxD.globalCompositeOperation='overlay';
-      ctxD.drawImage(shade,0,0);
-      ctxD.globalCompositeOperation='source-over';
-    }
-    function sph2vec(az, el){
-      const x = Math.cos(el)*Math.cos(az);
-      const y = Math.cos(el)*Math.sin(az);
-      const z = Math.sin(el);
-      return {x,y,z};
-    }
-
-    // Events
-    function toCanvasPoint(e){
-      const rect = display.getBoundingClientRect();
-      const x = (e.clientX - rect.left - offX)/scale;
-      const y = (e.clientY - rect.top - offY)/scale;
-      return {x:clamp(x,0,W0-1), y:clamp(y,0,H0-1)};
-    }
-
-    // Pointer drawing
-    let spaceDown = false;
-    display.addEventListener('pointerdown', e=>{
-      display.setPointerCapture(e.pointerId);
-      if (spaceDown){ panning=true; lastPan={x:e.clientX, y:e.clientY}; return; }
-      beginStroke(toCanvasPoint(e), e.pressure||0.
+    last=[x,y];
+    render();
+  }
