@@ -1,419 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Realistic Oil Painting Studio</title>
+  <meta charset="UTF-8">
+  <title>Ultimate Oil Painting Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    :root{
-      --bg:#0b0c10; --panel:#111319; --ink:#e5e7eb; --accent:#8b5cf6; --muted:#9ca3af;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;}
-    body{
-      margin:0; background:radial-gradient(1000px 600px at 20% 10%, #151824 0, #0b0c10 60%, #07080c 100%);
-      color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      display:flex; flex-direction:column;
-    }
-    header{
-      display:flex; gap:.75rem; align-items:center; padding:.75rem 1rem; background:rgba(17,19,25,.8); backdrop-filter: blur(6px);
-      box-shadow: 0 8px 30px rgba(0,0,0,.35);
-      position:sticky; top:0; z-index:10;
-    }
-    header h1{font-size:1.05rem; margin:0; font-weight:650; letter-spacing:.2px;}
-    .pill{display:inline-flex; align-items:center; gap:.5rem; padding:.4rem .6rem; border:1px solid #232736; border-radius:999px; background:#0f1220;}
-    .dot{width:8px;height:8px;border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent)}
-
-    .toolbar{display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; margin-left:auto}
-    .toolbar .group{display:flex; align-items:center; gap:.4rem; padding:.35rem .5rem; border:1px solid #212434; border-radius:12px; background:#0f1220}
-    label{font-size:.72rem; color:var(--muted)}
-    input[type="range"]{ accent-color: var(--accent); width:120px }
-    input[type="color"]{ width:28px; height:28px; border-radius:8px; border:1px solid #2a2e40; background:#101223; padding:0 }
-    select,button{ color:var(--ink); background:#101223; border:1px solid #232736; border-radius:10px; padding:.45rem .65rem; font-weight:600 }
-    button:hover, select:hover{ border-color:#38405c }
-    button:active{ transform: translateY(1px) }
-    button.primary{ background: linear-gradient(180deg, #6d28d9, #5b21b6); border-color:#6d28d9 }
-
-    main{ display:grid; grid-template-columns: 280px 1fr; gap:1rem; padding:1rem; height:100%; min-height:0 }
-    aside{ background:rgba(17,19,25,.7); border:1px solid #1f2332; border-radius:16px; padding:1rem; display:flex; flex-direction:column; gap:1rem;}
-    .swatches{ display:grid; grid-template-columns: repeat(6, 1fr); gap:.5rem }
-    .swatches button{ height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.08) }
-
-    .stageWrap{ position:relative; background:#0e101a; border:1px solid #1f2332; border-radius:16px; overflow:hidden; min-height:0 }
-    .stage{ position:relative; width:100%; height:100%; min-height:480px; cursor: crosshair; touch-action: none }
-    canvas{ position:absolute; inset:0; width:100%; height:100% }
-    .checker{ background: conic-gradient(#1e2234 25%, #171a28 0 50%, #1e2234 0 75%, #171a28 0) 0 0/32px 32px; opacity:.35 }
-    .watermark{ position:absolute; bottom:.5rem; right:.75rem; font-size:.7rem; color:#8b94b1; opacity:.7; pointer-events:none }
-
-    @media (max-width: 980px){ main{ grid-template-columns: 1fr; } aside{ order:2 } }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f5ef; color: #333; margin: 0; padding: 0; }
+    header { background: #47392f; color: #fff; padding: 1.5rem 0; text-align: center; box-shadow: 0 2px 5px rgba(60,40,20,0.08); }
+    header h1 { margin: 0; font-family: 'Georgia', serif; font-size: 2.7rem; letter-spacing: 2px; text-shadow: 0 2px 0 #2e1c0d; }
+    #toolbar { display: flex; justify-content: center; gap: 1.2rem; padding: 1.2rem; background: #ede3d5; box-shadow: 0 2px 5px rgba(60,40,20,0.04); flex-wrap: wrap; }
+    #toolbar > * { font-size: 1rem; padding: 0.45rem 1.2rem; border-radius: 6px; border: 1px solid #cfc2a8; background: #fff; }
+    #toolbar label { font-weight: 600; margin-right: 0.3rem; }
+    #toolGroup { display: flex; align-items: center; gap: 0.5rem; }
+    main { display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; min-height: 80vh; padding: 2rem 0; gap: 2rem; }
+    #canvas-wrapper { box-shadow: 0 4px 24px rgba(80,40,5,0.14); border: 2px solid #cfc2a8; background: #fffefa; border-radius: 10px; padding: 1rem; margin: 1rem; }
+    #palette-wrapper { box-shadow: 0 2px 14px rgba(80,40,5,0.09); border: 2px solid #cfc2a8; background: #f6f1e7; border-radius: 10px; padding: 1rem; margin: 1rem; width: 230px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+    #palette-canvas { display: block; width: 200px; height: 200px; background: #eee4d0 url('https://www.transparenttextures.com/patterns/canvas-fabric.png'); border-radius: 50%; box-shadow: 0 1px 6px rgba(60,40,20,0.08); border: 1.5px solid #cfc2a8; margin-bottom: 1rem; touch-action: none; }
+    #palette-instructions { font-size: 0.97rem; color: #7b6652; margin-bottom: 1.2rem; text-align: center; }
+    .palette-color-btn { width: 1.5em; height: 1.5em; border-radius: 50%; border: 1px solid #cfc2a8; margin-right: 0.35em; cursor: pointer; display: inline-block; vertical-align: middle; }
+    .palette-color-btn.selected { box-shadow: 0 0 0 3px #7d5a2a; }
+    canvas { display: block; background: #eee4d0 url('https://www.transparenttextures.com/patterns/canvas-fabric.png'); border-radius: 8px; box-shadow: 0 1px 6px rgba(60,40,20,0.12); cursor: crosshair; margin: 0 auto; touch-action: none; }
+    #footer { text-align: center; font-size: 1rem; color: #8b7764; margin: 2rem 0 0 0; }
+    #lighting-label { border: none; background: none; color: #7b6652; font-weight: 600; cursor: pointer; margin-right: 0.2rem; }
   </style>
 </head>
 <body>
 <header>
-  <span class="pill"><span class="dot"></span> Realistic Oil Painting Studio</span>
-  <h1>Canvas</h1>
-  <div class="toolbar">
-    <div class="group">
-      <label for="tool">Tool</label>
-      <select id="tool">
-        <option value="brush">Oil Brush</option>
-        <option value="knife">Palette Knife</option>
-        <option value="smudge">Smudge</option>
-        <option value="eraser">Eraser</option>
-      </select>
-    </div>
-    <div class="group">
-      <label for="color">Color</label><input type="color" id="color" value="#2a5cff"/>
-      <label for="size">Size</label><input type="range" id="size" min="1" max="200" value="40"/>
-      <label for="flow">Flow</label><input type="range" id="flow" min="1" max="100" value="70"/>
-      <label for="wet">Wet</label><input type="range" id="wet" min="0" max="100" value="60"/>
-      <label for="imp">Impasto</label><input type="range" id="imp" min="0" max="100" value="40"/>
-      <label for="bristle">Bristle</label><input type="range" id="bristle" min="0" max="100" value="55"/>
-    </div>
-    <div class="group">
-      <button id="undo">Undo</button>
-      <button id="redo">Redo</button>
-      <button id="clear">Clear</button>
-      <button id="dry">Dry Layer</button>
-      <button id="save" class="primary">Export PNG</button>
-    </div>
-  </div>
+  <h1>Ultimate Oil Painting Simulator</h1>
+  <div>Palette mixing, palette knife, and realistic oil pigment blending with per-pixel depth.</div>
 </header>
-
+<nav id="toolbar">
+  <span><label for="color">Color</label><input type="color" id="color" value="#a65b2a"></span>
+  <span><label for="brushSize">Brush Size</label><input type="range" id="brushSize" min="8" max="60" value="24"></span>
+  <span><label for="oiliness">Oiliness</label><input type="range" id="oiliness" min="0.05" max="1.0" step="0.01" value="0.6"></span>
+  <span id="toolGroup"><label for="toolBrush"><input type="radio" name="tool" id="toolBrush" value="brush" checked>Brush</label><label for="toolKnife"><input type="radio" name="tool" id="toolKnife" value="knife">Palette Knife</label></span>
+  <span><label id="lighting-label" for="lighting">Lighting</label><input type="checkbox" id="lighting" checked></span>
+  <button id="clearBtn">Clear</button>
+  <button id="downloadBtn">Download</button>
+</nav>
 <main>
-  <aside>
-    <section>
-      <h3 style="margin:.2rem 0 .6rem">Palette</h3>
-      <div class="swatches" id="swatches"></div>
-      <div style="display:flex; gap:.5rem; margin-top:.5rem">
-        <button id="addColor">Add swatch</button>
-        <button id="randColor">Randomize</button>
-      </div>
-    </section>
-    <section>
-      <h3 style="margin:.2rem 0 .6rem">Tips</h3>
-      <ol style="margin:.2rem 0; padding-left:1rem; color:#b9c0d4; font-size:.9rem; line-height:1.4">
-        <li>Oil Brush mixes with wet paint. Increase <b>Wet</b> to pick up more color; decrease to cover.</li>
-        <li><b>Impasto</b> adds raised paint with directional lighting.</li>
-        <li>Use <b>Palette Knife</b> to drag thick strokes and flatten peaks.</li>
-        <li>Hit <b>Dry Layer</b> to fix paint so new strokes don’t blend.</li>
-        <li>Two‑finger pan / pinch to reposition and zoom (trackpad supported).</li>
-      </ol>
-    </section>
-  </aside>
-
-  <div class="stageWrap">
-    <div class="stage" id="stage">
-      <canvas id="base" class="checker" aria-label="canvas texture"></canvas>
-      <canvas id="paint"></canvas>
-      <canvas id="height"></canvas>
-      <canvas id="display"></canvas>
-      <div class="watermark">Directional light: top‑left • Double‑click to resize</div>
-    </div>
+  <div id="palette-wrapper">
+    <canvas id="palette-canvas" width="200" height="200"></canvas>
+    <div id="palette-instructions">Click to add color blobs.<br>Drag to mix colors.<br>Right-click or double-click to pick for brush.<br>Use palette or color picker!</div>
+    <div id="palette-colors"></div>
+  </div>
+  <div id="canvas-wrapper">
+    <canvas id="paintingCanvas" width="900" height="600"></canvas>
   </div>
 </main>
-
+<div id="footer">&copy; 2025 Ultimate Oil Painting Simulator</div>
 <script>
-(function(){
-  // --- DOM refs
-  const stage = document.getElementById('stage');
-  const base = document.getElementById('base');
-  const paint = document.getElementById('paint');
-  const height = document.getElementById('height');
-  const display = document.getElementById('display');
-  const ctxP = paint.getContext('2d');
-  const ctxH = height.getContext('2d');
-  const ctxD = display.getContext('2d');
-  const colorEl = document.getElementById('color');
-  const toolEl = document.getElementById('tool');
-  const sizeEl = document.getElementById('size');
-  const flowEl = document.getElementById('flow');
-  const wetEl = document.getElementById('wet');
-  const impEl = document.getElementById('imp');
-  const bristleEl = document.getElementById('bristle');
-  const undoBtn = document.getElementById('undo');
-  const redoBtn = document.getElementById('redo');
-  const clearBtn = document.getElementById('clear');
-  const dryBtn = document.getElementById('dry');
-  const saveBtn = document.getElementById('save');
+// --- Core RYB Mixing and helpers remain the same (omitted for brevity) ---
+// ======== Essential globals at the top ========
+let painting = false;
+let lastPoint = null;
+let brushColor = "#a65b2a";
+let brushSize = 24;
+let oiliness = 0.6;
+let lighting = true;
+let tool = 'brush';
 
-  // --- Canvas sizing & HiDPI
-  let pixelRatio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-  function fit(){
-    const rect = stage.getBoundingClientRect();
-    ;[base, paint, height, display].forEach(c=>{ c.width = rect.width * pixelRatio; c.height = rect.height * pixelRatio; c.style.width = rect.width+'px'; c.style.height = rect.height+'px'; });
-    renderBaseTexture();
-    render();
+// Accurate RYB to RGB using Smith's algorithm (see https://web.archive.org/web/20170130153422/http://www.deathbysoftware.com/colors/index.html)
+function lerp(t, a, b) { return a + (b - a) * t; }
+function rybToRgb([r, y, b]) {
+  r /= 255; y /= 255; b /= 255;
+  // RYB cube corners mapped to RGB
+  let white = [1, 1, 1];
+  let red = [1, 0, 0];
+  let yellow = [1, 1, 0];
+  let blue = [0.163, 0.373, 0.6];
+  let violet = [0.5, 0, 0.5];
+  let green = [0, 0.66, 0.2];
+  let orange = [1, 0.5, 0];
+  let black = [0.2, 0.094, 0.0];
+
+  // Interpolate along each axis
+  let c0 = [lerp(r, white[0], red[0]), lerp(r, white[1], red[1]), lerp(r, white[2], red[2])];
+  let c1 = [lerp(r, yellow[0], orange[0]), lerp(r, yellow[1], orange[1]), lerp(r, yellow[2], orange[2])];
+  let c2 = [lerp(r, blue[0], violet[0]), lerp(r, blue[1], violet[1]), lerp(r, blue[2], violet[2])];
+  let c3 = [lerp(r, green[0], black[0]), lerp(r, green[1], black[1]), lerp(r, green[2], black[2])];
+
+  let c4 = [lerp(y, c0[0], c1[0]), lerp(y, c0[1], c1[1]), lerp(y, c0[2], c1[2])];
+  let c5 = [lerp(y, c2[0], c3[0]), lerp(y, c2[1], c3[1]), lerp(y, c2[2], c3[2])];
+
+  let c = [lerp(b, c4[0], c5[0]), lerp(b, c4[1], c5[1]), lerp(b, c4[2], c5[2])];
+
+  return [Math.round(c[0]*255), Math.round(c[1]*255), Math.round(c[2]*255)];
+}
+
+// Approximate inverse (not perfect, but good for painting/mixing)
+function rgbToRyb([rr, gg, bb]) {
+  rr /= 255; gg /= 255; bb /= 255;
+  // Extract whiteness from color
+  let w = Math.min(rr, gg, bb);
+  rr -= w; gg -= w; bb -= w;
+  let mg = Math.max(rr, gg, bb);
+
+  // Get Yellow out of Red+Green
+  let y = Math.min(rr, gg);
+  rr -= y; gg -= y;
+
+  // If Blue & Green mix, split blue with green
+  let b = Math.max(bb - y, 0);
+  let g = Math.max(gg - b, 0);
+
+  // Compose RYB
+  let ryb_r = rr + y;
+  let ryb_y = y + g;
+  let ryb_b = b;
+
+  // Normalize to [0,255]
+  let max = Math.max(ryb_r, ryb_y, ryb_b);
+  if (max > 0) {
+    let n = mg / max;
+    ryb_r *= n; ryb_y *= n; ryb_b *= n;
   }
-  const resizeObserver = new ResizeObserver(fit); resizeObserver.observe(stage);
-  stage.addEventListener('dblclick', fit);
-
-  // --- Background canvas texture (subtle linen)
-  function renderBaseTexture(){
-    const bctx = base.getContext('2d');
-    const {width:w, height:h} = base;
-    bctx.clearRect(0,0,w,h);
-    // paper tint
-    bctx.fillStyle = '#101426'; bctx.fillRect(0,0,w,h);
-    // noise
-    const noise = bctx.createImageData(w,h);
-    const data = noise.data; for(let i=0;i<data.length;i+=4){
-      const v = 8 + (Math.random()*7)|0; data[i]=data[i+1]=data[i+2]=v; data[i+3]=48;
+  ryb_r += w;
+  ryb_y += w;
+  ryb_b += w;
+  return [Math.round(ryb_r*255), Math.round(ryb_y*255), Math.round(ryb_b*255)];
+}
+function rybMix(c1, c2, ratio) {
+  let ryb1 = rgbToRyb(c1), ryb2 = rgbToRyb(c2);
+  let ryb = [
+    ryb1[0] * (1 - ratio) + ryb2[0] * ratio,
+    ryb1[1] * (1 - ratio) + ryb2[1] * ratio,
+    ryb1[2] * (1 - ratio) + ryb2[2] * ratio
+  ];
+  return rybToRgb(ryb);
+}
+function hexToRgb(hex) {
+  let c = hex.replace('#','');
+  if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  let num = parseInt(c, 16);
+  return [
+    (num >> 16) & 255,
+    (num >> 8) & 255,
+    num & 255
+  ];
+}
+function rgbToHex([r, g, b]) {
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+function distance(a, b) {
+  return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);
+}
+// Palette implementation (unchanged)
+const paletteCanvas = document.getElementById('palette-canvas');
+const paletteCtx = paletteCanvas.getContext('2d');
+let palette = [
+  {x: 60, y: 140, r: 18, color: [180,60,40]},
+  {x: 110, y: 120, r: 16, color: [255,210,30]},
+  {x: 160, y: 160, r: 16, color: [32,110,200]},
+  {x: 80, y: 60, r: 14, color: [60,150,60]},
+  {x: 135, y: 60, r: 16, color: [245,248,243]}
+];
+function renderPalette() {
+  paletteCtx.clearRect(0,0,200,200);
+  for (let i=0; i<palette.length; ++i) {
+    let blob = palette[i];
+    paletteCtx.save();
+    paletteCtx.beginPath();
+    paletteCtx.ellipse(blob.x, blob.y, blob.r*1.15, blob.r*0.8, 0, 0, 2*Math.PI);
+    paletteCtx.closePath();
+    paletteCtx.fillStyle = `rgb(${blob.color[0]},${blob.color[1]},${blob.color[2]})`;
+    paletteCtx.shadowColor = "#88684a";
+    paletteCtx.shadowBlur = 2;
+    paletteCtx.fill();
+    paletteCtx.globalAlpha = 0.18;
+    paletteCtx.beginPath();
+    paletteCtx.arc(blob.x-blob.r/4, blob.y-blob.r/4, blob.r/2.7, 0, 2*Math.PI);
+    paletteCtx.fillStyle = "#fff";
+    paletteCtx.fill();
+    paletteCtx.globalAlpha = 1;
+    paletteCtx.restore();
+  }
+}
+let draggingBlob = null, dragOffset = {x:0,y:0}, mixing = false, mixColor = null;
+paletteCanvas.addEventListener('mousedown', e=>{
+  let rect = paletteCanvas.getBoundingClientRect();
+  let x = (e.clientX-rect.left), y = (e.clientY-rect.top);
+  for (let i=palette.length-1; i>=0; --i) {
+    let blob = palette[i];
+    if (distance({x,y}, blob) < blob.r) {
+      draggingBlob = blob;
+      dragOffset = {x: blob.x-x, y: blob.y-y};
+      mixing = e.ctrlKey || e.shiftKey || e.altKey || e.button===2;
+      if (mixing) mixColor = blob.color;
+      palette.splice(i,1);
+      palette.push(blob);
+      break;
     }
-    bctx.putImageData(noise,0,0);
-    // weave lines
-    bctx.globalAlpha = .06; bctx.strokeStyle = '#fff';
-    bctx.lineWidth = 1; for(let y=0;y<h;y+=24){ bctx.beginPath(); bctx.moveTo(0,y+.5); bctx.lineTo(w,y+.5); bctx.stroke(); }
-    for(let x=0;x<w;x+=24){ bctx.beginPath(); bctx.moveTo(x+.5,0); bctx.lineTo(x+.5,h); bctx.stroke(); }
-    bctx.globalAlpha = 1;
   }
-
-  // --- State
-  let isDown=false, last=null, lastSmudge=null;
-  const history=[], future=[];
-  function pushHistory(){
-    history.push({ paint: ctxP.getImageData(0,0,paint.width,paint.height), height: ctxH.getImageData(0,0,height.width,height.height)});
-    if(history.length>25) history.shift();
-    future.length = 0;
-  }
-  function restore(snapshot){ ctxP.putImageData(snapshot.paint,0,0); ctxH.putImageData(snapshot.height,0,0); render(); }
-
-  // --- Utility
-  function hexToRgb(hex){
-    const h = hex.replace('#','');
-    const bigint = parseInt(h.length===3 ? h.split('').map(c=>c+c).join('') : h, 16);
-    const r = (bigint>>16)&255, g=(bigint>>8)&255, b=bigint&255; return [r,g,b];
-  }
-  function lerp(a,b,t){ return a + (b-a)*t }
-  function clamp(v, lo, hi){ return v<lo?lo:v>hi?hi:v }
-
-  // --- Bristle mask per stroke
-  function makeBristleMask(size, density){
-    const s = Math.max(8, (size*pixelRatio)|0);
-    const cvs = document.createElement('canvas'); cvs.width=cvs.height=s; const c = cvs.getContext('2d');
-    // base round soft mask
-    const g = c.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
-    g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.7,'rgba(255,255,255,.8)'); g.addColorStop(1,'rgba(255,255,255,0)');
-    c.fillStyle=g; c.beginPath(); c.arc(s/2,s/2,s/2,0,Math.PI*2); c.fill();
-    // add linear streaks to mimic bristles
-    c.globalCompositeOperation='multiply';
-    c.fillStyle='rgba(255,255,255,.85)';
-    const lines = Math.max(5, (density/100*24)|0);
-    for(let i=0;i<lines;i++){
-      const x = (Math.random()*s)|0; const w = 1 + (Math.random()*2)|0; c.fillRect(x,0,w,s);
-    }
-    // add speckle
-    const id = c.getImageData(0,0,s,s); const d=id.data; for(let i=0;i<d.length;i+=4){ if(Math.random()<0.03){ d[i]=d[i+1]=d[i+2]=255 } }
-    c.putImageData(id,0,0);
-    return cvs;
-  }
-
-  // --- Smudge buffer for brush pickup
-  let pickupColor = [0,0,0];
-
-  // --- Stroke engine
-  let bristleMask = makeBristleMask(parseInt(sizeEl.value), parseInt(bristleEl.value));
-  function beginStroke(x,y){
-    pushHistory();
-    isDown=true; last=[x,y]; lastSmudge=[x,y];
-    bristleMask = makeBristleMask(parseInt(sizeEl.value), parseInt(bristleEl.value));
-  }
-  function endStroke(){ isDown=false; last=null; lastSmudge=null; }
-
-  // ===== MODIFIED FUNCTION START =====
-  function drawTo(x,y){
-    // Convert normalized coordinates (0-1) to pixel coordinates for accurate distance calculation
-    const currentPixel = { x: x * paint.width, y: y * paint.height };
-    const lastPixel = last ? { x: last[0] * paint.width, y: last[1] * paint.height } : null;
-
-    const s = parseFloat(sizeEl.value)*pixelRatio;
-    const flow = parseFloat(flowEl.value)/100; // coverage
-    const wet = parseFloat(wetEl.value)/100;   // mixing
-    const imp = parseFloat(impEl.value)/100;   // height
-    const [br, bg, bb] = hexToRgb(colorEl.value);
-
-    const tool = toolEl.value;
-    // Calculate distance in pixels, not normalized units. This is the key fix.
-    const dist = lastPixel ? Math.hypot(currentPixel.x - lastPixel.x, currentPixel.y - lastPixel.y) : 0;
-    // Now that 'dist' is in pixels, this calculation correctly determines how many dabs are needed to fill the gap.
-    const steps = 1 + ((dist/(s*0.35))|0);
-
-    for(let i=1;i<=steps;i++){
-      // The interpolation itself is still done with normalized coordinates, which is correct.
-      const t = i/steps;
-      const tx = last? lerp(last[0], x, t) : x;
-      const ty = last? lerp(last[1], y, t) : y;
-      const px = (tx*paint.width)|0, py = (ty*paint.height)|0; // centers in px
-      const r = (s/2)|0; const dSize = (r*2)|0;
-
-      // Create dab
-      const dab = bristleMask; // already sized ~s
-
-      if(tool==='brush'){
-        ctxP.save();
-        // Mix existing pixels underneath by drawing lighter on alpha, then tint
-        // Draw the colored dab to a temp canvas to control alpha
-        const temp = document.createElement('canvas'); temp.width=dab.width; temp.height=dab.height; const tc=temp.getContext('2d');
-        tc.drawImage(dab,0,0);
-        // tint
-        tc.globalCompositeOperation='source-in'; tc.fillStyle=`rgba(${br},${bg},${bb},${flow})`; tc.fillRect(0,0,temp.width,temp.height);
-
-        // color pickup: read small sample at center and blend into brush color (wetness)
-        const sampleSize = Math.max(2, (s*0.25)|0);
-        try{
-          const sample = ctxP.getImageData(px-sampleSize/2, py-sampleSize/2, sampleSize, sampleSize).data;
-          let sr=0, sg=0, sb=0, count=0; for(let k=0;k<sample.length;k+=4){ const a=sample[k+3]/255; sr += sample[k]*a; sg += sample[k+1]*a; sb += sample[k+2]*a; count+=a; }
-          if(count>0){ sr/=count; sg/=count; sb/=count; pickupColor=[sr,sg,sb]; }
-        }catch(e){}
-        const mr = lerp(br, pickupColor[0], wet), mg = lerp(bg, pickupColor[1], wet), mb = lerp(bb, pickupColor[2], wet);
-        // retint with mixed color
-        tc.globalCompositeOperation='source-in'; tc.fillStyle=`rgba(${mr|0},${mg|0},${mb|0},1)`; tc.fillRect(0,0,temp.width,temp.height);
-
-        // lay paint
-        ctxP.globalAlpha = 1; ctxP.globalCompositeOperation='source-over';
-        ctxP.drawImage(temp, px-r, py-r, dSize, dSize);
-        ctxP.restore();
-
-        // raise height map (impasto). We fake via soft highlight + shadow into height canvas
-        ctxH.save();
-        ctxH.globalCompositeOperation='source-over';
-        // positive bump
-        ctxH.filter = 'blur(0.5px)';
-        ctxH.fillStyle = `rgba(255,255,255,${imp*0.5})`;
-        ctxH.beginPath(); ctxH.arc(px,py,r*0.85,0,Math.PI*2); ctxH.fill();
-        // slight trough around
-        ctxH.globalCompositeOperation='destination-out';
-        ctxH.beginPath(); ctxH.arc(px,py,r,0,Math.PI*2); ctxH.lineWidth = r*0.25; ctxH.stroke();
-        ctxH.restore();
-
-      } else if(tool==='knife'){
-        // Drag paint in the movement direction (like a smear) and flatten height
-        if(last){
-          const dx = x-last[0], dy = y-last[1];
-          const len = Math.hypot(dx,dy)||1; const nx=dx/len, ny=dy/len;
-          const w = s*1.2, l = s*1.8;
-          const sx = (last[0]*paint.width - w/2)|0; const sy = (last[1]*paint.height - l/2)|0;
-          const sw = (w)|0; const sh=(l)|0;
-          try{
-            const slice = ctxP.getImageData(sx,sy,sw,sh);
-            // simple directional smear by shifting rows/cols
-            for(let row=0; row<sh; row++){
-              const offset = ((row*nx+row*ny)|0); // crude but fast
-            }
-            // Draw the slice slightly offset in motion direction to create smear
-            ctxP.putImageData(slice, sx + (dx*pixelRatio)|0, sy + (dy*pixelRatio)|0);
-          }catch(e){}
-          // flatten
-          ctxH.save(); ctxH.globalAlpha = .6; ctxH.globalCompositeOperation='destination-out';
-          ctxH.beginPath(); ctxH.ellipse(px,py, s*0.6, s*0.25, Math.atan2(dy,dx), 0, Math.PI*2); ctxH.fill(); ctxH.restore();
+});
+paletteCanvas.addEventListener('mousemove', e=>{
+  if (draggingBlob) {
+    let rect = paletteCanvas.getBoundingClientRect();
+    let x = (e.clientX-rect.left), y = (e.clientY-rect.top);
+    if (mixing) {
+      for (let blob of palette) {
+        if (blob!==draggingBlob && distance({x, y}, blob)<(blob.r+draggingBlob.r)*0.95) {
+          blob.color = rybMix(blob.color, mixColor, 0.38);
         }
-      } else if(tool==='smudge'){
-        // pick up and re-apply color (no new pigment)
-        try{
-          const area = ctxP.getImageData(px-r,py-r,dSize,dSize);
-          ctxP.putImageData(area, px-r + ((x-(last?.[0]??x))*pixelRatio)|0, py-r + ((y-(last?.[1]??y))*pixelRatio)|0);
-        }catch(e){}
-        // slight height blur
-        ctxH.save(); ctxH.filter='blur(1.2px)'; ctxH.globalAlpha=.6; ctxH.drawImage(height, px-r,py-r,dSize,dSize, px-r,py-r,dSize,dSize); ctxH.restore();
-      } else if(tool==='eraser'){
-        ctxP.save(); ctxP.globalCompositeOperation='destination-out'; ctxP.drawImage(dab, px-r, py-r, dSize, dSize); ctxP.restore();
-        ctxH.save(); ctxH.globalCompositeOperation='destination-out'; ctxH.drawImage(dab, px-r, py-r, dSize, dSize); ctxH.restore();
       }
+    } else {
+      draggingBlob.x = Math.max(draggingBlob.r, Math.min(200-draggingBlob.r, x+dragOffset.x));
+      draggingBlob.y = Math.max(draggingBlob.r, Math.min(200-draggingBlob.r, y+dragOffset.y));
     }
-    last=[x,y];
-    render();
+    renderPalette();
   }
-  // ===== MODIFIED FUNCTION END =====
+});
+paletteCanvas.addEventListener('mouseup', e=>{
+  draggingBlob = null;
+  mixing = false;
+  mixColor = null;
+});
+paletteCanvas.addEventListener('mouseleave', e=>{
+  draggingBlob = null;
+  mixing = false;
+  mixColor = null;
+});
+paletteCanvas.addEventListener('click', e=>{
+  let rect = paletteCanvas.getBoundingClientRect();
+  let x = (e.clientX-rect.left), y = (e.clientY-rect.top);
+  let onBlob = palette.some(blob => distance({x,y},blob)<blob.r*0.95);
+  if (!onBlob) {
+    palette.push({x, y, r: 13+Math.random()*7, color: hexToRgb(document.getElementById('color').value)});
+    renderPalette();
+    updatePaletteUI();
+  }
+});
+paletteCanvas.addEventListener('contextmenu', e=>{
+  e.preventDefault();
+  let rect = paletteCanvas.getBoundingClientRect();
+  let x = (e.clientX-rect.left), y = (e.clientY-rect.top);
+  for (let blob of palette)
+    if (distance({x,y},blob)<blob.r) {
+      selectPaletteColor(blob.color);
+      break;
+    }
+});
+paletteCanvas.addEventListener('dblclick', e=>{
+  let rect = paletteCanvas.getBoundingClientRect();
+  let x = (e.clientX-rect.left), y = (e.clientY-rect.top);
+  for (let blob of palette)
+    if (distance({x,y},blob)<blob.r) {
+      selectPaletteColor(blob.color);
+      break;
+    }
+});
+function selectPaletteColor(color) {
+  brushColor = rgbToHex(color);
+  colorPicker.value = brushColor;
+  setBrush();
+  highlightPaletteColor();
+}
+function updatePaletteUI() {
+  let d = document.getElementById('palette-colors');
+  d.innerHTML = '';
+  for (let i=0; i<palette.length; ++i) {
+    let btn = document.createElement('span');
+    btn.className = "palette-color-btn";
+    btn.style.background = rgbToHex(palette[i].color);
+    btn.onclick = ()=>selectPaletteColor(palette[i].color);
+    d.appendChild(btn);
+  }
+  highlightPaletteColor();
+}
+function highlightPaletteColor() {
+  let cs = document.getElementsByClassName('palette-color-btn');
+  let bc = brushColor.toLowerCase();
+  for (let i=0;i<cs.length;++i) {
+    cs[i].classList.toggle('selected', rgbToHex(palette[i].color).toLowerCase() === bc);
+  }
+}
+renderPalette();
+updatePaletteUI();
+/* ====== Canvas Painting Section ====== */
+const canvas = document.getElementById('paintingCanvas');
+const ctx = canvas.getContext('2d');
+const colorPicker = document.getElementById('color');
+const brushSizeInput = document.getElementById('brushSize');
+const oilinessInput = document.getElementById('oiliness');
+const lightingInput = document.getElementById('lighting');
+const toolBrush = document.getElementById('toolBrush');
+const toolKnife = document.getElementById('toolKnife');
+const clearBtn = document.getElementById('clearBtn');
+const downloadBtn = document.getElementById('downloadBtn');
 
+toolBrush.addEventListener('change', ()=>{tool='brush';});
+toolKnife.addEventListener('change', ()=>{tool='knife';});
 
-  // --- Lighting pass over paint using height as a pseudo normal map
-  function render(){
-    const w = paint.width, h=paint.height;
-    ctxD.clearRect(0,0,w,h);
-    ctxD.drawImage(paint,0,0);
+function setBrush() {
+  brushColor = colorPicker.value;
+  brushSize = parseInt(brushSizeInput.value, 10);
+  oiliness = parseFloat(oilinessInput.value);
+  lighting = lightingInput.checked;
+  highlightPaletteColor();
+}
+colorPicker.addEventListener('input', setBrush);
+brushSizeInput.addEventListener('input', setBrush);
+oilinessInput.addEventListener('input', setBrush);
+lightingInput.addEventListener('change', setBrush);
 
-    // derive simple normals from height using Sobel
-    const hx = ctxH.getImageData(0,0,w,h); const hd=hx.data;
-    const nx = new Float32Array(w*h), ny=new Float32Array(w*h);
-    // small kernel on luminance of height
-    const get=(x,y)=>{ x=clamp(x,0,w-1); y=clamp(y,0,h-1); const i=(y*w+x)<<2; return hd[i]; };
-    for(let y=1;y<h-1;y++){
-      for(let x=1;x<w-1;x++){
-        const gx = -get(x-1,y-1)-2*get(x-1,y)-get(x-1,y+1) + get(x+1,y-1)+2*get(x+1,y)+get(x+1,y+1);
-        const gy = -get(x-1,y-1)-2*get(x,y-1)-get(x+1,y-1) + get(x-1,y+1)+2*get(x,y+1)+get(x+1,y+1);
-        const idx=y*w+x; nx[idx]=gx/255; ny[idx]=gy/255;
+function getPointer(e) {
+  const rect = canvas.getBoundingClientRect();
+  let x, y;
+  if (e.touches) {
+    x = e.touches[0].clientX - rect.left;
+    y = e.touches[0].clientY - rect.top;
+  } else {
+    x = e.clientX - rect.left;
+    y = e.clientY - rect.top;
+  }
+  return {x, y};
+}
+function impastoHighlight(x, y, r, color, angle = Math.PI/4) {
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  const highlightColor = [Math.min(255, color[0]+90), Math.min(255, color[1]+90), Math.min(255, color[2]+90)];
+  const grad = ctx.createRadialGradient(x + Math.cos(angle)*r*0.4, y + Math.sin(angle)*r*0.4, r*0.2, x, y, r*0.9);
+  grad.addColorStop(0, `rgba(${highlightColor[0]},${highlightColor[1]},${highlightColor[2]},0.5)`);
+  grad.addColorStop(1, `rgba(${color[0]},${color[1]},${color[2]},0)`);
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 2*Math.PI);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.restore();
+}
+// Enhanced Dab with Direction + Streak Texture
+function dabImpasto(x, y, r, color, oiliness, lighting, angle = null) {
+  const left = Math.max(0, Math.floor(x - r));
+  const top = Math.max(0, Math.floor(y - r));
+  const right = Math.min(canvas.width, Math.ceil(x + r));
+  const bottom = Math.min(canvas.height, Math.ceil(y + r));
+  const width = right - left, height = bottom - top;
+  const imgData = ctx.getImageData(left, top, width, height);
+  for (let yy = 0; yy < height; yy++) {
+    for (let xx = 0; xx < width; xx++) {
+      const px = left + xx, py = top + yy;
+      let relx = px - x, rely = py - y;
+      let inside = false;
+      if (angle !== null) {
+        let cosA = Math.cos(angle), sinA = Math.sin(angle);
+        let ex = (relx*cosA + rely*sinA) / (r*1.6);
+        let ey = (-relx*sinA + rely*cosA) / (r*0.7);
+        inside = ex*ex + ey*ey <= 1;
+      } else {
+        inside = relx*relx + rely*rely <= r*r;
       }
-    }
-    // lighting
-    const img = ctxD.getImageData(0,0,w,h); const d=img.data;
-    const lx = -0.7, ly = -0.6, lz = 0.5; // light from top-left
-    for(let y=1;y<h-1;y++){
-      for(let x=1;x<w-1;x++){
-        const i = (y*w+x);
-        // normal approx
-        let nxv = -nx[i], nyv = -ny[i], nz = 1.0; // toward viewer
-        const len = Math.hypot(nxv, nyv, nz) || 1; nxv/=len; nyv/=len; const ndotl = clamp((nxv*lx + nyv*ly + nz*lz), 0, 1);
-        const j=i<<2;
-        const shade = (ndotl*0.35 + 0.65); // gentle light
-        d[j]   = (d[j]  * shade)|0;
-        d[j+1] = (d[j+1]* shade)|0;
-        d[j+2] = (d[j+2]* shade)|0;
+      if (!inside) continue;
+      const idx = (yy * width + xx) * 4;
+      const old = [imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]];
+      let jitter = (Math.random()-0.5) * 0.08;
+      let mixRatio = oiliness * (0.65 + jitter) + 0.25;
+      mixRatio = Math.max(0, Math.min(1, mixRatio));
+      const mixed = rybMix(old, color, mixRatio);
+      // Add subtle streak texture
+      if (angle !== null) {
+        let stripe = Math.sin((relx*Math.cos(angle)+rely*Math.sin(angle)) / 4);
+        mixed[0] = Math.min(255, mixed[0] + stripe*6);
+        mixed[1] = Math.min(255, mixed[1] + stripe*6);
+        mixed[2] = Math.min(255, mixed[2] + stripe*6);
       }
+      imgData.data[idx] = mixed[0];
+      imgData.data[idx+1] = mixed[1];
+      imgData.data[idx+2] = mixed[2];
+      imgData.data[idx+3] = Math.min(255, imgData.data[idx+3] + 180);
     }
-    ctxD.putImageData(img,0,0);
-
-    // specular highlight pass
-    ctxD.globalCompositeOperation='screen'; ctxD.globalAlpha=.15; ctxD.drawImage(height,0,0); ctxD.globalAlpha=1; ctxD.globalCompositeOperation='source-over';
   }
+  ctx.putImageData(imgData, left, top);
+  if (lighting) impastoHighlight(x, y, r, color, angle || Math.PI/4);
+}
 
-  // --- Pointer + basic zoom/pan (trackpad)
-  function posFromEvent(e){
-    const r = display.getBoundingClientRect();
-    const x = ( (e.clientX ?? e.touches?.[0]?.clientX) - r.left ) / r.width;
-    const y = ( (e.clientY ?? e.touches?.[0]?.clientY) - r.top ) / r.height;
-    return [x,y];
+function knifeStroke(from, to, r, color, oiliness, lighting) {
+  let dx = to.x - from.x, dy = to.y - from.y;
+  let dist = Math.sqrt(dx*dx + dy*dy);
+  let angle = Math.atan2(dy, dx);
+  let steps = Math.ceil(dist / (r*0.7));
+  for (let i=0; i<steps; ++i) {
+    let t = i/steps;
+    let cx = from.x + dx*t + (Math.random()-0.5)*r*0.12;
+    let cy = from.y + dy*t + (Math.random()-0.5)*r*0.07;
+    const width = Math.round(r*1.35), height = Math.round(r*0.46);
+    const left = Math.round(cx-width/2), top = Math.round(cy-height/2);
+    if(left<0||top<0||left+width>canvas.width||top+height>canvas.height) continue;
+    const imgData = ctx.getImageData(left, top, width, height);
+    for (let yy=0;yy<height;yy++) for (let xx=0;xx<width;xx++) {
+      let ex = (xx-width/2)/width, ey = (yy-height/2)/height;
+      if (Math.abs(ex)*2 + Math.abs(ey)*1.4 > 1) continue;
+      const idx = (yy*width+xx)*4;
+      const old = [imgData.data[idx], imgData.data[idx+1], imgData.data[idx+2]];
+      let jitter = (Math.random()-0.5)*0.1;
+      let mixRatio = 0.55*oiliness + 0.25 + jitter;
+      mixRatio = Math.max(0, Math.min(1, mixRatio));
+      const mixed = rybMix(old, color, mixRatio);
+      imgData.data[idx]=mixed[0];
+      imgData.data[idx+1]=mixed[1];
+      imgData.data[idx+2]=mixed[2];
+      imgData.data[idx+3]=Math.min(255, imgData.data[idx+3] + 200);
+    }
+    ctx.putImageData(imgData, left, top);
+    if (lighting && Math.random()<0.2) {
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+      const grad = ctx.createLinearGradient(-width/2, 0, width/2, 0);
+      grad.addColorStop(0, "rgba(255,255,255,0.3)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(-width/2, -height/2, width, height);
+      ctx.restore();
+    }
   }
-  stage.addEventListener('pointerdown', e=>{ stage.setPointerCapture(e.pointerId); const [x,y]=posFromEvent(e); beginStroke(x,y); drawTo(x,y); });
-  stage.addEventListener('pointermove', e=>{ if(!isDown) return; const [x,y]=posFromEvent(e); drawTo(x,y); });
-  stage.addEventListener('pointerup', ()=> endStroke());
-  stage.addEventListener('pointercancel', ()=> endStroke());
+}
 
-  // Prevent scrolling on touch
-  stage.addEventListener('touchstart', e=> e.preventDefault(), {passive:false});
-  stage.addEventListener('touchmove', e=> e.preventDefault(), {passive:false});
-
-  // --- Controls
-  undoBtn.onclick = ()=>{ if(history.length){ const snap=history.pop(); future.push({paint:ctxP.getImageData(0,0,paint.width,paint.height), height:ctxH.getImageData(0,0,height.width,height.height)}); restore(snap); }}
-  redoBtn.onclick = ()=>{ if(future.length){ const snap=future.pop(); history.push({paint:ctxP.getImageData(0,0,paint.width,paint.height), height:ctxH.getImageData(0,0,height.width,height.height)}); restore(snap); }}
-  clearBtn.onclick = ()=>{ pushHistory(); ctxP.clearRect(0,0,paint.width,paint.height); ctxH.clearRect(0,0,height.width,height.height); render(); }
-  dryBtn.onclick = ()=>{ pushHistory(); // bake height lightly into color, then reduce height
-    ctxD.clearRect(0,0,display.width,display.height); ctxD.drawImage(paint,0,0); ctxD.globalCompositeOperation='overlay'; ctxD.globalAlpha=.18; ctxD.drawImage(height,0,0); ctxD.globalAlpha=1; ctxD.globalCompositeOperation='source-over';
-    ctxP.clearRect(0,0,paint.width,paint.height); ctxP.drawImage(display,0,0);
-    // reduce height
-    ctxH.globalAlpha=.25; ctxH.fillStyle='rgba(0,0,0,1)'; ctxH.fillRect(0,0,height.width,height.height); ctxH.globalAlpha=1;
-    render();
+function drawStroke(from, to) {
+  const color = hexToRgb(brushColor);
+  let dx = to.x - from.x, dy = to.y - from.y;
+  let angle = Math.atan2(dy, dx);
+  if (tool === 'brush') {
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const steps = Math.ceil(dist / (brushSize * 0.22));
+    for (let i = 0; i < steps; i++) {
+      const t = i / steps;
+      const x = from.x + dx * t + (Math.random()-0.5)*brushSize*0.05;
+      const y = from.y + dy * t + (Math.random()-0.5)*brushSize*0.05;
+      const r = brushSize/2 * (0.92 + 0.14*Math.random());
+      dabImpasto(x, y, r, color, oiliness, lighting, angle);
+    }
+  } else if (tool === 'knife') {
+    knifeStroke(from, to, brushSize, color, oiliness, lighting);
   }
-  saveBtn.onclick = ()=>{
-    const out = document.createElement('canvas'); out.width=display.width; out.height=display.height; const c=out.getContext('2d');
-    c.drawImage(base,0,0); c.drawImage(display,0,0);
-    const url = out.toDataURL('image/png');
-    const a = document.createElement('a'); a.href=url; a.download='oil-painting.png'; a.click();
-  }
-
-  // Palette swatches
-  const swatches = document.getElementById('swatches');
-  const defaultSwatches = ['#0f172a','#1d4ed8','#22c55e','#f59e0b','#dc2626','#a855f7','#eab308','#0ea5e9','#ef4444','#d946ef','#10b981','#f97316'];
-  function renderSwatches(){ swatches.innerHTML='';
-    for(const hex of defaultSwatches){ const b=document.createElement('button'); b.style.background=hex; b.title=hex; b.onclick=()=>{ colorEl.value = hex; }; swatches.appendChild(b); }
-  }
-  document.getElementById('addColor').onclick = ()=>{ defaultSwatches.unshift(colorEl.value); if(defaultSwatches.length>24) defaultSwatches.pop(); renderSwatches(); }
-  document.getElementById('randColor').onclick = ()=>{ const h = Math.floor(Math.random()*360); const s=60+Math.random()*30, l=40+Math.random()*20; const hex = hslToHex(h,s,l); colorEl.value=hex; }
-  function hslToHex(h,s,l){ s/=100; l/=100; const k=n=> (n + h/30)%12; const a=s*Math.min(l,1-l); const f=n=> l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n),1))); return '#'+[f(0),f(8),f(4)].map(v=>{const x=Math.round(v*255).toString(16); return x.length===1?'0'+x:x}).join(''); }
-
-  // Kick things off
-  renderSwatches();
-  fit();
-})();
+}
 </script>
 </body>
 </html>
