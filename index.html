@@ -679,7 +679,6 @@
                 pointarray = [];
                 if (number != 0) arts[number - 1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
                 else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
-
             })
             lastX = null;
             lastY = null;
@@ -711,7 +710,6 @@
             if (number != 0) arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             else arts[number].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes, vid: chunks })
             ctx.globalAlpha = 0.15
-            ctx.globalCompositeOperation = "multiply"
             const texturePattern = tempCtx.createPattern(blank, 'repeat');
             tempCtx.fillStyle = "white";
             tempCtx.fillRect(width, 0, canvas.width, canvas.height);
