@@ -303,7 +303,7 @@
             const x = e.clientX;
             const y = e.clientY;
             var testcan = document.createElement("canvas");
-            var testctx = testcan.getContext("2d");
+            var testctx = testcan.getContext("2d", { willReadFrequently: true });
             testcan.height = 50;
             testcan.width = 50;
             testctx.drawImage(brushImage, 0, 0, 50, 50);
@@ -374,7 +374,7 @@
         }
         function recolorImage(img, newColor) {
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
             ctx.drawImage(img, 0, 0);
 
 
@@ -392,7 +392,7 @@
             points = []
         }
         const eraser = document.getElementById('erase');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
         const canvasclientX = canvas.offsetLeft;
         const canvasclientY = canvas.offsetTop;
@@ -544,7 +544,7 @@
 
         // Off-screen canvas for recoloring
         const brushCanvas = document.createElement("canvas");
-        const brushCtx = brushCanvas.getContext("2d");
+        const brushCtx = brushCanvas.getContext("2d", { willReadFrequently: true });
         var paint = 1;
         const paintStroke = (x, y) => {
 
@@ -619,7 +619,7 @@
             const brushCanvas = document.createElement('canvas');
             brushCanvas.width = 50;
             brushCanvas.height = 50;
-            const brushCtx = brushCanvas.getContext('2d');
+            const brushCtx = brushCanvas.getContext('2d', { willReadFrequently: true });
 
             // Generate noise or load an image of a brush stroke
             const imageData = brushCtx.createImageData(50, 50);
@@ -800,7 +800,7 @@
             }
         }
         function averageNonWhiteColor(canvas) {
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
             const { width, height } = canvas;
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
