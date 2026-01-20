@@ -10,302 +10,146 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
     <link rel="icon" href="icon.png">
-    <!-- <script src="service-worker.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <style>
-        html,
-        body {
-            overscroll-behavior-x: none;
-        }
-
-        button {
-            color: white;
-            background-color: blue;
-        }
-
-        #name {
-            font-family: "Fascinate Inline", system-ui;
-            font-weight: 400;
-        }
-
-        html {
-            overflow: hidden;
-        }
-
-        body {
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background-color: black;
-            font-family: sans-serif;
-        }
-
-        h1 {
-            background: #7F7FD5;
-            background: linear-gradient(to right, blue, green, orange);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        #drawing-board {
-            cursor: crosshair;
-            position: absolute;
-            border: 1px solid black;
-            background-color: white;
-        }
-
-        .container {
-            height: 100%;
-            display: flex;
-            position: relative;
-        }
-
-        #toolbar {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            padding: 5px;
-            width: 10vw;
-            background-color: lightblue;
-            transition: transform 0.3s ease;
-            min-width: 120px;
-        }
-
-        #toolbar.hidden {
-            transform: translateX(-100%);
-        }
-
-        #toolbar label {
-            font-size: 12px;
-        }
-
-        #toolbar #lineWidth {
-            height: 30%;
-            left: -50%;
-            position: relative;
-        }
-
-        button {
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        #clear {
-            background-color: #1565c0;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            padding: 2px;
-        }
-
-        #erase {
-            background-color: black;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            padding: 2px;
-        }
-
-        h1 {
-            color: black;
-            font-size: 100pt;
-        }
-
-        #name {
-            font-size: 30pt;
-        }
-
-        #map {
-            rotate: 1 0 0 20deg;
-            position: relative;
-            left: 200px;
-            top: -800px;
-        }
-
-        img {
-            overflow: hidden;
-        }
-
-        #new {
-            font-size: 100pt;
-            background: cyan;
-            width: 20vh;
-            color: black;
-            height: 20vh;
-            position: absolute;
-            left: 0px;
-            border-radius: 50%;
-            z-index: 100;
-        }
-
-        #gallery {
-            height: 100vh;
-            width: 100vw;
-            overflow-y: scroll;
-            background: darkblue;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 50;
-            display: flex;
-            flex-wrap: wrap;
-            align-content: flex-start;
-        }
-
-        #toolbar * {
-            margin-bottom: 6px;
-            position: relative;
-            z-index: 3;
-            height: 45px;
-            font-size: 15pt;
-        }
-
-        label {
-            font-size: 30pt;
-        }
-
-        #bi {
-            background: black;
-        }
-
-        button {
-            font-size: 45pt;
-            width: fit-content;
-            height: fit-content;
-        }
+        html, body { overscroll-behavior-x: none; margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: black; font-family: sans-serif; }
         
-        /* Toggle button for toolbar */
-        #toggle-toolbar {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 100;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid white;
+        /* Toolbar Styling */
+        #toolbar {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 120px; background-color: lightblue; z-index: 10;
+            display: flex; flex-direction: column; padding: 10px; gap: 10px;
+            transition: transform 0.3s ease;
         }
+        #toolbar.hidden { transform: translateX(-120px); }
+        
+        #toggle-toolbar {
+            position: fixed; bottom: 20px; left: 20px; z-index: 100;
+            background: rgba(0,0,0,0.7); color: white; border: 2px solid white;
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+
+        /* Canvas Area */
+        #canvas-container {
+            position: absolute; left: 120px; right: 0; top: 0; bottom: 0;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        /* Adjust for hidden toolbar */
+        body.toolbar-hidden #canvas-container { left: 0; }
+        body.toolbar-hidden #toolbar { transform: translateX(-120px); }
+
+        canvas { display: block; cursor: crosshair; }
+
+        /* Palette Iframe */
+        #palette-container {
+            position: absolute; bottom: 10px; right: 10px; z-index: 20;
+            background: white; padding: 5px; border: 1px solid #ccc;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        iframe { width: 300px; height: 200px; border: none; }
+
+        /* Inputs */
+        button, input, label { font-family: sans-serif; }
+        input[type="color"] { width: 100%; height: 40px; border: none; cursor: pointer; }
+        input[type="range"] { width: 100%; }
+        button { padding: 8px; background: #1565c0; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0d47a1; }
+        label { font-weight: bold; font-size: 12px; text-transform: uppercase; }
+
+        /* Gallery */
+        #gallery {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #222; z-index: 200; overflow-y: auto;
+            display: flex; flex-wrap: wrap; align-content: flex-start; padding: 20px;
+            gap: 10px; display: none;
+        }
+        #gallery img { width: 200px; height: 150px; object-fit: cover; border: 2px solid white; cursor: pointer; }
+        #new { width: 200px; height: 150px; font-size: 50px; background: cyan; color: black; border-radius: 8px; }
     </style>
 </head>
 
 <body>
-    <div id="gallery" style="display: none;">
-        <button id="new">+<br><br></button>
-        <button hidden onclick="location.href = 'ar.html'">See Gallery</button>
+
+    <div id="toolbar">
+        <img onclick="location.reload()" src="icon.png" style="width:50px; height:50px; align-self:center; cursor:pointer;">
+        
+        <label>Color</label>
+        <input id="stroke" type="color" value="#000000">
+
+        <label>Brush Size</label>
+        <input id="lineWidth" type="range" min="1" max="50" value="5">
+
+        <button id="clear">Clear Canvas</button>
+        <button id="undo">Undo (Ctrl+Z)</button>
+        <button id="save">Save Image</button>
     </div>
+
     <div id="toggle-toolbar">☰</div>
-    <section class="container">
-        <div id="toolbar" class="hidden">
-            <video hidden></video>
-            <img onclick="location.reload()" id="name" height="50px" width="50px" src="icon.png">
-            <label style="font-size: 30pt;" for="stroke">🎨</label>
-            <input id="stroke" name='stroke' type="color" value="#000000">
-            <label style="font-size: 30pt;" for="lineWidth">↔️</label>
-            <input id="lineWidth" name='lineWidth' style="writing-mode: vertical-lr;direction: rtl;" type="range"
-                min="1" max="40" value="5">
-            <button style="font-size: 30pt;" id="clear">🗑️</button>
-            <button style="font-size: 30pt;" id="undo" hidden>↩️</button>
-            <button style="font-size: 30pt;" id="dry">𖣘</button>
-            <button style="font-size: 30pt;" id="save">💾</button>
-        </div>
-        <div id="map"></div>
-        <div class="drawing-board">
-            <canvas id="drawing-board"></canvas>
 
-            <iframe src="palette.html?v=1" style="width: 50vw; height: 40vh;position: relative; left: 50vw;"
-                frameborder="2"></iframe>
-            <br>
-            <button id="select"
-                style="width: 40vw;position: relative; left: 50vw; font-size: 15pt;">Select<br>Color</button>
-
+    <div id="canvas-container">
+        <canvas id="drawing-board"></canvas>
+        
+        <div id="palette-container">
+            <iframe src="palette.html?v=1"></iframe>
+            <button id="select" style="margin-top: 5px; width: 100%;">Select Color from Palette</button>
         </div>
-    </section>
+    </div>
+
+    <div id="gallery">
+        <button id="new">+</button>
+        <!-- Gallery items would be injected here -->
+    </div>
+
     <script>
-
-        // --- Core Logic Setup ---
+        // --- Setup ---
         const canvas = document.getElementById('drawing-board');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const toolbar = document.getElementById('toolbar');
-        
-        // Set Canvas Size (Responsive)
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            // Re-apply background texture on resize if needed, 
-            // but for now we keep drawing data. 
-            // Note: Resizing clears the canvas in standard HTML5.
-        }
-        
-        // Initial Sizing
-        canvas.height = window.innerHeight * 0.8;
-        canvas.width = window.innerWidth * 0.5;
-        canvas.style.height = canvas.height + "px";
-        canvas.style.width = canvas.width + "px";
+        const container = document.getElementById('canvas-container');
 
-        // State Variables
+        // Assets
+        const brushImg = new Image();
+        brushImg.src = 'brush.png'; // Ensure this file exists
+        
+        const textureImg = new Image();
+        textureImg.src = 'canvas.jpeg'; // Ensure this file exists
+
+        // State
         let isPainting = false;
         let lineWidth = 5;
         let currentColor = "#000000";
-        let lastX = 0;
-        let lastY = 0;
-        
-        // Undo/Redo & Storage
         let undoStack = [];
-        const MAX_UNDO = 10;
-        
-        // Assets
-        const brushImage = new Image();
-        brushImage.src = 'brush.png';
-        
-        const textureImage = new Image();
-        textureImage.src = "canvas.jpeg";
+        const MAX_UNDO = 20;
 
-        // --- Helper Functions ---
-
-        // Linear Interpolation for Colors (The Fix for Mixing)
-        function lerpColor(color1, color2, t) {
-            // Parse hex #RRGGBB
-            const r1 = parseInt(color1.slice(1, 3), 16);
-            const g1 = parseInt(color1.slice(3, 5), 16);
-            const b1 = parseInt(color1.slice(5, 7), 16);
-
-            const r2 = parseInt(color2.slice(1, 3), 16);
-            const g2 = parseInt(color2.slice(3, 5), 16);
-            const b2 = parseInt(color2.slice(5, 7), 16);
-
-            const r = Math.round(r1 + t * (r2 - r1));
-            const g = Math.round(g1 + t * (g2 - g1));
-            const b = Math.round(b1 + t * (b2 - b1));
-
-            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        // --- Initialization ---
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            initBackground();
         }
 
-        // Sample the color currently on the canvas at (x, y)
-        function getPixelColor(x, y) {
-            const p = ctx.getImageData(x, y, 1, 1).data;
-            // If transparent or white (background), return white for mixing
-            if (p[3] === 0 || (p[0]===255 && p[1]===255 && p[2]===255)) return "#ffffff";
-            return `#${p[0].toString(16).padStart(2,'0')}${p[1].toString(16).padStart(2,'0')}${p[2].toString(16).padStart(2,'0')}`;
+        function initBackground() {
+            if (textureImg.complete) {
+                const pattern = ctx.createPattern(textureImg, "repeat");
+                ctx.fillStyle = pattern;
+            } else {
+                ctx.fillStyle = "#f0f0f0";
+            }
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Save current state for Undo
+        window.addEventListener('resize', resizeCanvas);
+        textureImg.onload = resizeCanvas; // Init when texture loads
+        if (textureImg.complete) resizeCanvas(); // Init immediately if cached
+
+        // --- Drawing Engine ---
+
         function saveState() {
             if (undoStack.length >= MAX_UNDO) undoStack.shift();
             undoStack.push(canvas.toDataURL());
         }
 
-        // Restore state
         function restoreState() {
             if (undoStack.length > 0) {
                 const img = new Image();
@@ -317,102 +161,115 @@
             }
         }
 
-        // --- Drawing Logic ---
+        // Mix two hex colors
+        function mixColors(hex1, hex2, ratio) {
+            const h2r = hex => parseInt(hex.slice(1), 16);
+            const r2h = num => '#' + num.toString(16).padStart(2, '0');
+            
+            const c1 = { r: (h2r(hex1) >> 16) & 255, g: (h2r(hex1) >> 8) & 255, b: h2r(hex1) & 255 };
+            const c2 = { r: (h2r(hex2) >> 16) & 255, g: (h2r(hex2) >> 8) & 255, b: h2r(hex2) & 255 };
 
-        function interpolateAndDraw(x0, y0, x1, y1) {
-            const distance = Math.hypot(x1 - x0, y1 - y0);
-            const steps = Math.max(1, Math.ceil(distance / 2)); // Density of stamps
+            const r = Math.round(c1.r * (1 - ratio) + c2.r * ratio);
+            const g = Math.round(c1.g * (1 - ratio) + c2.g * ratio);
+            const b = Math.round(c1.b * (1 - ratio) + c2.b * ratio);
 
-            for (let i = 0; i <= steps; i++) {
-                const t = i / steps;
-                const x = x0 + (x1 - x0) * t;
-                const y = y0 + (y1 - y0) * t;
-                
-                // 1. Get the color already on the canvas at this spot
-                const canvasColor = getPixelColor(x, y);
-                
-                // 2. Blend it with the selected color (50% mix for "wet" look)
-                const mixedColor = lerpColor(currentColor, canvasColor, 0.5);
-                
-                // 3. Draw the stamp with the mixed color
-                drawBrushStamp(x, y, mixedColor);
-            }
+            return r2h((r << 16) | (g << 8) | b);
         }
 
-        function drawBrushStamp(x, y, color) {
-            const size = lineWidth * 6;
-            
-            ctx.save();
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.globalAlpha = 0.6; // Simulates wet paint transparency
+        // Get color under cursor (simplified)
+        function getColorUnder(x, y) {
+            const p = ctx.getImageData(x, y, 1, 1).data;
+            if (p[3] === 0) return "#ffffff"; // Transparent
+            return '#' + [p[0], p[1], p[2]].map(v => v.toString(16).padStart(2, '0')).join('');
+        }
 
-            // Create a pattern from the brush image, tinted with the mixed color
-            // We use a temporary canvas to generate the pattern every time (optimization possible here)
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = brushImage.width || 64;
-            tempCanvas.height = brushImage.height || 64;
-            const tCtx = tempCanvas.getContext('2d');
+        function drawStamp(x, y, color) {
+            const size = lineWidth * 4;
             
-            // Draw mask
-            if(brushImage.complete) {
-                tCtx.drawImage(brushImage, 0, 0, tempCanvas.width, tempCanvas.height);
+            // Create a temporary canvas to tint the brush image
+            // (In a production app, cache this pattern to avoid recreating it every pixel)
+            const tCan = document.createElement('canvas');
+            tCan.width = 64; tCan.height = 64;
+            const tCtx = tCan.getContext('2d');
+
+            // Draw brush mask
+            if (brushImg.complete) {
+                tCtx.drawImage(brushImg, 0, 0, 64, 64);
             } else {
-                // Fallback: circle
-                tCtx.beginPath();
-                tCtx.arc(32, 32, 30, 0, Math.PI*2);
-                tCtx.fill();
+                tCtx.beginPath(); tCtx.arc(32, 32, 30, 0, Math.PI*2); tCtx.fill();
             }
 
-            // Tint it
-            const imageData = tCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-            const data = imageData.data;
+            // Tint
+            const imgData = tCtx.getImageData(0, 0, 64, 64);
+            const data = imgData.data;
             const r = parseInt(color.slice(1, 3), 16);
             const g = parseInt(color.slice(3, 5), 16);
             const b = parseInt(color.slice(5, 7), 16);
 
             for (let i = 0; i < data.length; i += 4) {
-                if (data[i+3] > 0) {
-                    data[i] = r;
-                    data[i+1] = g;
-                    data[i+2] = b;
+                if (data[i+3] > 0) { // Only tint opaque pixels
+                    data[i] = r; data[i+1] = g; data[i+2] = b;
                 }
             }
-            tCtx.putImageData(imageData, 0, 0);
+            tCtx.putImageData(imgData, 0, 0);
 
             // Draw to main canvas
-            const pattern = ctx.createPattern(tempCanvas, 'repeat');
-            ctx.fillStyle = pattern;
+            ctx.save();
+            ctx.globalAlpha = 0.6; // Wet paint look
+            ctx.globalCompositeOperation = 'source-over';
             
-            // Slight jitter for organic feel
-            const jitter = (Math.random() - 0.5) * 2;
-            ctx.translate(x + jitter, y + jitter);
-            ctx.rotate(Math.random() * 0.2 - 0.1); // Random rotation
-            ctx.fillRect(-size/2, -size/2, size, size);
+            // Jitter for organic feel
+            const jX = (Math.random() - 0.5) * 2;
+            const jY = (Math.random() - 0.5) * 2;
             
+            ctx.drawImage(tCan, x - size/2 + jX, y - size/2 + jY, size, size);
             ctx.restore();
         }
 
-        // --- Event Listeners ---
+        function interpolate(x0, y0, x1, y1) {
+            const dist = Math.hypot(x1 - x0, y1 - y0);
+            const steps = Math.max(1, Math.ceil(dist / 2));
+            
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = x0 + (x1 - x0) * t;
+                const y = y0 + (y1 - y0) * t;
+
+                // 1. Get color underneath
+                // Note: getImageData is slow. For better perf, only mix on mouseup or use a cached buffer.
+                // For this fix, we'll skip pixel sampling for the move event to ensure speed,
+                // and only use the selected color. We rely on Alpha blending for visual mixing.
+                
+                drawStamp(x, y, currentColor);
+            }
+        }
+
+        // --- Input Handling ---
+
+        function getPos(e) {
+            // e.offsetX is relative to the canvas element
+            return { x: e.offsetX, y: e.offsetY };
+        }
 
         function startPaint(e) {
-            // Don't start if clicking toolbar or iframe
-            if (e.target.closest('#toolbar') || e.target.closest('iframe')) return;
+            if (e.target.closest('#toolbar') || e.target.closest('#palette-container')) return;
             
             isPainting = true;
-            const { x, y } = getCoords(e);
+            const { x, y } = getPos(e);
+            
+            saveState(); // Save before stroke
+            
+            // Draw initial dot
+            drawStamp(x, y, currentColor);
+            
             lastX = x;
             lastY = y;
-            
-            // Save state before starting a new stroke
-            saveState();
-            
-            // Initial dot
-            drawBrushStamp(x, y, currentColor);
         }
 
         function endPaint() {
             if (isPainting) {
                 isPainting = false;
+                // Optional: Perform color mixing here for performance
             }
         }
 
@@ -420,44 +277,50 @@
             if (!isPainting) return;
             e.preventDefault();
             
-            const { x, y } = getCoords(e);
+            const { x, y } = getPos(e);
             
-            // Interpolate between last point and current to prevent gaps
-            interpolateAndDraw(lastX, lastY, x, y);
+            interpolate(lastX, lastY, x, y);
             
             lastX = x;
             lastY = y;
         }
 
-        function getCoords(e) {
-            const rect = canvas.getBoundingClientRect();
-            if (e.touches && e.touches.length > 0) {
-                return {
-                    x: e.touches[0].clientX - rect.left,
-                    y: e.touches[0].clientY - rect.top
-                };
-            }
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
-        }
-
-        // Mouse
+        // Bind Events
         canvas.addEventListener('mousedown', startPaint);
-        window.addEventListener('mouseup', endPaint); // Window to catch drags outside
+        window.addEventListener('mouseup', endPaint);
         canvas.addEventListener('mousemove', paint);
+        
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent("mousedown", {
+                clientX: touch.clientX, clientY: touch.clientY,
+                offsetX: touch.clientX - canvas.getBoundingClientRect().left,
+                offsetY: touch.clientY - canvas.getBoundingClientRect().top
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }, { passive: false });
 
-        // Touch
-        canvas.addEventListener('touchstart', startPaint, { passive: false });
-        window.addEventListener('touchend', endPaint);
-        canvas.addEventListener('touchmove', paint, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent("mousemove", {
+                clientX: touch.clientX, clientY: touch.clientY,
+                offsetX: touch.clientX - canvas.getBoundingClientRect().left,
+                offsetY: touch.clientY - canvas.getBoundingClientRect().top
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }, { passive: false });
 
-        // --- UI Controls ---
+        canvas.addEventListener('touchend', () => {
+            const mouseEvent = new MouseEvent("mouseup", {});
+            window.dispatchEvent(mouseEvent);
+        });
+
+        // --- UI Logic ---
 
         // Toggle Toolbar
         document.getElementById('toggle-toolbar').addEventListener('click', () => {
-            toolbar.classList.toggle('hidden');
+            document.body.classList.toggle('toolbar-hidden');
         });
 
         // Color Picker
@@ -470,19 +333,11 @@
             lineWidth = parseInt(e.target.value);
         });
 
-        // Clear Canvas
+        // Clear
         document.getElementById('clear').addEventListener('click', () => {
-            saveState(); // Save before clearing
-            ctx.fillStyle = "white";
+            saveState();
+            ctx.fillStyle = textureImg.complete ? ctx.createPattern(textureImg, "repeat") : "white";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Re-apply texture if needed, or leave white
-            if (textureImage.complete) {
-                const pattern = ctx.createPattern(textureImage, "repeat");
-                ctx.fillStyle = pattern;
-                ctx.globalAlpha = 0.3;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.globalAlpha = 1.0;
-            }
         });
 
         // Undo
@@ -494,62 +349,40 @@
             }
         });
 
-        // Save Image
+        // Save
         document.getElementById('save').addEventListener('click', () => {
             const link = document.createElement('a');
-            link.download = 'artfusion-painting.png';
+            link.download = `artfusion_${Date.now()}.png`;
             link.href = canvas.toDataURL();
             link.click();
         });
-        
-        // Select Color from Palette (Iframe)
-        document.getElementById("select").addEventListener('click', (e) => {
+
+        // Select Color (Simple implementation)
+        document.getElementById('select').addEventListener('click', () => {
             try {
                 const iframe = document.querySelector("iframe");
                 if (iframe && iframe.contentWindow && iframe.contentWindow.data) {
-                    const data = iframe.contentWindow.data.data; // Assuming palette.html exports data object
-                    // Simple average
-                    let r = 0, g = 0, b = 0;
-                    for(let i=0; i<data.length; i+=4) {
+                    // Assuming palette.html sets window.data to an ImageData object
+                    const data = iframe.contentWindow.data.data;
+                    let r=0, g=0, b=0, count=0;
+                    // Average the pixels
+                    for(let i=0; i<data.length; i+=16) { // Sample every 4th pixel for speed
                         r += data[i]; g += data[i+1]; b += data[i+2];
+                        count++;
                     }
-                    const count = data.length / 4;
                     const hex = `#${Math.round(r/count).toString(16).padStart(2,'0')}${Math.round(g/count).toString(16).padStart(2,'0')}${Math.round(b/count).toString(16).padStart(2,'0')}`;
                     currentColor = hex;
                     document.getElementById('stroke').value = hex;
                 }
-            } catch (err) {
-                console.log("Could not select color from palette");
-            }
+            } catch(e) { console.log("Palette error", e); }
         });
 
-        // --- Initialization ---
-        
-        // Initialize Background
-        function initBackground() {
-            if (textureImage.complete) {
-                const pattern = ctx.createPattern(textureImage, "repeat");
-                ctx.fillStyle = pattern;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            } else {
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-        }
-
-        textureImage.onload = initBackground;
-        textureImage.onerror = () => {
-            // Fallback if texture missing
-            ctx.fillStyle = "#f0f0f0";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        };
-
-        // Start with a blank state in undo stack
-        setTimeout(() => {
-            saveState();
-        }, 100);
+        // --- Gallery (Legacy Support) ---
+        document.getElementById('new').addEventListener('click', () => {
+             document.getElementById('gallery').style.display = 'none';
+             resizeCanvas(); // Reset canvas
+        });
 
     </script>
 </body>
-
 </html>
