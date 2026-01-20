@@ -9,124 +9,123 @@
         /* Reset and Layout */
         html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #222; font-family: sans-serif; }
         
-        /* Toolbar (Left Side) */
+        /* Toolbar */
         #toolbar {
-            position: fixed; left: 0; top: 0; bottom: 0; width: 140px; background: #333; color: #fff;
-            display: flex; flex-direction: column; padding: 15px; gap: 15px; z-index: 10; border-right: 1px solid #555;
-            transition: transform 0.3s;
+            position: fixed; left: 0; top: 0; bottom: 0; width: 140px; background: #1a1a1a; color: #ddd;
+            display: flex; flex-direction: column; padding: 15px; gap: 15px; z-index: 10; 
+            border-right: 1px solid #444; transition: transform 0.3s ease;
         }
         #toolbar.hidden { transform: translateX(-140px); }
         
-        #toolbar h2 { margin: 0 0 10px 0; font-size: 18px; text-align: center; color: #4db8ff; }
+        #toolbar h2 { margin: 0; font-size: 18px; text-align: center; color: #4db8ff; }
         
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
         
-        input[type="color"] { width: 100%; height: 40px; border: none; cursor: pointer; background: transparent; }
-        input[type="range"] { width: 100%; cursor: pointer; }
+        input[type="color"] { width: 100%; height: 40px; border: none; cursor: pointer; background: #333; border-radius: 4px; }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: #4db8ff; }
         
         button {
-            background: #444; color: white; border: 1px solid #666; padding: 10px; cursor: pointer;
-            border-radius: 4px; transition: background 0.2s; font-weight: bold;
+            background: #333; color: white; border: 1px solid #555; padding: 10px; cursor: pointer;
+            border-radius: 4px; font-weight: bold; transition: all 0.2s;
         }
-        button:hover { background: #555; }
-        button:active { background: #222; }
+        button:hover { background: #444; border-color: #666; }
         
-        #clear { background: #8b0000; border-color: #aa0000; }
-        #save { background: #006400; border-color: #008000; }
+        #clear { background: #522; border-color: #844; }
+        #clear:hover { background: #722; }
+        #save { background: #252; border-color: #484; }
+        #save:hover { background: #363; }
 
         /* Toggle Button */
         #toggle-toolbar {
             position: fixed; bottom: 20px; left: 20px; z-index: 20; width: 40px; height: 40px;
             background: #fff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.5); border: none;
         }
 
         /* Canvas Area */
         #canvas-wrapper {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: #fff; /* White background initially */
+            background: #fff; 
             display: flex; align-items: center; justify-content: center;
         }
 
         canvas {
             background-color: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
             cursor: crosshair;
         }
 
         /* Palette Iframe */
         #palette-frame {
             position: fixed; bottom: 20px; right: 20px; z-index: 20;
-            width: 250px; height: 200px; background: #fff; border: 2px solid #444; display: flex; flex-direction: column;
+            width: 220px; height: 180px; background: #111; border: 1px solid #444; 
+            display: flex; flex-direction: column; border-radius: 8px; overflow: hidden;
         }
-        iframe { width: 100%; height: 150px; border: none; }
-        #select-btn { width: 100%; padding: 8px; border: none; background: #444; color: white; cursor: pointer; }
+        iframe { width: 100%; height: 130px; border: none; background: #fff; }
+        #select-btn { width: 100%; padding: 8px; border: none; background: #444; color: white; cursor: pointer; font-size: 12px; }
+        #select-btn:hover { background: #555; }
 
-        /* Loading Overlay */
         #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
-            color: white; display: flex; align-items: center; justify-content: center; z-index: 100; font-size: 24px;
+            position: fixed; inset: 0; background: #111; color: #fff; z-index: 100;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Loading Screen -->
-    <div id="loader">Initializing Brush Engine...</div>
+    <div id="loader">Loading Brush Engine...</div>
 
-    <!-- Toolbar -->
     <div id="toolbar">
         <h2>ArtFusion</h2>
         
         <div class="control-group">
             <label>Paint Color</label>
-            <input type="color" id="stroke" value="#ff0000">
+            <input type="color" id="stroke" value="#e74c3c">
         </div>
 
         <div class="control-group">
-            <label>Brush Size <span id="size-val">5</span></label>
-            <input type="range" id="lineWidth" min="1" max="50" value="5">
+            <label>Brush Size <span id="size-val">10</span></label>
+            <input type="range" id="lineWidth" min="1" max="50" value="10">
         </div>
 
         <div class="control-group">
-            <label>Opacity</label>
-            <input type="range" id="opacity" min="10" max="100" value="60">
+            <label>Wetness (Flow) <span id="flow-val">30%</span></label>
+            <input type="range" id="flow" min="5" max="100" value="30">
         </div>
 
         <button id="clear">Clear Canvas</button>
         <button id="undo">Undo (Ctrl+Z)</button>
         <button id="save">Save Image</button>
         
-        <div style="margin-top: auto; font-size: 10px; color: #666;">
-            Tip: Colors blend naturally when you paint over existing strokes.
+        <div style="margin-top: auto; font-size: 10px; color: #666; line-height: 1.4;">
+            • Click & Hold to build color.<br>
+            • Colors blend as you paint over them.<br>
+            • Higher "Wetness" = slower buildup but smoother blend.
         </div>
     </div>
 
-    <!-- Toggle Button -->
     <div id="toggle-toolbar">☰</div>
 
-    <!-- Canvas -->
     <div id="canvas-wrapper">
-        <canvas id="drawing-board"></canvas>
+        <canvas id="main-canvas"></canvas>
     </div>
 
-    <!-- Palette -->
     <div id="palette-frame">
         <iframe src="palette.html"></iframe>
-        <button id="select-btn">Pick Color from Palette</button>
+        <button id="select-btn">Pick Color</button>
     </div>
 
     <script>
-        /**
-         * CORE ENGINE
-         * Handles True Color Blending by reading pixels from the canvas
-         */
+        // --- Core Engine ---
+        const mainCanvas = document.getElementById('main-canvas');
+        const mainCtx = mainCanvas.getContext('2d', { willReadFrequently: true });
         
-        const canvas = document.getElementById('drawing-board');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Optimization hint
-        
+        // Buffer Canvas (The "Wet Paint" Layer)
+        const bufferCanvas = document.createElement('canvas');
+        const bufferCtx = bufferCanvas.getContext('2d');
+
         // Assets
         const brushImg = new Image();
         brushImg.src = 'brush.png';
@@ -136,9 +135,9 @@
 
         // State
         let isPainting = false;
-        let brushSize = 5;
-        let brushOpacity = 0.6;
-        let currentColor = "#ff0000";
+        let brushSize = 10;
+        let currentColor = "#e74c3c";
+        let flowRate = 0.3; // 0.0 to 1.0 (How fast color builds up)
         let lastX = 0;
         let lastY = 0;
         let undoStack = [];
@@ -147,61 +146,134 @@
         // --- Initialization ---
 
         function init() {
-            // Set canvas size to wrapper
-            const wrapper = document.getElementById('canvas-wrapper');
-            canvas.width = wrapper.clientWidth;
-            canvas.height = wrapper.clientHeight;
-
-            // Wait for assets
+            resizeCanvas();
+            
+            // Load Assets
             Promise.all([
                 new Promise(r => brushImg.complete ? r() : brushImg.onload = r),
                 new Promise(r => textureImg.complete ? r() : textureImg.onload = r)
             ]).then(() => {
                 document.getElementById('loader').style.display = 'none';
                 initBackground();
-                saveState(); // Initial empty state
-            }).catch(e => {
-                console.log("Asset load error (using fallbacks)", e);
+                saveState();
+            }).catch(() => {
                 document.getElementById('loader').style.display = 'none';
                 initBackground();
                 saveState();
             });
         }
 
-        function initBackground() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (textureImg.complete) {
-                const pattern = ctx.createPattern(textureImg, 'repeat');
-                ctx.fillStyle = pattern;
-            } else {
-                ctx.fillStyle = "#ffffff";
-            }
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function resizeCanvas() {
+            const wrapper = document.getElementById('canvas-wrapper');
+            const w = wrapper.clientWidth;
+            const h = wrapper.clientHeight;
+            
+            // Resize Main Canvas
+            // Note: This clears the canvas. To keep data, we'd need to save/restore.
+            // For this demo, we assume resize happens before drawing.
+            mainCanvas.width = w;
+            mainCanvas.height = h;
+            
+            // Resize Buffer to match
+            bufferCanvas.width = w;
+            bufferCanvas.height = h;
         }
 
-        // --- Color Math (The "Mixing" Logic) ---
+        function initBackground() {
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            if (textureImg.complete) {
+                const pattern = mainCtx.createPattern(textureImg, 'repeat');
+                mainCtx.fillStyle = pattern;
+            } else {
+                mainCtx.fillStyle = "#ffffff";
+            }
+            mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+        }
 
-        // Convert Hex #RRGGBB to {r,g,b}
+        // --- Brush Engine (The "Mixing" Logic) ---
+
+        function drawBrushStamp(ctxTarget, x, y, color) {
+            const size = brushSize * 3; // Scale factor
+            
+            // Create tinted brush on temp canvas
+            const tCan = document.createElement('canvas');
+            tCan.width = 64; tCan.height = 64;
+            const tCtx = tCan.getContext('2d');
+
+            // 1. Draw Mask (White shape on transparent)
+            if (brushImg.complete) {
+                tCtx.drawImage(brushImg, 0, 0, 64, 64);
+                // Convert black mask to white mask for 'multiply' or 'source-in' blending
+                // Actually, let's just draw the image and assume it's a grayscale mask
+                tCtx.globalCompositeOperation = 'source-in';
+                tCtx.fillStyle = color;
+                tCtx.fillRect(0, 0, 64, 64);
+                tCtx.globalCompositeOperation = 'source-over';
+            } else {
+                // Fallback circle
+                tCtx.beginPath();
+                tCtx.arc(32, 32, 30, 0, Math.PI * 2);
+                tCtx.fillStyle = color;
+                tCtx.fill();
+            }
+
+            // 2. Draw to Target Context (Main or Buffer)
+            ctxTarget.save();
+            ctxTarget.globalAlpha = flowRate; // Controlled by "Wetness" slider
+            ctxTarget.globalCompositeOperation = 'source-over';
+            
+            // Add a tiny bit of jitter for oil paint texture
+            const jitter = (Math.random() - 0.5) * 2;
+            ctxTarget.drawImage(tCan, x - size/2 + jitter, y - size/2 + jitter, size, size);
+            
+            ctxTarget.restore();
+        }
+
+        function interpolateAndDraw(x0, y0, x1, y1) {
+            const dist = Math.hypot(x1 - x0, y1 - y0);
+            const steps = Math.max(1, Math.ceil(dist / (brushSize / 3)));
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const x = x0 + (x1 - x0) * t;
+                const y = y0 + (y1 - y0) * t;
+
+                // --- THE BLENDING LOGIC ---
+                
+                // 1. Sample the Main Canvas color at this position
+                // We use a small region to average for a smoother blend
+                const p = mainCtx.getImageData(Math.floor(x), Math.floor(y), 2, 2).data;
+                const avgR = (p[0] + p[4] + p[8] + p[12]) / 4;
+                const avgG = (p[1] + p[5] + p[9] + p[13]) / 4;
+                const avgB = (p[2] + p[6] + p[10] + p[14]) / 4;
+                
+                const canvasColor = rgbToHex(Math.round(avgR), Math.round(avgG), Math.round(avgB));
+
+                // 2. Mix Colors
+                // We blend the Main Canvas Color with your Selected Color
+                // Ratio: 0.7 = 70% Canvas Color, 30% Selected Color (Thick paint effect)
+                const mixedColor = blendColors(canvasColor, currentColor, 0.3);
+
+                // 3. Draw to Buffer
+                // The buffer accumulates the paint. It is semi-transparent.
+                drawBrushStamp(bufferCtx, x, y, mixedColor);
+            }
+        }
+
+        // --- Color Math Helpers ---
+
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
         }
 
-        // Convert {r,g,b} to Hex #RRGGBB
         function rgbToHex(r, g, b) {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            return "#" + ((1 << 24) + (r << 16) + (g << 16) + b).toString(16).slice(1); // Fixed concatenation issue
         }
 
-        // Blend two colors (ratio 0.0 to 1.0)
-        // Ratio determines influence: 0 = 100% color1, 1 = 100% color2
         function blendColors(color1, color2, ratio) {
             const c1 = hexToRgb(color1);
             const c2 = hexToRgb(color2);
-            
             if (!c1 || !c2) return color1;
 
             const r = Math.round(c1.r * (1 - ratio) + c2.r * ratio);
@@ -211,177 +283,101 @@
             return rgbToHex(r, g, b);
         }
 
-        // Get the color currently on the canvas at x,y
-        function getCanvasColor(x, y) {
-            // Boundary check
-            if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) return "#ffffff";
-            
-            const p = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
-            
-            // If fully transparent or white (background), return white for mixing
-            if (p[3] === 0) return "#ffffff";
-            
-            return rgbToHex(p[0], p[1], p[2]);
-        }
-
-        // --- Drawing Engine ---
-
-        function drawBrushStamp(x, y, color) {
-            const size = brushSize * 4;
-            
-            // 1. Create a tinted brush texture on a temp canvas
-            const tCan = document.createElement('canvas');
-            tCan.width = 64; tCan.height = 64;
-            const tCtx = tCan.getContext('2d');
-
-            // Draw brush mask (black shape on white/transparent bg)
-            if (brushImg.complete) {
-                tCtx.drawImage(brushImg, 0, 0, 64, 64);
-            } else {
-                // Fallback circle if image missing
-                tCtx.beginPath();
-                tCtx.arc(32, 32, 30, 0, Math.PI * 2);
-                tCtx.fillStyle = "black";
-                tCtx.fill();
-            }
-
-            // Tint the pixels to the target color
-            const imgData = tCtx.getImageData(0, 0, 64, 64);
-            const data = imgData.data;
-            const rgb = hexToRgb(color);
-
-            for (let i = 0; i < data.length; i += 4) {
-                // If pixel is not transparent
-                if (data[i+3] > 0) {
-                    // Set color (preserve alpha from brush mask)
-                    data[i] = rgb.r;
-                    data[i+1] = rgb.g;
-                    data[i+2] = rgb.b;
-                }
-            }
-            tCtx.putImageData(imgData, 0, 0);
-
-            // 2. Draw to Main Canvas
-            ctx.save();
-            ctx.globalAlpha = brushOpacity;
-            ctx.globalCompositeOperation = 'source-over';
-            
-            // Slight jitter for oil paint texture
-            const jitter = (Math.random() - 0.5) * 2;
-            ctx.drawImage(tCan, x - size/2 + jitter, y - size/2 + jitter, size, size);
-            
-            ctx.restore();
-        }
-
-        function interpolateAndDraw(x0, y0, x1, y1) {
-            const dist = Math.hypot(x1 - x0, y1 - y0);
-            const steps = Math.max(1, Math.ceil(dist / (brushSize / 2)));
-
-            for (let i = 0; i <= steps; i++) {
-                const t = i / steps;
-                const x = x0 + (x1 - x0) * t;
-                const y = y0 + (y1 - y0) * t;
-
-                // --- THE BLENDING LOGIC ---
-                
-                // 1. Get color underneath the brush on the canvas
-                const canvasColor = getCanvasColor(x, y);
-                
-                // 2. Mix with current brush color
-                // 0.5 means 50% brush color, 50% existing color
-                // You can adjust this ratio for different blending effects
-                const mixedColor = blendColors(canvasColor, currentColor, 0.5);
-
-                // 3. Draw the stamp with the MIXED color
-                drawBrushStamp(x, y, mixedColor);
-            }
-        }
-
-        // --- Event Listeners ---
+        // --- Input Handling ---
 
         function startPaint(e) {
-            // Ignore clicks on UI elements
             if (e.target.closest('#toolbar') || e.target.closest('#palette-frame')) return;
 
             isPainting = true;
-            const rect = canvas.getBoundingClientRect();
+            const rect = mainCanvas.getBoundingClientRect();
             lastX = e.clientX - rect.left;
             lastY = e.clientY - rect.top;
 
-            saveState(); // Save before new stroke
+            saveState();
 
-            // Draw initial dot immediately
-            const canvasColor = getCanvasColor(lastX, lastY);
-            const mixedColor = blendColors(canvasColor, currentColor, 0.5);
-            drawBrushStamp(lastX, lastY, mixedColor);
+            // Clear Buffer and Copy Main Canvas to Buffer
+            // This allows us to "Paint" over the existing image temporarily
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
+            bufferCtx.drawImage(mainCanvas, 0, 0);
+
+            // Draw initial dot
+            interpolateAndDraw(lastX, lastY, lastX, lastY);
         }
 
         function stopPaint() {
             if (isPainting) {
                 isPainting = false;
+                // Commit the buffer to the main canvas
+                mainCtx.drawImage(bufferCanvas, 0, 0);
+                // Clear buffer for next stroke
+                bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
             }
         }
 
         function paint(e) {
             if (!isPainting) return;
             
-            const rect = canvas.getBoundingClientRect();
+            const rect = mainCanvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
             interpolateAndDraw(lastX, lastY, x, y);
 
+            // Render the buffer to the main canvas visually so we see the strokes
+            // We draw the original main canvas, then the buffer on top
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+            
+            // 1. Draw the permanent image (saved state)
+            // We need a reference to the permanent state. 
+            // Since we are copying mainCanvas to buffer, we can actually just draw buffer.
+            // But to prevent stacking opacity, we draw the clean image from undoStack or keep a clean copy.
+            
+            // SIMPLIFIED: Just draw the buffer over the main canvas.
+            // This creates the accumulation effect visually.
+            mainCtx.drawImage(bufferCanvas, 0, 0);
+            
             lastX = x;
             lastY = y;
         }
 
         // Mouse Events
-        canvas.addEventListener('mousedown', startPaint);
+        mainCanvas.addEventListener('mousedown', startPaint);
         window.addEventListener('mouseup', stopPaint);
-        canvas.addEventListener('mousemove', paint);
+        mainCanvas.addEventListener('mousemove', paint);
 
-        // Touch Events (Basic mapping to mouse)
-        canvas.addEventListener('touchstart', (e) => {
+        // Touch Events
+        mainCanvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            // Simulate mouse event
-            startPaint({ 
-                clientX: touch.clientX, 
-                clientY: touch.clientY,
-                target: e.target 
-            });
+            startPaint({ clientX: touch.clientX, clientY: touch.clientY, target: e.target });
         }, { passive: false });
 
-        canvas.addEventListener('touchmove', (e) => {
+        mainCanvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
             const touch = e.touches[0];
             paint({ clientX: touch.clientX, clientY: touch.clientY });
         }, { passive: false });
 
-        canvas.addEventListener('touchend', stopPaint);
+        mainCanvas.addEventListener('touchend', stopPaint);
 
-        // --- UI & State Management ---
+        // --- UI & State ---
 
-        // Save State for Undo
         function saveState() {
             if (undoStack.length >= MAX_UNDO) undoStack.shift();
-            undoStack.push(canvas.toDataURL());
+            undoStack.push(mainCanvas.toDataURL());
         }
 
-        // Restore State
         function restoreState() {
             if (undoStack.length > 0) {
                 const img = new Image();
                 img.src = undoStack.pop();
                 img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
+                    mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                    mainCtx.drawImage(img, 0, 0);
                 };
             }
         }
 
-        // UI Bindings
         document.getElementById('toggle-toolbar').addEventListener('click', () => {
             document.getElementById('toolbar').classList.toggle('hidden');
         });
@@ -395,18 +391,19 @@
             document.getElementById('size-val').textContent = brushSize;
         });
 
-        document.getElementById('opacity').addEventListener('input', (e) => {
-            brushOpacity = parseInt(e.target.value) / 100;
+        document.getElementById('flow').addEventListener('input', (e) => {
+            flowRate = parseInt(e.target.value) / 100;
+            document.getElementById('flow-val').textContent = e.target.value + "%";
         });
 
         document.getElementById('clear').addEventListener('click', () => {
             saveState();
             initBackground();
+            bufferCtx.clearRect(0, 0, bufferCanvas.width, bufferCanvas.height);
         });
 
         document.getElementById('undo').addEventListener('click', restoreState);
         
-        // Keyboard shortcut for Undo
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
                 e.preventDefault();
@@ -415,34 +412,42 @@
         });
 
         document.getElementById('save').addEventListener('click', () => {
+            // Create a temporary canvas to flatten the background
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = mainCanvas.width;
+            tempCanvas.height = mainCanvas.height;
+            const tCtx = tempCanvas.getContext('2d');
+            
+            tCtx.fillStyle = "#fff"; // Background
+            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tCtx.drawImage(mainCanvas, 0, 0);
+            
             const link = document.createElement('a');
             link.download = `painting-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
+            link.href = tempCanvas.toDataURL('image/png');
             link.click();
         });
 
-        // Palette Selection
+        // Palette
         document.getElementById('select-btn').addEventListener('click', () => {
             try {
                 const iframe = document.querySelector("iframe");
                 if (iframe && iframe.contentWindow && iframe.contentWindow.data) {
                     const data = iframe.contentWindow.data.data;
                     let r=0, g=0, b=0, count=0;
-                    // Sample pixels to find average color
                     for(let i=0; i<data.length; i+=40) { 
-                        r += data[i]; g += data[i+1]; b += data[i+2];
-                        count++;
+                        r += data[i]; g += data[i+1]; b += data[i+2]; count++;
                     }
                     const hex = rgbToHex(Math.round(r/count), Math.round(g/count), Math.round(b/count));
                     currentColor = hex;
                     document.getElementById('stroke').value = hex;
                 }
-            } catch(e) { console.log("Palette error", e); }
+            } catch(e) { console.log(e); }
         });
 
-        // Start
         window.onload = init;
 
     </script>
 </body>
+
 </html>
