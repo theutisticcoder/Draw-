@@ -619,7 +619,7 @@
             const brushCanvas = document.createElement('canvas');
             brushCanvas.width = 50;
             brushCanvas.height = 50;
-            const brushCtx = brushCanvas.getContext('2d', { willReadFrequently: true });
+            const brushCtx = brushCanvas.getContext('2d');
 
             // Generate noise or load an image of a brush stroke
             const imageData = brushCtx.createImageData(50, 50);
