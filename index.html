@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oil Studio – Realistic Painting App</title>
+    <title>Oil Studio – Realistic Paint Mixing</title>
     <style>
         * {
             margin: 0;
@@ -22,7 +22,7 @@
 
         .studio-container {
             display: grid;
-            grid-template-columns: 1fr 300px 350px;
+            grid-template-columns: 1fr 280px 340px;
             gap: 20px;
             height: calc(100vh - 40px);
         }
@@ -39,7 +39,7 @@
         }
 
         .canvas-title {
-            font-size: 20px;
+            font-size: 18px;
             letter-spacing: 1px;
             text-transform: uppercase;
             color: #c4a87c;
@@ -48,39 +48,42 @@
 
         #canvas {
             flex: 1;
-            border: 8px solid #5a4a3a;
+            border: 10px solid #5a4a3a;
             border-radius: 2px;
             cursor: crosshair;
-            background: linear-gradient(135deg, #f5f1ed 0%, #efe9e3 100%);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, #faf8f5 0%, #f0ede9 100%);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.6);
             display: block;
+            image-rendering: pixelated;
         }
 
         .brush-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
+            padding: 18px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
+            height: calc(100vh - 40px);
         }
 
         .palette-section {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
+            padding: 18px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
+            height: calc(100vh - 40px);
         }
 
         .panel-title {
-            font-size: 14px;
-            letter-spacing: 1px;
+            font-size: 12px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             color: #c4a87c;
             font-weight: bold;
@@ -93,148 +96,145 @@
         }
 
         .control-label {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #a0a0a0;
+            color: #999;
+            font-weight: 600;
         }
 
         input[type="range"] {
             width: 100%;
-            height: 6px;
+            height: 5px;
             border-radius: 3px;
-            background: linear-gradient(90deg, #4a4a4e 0%, #6a6a6e 100%);
+            background: linear-gradient(90deg, #3a3a3e 0%, #5a5a5e 100%);
             outline: none;
             cursor: pointer;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: #c4a87c;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: #c4a87c;
             cursor: pointer;
             border: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
         }
 
         .brush-selector {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
 
         .brush-btn, .btn, .add-color-btn {
-            padding: 10px;
-            border: 1px solid rgba(196, 168, 124, 0.3);
-            background: rgba(196, 168, 124, 0.1);
+            padding: 8px;
+            border: 1px solid rgba(196, 168, 124, 0.25);
+            background: rgba(196, 168, 124, 0.08);
             color: #c4a87c;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             font-family: Georgia, serif;
+            letter-spacing: 0.3px;
         }
 
         .brush-btn:hover, .btn:hover, .add-color-btn:hover {
-            background: rgba(196, 168, 124, 0.2);
+            background: rgba(196, 168, 124, 0.15);
             border-color: #c4a87c;
         }
 
         .brush-btn.active {
             background: #c4a87c;
             color: #1a1a1e;
+            border-color: #c4a87c;
         }
 
         .canvas-controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
         }
 
         .undo-redo {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
         }
 
         .color-display {
             width: 100%;
-            height: 70px;
-            border: 2px solid rgba(196, 168, 124, 0.5);
-            border-radius: 4px;
+            height: 60px;
+            border: 2px solid rgba(196, 168, 124, 0.4);
+            border-radius: 3px;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
-            color: rgba(0, 0, 0, 0.7);
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.6);
             font-weight: 600;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .color-palette-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(196, 168, 124, 0.2);
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            border-radius: 3px;
+            border: 1px solid rgba(196, 168, 124, 0.15);
         }
 
         .palette-color {
             width: 100%;
             aspect-ratio: 1;
-            border: 2px solid rgba(196, 168, 124, 0.3);
-            border-radius: 4px;
+            border: 1px solid rgba(196, 168, 124, 0.25);
+            border-radius: 3px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0.5px 1px rgba(255, 255, 255, 0.1);
         }
 
         .palette-color:hover {
-            transform: scale(1.05);
+            transform: scale(1.08);
             border-color: #c4a87c;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 8px rgba(196, 168, 124, 0.3);
+            box-shadow: inset 0 0.5px 1px rgba(255, 255, 255, 0.1), 0 0 6px rgba(196, 168, 124, 0.25);
         }
 
-        .palette-color.active::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        .palette-color.active {
+            border: 2px solid #c4a87c;
+            box-shadow: inset 0 0.5px 1px rgba(255, 255, 255, 0.1), 0 0 8px rgba(196, 168, 124, 0.4);
         }
 
         input[type="color"] {
-            width: 50px;
-            height: 40px;
-            border: 1px solid rgba(196, 168, 124, 0.3);
-            border-radius: 4px;
+            width: 45px;
+            height: 36px;
+            border: 1px solid rgba(196, 168, 124, 0.25);
+            border-radius: 3px;
             cursor: pointer;
         }
 
         .custom-color-input {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
@@ -243,26 +243,26 @@
         }
 
         .mixing-info {
-            font-size: 10px;
+            font-size: 9px;
             color: #888;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            border-left: 2px solid rgba(196, 168, 124, 0.3);
-            line-height: 1.4;
+            padding: 7px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+            border-left: 2px solid rgba(196, 168, 124, 0.25);
+            line-height: 1.3;
         }
 
         .divider {
-            height: 1px;
+            height: 0.5px;
             background: rgba(196, 168, 124, 0.1);
         }
 
-        .value-display {
-            font-size: 11px;
+        output {
+            font-size: 10px;
             color: #c4a87c;
             text-align: center;
             display: block;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         @media (max-width: 1400px) {
@@ -279,7 +279,7 @@
             <h1 class="canvas-title">Canvas</h1>
             <canvas id="canvas"></canvas>
             <div class="canvas-controls">
-                <button class="btn" id="clearBtn">Clear Canvas</button>
+                <button class="btn" id="clearBtn">Clear</button>
                 <button class="btn" id="downloadBtn">Download</button>
             </div>
         </div>
@@ -298,28 +298,28 @@
             <div class="divider"></div>
 
             <div class="control-group">
-                <label class="control-label">Size</label>
-                <input type="range" id="brushSize" min="1" max="100" value="20">
-                <span class="value-display" id="sizeOutput">20px</span>
+                <label class="control-label">Size (px)</label>
+                <input type="range" id="brushSize" min="2" max="150" value="30">
+                <output id="sizeOutput">30</o>
             </div>
 
             <div class="control-group">
                 <label class="control-label">Opacity</label>
-                <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="1">
-                <span class="value-display" id="opacityOutput">100%</span>
+                <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.8">
+                <output id="opacityOutput">80%</o>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Wet/Dry</label>
+                <input type="range" id="wetness" min="0" max="1" step="0.05" value="0.7">
+                <output id="wetnessOutput">70%</o>
             </div>
 
             <div class="divider"></div>
 
-            <div class="control-group">
-                <label class="control-label">Hardness</label>
-                <input type="range" id="hardness" min="0" max="1" step="0.1" value="0.7">
-                <span class="value-display" id="hardnessOutput">70%</span>
-            </div>
-
             <div class="undo-redo">
-                <button class="btn" id="undoBtn">Undo</button>
-                <button class="btn" id="redoBtn">Redo</button>
+                <button class="btn" id="undoBtn">↶ Undo</button>
+                <button class="btn" id="redoBtn">↷ Redo</button>
             </div>
         </div>
 
@@ -327,21 +327,21 @@
         <div class="palette-section">
             <h2 class="panel-title">Palette</h2>
 
-            <div class="color-display" id="colorDisplay">Current: White</div>
+            <div class="color-display" id="colorDisplay">White</div>
 
-            <h3 class="panel-title" style="font-size: 12px; margin: 0;">Colors</h3>
+            <h3 class="panel-title" style="font-size: 10px;">Colors</h3>
             <div class="color-palette-grid" id="paletteGrid"></div>
 
             <div class="divider"></div>
 
-            <h3 class="panel-title" style="font-size: 12px; margin: 0;">Add Custom</h3>
+            <h3 class="panel-title" style="font-size: 10px;">Add Custom</h3>
             <div class="custom-color-input">
                 <input type="color" id="colorPicker" value="#ffffff">
-                <button class="add-color-btn" id="addColorBtn">Add</button>
+                <button class="add-color-btn" id="addColorBtn">+</button>
             </div>
 
             <div class="mixing-info">
-                <strong>Mixing:</strong> Click a color, then paint to blend colors naturally on the canvas. Oil paint mixes!
+                Paint with one color, then paint over with another. Colors blend naturally using subtraction (like real oil).
             </div>
         </div>
     </div>
@@ -350,16 +350,17 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         
-        // Declare all variables first
+        // Variables first
         let painting = false;
         let currentColor = '#ffffff';
         let brushType = 'round';
-        let brushSize = 20;
-        let opacity = 1;
-        let hardness = 0.7;
+        let brushSize = 30;
+        let opacity = 0.8;
+        let wetness = 0.7;
         let history = [];
         let historyStep = -1;
-        const maxHistory = 50;
+        const maxHistory = 40;
+        let lastX = 0, lastY = 0;
 
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
@@ -368,68 +369,158 @@
             ctx.scale(dpr, dpr);
             redraw();
         }
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        const defaultColors = ['#ffffff', '#000000', '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+        // Color utilities
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 255, g: 255, b: 255 };
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = Math.round(x).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        // Realistic oil paint mixing using subtractive color model
+        function mixColors(color1RGB, color2RGB, ratio) {
+            // Oil paint mixes subtractive - darker when mixed
+            const invRatio = 1 - ratio;
+            return {
+                r: Math.round((color1RGB.r * invRatio + color2RGB.r * ratio) * 0.95),
+                g: Math.round((color1RGB.g * invRatio + color2RGB.g * ratio) * 0.95),
+                b: Math.round((color1RGB.b * invRatio + color2RGB.b * ratio) * 0.95)
+            };
+        }
+
+        function getCanvasPixelColor(x, y) {
+            const imageData = ctx.getImageData(x, y, 1, 1);
+            const data = imageData.data;
+            return { r: data[0], g: data[1], b: data[2], a: data[3] };
+        }
+
+        // Palette colors
+        const defaultColors = [
+            '#ffffff', '#000000', '#ff3333', '#ff6600', '#ffdd00',
+            '#00cc00', '#0066ff', '#6600cc', '#cc0099'
+        ];
         let paletteColors = [...defaultColors];
 
         function updatePaletteUI() {
             const grid = document.getElementById('paletteGrid');
             grid.innerHTML = '';
-            paletteColors.forEach(function(color) {
+            paletteColors.forEach((color) => {
                 const div = document.createElement('div');
                 div.className = 'palette-color';
                 div.style.backgroundColor = color;
                 if (color === currentColor) div.classList.add('active');
-                div.addEventListener('click', function() { selectColor(color); });
+                div.addEventListener('click', () => selectColor(color));
                 grid.appendChild(div);
             });
         }
 
         function selectColor(color) {
             currentColor = color;
-            document.getElementById('colorDisplay').textContent = 'Current: ' + color.toUpperCase();
+            const rgb = hexToRgb(color);
+            document.getElementById('colorDisplay').textContent = color.toUpperCase();
             updatePaletteUI();
         }
 
-        function drawBrushStroke(x, y) {
+        // Realistic brush stroke with proper blending
+        function drawBrushStroke(x, y, pressure = 1.0) {
             ctx.save();
-            ctx.globalAlpha = opacity;
 
-            if (brushType === 'round') {
-                const grad = ctx.createRadialGradient(x, y, 0, x, y, brushSize / 2);
-                grad.addColorStop(0, currentColor);
-                grad.addColorStop(hardness, currentColor);
-                grad.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (brushType === 'flat') {
-                ctx.fillStyle = currentColor;
-                ctx.fillRect(x - brushSize / 2, y - brushSize / 4, brushSize, brushSize / 2);
-            } else if (brushType === 'filbert') {
-                const grad2 = ctx.createRadialGradient(x, y, 0, x, y, brushSize / 2);
-                grad2.addColorStop(0, currentColor);
-                grad2.addColorStop(0.7, currentColor);
-                grad2.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = grad2;
-                ctx.beginPath();
-                ctx.ellipse(x, y, brushSize / 2.2, brushSize / 3, 0, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (brushType === 'fan') {
-                ctx.strokeStyle = currentColor;
-                ctx.lineWidth = 1;
-                for (let i = 0; i < 8; i++) {
-                    const angle = (i / 8) * Math.PI;
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + Math.cos(angle - Math.PI / 2) * brushSize, y + Math.sin(angle - Math.PI / 2) * brushSize);
-                    ctx.stroke();
-                }
+            const brushColor = hexToRgb(currentColor);
+            const blendAmount = wetness * opacity * pressure;
+
+            switch (brushType) {
+                case 'round':
+                    // Main brush circle with soft edges
+                    for (let r = brushSize / 2; r > 0; r -= 1) {
+                        const falloff = (brushSize / 2 - r) / (brushSize / 2);
+                        const alpha = opacity * (1 - falloff * falloff) * pressure;
+
+                        // Get canvas pixel and blend
+                        const canvasColor = getCanvasPixelColor(x, y);
+                        const mixed = mixColors(canvasColor, brushColor, Math.min(blendAmount * (1 - falloff), 1));
+                        const mixedHex = rgbToHex(mixed.r, mixed.g, mixed.b);
+
+                        ctx.fillStyle = mixedHex;
+                        ctx.globalAlpha = alpha * 0.5;
+                        ctx.beginPath();
+                        ctx.arc(x, y, r, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+
+                case 'flat':
+                    const w = brushSize * 1.5;
+                    const h = brushSize * 0.6;
+                    ctx.fillStyle = currentColor;
+                    ctx.globalAlpha = opacity * pressure;
+                    ctx.fillRect(x - w / 2, y - h / 2, w, h);
+                    break;
+
+                case 'filbert':
+                    // Elliptical blend
+                    for (let r = brushSize / 2; r > 0; r -= 0.8) {
+                        const falloff = (brushSize / 2 - r) / (brushSize / 2);
+                        const alpha = opacity * (1 - falloff) * pressure;
+                        
+                        const canvasColor = getCanvasPixelColor(x, y);
+                        const mixed = mixColors(canvasColor, brushColor, blendAmount * 0.7);
+                        const mixedHex = rgbToHex(mixed.r, mixed.g, mixed.b);
+
+                        ctx.fillStyle = mixedHex;
+                        ctx.globalAlpha = alpha * 0.4;
+                        ctx.beginPath();
+                        ctx.ellipse(x, y, r * 1.2, r * 0.8, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+
+                case 'fan':
+                    ctx.strokeStyle = currentColor;
+                    ctx.lineWidth = 1;
+                    ctx.globalAlpha = opacity * 0.6 * pressure;
+                    for (let i = 0; i < 12; i++) {
+                        const angle = (i / 12) * Math.PI;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(
+                            x + Math.cos(angle - Math.PI / 2) * brushSize,
+                            y + Math.sin(angle - Math.PI / 2) * brushSize
+                        );
+                        ctx.stroke();
+                    }
+                    break;
             }
+
             ctx.restore();
+        }
+
+        function redraw() {
+            if (historyStep >= 0 && history[historyStep]) {
+                const img = new Image();
+                img.onload = () => {
+                    const dpr = window.devicePixelRatio || 1;
+                    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = history[historyStep];
+            } else {
+                const dpr = window.devicePixelRatio || 1;
+                ctx.fillStyle = '#faf8f5';
+                ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+            }
         }
 
         function saveState() {
@@ -442,113 +533,96 @@
             }
         }
 
-        function redraw() {
-            if (historyStep >= 0 && history[historyStep]) {
-                const img = new Image();
-                img.onload = function() {
-                    const dpr = window.devicePixelRatio || 1;
-                    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-                    ctx.drawImage(img, 0, 0);
-                };
-                img.src = history[historyStep];
-            } else {
-                const dpr = window.devicePixelRatio || 1;
-                ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-                ctx.fillStyle = '#f5f1ed';
-                ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-            }
-        }
-
-        let lastX, lastY;
-
-        canvas.addEventListener('mousedown', function(e) {
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
             painting = true;
             saveState();
             const rect = canvas.getBoundingClientRect();
             const dpr = window.devicePixelRatio || 1;
             lastX = (e.clientX - rect.left) * dpr;
             lastY = (e.clientY - rect.top) * dpr;
+            drawBrushStroke(lastX, lastY);
         });
 
-        canvas.addEventListener('mousemove', function(e) {
+        canvas.addEventListener('mousemove', (e) => {
             if (!painting) return;
             const rect = canvas.getBoundingClientRect();
             const dpr = window.devicePixelRatio || 1;
             const x = (e.clientX - rect.left) * dpr;
             const y = (e.clientY - rect.top) * dpr;
+
+            // Smooth interpolation
             const dist = Math.hypot(x - lastX, y - lastY);
-            const steps = Math.ceil(dist / 3);
-            for (let i = 0; i <= steps; i++) {
-                const t = steps ? i / steps : 0;
+            const steps = Math.max(2, Math.ceil(dist / 3));
+            for (let i = 1; i <= steps; i++) {
+                const t = i / steps;
                 const ix = lastX + (x - lastX) * t;
                 const iy = lastY + (y - lastY) * t;
                 drawBrushStroke(ix, iy);
             }
+
             lastX = x;
             lastY = y;
         });
 
-        canvas.addEventListener('mouseup', function() {
-            painting = false;
-        });
+        canvas.addEventListener('mouseup', () => { painting = false; });
+        canvas.addEventListener('mouseleave', () => { painting = false; });
 
-        canvas.addEventListener('mouseleave', function() {
-            painting = false;
-        });
-
-        document.querySelectorAll('.brush-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.brush-btn').forEach(function(b) { b.classList.remove('active'); });
+        // Brush selection
+        document.querySelectorAll('.brush-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.brush-btn').forEach((b) => b.classList.remove('active'));
                 btn.classList.add('active');
                 brushType = btn.dataset.brush;
             });
         });
 
-        document.getElementById('brushSize').addEventListener('input', function(e) {
+        // Controls
+        document.getElementById('brushSize').addEventListener('input', (e) => {
             brushSize = parseInt(e.target.value);
-            document.getElementById('sizeOutput').textContent = brushSize + 'px';
+            document.getElementById('sizeOutput').textContent = brushSize;
         });
 
-        document.getElementById('opacity').addEventListener('input', function(e) {
+        document.getElementById('opacity').addEventListener('input', (e) => {
             opacity = parseFloat(e.target.value);
             document.getElementById('opacityOutput').textContent = Math.round(opacity * 100) + '%';
         });
 
-        document.getElementById('hardness').addEventListener('input', function(e) {
-            hardness = parseFloat(e.target.value);
-            document.getElementById('hardnessOutput').textContent = Math.round(hardness * 100) + '%';
+        document.getElementById('wetness').addEventListener('input', (e) => {
+            wetness = parseFloat(e.target.value);
+            document.getElementById('wetnessOutput').textContent = Math.round(wetness * 100) + '%';
         });
 
-        document.getElementById('undoBtn').addEventListener('click', function() {
+        document.getElementById('undoBtn').addEventListener('click', () => {
             if (historyStep > 0) {
                 historyStep--;
                 redraw();
             }
         });
 
-        document.getElementById('redoBtn').addEventListener('click', function() {
+        document.getElementById('redoBtn').addEventListener('click', () => {
             if (historyStep < history.length - 1) {
                 historyStep++;
                 redraw();
             }
         });
 
-        document.getElementById('clearBtn').addEventListener('click', function() {
-            if (confirm('Clear the canvas?')) {
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Clear canvas?')) {
                 history = [];
                 historyStep = -1;
                 redraw();
             }
         });
 
-        document.getElementById('downloadBtn').addEventListener('click', function() {
+        document.getElementById('downloadBtn').addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'oil-painting.png';
             link.href = canvas.toDataURL();
             link.click();
         });
 
-        document.getElementById('addColorBtn').addEventListener('click', function() {
+        document.getElementById('addColorBtn').addEventListener('click', () => {
             const color = document.getElementById('colorPicker').value;
             if (!paletteColors.includes(color)) {
                 paletteColors.push(color);
@@ -556,6 +630,7 @@
             }
         });
 
+        // Initialize
         updatePaletteUI();
         redraw();
     </script>
