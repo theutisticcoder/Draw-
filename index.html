@@ -122,11 +122,24 @@
             <h1 style="font-size: 30pt;">DrawPaw</h1>
             <label style="font-size: 30pt;" for="stroke">Stroke</label>
             <input id="stroke" name='stroke' type="color">
+            
+            <label style="font-size: 20pt;">Brush Type</label>
+            <select id="brushType" style="font-size: 15pt; height: 45px; margin-bottom: 6px;">
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+                <option value="soft">Soft</option>
+            </select>
+            
             <button id="erase">Eraser</button>
             <label style="font-size: 30pt;" for="lineWidth">Brush Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5" min="1" max="50">
             <label style="font-size: 30pt;" for="blendAmount">Blend Amount</label>
             <input id="blendAmount" name='blendAmount' type="range" min="0" max="100" value="70">
+            <label style="font-size: 20pt;" for="wetMix">Wet Mix</label>
+            <input id="wetMix" name='wetMix' type="range" min="0" max="100" value="50">
+            
+            <button id="undo">↶ Undo</button>
+            <button id="redo">↷ Redo</button>
             <button id="clear">Clear</button>
             <button id="dry">Dry</button>
             <button id="save">Save Image</button>
@@ -152,9 +165,61 @@
         const toolbar = document.getElementById('toolbar');
         var points = []
         
+        // Undo/Redo History
+        var history = [];
+        var historyStep = -1;
+        
+        function saveState() {
+            historyStep++;
+            if (historyStep < history.length) {
+                history.length = historyStep;
+            }
+            history.push({
+                canvas: canvas.toDataURL("image/png"),
+                points: JSON.parse(JSON.stringify(points))
+            });
+            if (history.length > 50) {
+                history.shift();
+                historyStep--;
+            }
+        }
+        
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                const state = history[historyStep];
+                const img = new Image();
+                img.onload = () => {
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
+                    ctx.drawImage(img, 150, 0);
+                    points = JSON.parse(JSON.stringify(state.points));
+                };
+                img.src = state.canvas;
+            }
+        }
+        
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                const state = history[historyStep];
+                const img = new Image();
+                img.onload = () => {
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
+                    ctx.drawImage(img, 150, 0);
+                    points = JSON.parse(JSON.stringify(state.points));
+                };
+                img.src = state.canvas;
+            }
+        }
+        
         document.querySelector("#dry").onclick = () => {
             points = []
         }
+        
+        document.querySelector("#undo").onclick = undo;
+        document.querySelector("#redo").onclick = redo;
         
         const eraser = document.getElementById('erase');
         const ctx = canvas.getContext('2d');
@@ -163,12 +228,16 @@
         const canvasOffsetY = canvas.offsetTop;
         var color = "#000000";
         var blendAmount = 70;
+        var wetMix = 50;
+        var brushType = "round";
         let isPainting = false;
         let lineWidth = 5;
 
         if (isNumber(localStorage.getItem("lw"))) lineWidth = parseInt(localStorage.getItem("lw"));
         if (localStorage.getItem("color")) color = localStorage.getItem("color");
         if (isNumber(localStorage.getItem("blend"))) blendAmount = parseInt(localStorage.getItem("blend"));
+        if (isNumber(localStorage.getItem("wetmix"))) wetMix = parseInt(localStorage.getItem("wetmix"));
+        if (localStorage.getItem("brushtype")) brushType = localStorage.getItem("brushtype");
 
         let startX;
         let startY;
@@ -200,6 +269,14 @@
 
             if (e.target.id === 'blendAmount') {
                 blendAmount = parseInt(e.target.value);
+            }
+
+            if (e.target.id === 'wetMix') {
+                wetMix = parseInt(e.target.value);
+            }
+
+            if (e.target.id === 'brushType') {
+                brushType = e.target.value;
             }
         });
 
@@ -291,35 +368,55 @@
                 const x = fromX + (toX - fromX) * t;
                 const y = fromY + (toY - fromY) * t;
                 
-                // Main stroke with soft brush
-                ctx.beginPath();
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = width;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.globalAlpha = 0.8;
-                ctx.moveTo(fromX + (toX - fromX) * (Math.max(0, seg - 1) / segments), 
-                           fromY + (toY - fromY) * (Math.max(0, seg - 1) / segments));
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                
-                // Shadow layers for depth
-                ctx.beginPath();
-                ctx.strokeStyle = shadeColor(strokeColor, -15);
-                ctx.lineWidth = width * 0.6;
-                ctx.globalAlpha = 0.5;
-                ctx.moveTo(x - width * 0.3, y);
-                ctx.lineTo(x + width * 0.3, y);
-                ctx.stroke();
-                
-                // Highlight layers for dimension
-                ctx.beginPath();
-                ctx.strokeStyle = shadeColor(strokeColor, 15);
-                ctx.lineWidth = width * 0.4;
-                ctx.globalAlpha = 0.4;
-                ctx.moveTo(x - width * 0.2, y - width * 0.2);
-                ctx.lineTo(x + width * 0.2, y + width * 0.2);
-                ctx.stroke();
+                if (brushType === "round") {
+                    // Round brush with circular gradient
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, width);
+                    gradient.addColorStop(0, strokeColor);
+                    gradient.addColorStop(0.7, strokeColor + '80');
+                    gradient.addColorStop(1, strokeColor + '00');
+                    
+                    ctx.beginPath();
+                    ctx.fillStyle = gradient;
+                    ctx.arc(x, y, width, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                } else if (brushType === "square") {
+                    // Square brush
+                    ctx.beginPath();
+                    ctx.fillStyle = strokeColor;
+                    ctx.fillRect(x - width / 2, y - width / 2, width, width);
+                    
+                } else if (brushType === "soft") {
+                    // Soft brush with multiple layers
+                    ctx.beginPath();
+                    ctx.strokeStyle = strokeColor;
+                    ctx.lineWidth = width;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.globalAlpha = 0.8;
+                    ctx.moveTo(fromX + (toX - fromX) * (Math.max(0, seg - 1) / segments), 
+                               fromY + (toY - fromY) * (Math.max(0, seg - 1) / segments));
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    
+                    // Shadow layers for depth
+                    ctx.beginPath();
+                    ctx.strokeStyle = shadeColor(strokeColor, -15);
+                    ctx.lineWidth = width * 0.6;
+                    ctx.globalAlpha = 0.5;
+                    ctx.moveTo(x - width * 0.3, y);
+                    ctx.lineTo(x + width * 0.3, y);
+                    ctx.stroke();
+                    
+                    // Highlight layers for dimension
+                    ctx.beginPath();
+                    ctx.strokeStyle = shadeColor(strokeColor, 15);
+                    ctx.lineWidth = width * 0.4;
+                    ctx.globalAlpha = 0.4;
+                    ctx.moveTo(x - width * 0.2, y - width * 0.2);
+                    ctx.lineTo(x + width * 0.2, y + width * 0.2);
+                    ctx.stroke();
+                }
             }
             
             ctx.globalAlpha = 1.0;
@@ -332,11 +429,12 @@
 
             if (isOil) {
                 const blendRatio = blendAmount / 100;
+                const wetRatio = wetMix / 100;
                 const nearestPoint = findNearestPoint(e.clientX, e.clientY, 50);
                 
-                // Calculate blended color
+                // Calculate blended color with wet mix
                 let blendedColor = color;
-                if (nearestPoint) {
+                if (nearestPoint && Math.random() < wetRatio) {
                     blendedColor = lerpColor(color, nearestPoint.color, blendRatio);
                 }
                 
@@ -368,10 +466,11 @@
 
             if (isOil) {
                 const blendRatio = blendAmount / 100;
+                const wetRatio = wetMix / 100;
                 const nearestPoint = findNearestPoint(e.touches[0].clientX, e.touches[0].clientY, 50);
                 
                 let blendedColor = color;
-                if (nearestPoint) {
+                if (nearestPoint && Math.random() < wetRatio) {
                     blendedColor = lerpColor(color, nearestPoint.color, blendRatio);
                 }
                 
@@ -404,6 +503,7 @@
             color = document.querySelector("#stroke").value;
             startX = e.clientX;
             startY = e.clientY;
+            saveState();
         });
 
         canvas.addEventListener('mouseup', e => {
@@ -416,11 +516,39 @@
             color = document.querySelector("#stroke").value;
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
+            saveState();
         });
 
         canvas.addEventListener('touchend', e => {
             isPainting = false;
             lasttouch = null;
+        });
+
+        // Keyboard shortcuts: Ctrl+Z for undo, Ctrl+Y for redo
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                } else if (e.key === 'y') {
+                    e.preventDefault();
+                    redo();
+                }
+            }
+        });
+
+        // Touch gesture shortcuts: 3-finger tap for undo, 4-finger tap for redo
+        let touchStartCount = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartCount = e.touches.length;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (touchStartCount === 3) {
+                undo();
+            } else if (touchStartCount === 4) {
+                redo();
+            }
         });
 
         canvas.addEventListener('touchmove', draw2);
@@ -454,6 +582,8 @@
             localStorage.setItem("canvas", JSON.stringify(arts));
             localStorage.setItem("lw", lineWidth);
             localStorage.setItem("blend", blendAmount);
+            localStorage.setItem("wetmix", wetMix);
+            localStorage.setItem("brushtype", brushType);
             localStorage.setItem("color", color);
             setTimeout(restore, 10)
         }
