@@ -458,14 +458,14 @@
             }
 
             if (isOil) {
-                const blendRatio = blendAmount / 100;
+                const blendRatio = blendAmount / 10000;
                 const wetRatio = wetMix / 100;
                 const nearestPoint = findNearestPoint(e.clientX, e.clientY, 50);
                 
                 // Calculate blended color with wet mix
                 let blendedColor = color;
                 if (nearestPoint && Math.random() < wetRatio) {
-                    blendedColor = lerpColor(color, nearestPoint.color, blendRatio);
+                    color = lerpColor(color, nearestPoint.color, blendRatio);
                 }
                 
                 points.push({ 
