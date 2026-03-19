@@ -458,7 +458,7 @@
             }
 
             if (isOil) {
-                const blendRatio = blendAmount / 10000;
+                const blendRatio = blendAmount / 1000;
                 const wetRatio = wetMix / 100;
                 const nearestPoint = findNearestPoint(e.clientX, e.clientY, 50);
                 
@@ -469,14 +469,14 @@
                 }
                 
                 points.push({ 
-                    color: blendedColor, 
+                    color: color, 
                     x: e.clientX, 
                     y: e.clientY 
                 });
                 
                 if (lasttouch) {
                     drawOilStroke(lasttouch.clientX, lasttouch.clientY, 
-                                 e.clientX, e.clientY, blendedColor, lineWidth);
+                                 e.clientX, e.clientY, color, lineWidth);
                 }
                 
                 lasttouch = { clientX: e.clientX, clientY: e.clientY };
@@ -495,24 +495,24 @@
             }
 
             if (isOil) {
-                const blendRatio = blendAmount / 100;
+                const blendRatio = blendAmount / 1000;
                 const wetRatio = wetMix / 100;
                 const nearestPoint = findNearestPoint(e.touches[0].clientX, e.touches[0].clientY, 50);
                 
                 let blendedColor = color;
                 if (nearestPoint && Math.random() < wetRatio) {
-                    blendedColor = lerpColor(color, nearestPoint.color, blendRatio);
+                    color = lerpColor(color, nearestPoint.color, blendRatio);
                 }
                 
                 points.push({ 
-                    color: blendedColor, 
+                    color: color, 
                     x: e.touches[0].clientX, 
                     y: e.touches[0].clientY 
                 });
                 
                 if (lasttouch) {
                     drawOilStroke(lasttouch.clientX, lasttouch.clientY, 
-                                 e.touches[0].clientX, e.touches[0].clientY, blendedColor, lineWidth);
+                                 e.touches[0].clientX, e.touches[0].clientY, color, lineWidth);
                 }
                 
                 lasttouch = { 
