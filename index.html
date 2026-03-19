@@ -359,7 +359,7 @@
             restore();
         }
 
-        // Draw oil painting strokes with smooth blending
+        // Draw oil painting strokes with realistic layering
         function drawOilStroke(fromX, fromY, toX, toY, strokeColor, width) {
             const segments = Math.ceil(Math.hypot(toX - fromX, toY - fromY) / 2);
             
@@ -369,53 +369,83 @@
                 const y = fromY + (toY - fromY) * t;
                 
                 if (brushType === "round") {
-                    // Round brush with circular gradient
-                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, width);
-                    gradient.addColorStop(0, strokeColor);
-                    gradient.addColorStop(0.7, strokeColor + '80');
-                    gradient.addColorStop(1, strokeColor + '00');
-                    
-                    ctx.beginPath();
-                    ctx.fillStyle = gradient;
-                    ctx.arc(x, y, width, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Round brush: main stroke with shadow/highlight layers
+                    for (let i = 0; i < 8 * width; i += width) {
+                        if (i === 2 * width || i === 4 * width) {
+                            // Shadow strokes
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(strokeColor, -20);
+                            ctx.lineWidth = width;
+                            ctx.moveTo(fromX + i, fromY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(x + i, y);
+                            ctx.stroke();
+                        }
+                        else if (i === 5 * width) {
+                            // Highlight stroke
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(strokeColor, 20);
+                            ctx.lineWidth = width * 2;
+                            ctx.moveTo(fromX + i, fromY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(x + i, y);
+                            ctx.stroke();
+                        }
+                        else {
+                            // Main strokes
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(strokeColor, -5);
+                            ctx.lineWidth = width;
+                            ctx.moveTo(fromX + i, fromY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(x + i, y);
+                            ctx.stroke();
+                        }
+                    }
                     
                 } else if (brushType === "square") {
-                    // Square brush
-                    ctx.beginPath();
-                    ctx.fillStyle = strokeColor;
-                    ctx.fillRect(x - width / 2, y - width / 2, width, width);
+                    // Square brush with layered appearance
+                    for (let i = 0; i < 6 * width; i += width * 1.5) {
+                        ctx.beginPath();
+                        ctx.fillStyle = shadeColor(strokeColor, -10 + (i / (6 * width)) * 20);
+                        ctx.globalAlpha = 0.7 - (i / (6 * width)) * 0.3;
+                        ctx.fillRect(x - width / 2 + i * 0.3, y - width / 2 + i * 0.2, width * 0.8, width * 0.8);
+                    }
+                    ctx.globalAlpha = 1.0;
                     
                 } else if (brushType === "soft") {
-                    // Soft brush with multiple layers
-                    ctx.beginPath();
-                    ctx.strokeStyle = strokeColor;
-                    ctx.lineWidth = width;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.globalAlpha = 0.8;
-                    ctx.moveTo(fromX + (toX - fromX) * (Math.max(0, seg - 1) / segments), 
-                               fromY + (toY - fromY) * (Math.max(0, seg - 1) / segments));
-                    ctx.lineTo(x, y);
-                    ctx.stroke();
-                    
-                    // Shadow layers for depth
-                    ctx.beginPath();
-                    ctx.strokeStyle = shadeColor(strokeColor, -15);
-                    ctx.lineWidth = width * 0.6;
-                    ctx.globalAlpha = 0.5;
-                    ctx.moveTo(x - width * 0.3, y);
-                    ctx.lineTo(x + width * 0.3, y);
-                    ctx.stroke();
-                    
-                    // Highlight layers for dimension
-                    ctx.beginPath();
-                    ctx.strokeStyle = shadeColor(strokeColor, 15);
-                    ctx.lineWidth = width * 0.4;
-                    ctx.globalAlpha = 0.4;
-                    ctx.moveTo(x - width * 0.2, y - width * 0.2);
-                    ctx.lineTo(x + width * 0.2, y + width * 0.2);
-                    ctx.stroke();
+                    // Soft brush with multiple layers (original style)
+                    for (let i = 0; i < 8 * width; i += width) {
+                        if (i === 2 * width || i === 4 * width) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(strokeColor, -20);
+                            ctx.lineWidth = width;
+                            ctx.moveTo(fromX + i, fromY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(x + i, y);
+                            ctx.stroke();
+
+                        }
+                        else if (i === 5 * width) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(strokeColor, 20);
+                            ctx.lineWidth = width * 2;
+                            ctx.moveTo(fromX + i, fromY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(x + i, y);
+                            ctx.stroke();
+
+                        }
+                        else {
+                            ctx.beginPath();
+                            ctx.strokeStyle = shadeColor(strokeColor, -5);
+                            ctx.lineWidth = width;
+                            ctx.moveTo(fromX + i, fromY);
+                            ctx.lineCap = 'round';
+                            ctx.lineTo(x + i, y);
+                            ctx.stroke();
+                        }
+                    }
                 }
             }
             
