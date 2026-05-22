@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DrawPaw</title>
+  <title>DrawPaw - Professional Dynamic 3D Oil Paint Studio</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -125,7 +125,7 @@
   <!-- SVG Oil Paint Embossing & Shading Filter (Physical bump mapping / impasto look) -->
   <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <!-- Thick Impasto Wet Filter -->
+      <!-- Thick Impasto Wet Filter with dynamically controlled lighting characteristics -->
       <filter id="oil-emboss" x="-10%" y="-10%" width="120%" height="120%">
         <!-- Generate realistic heavy brush stroke ridges -->
         <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" result="noise" />
@@ -134,13 +134,13 @@
         <feDisplacementMap in="SourceGraphic" in2="highContrastNoise" scale="5" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
         <!-- Generate heavy 3D shading -->
         <feDiffuseLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="4.5" diffuseConstant="1.3" result="light">
-          <feDistantLight azimuth="135" elevation="50" />
+          <feDistantLight azimuth="135" elevation="50" id="emboss-diffuse-light" />
         </feDiffuseLighting>
         <!-- Blend diffuse light highlights with original painting colors -->
         <feBlend mode="multiply" in="displaced" in2="light" result="litPaint"/>
         <!-- Elevate structural specular highlights -->
         <feSpecularLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="3.5" specularConstant="1.2" specularExponent="22" result="spec">
-          <feDistantLight azimuth="135" elevation="50" />
+          <feDistantLight azimuth="135" elevation="50" id="emboss-specular-light" />
         </feSpecularLighting>
         <feBlend mode="screen" in="litPaint" in2="spec" result="final"/>
       </filter>
@@ -180,9 +180,13 @@
         </div>
       </div>
 
+      <!-- Quick UI Config Controller inside Header -->
       <div class="flex flex-wrap items-center gap-3">
         <button id="btn-show-shortcuts" class="px-3 py-1.5 bg-linen-200/50 hover:bg-linen-200 text-linen-900 border border-linen-300 text-[11px] rounded-full flex items-center gap-1 transition-all">
           <i class="fa-solid fa-keyboard text-amber-800"></i> Shortcuts Info
+        </button>
+        <button id="btn-toggle-focus" class="px-3 py-1.5 bg-linen-200/50 hover:bg-linen-200 text-linen-900 border border-linen-300 text-[11px] rounded-full flex items-center gap-1 transition-all">
+          <i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[9px] bg-linen-300 rounded font-mono">F</kbd>
         </button>
         <a href="#studio" class="px-4 py-1.5 bg-linen-900 text-white hover:bg-linen-800 text-[11px] rounded-full uppercase tracking-wider font-semibold transition-all">
           Workspace
@@ -231,11 +235,11 @@
         </div>
       </div>
 
-      <!-- Studio Layout Grid -->
-      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+      <!-- Studio Layout Grid (With support for swapped sidebar and focus toggles) -->
+      <div id="studio-grid" class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start transition-all duration-300">
         
         <!-- Controls Palette (Left Column) -->
-        <div class="xl:col-span-3 space-y-6 flex flex-col justify-start">
+        <div id="controls-panel" class="xl:col-span-3 space-y-6 flex flex-col justify-start transition-all duration-300">
           
           <!-- Mixable Palette Well - Replacement for static color defaults -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
@@ -266,6 +270,77 @@
                 <div id="active-color-swatch" class="w-4 h-4 rounded-full border border-white" style="background-color: #E11D48;"></div>
                 <span id="active-pigment-name" class="font-semibold text-amber-300">Cadmium Red</span>
               </div>
+            </div>
+          </div>
+
+          <!-- Adjustable UI Preferences Selector -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders"></i> Adjustable UI Workspace
+            </h3>
+            
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between items-center">
+                <span class="text-linen-300">Sidebar Position</span>
+                <div class="flex gap-1.5">
+                  <button id="btn-sidebar-left" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold">Left</button>
+                  <button id="btn-sidebar-right" class="px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold">Right</button>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <span class="text-linen-300">Studio Resolution Mode</span>
+                <div class="flex gap-1.5">
+                  <button id="btn-res-high" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold" title="High quality detailing">High 3D</button>
+                  <button id="btn-res-fast" class="px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold" title="Low latency tracking">Fast</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NEW: Impasto Shading & Lighting Studio Module -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
+            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-lightbulb"></i> Impasto Light & Shadows
+            </h3>
+            <p class="text-[10px] text-linen-400 leading-tight">
+              Change the angle and altitude of the virtual light source to dynamically recalculate 3D ridges and shadow depth!
+            </p>
+
+            <!-- Light Azimuth angle -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] text-linen-300">
+                <span>Light Source Direction (Azimuth)</span>
+                <span id="val-light-azimuth" class="font-mono text-amber-400">135°</span>
+              </div>
+              <input type="range" id="input-light-azimuth" min="0" max="360" value="135" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+
+            <!-- Light Elevation altitude -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] text-linen-300">
+                <span>Light Pitch Angle (Elevation)</span>
+                <span id="val-light-elevation" class="font-mono text-amber-400">50°</span>
+              </div>
+              <input type="range" id="input-light-elevation" min="15" max="90" value="50" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+
+            <!-- Ridge Depth mapping surfaceScale -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] text-linen-300">
+                <span>Ridge Relief Strength (Scale)</span>
+                <span id="val-light-scale" class="font-mono text-amber-400">4.5</span>
+              </div>
+              <input type="range" id="input-light-scale" min="1.0" max="9.0" step="0.5" value="4.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+
+            <!-- Specular glossiness specularExponent -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] text-linen-300">
+                <span>Paint Specular Gloss</span>
+                <span id="val-light-spec" class="font-mono text-amber-400">22</span>
+              </div>
+              <input type="range" id="input-light-spec" min="5" max="50" value="22" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
           </div>
 
@@ -345,7 +420,7 @@
 
             <!-- Brush Texture Profile Selection -->
             <div class="space-y-2">
-              <span class="text-xs text-linen-300 block">Brush Profile style <kbd class="px-1 text-[10px] bg-linen-800 rounded">1 - 8</kbd></span>
+              <span class="text-xs text-linen-300 block">Brush Profile style <kbd class="px-1 text-[10px] bg-linen-800 rounded">1 - 9</kbd></span>
               <div class="grid grid-cols-2 gap-1.5 text-[11px]">
                 <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-amber-500 truncate" data-profile="bristle" title="Flat Bristle [1]">
                   Flat Bristle [1]
@@ -371,6 +446,10 @@
                 <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="stippler" title="Stippling Sponge [8]">
                   Stippler [8]
                 </button>
+                <!-- NEW: Round Point brush profile element -->
+                <button class="brush-profile-btn col-span-2 py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point" title="Round Point Detail [9]">
+                  <i class="fa-solid fa-pen-fancy mr-1"></i> Round Point [9]
+                </button>
               </div>
             </div>
           </div>
@@ -378,7 +457,7 @@
         </div>
 
         <!-- Canvas Container Area (Center/Right Column) -->
-        <div class="xl:col-span-9 flex flex-col gap-4">
+        <div id="canvas-panel" class="xl:col-span-9 flex flex-col gap-4 transition-all duration-300">
           
           <div class="flex-grow bg-[#EFECE6] border-8 border-linen-900 rounded-2xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1 min-h-[500px] md:min-h-[620px]" id="studio-canvas-container">
             <!-- Simulated Canvas Shadow Rim -->
@@ -410,7 +489,7 @@
           </div>
 
           <!-- Bottom Control Bar with Sketch Tracing and Telemetry -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div id="bottom-tracing-panel" class="grid grid-cols-1 md:grid-cols-12 gap-4 transition-all duration-300">
             
             <!-- Sketch Guide Box (Bottom Left) -->
             <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-4 border border-linen-800 flex flex-col sm:flex-row gap-4 items-center justify-between text-xs">
@@ -454,7 +533,7 @@
                 <span id="save-status-text" class="text-[10px] text-emerald-400 font-mono">Connected</span>
               </div>
               
-              <!-- Added Telemetry Status Indicators -->
+              <!-- Telemetry Status Indicators -->
               <div class="flex justify-between items-center text-[10px] text-linen-400 bg-black/15 px-2 py-1.5 rounded">
                 <span>Brush Charge: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
                 <span>Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
@@ -478,7 +557,7 @@
 
   <!-- Shortcuts & Gestures Instruction overlay modal -->
   <div id="shortcuts-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-linen-900 border border-linen-700 text-linen-50 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 mx-4">
+    <div class="bg-linen-900 border border-linen-700 text-linen-50 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 mx-4 mx-auto my-auto">
       <div class="flex justify-between items-center border-b border-linen-800 pb-3">
         <h3 class="font-serif text-xl font-bold text-amber-300 flex items-center gap-2">
           <i class="fa-solid fa-keyboard"></i> Studio Control Matrix
@@ -498,13 +577,14 @@
 
         <div>
           <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1.5"><i class="fa-solid fa-keyboard"></i> Keyboard Hooks</h4>
-          <div class="grid grid-cols-2 gap-2 text-linen-300">
+          <div class="grid grid-cols-2 gap-2 text-linen-300 font-sans">
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-linen-800 rounded">Z</kbd> or <kbd class="px-1.5 py-0.5 bg-linen-800 rounded">U</kbd> : Undo</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">C</kbd> : Clean Scrub Canvas</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">[</kbd> : Decrease Size</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">]</kbd> : Increase Size</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">1 - 8</kbd> : Select Brushes</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">1 - 9</kbd> : Select Brushes</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">M</kbd> : Cycle Active Medium</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">F</kbd> : Toggle Focus Mode</div>
           </div>
         </div>
       </div>
@@ -598,9 +678,9 @@
   <script>
     // Configure localForage database
     localforage.config({
-      name: 'LAtelierDHuile_v5_rgb',
-      storeName: 'studio_canvas_history_v5_rgb',
-      version: 5.0,
+      name: 'LAtelierDHuile_v6_rgb',
+      storeName: 'studio_canvas_history_v6_rgb',
+      version: 6.0,
       description: 'Persistent storage for user oil painting canvas coordinates, history metadata, and sketch references'
     });
 
@@ -982,10 +1062,18 @@
         sketchOpacity: sketchOpacity,
         sketchMode: sketchMode,
         sketchPresetValue: selectSketchPreset.value,
-        activeMedium: activeMedium
+        activeMedium: activeMedium,
+        // Added lighting configurations to state
+        lightAzimuth: document.getElementById('input-light-azimuth').value,
+        lightElevation: document.getElementById('input-light-elevation').value,
+        lightScale: document.getElementById('input-light-scale').value,
+        lightSpec: document.getElementById('input-light-spec').value,
+        // Added resolution configurations to state
+        sidebarOnRight: document.getElementById('studio-grid').classList.contains('xl:flex-row-reverse'),
+        resModeFast: document.getElementById('oil-canvas').classList.contains('filter-none')
       };
       
-      localforage.setItem('atelier_session_bundle_rgb_v5', sessionObj).then(() => {
+      localforage.setItem('atelier_session_bundle_rgb_v6', sessionObj).then(() => {
         saveStatusText.innerText = "All changes saved locally";
         if (!silent) {
           showToast('Session layout saved to browser!', 'success');
@@ -1002,7 +1090,7 @@
     function loadFromLocalForage(isBootRestore = false) {
       saveStatusText.innerText = "Restoring session...";
       
-      localforage.getItem('atelier_session_bundle_rgb_v5').then(bundle => {
+      localforage.getItem('atelier_session_bundle_rgb_v6').then(bundle => {
         if (bundle) {
           // 1. Restore Sketch Guide States
           if (bundle.sketchSrc) {
@@ -1029,6 +1117,23 @@
 
           if (bundle.activeMedium) {
             selectMedium(bundle.activeMedium);
+          }
+
+          // Restore Lighting Parameters
+          if (bundle.lightAzimuth) {
+            document.getElementById('input-light-azimuth').value = bundle.lightAzimuth;
+            document.getElementById('input-light-elevation').value = bundle.lightElevation;
+            document.getElementById('input-light-scale').value = bundle.lightScale;
+            document.getElementById('input-light-spec').value = bundle.lightSpec;
+            updateImpastoLighting();
+          }
+
+          // Restore adjustable UI configs
+          if (bundle.sidebarOnRight) {
+            toggleSidebarSide(true);
+          }
+          if (bundle.resModeFast) {
+            toggleResolutionMode(true);
           }
 
           // 2. Restore Main Paint Canvas Layers
@@ -1222,6 +1327,10 @@
         brushSizeSlider.value = 40;
         brushWetSlider.value = 60;
         brushViscSlider.value = 85;
+      } else if (currentBrushProfile === 'round-point') {
+        brushSizeSlider.value = 20;
+        brushWetSlider.value = 70;
+        brushViscSlider.value = 75;
       } else {
         // Bristle default
         brushSizeSlider.value = 30;
@@ -1273,6 +1382,147 @@
         telemetryDirty.innerText = `${dirtyPercent}%`;
       }
     }
+
+    // =========================================================================
+    // DYNAMIC IMPASTO SHADOWS & LIGHTING SYSTEM
+    // =========================================================================
+    const inputAzimuth = document.getElementById('input-light-azimuth');
+    const inputElevation = document.getElementById('input-light-elevation');
+    const inputScale = document.getElementById('input-light-scale');
+    const inputSpec = document.getElementById('input-light-spec');
+
+    const valAzimuth = document.getElementById('val-light-azimuth');
+    const valElevation = document.getElementById('val-light-elevation');
+    const valScale = document.getElementById('val-light-scale');
+    const valSpec = document.getElementById('val-light-spec');
+
+    function updateImpastoLighting() {
+      const az = inputAzimuth.value;
+      const el = inputElevation.value;
+      const sc = inputScale.value;
+      const sp = inputSpec.value;
+
+      valAzimuth.innerText = `${az}°`;
+      valElevation.innerText = `${el}°`;
+      valScale.innerText = `${sc}`;
+      valSpec.innerText = `${sp}`;
+
+      // Dynamically target SVG lighting elements
+      const diffLight = document.getElementById('emboss-diffuse-light');
+      const specLight = document.getElementById('emboss-specular-light');
+      const diffuseNode = document.querySelector('#oil-emboss feDiffuseLighting');
+      const specularNode = document.querySelector('#oil-emboss feSpecularLighting');
+
+      if (diffLight) {
+        diffLight.setAttribute('azimuth', az);
+        diffLight.setAttribute('elevation', el);
+      }
+      if (specLight) {
+        specLight.setAttribute('azimuth', az);
+        specLight.setAttribute('elevation', el);
+      }
+      if (diffuseNode) {
+        diffuseNode.setAttribute('surfaceScale', sc);
+      }
+      if (specularNode) {
+        specularNode.setAttribute('surfaceScale', (parseFloat(sc) * 0.8).toFixed(1));
+        specularNode.setAttribute('specularExponent', sp);
+      }
+    }
+
+    inputAzimuth.addEventListener('input', updateImpastoLighting);
+    inputElevation.addEventListener('input', updateImpastoLighting);
+    inputScale.addEventListener('input', updateImpastoLighting);
+    inputSpec.addEventListener('input', updateImpastoLighting);
+
+    inputAzimuth.addEventListener('change', () => saveToLocalForage(true));
+    inputElevation.addEventListener('change', () => saveToLocalForage(true));
+    inputScale.addEventListener('change', () => saveToLocalForage(true));
+    inputSpec.addEventListener('change', () => saveToLocalForage(true));
+
+    // =========================================================================
+    // ADJUSTABLE WORKSPACE LAYOUT CONTROLLERS
+    // =========================================================================
+    const btnSidebarLeft = document.getElementById('btn-sidebar-left');
+    const btnSidebarRight = document.getElementById('btn-sidebar-right');
+    const btnResHigh = document.getElementById('btn-res-high');
+    const btnResFast = document.getElementById('btn-res-fast');
+    const btnToggleFocus = document.getElementById('btn-toggle-focus');
+
+    const studioGrid = document.getElementById('studio-grid');
+    const controlsPanel = document.getElementById('controls-panel');
+    const canvasPanel = document.getElementById('canvas-panel');
+    const bottomPanel = document.getElementById('bottom-tracing-panel');
+
+    function toggleSidebarSide(toRight) {
+      if (toRight) {
+        studioGrid.classList.add('xl:flex-row-reverse');
+        btnSidebarRight.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
+        btnSidebarLeft.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+      } else {
+        studioGrid.classList.remove('xl:flex-row-reverse');
+        btnSidebarLeft.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
+        btnSidebarRight.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+      }
+    }
+
+    btnSidebarLeft.addEventListener('click', () => {
+      toggleSidebarSide(false);
+      saveToLocalForage(true);
+    });
+
+    btnSidebarRight.addEventListener('click', () => {
+      toggleSidebarSide(true);
+      saveToLocalForage(true);
+    });
+
+    function toggleResolutionMode(isFast) {
+      const oilCanvas = document.getElementById('oil-canvas');
+      if (isFast) {
+        // Disables the heavy SVG filter layer for fluid, zero-latency painting
+        oilCanvas.classList.remove('oil-texture');
+        btnResFast.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
+        btnResHigh.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+        showToast("Switched to fast performance layout", "info");
+      } else {
+        oilCanvas.classList.add('oil-texture');
+        btnResHigh.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
+        btnResFast.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+        showToast("Switched to high-fidelity 3D shading layer", "success");
+      }
+    }
+
+    btnResHigh.addEventListener('click', () => {
+      toggleResolutionMode(false);
+      saveToLocalForage(true);
+    });
+
+    btnResFast.addEventListener('click', () => {
+      toggleResolutionMode(true);
+      saveToLocalForage(true);
+    });
+
+    let focusModeOn = false;
+    function toggleFocusMode() {
+      focusModeOn = !focusModeOn;
+      if (focusModeOn) {
+        // Hide Left Panels and Bottom Tracing Elements, expand canvas full screen
+        controlsPanel.classList.add('hidden', 'xl:hidden');
+        bottomPanel.classList.add('hidden');
+        canvasPanel.className = "xl:col-span-12 flex flex-col gap-4 transition-all duration-300";
+        btnToggleFocus.innerHTML = `<i class="fa-solid fa-compress text-amber-500"></i> Standard Workspace <kbd class="px-1 text-[9px] bg-linen-300 rounded font-mono">F</kbd>`;
+        showToast("Focus Mode Activated: Controls hidden", "info");
+      } else {
+        controlsPanel.classList.remove('hidden', 'xl:hidden');
+        bottomPanel.classList.remove('hidden');
+        canvasPanel.className = "xl:col-span-9 flex flex-col gap-4 transition-all duration-300";
+        btnToggleFocus.innerHTML = `<i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[9px] bg-linen-300 rounded font-mono">F</kbd>`;
+        showToast("Focus Mode Exited: All panels visible", "info");
+      }
+      setTimeout(resizeCanvas, 150);
+    }
+
+    btnToggleFocus.addEventListener('click', toggleFocusMode);
 
     // =========================================================================
     // DRAW STROKE CORE SIMULATION
@@ -1579,6 +1829,21 @@
             ctx.fill();
           }
         }
+        else if (currentBrushProfile === 'round-point') {
+          // Beautiful round tapered brush simulation with a dense loaded core
+          ctx.globalAlpha = (0.45 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          
+          const stepsCount = 4;
+          for (let r = 0; r < stepsCount; r++) {
+            const ratio = 1 - (r / stepsCount) * 0.65;
+            const currentSize = (brushSize / 2) * ratio;
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, currentSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
 
         ctx.restore();
 
@@ -1664,10 +1929,16 @@
         document.getElementById('btn-clear').click();
       }
 
-      // Profiles selection: 1 to 8 keys
-      if (e.key >= '1' && e.key <= '8') {
+      // Focus Mode Toggle: Key F
+      if (e.key.toLowerCase() === 'f') {
         e.preventDefault();
-        const profiles = ["bristle", "palette-knife", "turpentine", "fan-brush", "filbert", "dry-scumble", "rigger", "stippler"];
+        toggleFocusMode();
+      }
+
+      // Profiles selection: 1 to 9 keys
+      if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        const profiles = ["bristle", "palette-knife", "turpentine", "fan-brush", "filbert", "dry-scumble", "rigger", "stippler", "round-point"];
         const index = parseInt(e.key) - 1;
         if (profiles[index]) {
           selectBrushProfile(profiles[index]);
@@ -1837,6 +2108,7 @@
       initMixer();
       updateBrushParameters();
       updateTelemetry();
+      updateImpastoLighting();
     };
 
     window.addEventListener('resize', () => {
