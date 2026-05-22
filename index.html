@@ -12,10 +12,13 @@
   <!-- FontAwesome for thematic UI Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- localForage for beautiful high-performance local storage (IndexedDB) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -149,6 +152,9 @@
   <!-- Custom Brush Pointer -->
   <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/80 shadow-[0_0_10px_rgba(0,0,0,0.3)] hidden pointer-events-none"></div>
 
+  <!-- Dynamic Studio Toast Notification Panel -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
   <!-- Header Navigation -->
   <header class="fixed top-0 left-0 w-full bg-linen-50/90 backdrop-blur-md border-b border-linen-200 z-50 px-6 py-4 transition-all duration-300">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
@@ -250,11 +256,24 @@
           <button id="btn-undo" class="px-4 py-2 bg-linen-900/40 hover:bg-linen-900 text-xs rounded-full border border-linen-700 flex items-center gap-2 transition-all">
             <i class="fa-solid fa-rotate-left text-amber-400"></i> Undo Stroke
           </button>
-          <button id="btn-clear" class="px-4 py-2 bg-red-950/40 hover:bg-red-900 border border-red-800 text-xs rounded-full flex items-center gap-2 transition-all">
+          
+          <button id="btn-clear" class="px-4 py-2 bg-red-950/40 hover:bg-red-900 border border-red-800/80 text-xs rounded-full flex items-center gap-2 transition-all">
             <i class="fa-solid fa-trash-can text-red-400"></i> Scrub Canvas Clean
           </button>
+
+          <!-- localForage manual controls -->
+          <div class="h-6 w-px bg-linen-700 self-center hidden sm:block"></div>
+
+          <button id="btn-local-save" class="px-4 py-2 bg-emerald-950/40 hover:bg-emerald-900 border border-emerald-800 text-xs rounded-full flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i> Save to Browser
+          </button>
+
+          <button id="btn-local-restore" class="px-4 py-2 bg-indigo-950/40 hover:bg-indigo-900 border border-indigo-800 text-xs rounded-full flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> Load Backup
+          </button>
+
           <button id="btn-save" class="px-5 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-xs font-semibold rounded-full flex items-center gap-2 transition-all shadow-md">
-            <i class="fa-solid fa-download"></i> Save Masterpiece
+            <i class="fa-solid fa-download"></i> Export PNG
           </button>
         </div>
       </div>
@@ -316,6 +335,58 @@
             </div>
           </div>
 
+          <!-- Dynamic Sketch Guide Layer Box (NEW) -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-5 border border-linen-800 space-y-4">
+            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-2">
+              <i class="fa-solid fa-image"></i> Sketch Guides & Tracing
+            </h3>
+
+            <!-- Choose preset or upload -->
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="text-linen-300 block mb-1">Sketch Template</label>
+                <select id="select-sketch-preset" class="w-full bg-linen-800 border border-linen-700 text-linen-100 rounded p-2 focus:ring-1 focus:ring-amber-500 focus:outline-none">
+                  <option value="none">None (Blank Linen Canvas)</option>
+                  <option value="still_life">Still Life (Classical Vase)</option>
+                  <option value="portrait">Portrait proportions Guide</option>
+                  <option value="landscape">One-point Perspective Grid</option>
+                  <option value="custom">Custom Sketch Upload ↑</option>
+                </select>
+              </div>
+
+              <!-- Custom File Input -->
+              <div id="custom-sketch-upload-area" class="hidden">
+                <label class="cursor-pointer flex items-center justify-center gap-2 w-full border border-dashed border-linen-600 hover:border-amber-400 rounded-lg p-3 transition-colors text-linen-300 hover:text-linen-100">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span>Upload Sketch Image</span>
+                  <input type="file" id="input-sketch-upload" accept="image/*" class="hidden">
+                </label>
+              </div>
+
+              <!-- Opacity and Position sliders -->
+              <div class="space-y-2 pt-1">
+                <div class="flex justify-between text-linen-300">
+                  <span>Guide Opacity</span>
+                  <span id="val-sketch-opacity" class="font-mono">40%</span>
+                </div>
+                <input type="range" id="slider-sketch-opacity" min="0" max="100" value="40" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+              </div>
+
+              <!-- Sketch position layer modes -->
+              <div class="pt-1">
+                <span class="text-linen-300 block mb-1">Tracing Placement</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <button id="btn-sketch-overlay" class="py-1.5 bg-linen-800 text-amber-500 border border-amber-500 rounded font-medium text-center" title="Places sketch over the oil paint utilizing multiply blending">
+                    Overlay (Tracing)
+                  </button>
+                  <button id="btn-sketch-underlay" class="py-1.5 bg-linen-800 text-linen-400 border border-transparent rounded font-medium text-center" title="Places sketch directly on background canvas behind paint layers">
+                    Underlay (Behind)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Brush Setting Knobs -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-5 border border-linen-800 space-y-5">
             <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-2">
@@ -371,10 +442,8 @@
 
           <!-- Instructions Mini Board -->
           <div class="bg-linen-900/40 rounded-2xl p-4 border border-linen-800/80 text-xs text-linen-400 leading-relaxed space-y-2 flex-grow">
-            <span class="font-semibold text-linen-300 block"><i class="fa-solid fa-circle-info"></i> How to Mix Realistically:</span>
-            <p>1. Paint a stroke of <strong class="text-yellow-400">Yellow</strong> on the canvas.</p>
-            <p>2. Select <strong class="text-blue-400">Blue</strong>, and paint directly across the yellow.</p>
-            <p>3. Watch them blend into an organic <strong class="text-green-400">Green</strong>! Notice how your brush tip picks up some yellow pigment, dynamically shifting your blue stroke to a green tint over time.</p>
+            <span class="font-semibold text-linen-300 block"><i class="fa-solid fa-circle-info"></i> localForage System:</span>
+            <p>Your beautiful paint canvas auto-saves into the browser's high-speed local database after every completed stroke! It preserves your exact artwork across page reloads.</p>
           </div>
         </div>
 
@@ -390,8 +459,14 @@
               <!-- Stretched Linen Texture Layer behind Painting -->
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
 
-              <!-- Canvas element where rendering happens -->
+              <!-- UNDERLAY SKETCH (z-5) -->
+              <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
+
+              <!-- Canvas element where rendering happens (z-10) -->
               <canvas id="oil-canvas" class="absolute inset-0 z-10 w-full h-full cursor-none oil-texture"></canvas>
+
+              <!-- OVERLAY SKETCH (z-15) - Sits on top of paint strokes using multiply blend for easy tracing -->
+              <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
 
               <!-- Watermark studio signature -->
               <div class="absolute bottom-4 right-4 pointer-events-none z-20 font-serif italic text-xs text-linen-900/30">
@@ -409,8 +484,9 @@
               <span class="hidden md:inline text-linen-500">|</span>
               <span class="hidden md:inline">Tip Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
             </div>
-            <div class="text-right">
-              <span class="opacity-75">Physical color contamination simulates genuine oil layers.</span>
+            <div class="text-right flex items-center gap-2">
+              <i class="fa-solid fa-database text-amber-500 text-xs"></i>
+              <span id="save-status-text" class="opacity-75">Auto-save connected via IndexedDB</span>
             </div>
           </div>
         </div>
@@ -440,7 +516,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
           <div class="space-y-2">
             <div class="w-10 h-10 rounded-lg bg-linen-200 flex items-center justify-center text-amber-800 shadow-sm">
-              <i class="fa-solid fa-droplet"></i>
+              <i class="fa-solid fa-arrows-spin"></i>
             </div>
             <h4 class="font-serif font-bold text-linen-900">Dynamic Reservoir Pickup</h4>
             <p class="text-xs text-linen-400 leading-relaxed">
@@ -449,11 +525,11 @@
           </div>
           <div class="space-y-2">
             <div class="w-10 h-10 rounded-lg bg-linen-200 flex items-center justify-center text-amber-800 shadow-sm">
-              <i class="fa-solid fa-mountain"></i>
+              <i class="fa-solid fa-database"></i>
             </div>
-            <h4 class="font-serif font-bold text-linen-900">High-Viscosity Impasto</h4>
+            <h4 class="font-serif font-bold text-linen-900">localForage Integration</h4>
             <p class="text-xs text-linen-400 leading-relaxed">
-              Normal mapping generates lighting highlights based on painted thickness, simulating actual physical height of oil paint on canvas.
+              Bypasses standard 5MB localStorage size limits, utilizing native IndexedDB storage to persist raw, uncompressed heavy oil brush layers.
             </p>
           </div>
         </div>
@@ -645,20 +721,67 @@
     </div>
   </footer>
 
-  <!-- Core JavaScript for Upgraded Subtractive Simulator -->
+  <!-- Core JavaScript for Upgraded Subtractive Simulator with localForage -->
   <script>
+    // Configure localForage database
+    localforage.config({
+      name: 'LAtelierDHuile_v2',
+      storeName: 'studio_canvas_history_v2',
+      version: 2.0,
+      description: 'Persistent storage for user oil painting canvas coordinates, history metadata, and sketch references'
+    });
+
+    // Custom Toast Notification System
+    const toastContainer = document.getElementById('toast-container');
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `p-4 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-white transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto`;
+      
+      if (type === 'success') {
+        toast.className += ' bg-emerald-900 border border-emerald-600';
+        toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>${message}</span>`;
+      } else if (type === 'info') {
+        toast.className += ' bg-indigo-900 border border-indigo-600';
+        toast.innerHTML = `<i class="fa-solid fa-cloud-arrow-down text-indigo-400 text-sm"></i> <span>${message}</span>`;
+      } else {
+        toast.className += ' bg-amber-900 border border-amber-600';
+        toast.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-400 text-sm"></i> <span>${message}</span>`;
+      }
+
+      toastContainer.appendChild(toast);
+      
+      // Animate entry
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      // Dismiss automatically
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // =========================================================================
+    // VECTOR GUIDES & SKETCH TEMPLATES (SVG Data URLs)
+    // =========================================================================
+    const SKETCH_PRESETS = {
+      still_life: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none" stroke="%233f3020" stroke-width="2.5" stroke-dasharray="6,6" stroke-linecap="round"><path d="M400,100 C350,100 340,180 340,260 C340,380 250,450 400,450 C550,450 460,380 460,260 C460,180 450,100 400,100 Z"/><path d="M200,430 C300,440 500,440 600,430"/><circle cx="280" cy="420" r="35" stroke="%233f3020" stroke-width="2"/><ellipse cx="500" cy="410" rx="45" ry="35" stroke="%233f3020" stroke-width="2"/></svg>`,
+      
+      portrait: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none" stroke="%234b3d30" stroke-width="2" stroke-dasharray="5,5"><ellipse cx="400" cy="270" rx="140" ry="195"/><path d="M400,50 L400,480 M220,270 L580,270 M250,172 L550,172 M280,367 L520,367"/><path d="M340,270 Q400,285 460,270 M360,367 Q400,385 440,367"/><path d="M370,172 A15,15 0 0,1 400,172 A15,15 0 0,1 430,172"/></svg>`,
+      
+      landscape: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none" stroke="%235a4d3e" stroke-width="1.5" opacity="0.8"><line x1="0" y1="350" x2="800" y2="350" stroke-width="3"/><line x1="400" y1="350" x2="0" y2="0"/><line x1="400" y1="350" x2="200" y2="0"/><line x1="400" y1="350" x2="600" y2="0"/><line x1="400" y1="350" x2="800" y2="0"/><line x1="400" y1="350" x2="0" y2="600"/><line x1="400" y1="350" x2="200" y2="600"/><line x1="400" y1="350" x2="600" y2="600"/><line x1="400" y1="350" x2="800" y2="600"/><ellipse cx="400" cy="250" rx="90" ry="40" stroke-dasharray="5,5"/></svg>`
+    };
+
     // =========================================================================
     // HIGH FIDELITY SUBTRACTIVE COLOR MATH (RGB <-> RYB Converter)
-    // Based on the interpolation color-cube model for physical paint modeling
     // =========================================================================
 
     function rgbToRyb(r, g, b) {
-      // Normalize
       r = r / 255;
       g = g / 255;
       b = b / 255;
 
-      // Remove white component
       const w = Math.min(r, g, b);
       let r1 = r - w;
       let g1 = g - w;
@@ -666,7 +789,6 @@
 
       const mg = Math.max(r1, g1, b1);
 
-      // Convert to RYB
       let y = Math.min(r1, g1);
       r1 -= y;
       g1 -= y;
@@ -681,7 +803,6 @@
       let y_out = y;
       let b_out = b1 + g1;
 
-      // Normalize RYB
       const my = Math.max(r_out, y_out, b_out);
       if (my > 0 && mg > 0) {
         const n = mg / my;
@@ -690,7 +811,6 @@
         b_out *= n;
       }
 
-      // Restore white
       r_out += w;
       y_out += w;
       b_out += w;
@@ -707,7 +827,6 @@
       y = y / 255;
       b = b / 255;
 
-      // Remove white component
       const w = Math.min(r, y, b);
       let r1 = r - w;
       let y1 = y - w;
@@ -715,7 +834,6 @@
 
       const my = Math.max(r1, y1, b1);
 
-      // Trilinear interpolation of color corners
       let g = Math.min(y1, b1);
       y1 -= g;
       b1 -= g;
@@ -729,7 +847,6 @@
       let g_out = g + y1;
       let b_out = b1 + g;
 
-      // Normalize RGB
       const mg = Math.max(r_out, g_out, b_out);
       if (mg > 0 && my > 0) {
         const n = my / mg;
@@ -738,7 +855,6 @@
         b_out *= n;
       }
 
-      // Restore white
       r_out += w;
       g_out += w;
       b_out += w;
@@ -750,24 +866,19 @@
       };
     }
 
-    // Blend two RGB colors subtractively using the RYB bridge
     function mixSubtractive(colorA_rgb, colorB_rgb, ratio) {
-      // Convert both to RYB
       const rybA = rgbToRyb(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
       const rybB = rgbToRyb(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
 
-      // Perform linear interpolation in RYB space
       const mixedRyb = {
         r: rybA.r * (1 - ratio) + rybB.r * ratio,
         y: rybA.y * (1 - ratio) + rybB.y * ratio,
         b: rybA.b * (1 - ratio) + rybB.b * ratio
       };
 
-      // Convert back to RGB
       return rybToRgb(mixedRyb.r, mixedRyb.y, mixedRyb.b);
     }
 
-    // Parse hex to RGB
     function hexToRgb(hex) {
       if (hex.length === 4) {
         hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
@@ -782,7 +893,6 @@
 
     // =========================================================================
     // DYNAMIC BRUSH RESERVOIR & CANVAS SIMULATOR
-    // Tracks pigment contamination, physical flow, and bristle density
     // =========================================================================
 
     const activePigmentName = document.getElementById('active-pigment-name');
@@ -796,9 +906,22 @@
     const customCursor = document.getElementById('custom-brush-cursor');
     const telemetryLoad = document.getElementById('telemetry-load');
     const telemetryDirty = document.getElementById('telemetry-dirty');
+    const saveStatusText = document.getElementById('save-status-text');
 
-    // Drawing variables
-    let currentPigment = "#E11D48"; // Cadmium Red
+    // Sketch Panel UI elements
+    const selectSketchPreset = document.getElementById('select-sketch-preset');
+    const customSketchUploadArea = document.getElementById('custom-sketch-upload-area');
+    const inputSketchUpload = document.getElementById('input-sketch-upload');
+    const sliderSketchOpacity = document.getElementById('slider-sketch-opacity');
+    const valSketchOpacity = document.getElementById('val-sketch-opacity');
+    const btnSketchOverlay = document.getElementById('btn-sketch-overlay');
+    const btnSketchUnderlay = document.getElementById('btn-sketch-underlay');
+    
+    // Virtual overlay & underlay img element layers
+    const imgSketchOverlay = document.getElementById('sketch-overlay');
+    const imgSketchUnderlay = document.getElementById('sketch-underlay');
+
+    let currentPigment = "#E11D48"; 
     let currentPigmentName = "Cadmium Red";
     let brushSize = parseInt(brushSizeSlider.value);
     let brushWetness = parseFloat(brushWetSlider.value) / 100;
@@ -807,11 +930,14 @@
     let isDrawing = false;
     let historyStack = [];
 
-    // Brush Tip Reservoir color. This shifts dynamically as you paint over other wet paints.
     let activeBrushTipColor = hexToRgb(currentPigment); 
-    let brushDepletionLevel = 1.0; // Gradually falls from 1.0 down to 0.0 unless re-dipped
+    let brushDepletionLevel = 1.0; 
 
-    // Canvas references
+    // Sketch layer states
+    let sketchSrcData = ""; // Base64 data or SVG string
+    let sketchOpacity = parseFloat(sliderSketchOpacity.value) / 100;
+    let sketchMode = "overlay"; // overlay or underlay
+
     const paintCanvas = document.getElementById('oil-canvas');
     const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
 
@@ -820,11 +946,13 @@
       paintCanvas.width = container.clientWidth - 16; 
       paintCanvas.height = container.clientHeight - 16;
       
-      // Paint Initial Linen Raw Surface base color
-      ctx.fillStyle = '#faf8f5';
-      ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+      // We clear the canvas to transparent so the underlay layers are fully visible underneath
+      ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
       
       saveHistoryState();
+      
+      // Retrieve everything automatically from localForage
+      loadFromLocalForage(true);
     }
 
     function saveHistoryState() {
@@ -832,28 +960,225 @@
       historyStack.push(ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
     }
 
+    // localForage - Save painting AND sketch configuration to IndexedDB
+    function saveToLocalForage(silent = false) {
+      const dataUrl = paintCanvas.toDataURL();
+      saveStatusText.innerText = "Auto-saving...";
+
+      const sessionObj = {
+        canvasData: dataUrl,
+        sketchSrc: sketchSrcData,
+        sketchOpacity: sketchOpacity,
+        sketchMode: sketchMode,
+        sketchPresetValue: selectSketchPreset.value
+      };
+      
+      localforage.setItem('atelier_session_bundle', sessionObj).then(() => {
+        saveStatusText.innerText = "All changes saved locally";
+        if (!silent) {
+          showToast('Session layout saved to browser!', 'success');
+        }
+      }).catch(err => {
+        saveStatusText.innerText = "Local save failed";
+        if (!silent) {
+          showToast('Failed to write canvas details to indexedDB: ' + err, 'error');
+        }
+      });
+    }
+
+    // localForage - Restore painting state from IndexedDB
+    function loadFromLocalForage(isBootRestore = false) {
+      saveStatusText.innerText = "Restoring session...";
+      
+      localforage.getItem('atelier_session_bundle').then(bundle => {
+        if (bundle) {
+          // 1. Restore Sketch Guide States
+          if (bundle.sketchSrc) {
+            sketchSrcData = bundle.sketchSrc;
+            sketchOpacity = bundle.sketchOpacity;
+            sketchMode = bundle.sketchMode;
+            selectSketchPreset.value = bundle.sketchPresetValue || "none";
+            
+            sliderSketchOpacity.value = Math.round(sketchOpacity * 100);
+            valSketchOpacity.innerText = `${Math.round(sketchOpacity * 100)}%`;
+            
+            if (selectSketchPreset.value === 'custom') {
+              customSketchUploadArea.classList.remove('hidden');
+            }
+
+            if (sketchMode === 'overlay') {
+              setSketchPlacement('overlay');
+            } else {
+              setSketchPlacement('underlay');
+            }
+            
+            updateSketchImgLayers();
+          }
+
+          // 2. Restore Main Paint Canvas Layers
+          if (bundle.canvasData) {
+            const img = new Image();
+            img.onload = () => {
+              ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+              ctx.drawImage(img, 0, 0);
+              
+              historyStack = [];
+              saveHistoryState();
+              
+              saveStatusText.innerText = "Canvas restored";
+              if (isBootRestore) {
+                showToast('Restored active painting workspace!', 'info');
+              } else {
+                showToast('Successfully loaded backup.', 'success');
+              }
+            };
+            img.src = bundle.canvasData;
+          }
+        } else {
+          saveStatusText.innerText = "Ready to paint";
+        }
+      }).catch(err => {
+        saveStatusText.innerText = "Database restore failed";
+        console.error("localForage Error:", err);
+      });
+    }
+
+    // =========================================================================
+    // SKETCH INTERACTION LOGIC
+    // =========================================================================
+
+    function updateSketchImgLayers() {
+      if (!sketchSrcData || selectSketchPreset.value === 'none') {
+        imgSketchOverlay.style.opacity = '0';
+        imgSketchUnderlay.style.opacity = '0';
+        return;
+      }
+
+      if (sketchMode === 'overlay') {
+        imgSketchOverlay.src = sketchSrcData;
+        imgSketchOverlay.style.opacity = sketchOpacity;
+        imgSketchUnderlay.style.opacity = '0';
+      } else {
+        imgSketchUnderlay.src = sketchSrcData;
+        imgSketchUnderlay.style.opacity = sketchOpacity;
+        imgSketchOverlay.style.opacity = '0';
+      }
+    }
+
+    function setSketchPlacement(mode) {
+      sketchMode = mode;
+      if (mode === 'overlay') {
+        btnSketchOverlay.className = "py-1.5 bg-linen-800 text-amber-500 border border-amber-500 rounded font-medium text-center";
+        btnSketchUnderlay.className = "py-1.5 bg-linen-800 text-linen-400 border border-transparent rounded font-medium text-center hover:text-linen-100";
+      } else {
+        btnSketchUnderlay.className = "py-1.5 bg-linen-800 text-amber-500 border border-amber-500 rounded font-medium text-center";
+        btnSketchOverlay.className = "py-1.5 bg-linen-800 text-linen-400 border border-transparent rounded font-medium text-center hover:text-linen-100";
+      }
+      updateSketchImgLayers();
+    }
+
+    // Select preset option list
+    selectSketchPreset.addEventListener('change', (e) => {
+      const val = e.target.value;
+      customSketchUploadArea.classList.add('hidden');
+
+      if (val === 'none') {
+        sketchSrcData = "";
+        updateSketchImgLayers();
+        saveToLocalForage(true);
+      } else if (val === 'custom') {
+        customSketchUploadArea.classList.remove('hidden');
+        if (!sketchSrcData.startsWith('data:image')) {
+          sketchSrcData = "";
+          updateSketchImgLayers();
+        }
+      } else if (SKETCH_PRESETS[val]) {
+        sketchSrcData = SKETCH_PRESETS[val];
+        updateSketchImgLayers();
+        saveToLocalForage(true);
+        showToast(`Loaded preset trace guide: ${val}`, 'info');
+      }
+    });
+
+    // Handle manual custom file uploads
+    inputSketchUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          sketchSrcData = event.target.result;
+          updateSketchImgLayers();
+          saveToLocalForage(true);
+          showToast('Custom sketch uploaded successfully!', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Slider inputs
+    sliderSketchOpacity.addEventListener('input', (e) => {
+      sketchOpacity = parseFloat(e.target.value) / 100;
+      valSketchOpacity.innerText = `${e.target.value}%`;
+      updateSketchImgLayers();
+    });
+
+    sliderSketchOpacity.addEventListener('change', () => {
+      saveToLocalForage(true);
+    });
+
+    // Swap Placement Layer Positions
+    btnSketchOverlay.addEventListener('click', () => {
+      setSketchPlacement('overlay');
+      saveToLocalForage(true);
+    });
+
+    btnSketchUnderlay.addEventListener('click', () => {
+      setSketchPlacement('underlay');
+      saveToLocalForage(true);
+    });
+
+    // =========================================================================
+    // GENERAL PERSISTENCE BUTTONS
+    // =========================================================================
+
+    document.getElementById('btn-local-save').addEventListener('click', () => {
+      saveToLocalForage(false);
+    });
+
+    document.getElementById('btn-local-restore').addEventListener('click', () => {
+      loadFromLocalForage(false);
+    });
+
     document.getElementById('btn-undo').addEventListener('click', () => {
       if (historyStack.length > 1) {
         historyStack.pop(); 
         const lastState = historyStack[historyStack.length - 1];
         ctx.putImageData(lastState, 0, 0);
+        saveToLocalForage(true);
       } else {
-        ctx.fillStyle = '#faf8f5';
-        ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
       }
     });
 
     document.getElementById('btn-clear').addEventListener('click', () => {
-      ctx.fillStyle = '#faf8f5';
-      ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
-      saveHistoryState();
+      const userConfirmed = confirm('Are you sure you want to scrape the canvas clean? You will lose unsaved layers.');
+      if (userConfirmed) {
+        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+        saveHistoryState();
+        
+        // Wipe localForage but retain the sketch if one was selected
+        saveToLocalForage(true);
+        showToast('Canvas wiped clean & browser history reset', 'info');
+      }
     });
 
     document.getElementById('btn-save').addEventListener('click', () => {
+      // Prior to saving, we must flatten the image if drawn over an Underlay layer, or just save the pure paint
       const link = document.createElement('a');
       link.download = `subtractive-oil-${Date.now()}.png`;
       link.href = paintCanvas.toDataURL();
       link.click();
+      showToast('Exported artwork successfully!', 'success');
     });
 
     // Pigment Tray selections
@@ -868,7 +1193,6 @@
         currentPigmentName = btn.dataset.name;
         activePigmentName.innerText = currentPigmentName;
 
-        // Dip brush / Reset contamination and depletion levels
         activeBrushTipColor = hexToRgb(currentPigment);
         brushDepletionLevel = 1.0;
         customCursor.style.backgroundColor = currentPigment;
@@ -945,7 +1269,6 @@
     function updateTelemetry() {
       telemetryLoad.innerText = `${Math.round(brushDepletionLevel * 100)}%`;
       
-      // Calculate divergence of active brush tip from the original pure pigment well
       const orig = hexToRgb(currentPigment);
       const diff = Math.abs(activeBrushTipColor.r - orig.r) + 
                    Math.abs(activeBrushTipColor.g - orig.g) + 
@@ -966,7 +1289,6 @@
       lastX = pos.x;
       lastY = pos.y;
       
-      // Dip / Refresh brush load slightly on initial contact
       brushDepletionLevel = 1.0;
       activeBrushTipColor = mixSubtractive(activeBrushTipColor, hexToRgb(currentPigment), 0.7);
 
@@ -977,6 +1299,9 @@
       if (isDrawing) {
         isDrawing = false;
         saveHistoryState();
+        
+        // Auto-save backups asynchronously through localForage when finishing a stroke
+        saveToLocalForage(true);
       }
     }
 
@@ -999,7 +1324,6 @@
       };
     }
 
-    // Multi-bristle physical line draw incorporating RYB blending and pickup logic
     function drawStroke(x0, y0, x1, y1) {
       const dx = x1 - x0;
       const dy = y1 - y0;
@@ -1011,10 +1335,9 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        // 1. PHYSICAL PIGMENT PICKUP AND CONTAMINATION MODEL
-        // We read a multi-pixel matrix directly from the wet canvas background
+        // PHYSICAL PIGMENT PICKUP AND CONTAMINATION MODEL
         const sampleRadius = Math.max(Math.round(brushSize * 0.2), 1);
-        let accumulatedCanvasColor = { r: 250, g: 248, b: 245 }; // Default canvas surface
+        let accumulatedCanvasColor = { r: 250, g: 248, b: 245 }; 
 
         try {
           const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, Math.max(sampleRadius, 1), Math.max(sampleRadius, 1));
@@ -1036,44 +1359,30 @@
               b: bSum / validPixels
             };
           }
-        } catch (e) {
-          // Fallback if out of bounds
-        }
+        } catch (e) {}
 
-        // Detect if we are painting over an existing painted surface (not the bare linen #faf8f5)
         const isBareLinen = Math.abs(accumulatedCanvasColor.r - 250) < 10 && 
                             Math.abs(accumulatedCanvasColor.g - 248) < 10 && 
                             Math.abs(accumulatedCanvasColor.b - 245) < 10;
 
         if (!isBareLinen) {
-          // Dynamic Pickup: Brush picks up wet canvas pigment.
-          // Pickup rate increases with high wetness and brush contact time.
           const pickupRate = 0.08 * brushWetness;
           activeBrushTipColor = mixSubtractive(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
-          
-          // Custom cursor reflects the dynamic color contamination of the tip
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
-        // Subtractive Mix: The resulting stroke color is the contaminated brush tip mixed with the canvas
-        // Wet on wet will drag both together.
         const mixRatio = 0.45 * brushWetness; 
         const blendedStrokeColor = mixSubtractive(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
 
-        // 2. STROKE LAYOUT RENDERING Stage
         ctx.save();
 
         if (currentBrushProfile === 'bristle') {
-          // Draw individual parallel bristle fibers for physical stroke cuts
           const fiberCount = Math.max(Math.floor(brushSize / 2), 6);
           ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel;
 
           for (let f = 0; f < fiberCount; f++) {
-            // Distribute bristle offsets across the diameter
             const offsetDist = (f / fiberCount - 0.5) * brushSize;
-            
-            // Perpendicular offsets
             const angle = Math.atan2(dy, dx) + Math.PI/2;
             const bx = cx + Math.cos(angle) * offsetDist + (Math.random() - 0.5) * 2;
             const by = cy + Math.sin(angle) * offsetDist + (Math.random() - 0.5) * 2;
@@ -1087,22 +1396,18 @@
           }
         } 
         else if (currentBrushProfile === 'palette-knife') {
-          // Flat angular heavy scraper deposits
           ctx.globalAlpha = 0.9 * brushDepletionLevel;
           ctx.fillStyle = rgbStr;
 
           ctx.beginPath();
-          // Simulates hard metallic block edges of palette knife scrapes
           ctx.rect(cx - brushSize / 2, cy - brushSize / 4, brushSize, brushSize / 2);
           ctx.fill();
 
-          // High viscosity adds structural physical border ridges
           ctx.lineWidth = 1;
           ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * brushViscosity})`;
           ctx.stroke();
         } 
         else if (currentBrushProfile === 'turpentine') {
-          // Highly diluted solvent washes
           ctx.globalAlpha = 0.08;
           const radialGrad = ctx.createRadialGradient(cx, cy, brushSize * 0.1, cx, cy, brushSize);
           radialGrad.addColorStop(0, rgbStr);
@@ -1114,7 +1419,6 @@
           ctx.fill();
         } 
         else if (currentBrushProfile === 'fan-brush') {
-          // Aligned fan sweeps
           ctx.globalAlpha = 0.5 * brushDepletionLevel;
           ctx.fillStyle = rgbStr;
           const hairCount = 6;
@@ -1131,18 +1435,15 @@
 
         ctx.restore();
 
-        // Gradually deplete brush payload reservoir
         brushDepletionLevel = Math.max(brushDepletionLevel - 0.003, 0.2);
         updateTelemetry();
       }
     }
 
-    // Desktop/Mouse events
     paintCanvas.addEventListener('mousedown', startDrawing);
     paintCanvas.addEventListener('mousemove', draw);
     window.addEventListener('mouseup', stopDrawing);
 
-    // Touch support events
     paintCanvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
       startDrawing(e);
@@ -1153,7 +1454,6 @@
     });
     window.addEventListener('touchend', stopDrawing);
 
-    // Cursor element transitions inside canvas wrapper
     const canvasContainer = document.getElementById('studio-canvas-container');
     canvasContainer.addEventListener('mouseenter', () => {
       canvasContainer.classList.add('brush-cursor-active');
@@ -1174,7 +1474,6 @@
 
     // ==========================================
     // SANDBOX DEMO MIXING WELL
-    // Evaluates direct subtractive Yellow + Blue blends
     // ==========================================
     const mixerCanvas = document.getElementById('mixer-canvas');
     const mCtx = mixerCanvas.getContext('2d', { willReadFrequently: true });
@@ -1184,15 +1483,12 @@
       mixerCanvas.width = mixerCanvas.parentElement.clientWidth;
       mixerCanvas.height = mixerCanvas.parentElement.clientHeight;
 
-      // Draw neutral gray/tan primer
       mCtx.fillStyle = '#EFECE6';
       mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
 
-      // Place heavy, high-density wet pure pigment blocks
-      drawWellBlob(65, mixerCanvas.height / 2, 50, { r: 29, g: 78, b: 216 }); // Pure Blue (#1D4ED8)
-      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 50, { r: 250, g: 204, b: 21 }); // Pure Yellow (#FACC15)
+      drawWellBlob(65, mixerCanvas.height / 2, 50, { r: 29, g: 78, b: 216 }); 
+      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 50, { r: 250, g: 204, b: 21 }); 
 
-      // Instructions text
       mCtx.fillStyle = 'rgba(40, 34, 27, 0.4)';
       mCtx.font = 'bold 11px sans-serif';
       mCtx.textAlign = 'center';
@@ -1213,7 +1509,6 @@
       mCtx.restore();
     }
 
-    // Mixer event states
     let isMixing = false;
     let mxLastX = 0;
     let mxLastY = 0;
@@ -1232,7 +1527,6 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        // Sample current color from mixer board coordinates
         let canvasColor = { r: 239, g: 236, b: 230 };
         try {
           const pix = mCtx.getImageData(cx, cy, 1, 1).data;
@@ -1245,7 +1539,6 @@
           activeMixerTipColor = canvasColor;
         }
 
-        // Interactive transfer: Blend loaded tip with what was gathered off canvas subtractively
         activeMixerTipColor = mixSubtractive(activeMixerTipColor, canvasColor, 0.25);
         const compositeColor = mixSubtractive(activeMixerTipColor, canvasColor, 0.4);
         const rgbStr = `rgb(${compositeColor.r}, ${compositeColor.g}, ${compositeColor.b})`;
@@ -1270,7 +1563,7 @@
       const rect = mixerCanvas.getBoundingClientRect();
       mxLastX = e.clientX - rect.left;
       mxLastY = e.clientY - rect.top;
-      activeMixerTipColor = null; // Re-sample on click
+      activeMixerTipColor = null; 
     });
 
     mixerCanvas.addEventListener('mousemove', (e) => {
@@ -1286,7 +1579,6 @@
 
     window.addEventListener('mouseup', () => { isMixing = false; });
 
-    // Touch support for sandbox mixer
     mixerCanvas.addEventListener('touchstart', (e) => {
       isMixing = true;
       hideMixerHint();
@@ -1325,4 +1617,3 @@
   </script>
 </body>
 </html>
-
