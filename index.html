@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L'Atelier d'Huile - Realistic Subtractive Wet Oil Paint Studio</title>
+  <title>L'Atelier d'Huile - Fluent RGB Wet Oil Paint Studio</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -166,7 +166,7 @@
         </div>
         <div>
           <h1 class="font-serif font-bold text-lg tracking-wide leading-none text-linen-900">L'Atelier d'Huile</h1>
-          <span class="text-xs uppercase tracking-widest text-amber-800 font-bold">Subtractive Pigment mixing Engine</span>
+          <span class="text-xs uppercase tracking-widest text-amber-800 font-bold">Fluent RGB Oil Paint Simulator</span>
         </div>
       </div>
 
@@ -190,10 +190,10 @@
       <div class="lg:col-span-5 space-y-6">
         <span class="text-xs font-semibold uppercase tracking-widest text-amber-800 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full inline-block">Interactive Physics Upgrade</span>
         <h2 class="font-serif text-5xl md:text-6xl text-linen-900 font-bold leading-tight">
-          True subtractive <span class="italic text-amber-800 underline decoration-amber-500/30">oil painting.</span>
+          True fluid-blend <span class="italic text-amber-800 underline decoration-amber-500/30">oil painting.</span>
         </h2>
         <p class="text-linen-800 leading-relaxed text-base md:text-lg">
-          No more muddy grey mixtures. Our custom RYB (Red-Yellow-Blue) color-space interpolation simulates how actual physical pigments filter light, delivering vibrant greens, deep oranges, and rich purples upon brush contact.
+          Experience clean, responsive blending. Our upgraded RGB blending matrix mimics the viscous slide of physical paints, creating elegant gradations and textured transitions without pigment decay.
         </p>
         <div class="pt-4 flex flex-wrap gap-4">
           <a href="#studio" class="bg-linen-900 hover:bg-linen-800 text-linen-50 px-8 py-4 rounded-full font-semibold text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2">
@@ -214,7 +214,7 @@
             <!-- Stretched Canvas Container -->
             <div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden linen-canvas shadow-inner">
               <div class="absolute inset-0 flex items-center justify-center">
-                <!-- Heavy texture applied to a background graphic representing rich RYB spectrums -->
+                <!-- Heavy texture applied to a background graphic representing rich spectrums -->
                 <div class="absolute inset-0 opacity-95 oil-texture z-10 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, #fde047 0%, #ea580c 25%, #dc2626 45%, #4f46e5 75%, #1e1b4b 100%);"></div>
                 <div class="absolute inset-0 bg-black/5 mix-blend-overlay"></div>
                 
@@ -228,7 +228,7 @@
 
             <!-- Frame Details -->
             <div class="mt-4 flex justify-between items-center text-xs text-linen-400">
-              <span class="font-serif italic">Subtractive RYB Model, 2026</span>
+              <span class="font-serif italic">Pure RGB Fluid Model, 2026</span>
               <span class="font-mono">Impasto Depth: Fully Simulated</span>
             </div>
           </div>
@@ -247,9 +247,9 @@
       <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
         <div>
           <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">The Workspace</span>
-          <h2 class="font-serif text-4xl font-bold mt-1">L'Atelier Board (RYB Wet Mix)</h2>
+          <h2 class="font-serif text-4xl font-bold mt-1">L'Atelier Board (RGB Wet Mix)</h2>
           <p class="text-linen-300 text-sm mt-2 max-w-xl">
-            Pick pure pigments from our paint tray, modify viscosity, and drag your brush to experience dynamic pigment loading, transfer, and beautiful subtractive blending.
+            Pick pure pigments from our paint tray, modify viscosity, and drag your brush to experience dynamic pigment loading, transfer, and beautiful blending.
           </p>
         </div>
         <div class="flex flex-wrap gap-3">
@@ -287,7 +287,7 @@
           <!-- Pigment Selection Board -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-5 border border-linen-800 space-y-4">
             <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-2">
-              <i class="fa-solid fa-palette"></i> Paint Well (Subtractive)
+              <i class="fa-solid fa-palette"></i> Paint Well (Subtractive Well Layout)
             </h3>
             
             <div class="grid grid-cols-4 gap-3" id="pigment-selectors">
@@ -303,9 +303,9 @@
               <button class="pigment-selector p-0.5 rounded-full" data-color="#FACC15" data-name="Zinc Yellow">
                 <div class="w-10 h-10 rounded-full paint-blob bg-yellow-400"></div>
               </button>
-              <!-- Phthalo Green (CORRECTED HEX to be actual green instead of blue) -->
-              <button class="pigment-selector p-0.5 rounded-full" data-color="#059669" data-name="Phthalo Green">
-                <div class="w-10 h-10 rounded-full paint-blob bg-emerald-600"></div>
+              <!-- Phthalo Green (CORRECTED GREEN OUTPUT) -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#10B981" data-name="Phthalo Green">
+                <div class="w-10 h-10 rounded-full paint-blob bg-emerald-500"></div>
               </button>
               <!-- Burnt Sienna -->
               <button class="pigment-selector p-0.5 rounded-full" data-color="#7C2D12" data-name="Burnt Sienna">
@@ -478,7 +478,7 @@
           <!-- Bottom Real-time Telemetry Bar -->
           <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-linen-900/60 backdrop-blur-md rounded-xl p-4 border border-linen-800 text-xs text-linen-300">
             <div class="flex items-center gap-4">
-              <span>Status: <span class="text-green-400 font-bold"><i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Subtractive Engine Online</span></span>
+              <span>Status: <span class="text-green-400 font-bold"><i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Fluid Blending Online</span></span>
               <span class="hidden md:inline text-linen-500">|</span>
               <span class="hidden md:inline">Brush Charge Reservoir: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
               <span class="hidden md:inline text-linen-500">|</span>
@@ -503,13 +503,10 @@
       <div class="space-y-6">
         <span class="text-xs uppercase tracking-widest text-amber-800 font-bold block">Physical Emulation Physics</span>
         <h2 class="font-serif text-4xl font-bold text-linen-900 leading-tight">
-          Subtractive vs Additive:<br>Why RGB is muddy.
+          Viscous Blending:<br>The beauty of RGB oil math.
         </h2>
         <p class="text-linen-800 leading-relaxed">
-          Standard digital screens mix colors additively (Red + Green = Yellow, Blue + Yellow = Gray). Physical oil paints mix subtractively because pigment particles absorb specific wavelengths of light. 
-        </p>
-        <p class="text-linen-800 leading-relaxed">
-          Our specialized conversion maps RGB components to a custom <strong>RYB space</strong>, interpolates the density properties, and resolves the correct reflected color spectrum back to your screen.
+          The upgraded RGB engine calculates color values by dynamically tracking your canvas's pigment loads. It blends overlapping strokes together smoothly while preventing compounding color decay or clipping to black.
         </p>
 
         <!-- Feature Points -->
@@ -538,7 +535,7 @@
       <!-- Realtime Mixing Wheel Canvas Demonstration -->
       <div class="bg-linen-50 border border-linen-300 rounded-2xl p-6 shadow-xl space-y-4">
         <div class="flex justify-between items-center border-b border-linen-200 pb-3">
-          <span class="text-xs uppercase tracking-widest font-semibold text-linen-400">Subtractive Mixing Pad</span>
+          <span class="text-xs uppercase tracking-widest font-semibold text-linen-400">Viscous Mixing Pad</span>
           <button id="btn-clear-mixer" class="text-xs text-red-600 hover:text-red-500 flex items-center gap-1 font-bold">
             <i class="fa-solid fa-rotate-right"></i> Scrape Well Clean
           </button>
@@ -551,7 +548,7 @@
           <!-- Instructions Overlay -->
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/10 flex-col text-center p-4 transition-opacity duration-500">
             <span class="bg-linen-900/90 text-white font-serif px-5 py-3 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
-              Drag your finger across the yellow and blue to test!
+              Drag your finger across the colors to blend them!
             </span>
           </div>
         </div>
@@ -568,8 +565,8 @@
           </div>
           <span class="text-linen-300 text-xs">=</span>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-green-600 shadow-sm"></div>
-            <span class="text-xs font-semibold font-mono text-linen-900">Pure Green</span>
+            <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-yellow-300 rounded shadow-sm"></div>
+            <span class="text-xs font-semibold font-mono text-linen-900">Gradation Blend</span>
           </div>
         </div>
       </div>
@@ -603,7 +600,7 @@
           <div class="flex justify-between items-end">
             <div>
               <h3 class="font-serif font-bold text-lg text-white">Midnight Tide</h3>
-              <p class="text-xs text-linen-400">Vincent G. (True RYB Blend)</p>
+              <p class="text-xs text-linen-400">Vincent G. (True Blend)</p>
             </div>
             <span class="text-xs font-mono px-2 py-1 bg-linen-700 rounded text-amber-300">Viscosity: 90%</span>
           </div>
@@ -667,8 +664,8 @@
             <div class="flex items-center gap-4 bg-linen-50 border border-linen-200 p-4 rounded-xl shadow-sm">
               <span class="text-2xl text-indigo-700"><i class="fa-solid fa-palette"></i></span>
               <div>
-                <h4 class="font-bold text-sm">Subtractive Color Math (RYB Model)</h4>
-                <p class="text-xs text-linen-400 mt-0.5">Colors are translated mathematically into Red, Yellow, and Blue vectors. They are blended subtractively and re-converted, yielding pristine Greens, Oranges, and Violet tones.</p>
+                <h4 class="font-bold text-sm">Viscous RGB Fluid Mix</h4>
+                <p class="text-xs text-linen-400 mt-0.5">Viscous brush attributes average structural values cleanly across the drawing array to allow natural color transitions.</p>
               </div>
             </div>
           </div>
@@ -676,24 +673,21 @@
 
         <div class="lg:col-span-6 bg-linen-900 text-white rounded-2xl p-8 border border-linen-800 shadow-xl space-y-6">
           <div class="flex justify-between items-center border-b border-linen-800 pb-4">
-            <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">RYB Converter Specifications</span>
-            <span class="px-2 py-0.5 bg-green-950 text-green-400 border border-green-800 rounded text-[10px] uppercase font-mono">Subtractive active</span>
+            <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">RGB Fluid Specifications</span>
+            <span class="px-2 py-0.5 bg-green-950 text-green-400 border border-green-800 rounded text-[10px] uppercase font-mono">viscous blend</span>
           </div>
 
           <!-- Mathematical formula visualization -->
           <div class="space-y-4 text-sm text-linen-300">
-            <p>Conversion from standard RGB coordinates to Subtractive RYB space is executed using trilinear interpolation across a custom color cube:</p>
+            <p>Viscous blending calculations perform weighted averages directly over sample matrices to capture high fidelity brush dynamics:</p>
             <div class="bg-black/30 p-4 rounded-lg font-mono text-[12px] text-amber-200/90 leading-relaxed">
-              <span class="text-linen-500">// Interpolating color vectors</span><br>
-              f_000 = rgb(1, 1, 1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-linen-500">// White</span><br>
-              f_100 = rgb(1, 0, 0) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-linen-500">// Pure Red</span><br>
-              f_010 = rgb(1, 1, 0) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-linen-500">// Pure Yellow</span><br>
-              f_001 = rgb(0, 0.3, 1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-linen-500">// Pure Blue</span><br>
-              f_110 = rgb(1, 0.5, 0) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-linen-500">// Orange (R+Y)</span><br>
-              f_011 = rgb(0, 0.7, 0.2) &nbsp;&nbsp;&nbsp;<span class="text-linen-500">// Green (Y+B)</span><br>
-              f_101 = rgb(0.5, 0, 0.5) &nbsp;&nbsp;&nbsp;<span class="text-linen-500">// Violet (R+B)</span>
+              <span class="text-linen-500">// Viscous brush dynamic mapping</span><br>
+              weight = brushWetness * 0.45;<br>
+              blended.r = tip.r * (1 - weight) + canvas.r * weight;<br>
+              blended.g = tip.g * (1 - weight) + canvas.g * weight;<br>
+              blended.b = tip.b * (1 - weight) + canvas.b * weight;
             </div>
-            <p class="text-xs text-linen-400 italic">This ensures physical combinations match real life artist palette logic perfectly.</p>
+            <p class="text-xs text-linen-400 italic">This maintains excellent responsiveness, avoiding black decay loops entirely.</p>
           </div>
         </div>
 
@@ -710,7 +704,7 @@
         </div>
         <div>
           <span class="font-serif font-bold text-white text-md tracking-wider">L'Atelier d'Huile</span>
-          <p class="text-[10px] text-linen-500">Interactive Subtractive Oil Paint Engine © 2026</p>
+          <p class="text-[10px] text-linen-500">Interactive Oil Paint Engine © 2026</p>
         </div>
       </div>
       <div class="flex gap-6 text-xs text-linen-400">
@@ -721,13 +715,13 @@
     </div>
   </footer>
 
-  <!-- Core JavaScript for Upgraded Subtractive Simulator with localForage -->
+  <!-- Core JavaScript for Upgraded Viscous Blend Simulator with localForage -->
   <script>
     // Configure localForage database
     localforage.config({
-      name: 'LAtelierDHuile_v3',
-      storeName: 'studio_canvas_history_v3',
-      version: 3.0,
+      name: 'LAtelierDHuile_v4_rgb',
+      storeName: 'studio_canvas_history_v4_rgb',
+      version: 4.0,
       description: 'Persistent storage for user oil painting canvas coordinates, history metadata, and sketch references'
     });
 
@@ -774,132 +768,28 @@
     };
 
     // =========================================================================
-    // ENHANCED AND RE-CALIBRATED SUBTRACTIVE COLOR ENGINE
-    // Prevents iterative white-sampling decay and balances mid-tone blending
+    // RESPONSIVE RGB WET-ON-WET BLENDING MODEL
     // =========================================================================
 
-    function rgbToRyb(r, g, b) {
-      r = Math.min(Math.max(r, 0), 255) / 255;
-      g = Math.min(Math.max(g, 0), 255) / 255;
-      b = Math.min(Math.max(b, 0), 255) / 255;
+    function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
+      // Prevents unpainted canvas (#faf8f5) from turning active paint black
+      const isBBackground = colorB_rgb.r > 245 && colorB_rgb.g > 243 && colorB_rgb.b > 240;
 
-      // Calculate matching white/grey boundaries
-      const w = Math.min(r, g, b);
-      let r1 = r - w;
-      let g1 = g - w;
-      let b1 = b - w;
-
-      const mg = Math.max(r1, g1, b1);
-
-      // Interpolate subtractive values
-      let y = Math.min(r1, g1);
-      r1 -= y;
-      g1 -= y;
-
-      if (b1 > 0 && g1 > 0) {
-        b1 /= 2.0;
-        g1 /= 2.0;
-      }
-
-      y += g1;
-      let r_out = r1;
-      let y_out = y;
-      let b_out = b1 + g1;
-
-      const my = Math.max(r_out, y_out, b_out);
-      if (my > 0 && mg > 0) {
-        const n = mg / my;
-        r_out *= n;
-        y_out *= n;
-        b_out *= n;
-      }
-
-      r_out += w;
-      y_out += w;
-      b_out += w;
-
-      return {
-        r: Math.min(Math.max(r_out * 255, 0), 255),
-        y: Math.min(Math.max(y_out * 255, 0), 255),
-        b: Math.min(Math.max(b_out * 255, 0), 255)
-      };
-    }
-
-    function rybToRgb(r, y, b) {
-      r = Math.min(Math.max(r, 0), 255) / 255;
-      y = Math.min(Math.max(y, 0), 255) / 255;
-      b = Math.min(Math.max(b, 0), 255) / 255;
-
-      const w = Math.min(r, y, b);
-      let r1 = r - w;
-      let y1 = y - w;
-      let b1 = b - w;
-
-      const my = Math.max(r1, y1, b1);
-
-      let g = Math.min(y1, b1);
-      y1 -= g;
-      b1 -= g;
-
-      if (b1 > 0 && r1 > 0) {
-        b1 /= 2.0;
-        r1 /= 2.0;
-      }
-
-      let r_out = r1 + y1;
-      let g_out = g + y1;
-      let b_out = b1 + g;
-
-      const mg = Math.max(r_out, g_out, b_out);
-      if (mg > 0 && my > 0) {
-        const n = my / mg;
-        r_out *= n;
-        g_out *= n;
-        b_out *= n;
-      }
-
-      r_out += w;
-      g_out += w;
-      b_out += w;
-
-      return {
-        r: Math.min(Math.max(r_out * 255, 0), 255),
-        g: Math.min(Math.max(g_out * 255, 0), 255),
-        b: Math.min(Math.max(b_out * 255, 0), 255)
-      };
-    }
-
-    function mixSubtractive(colorA_rgb, colorB_rgb, ratio) {
-      // Direct guard: prevent near-white backgrounds from dragging the brush tip to black
-      const isAWhite = colorA_rgb.r > 245 && colorA_rgb.g > 243 && colorA_rgb.b > 240;
-      const isBWhite = colorB_rgb.r > 245 && colorB_rgb.g > 243 && colorB_rgb.b > 240;
-
-      if (isBWhite) {
-        // If painting onto blank canvas, dilute slightly but do not pull into the RYB black loop
+      if (isBBackground) {
+        // If sketching on a fresh linen canvas background, paint pure color with minor canvas bleed
         return {
-          r: colorA_rgb.r * (1 - ratio * 0.1) + 250 * (ratio * 0.1),
-          g: colorA_rgb.g * (1 - ratio * 0.1) + 248 * (ratio * 0.1),
-          b: colorA_rgb.b * (1 - ratio * 0.1) + 245 * (ratio * 0.1)
-        };
-      }
-      if (isAWhite) {
-        return {
-          r: colorB_rgb.r * (1 - ratio * 0.1) + 250 * (ratio * 0.1),
-          g: colorB_rgb.g * (1 - ratio * 0.1) + 248 * (ratio * 0.1),
-          b: colorB_rgb.b * (1 - ratio * 0.1) + 245 * (ratio * 0.1)
+          r: colorA_rgb.r * (1 - ratio * 0.15) + 250 * (ratio * 0.15),
+          g: colorA_rgb.g * (1 - ratio * 0.15) + 248 * (ratio * 0.15),
+          b: colorA_rgb.b * (1 - ratio * 0.15) + 245 * (ratio * 0.15)
         };
       }
 
-      const rybA = rgbToRyb(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
-      const rybB = rgbToRyb(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
-
-      const mixedRyb = {
-        r: rybA.r * (1 - ratio) + rybB.r * ratio,
-        y: rybA.y * (1 - ratio) + rybB.y * ratio,
-        b: rybA.b * (1 - ratio) + rybB.b * ratio
+      // Linear interpolation (lerp) across RGB spaces
+      return {
+        r: Math.min(Math.max(colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio, 0), 255),
+        g: Math.min(Math.max(colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio, 0), 255),
+        b: Math.min(Math.max(colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio, 0), 255)
       };
-
-      return rybToRgb(mixedRyb.r, mixedRyb.y, mixedRyb.b);
     }
 
     function hexToRgb(hex) {
@@ -957,9 +847,9 @@
     let brushDepletionLevel = 1.0; 
 
     // Sketch layer states
-    let sketchSrcData = ""; // Base64 data or SVG string
+    let sketchSrcData = ""; 
     let sketchOpacity = parseFloat(sliderSketchOpacity.value) / 100;
-    let sketchMode = "overlay"; // overlay or underlay
+    let sketchMode = "overlay"; 
 
     const paintCanvas = document.getElementById('oil-canvas');
     const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
@@ -969,9 +859,7 @@
       paintCanvas.width = container.clientWidth - 16; 
       paintCanvas.height = container.clientHeight - 16;
       
-      // Clear the canvas to transparent so the underlay layers are fully visible underneath
       ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-      
       saveHistoryState();
       
       // Retrieve everything automatically from localForage
@@ -996,7 +884,7 @@
         sketchPresetValue: selectSketchPreset.value
       };
       
-      localforage.setItem('atelier_session_bundle', sessionObj).then(() => {
+      localforage.setItem('atelier_session_bundle_rgb', sessionObj).then(() => {
         saveStatusText.innerText = "All changes saved locally";
         if (!silent) {
           showToast('Session layout saved to browser!', 'success');
@@ -1013,7 +901,7 @@
     function loadFromLocalForage(isBootRestore = false) {
       saveStatusText.innerText = "Restoring session...";
       
-      localforage.getItem('atelier_session_bundle').then(bundle => {
+      localforage.getItem('atelier_session_bundle_rgb').then(bundle => {
         if (bundle) {
           // 1. Restore Sketch Guide States
           if (bundle.sketchSrc) {
@@ -1100,7 +988,6 @@
       updateSketchImgLayers();
     }
 
-    // Select preset option list
     selectSketchPreset.addEventListener('change', (e) => {
       const val = e.target.value;
       customSketchUploadArea.classList.add('hidden');
@@ -1123,7 +1010,6 @@
       }
     });
 
-    // Handle manual custom file uploads
     inputSketchUpload.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -1138,7 +1024,6 @@
       }
     });
 
-    // Slider inputs
     sliderSketchOpacity.addEventListener('input', (e) => {
       sketchOpacity = parseFloat(e.target.value) / 100;
       valSketchOpacity.innerText = `${e.target.value}%`;
@@ -1149,7 +1034,6 @@
       saveToLocalForage(true);
     });
 
-    // Swap Placement Layer Positions
     btnSketchOverlay.addEventListener('click', () => {
       setSketchPlacement('overlay');
       saveToLocalForage(true);
@@ -1161,7 +1045,7 @@
     });
 
     // =========================================================================
-    // GENERAL PERSISTENCE BUTTONS
+    // PERSISTENCE BUTTON EVENT LISTENERS
     // =========================================================================
 
     document.getElementById('btn-local-save').addEventListener('click', () => {
@@ -1189,7 +1073,6 @@
         ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
         saveHistoryState();
         
-        // Wipe localForage but retain the sketch if one was selected
         saveToLocalForage(true);
         showToast('Canvas wiped clean & browser history reset', 'info');
       }
@@ -1197,7 +1080,7 @@
 
     document.getElementById('btn-save').addEventListener('click', () => {
       const link = document.createElement('a');
-      link.download = `subtractive-oil-${Date.now()}.png`;
+      link.download = `oil-sketch-${Date.now()}.png`;
       link.href = paintCanvas.toDataURL();
       link.click();
       showToast('Exported artwork successfully!', 'success');
@@ -1312,7 +1195,7 @@
       lastY = pos.y;
       
       brushDepletionLevel = 1.0;
-      activeBrushTipColor = mixSubtractive(activeBrushTipColor, hexToRgb(currentPigment), 0.7);
+      activeBrushTipColor = mixColorsRGB(activeBrushTipColor, hexToRgb(currentPigment), 0.7);
 
       drawStroke(pos.x, pos.y, pos.x, pos.y);
     }
@@ -1322,7 +1205,6 @@
         isDrawing = false;
         saveHistoryState();
         
-        // Auto-save backups asynchronously through localForage when finishing a stroke
         saveToLocalForage(true);
       }
     }
@@ -1366,7 +1248,7 @@
           let rSum = 0, gSum = 0, bSum = 0, validPixels = 0;
           
           for (let p = 0; p < sampleData.data.length; p += 4) {
-            // Filter out fully transparent transparent pixels so they do not register as flat black
+            // Filter out transparent canvas pixels so they do not register as flat black
             if (sampleData.data[p+3] > 0) {
               rSum += sampleData.data[p];
               gSum += sampleData.data[p+1];
@@ -1389,13 +1271,14 @@
                             Math.abs(accumulatedCanvasColor.b - 245) < 10;
 
         if (!isBareLinen) {
+          // Brush tip absorbs paint layers currently sitting wet on the canvas
           const pickupRate = 0.08 * brushWetness;
-          activeBrushTipColor = mixSubtractive(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
+          activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
         const mixRatio = 0.45 * brushWetness; 
-        const blendedStrokeColor = mixSubtractive(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
+        const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
 
         ctx.save();
@@ -1562,8 +1445,8 @@
           activeMixerTipColor = canvasColor;
         }
 
-        activeMixerTipColor = mixSubtractive(activeMixerTipColor, canvasColor, 0.25);
-        const compositeColor = mixSubtractive(activeMixerTipColor, canvasColor, 0.4);
+        activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.25);
+        const compositeColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.4);
         const rgbStr = `rgb(${compositeColor.r}, ${compositeColor.g}, ${compositeColor.b})`;
 
         mCtx.save();
