@@ -1,531 +1,1240 @@
+
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DrawPaw - Free Drawing Online!</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
-    <link rel="icon" href="icon.png">
-    <style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L'Atelier d'Huile - Digital Wet Oil Paint Studio</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome for beautiful, thematic UI Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Playfair Display (Elegant Serif) & Plus Jakarta Sans (Sleek interface) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-       button{
-        color: white;
-        background-color: blue;
-       }
-        #name{
-            font-family: "Fascinate Inline", system-ui;
-            font-weight: 400;
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            linen: {
+              50: '#FAF8F5',
+              100: '#F5EFE6',
+              200: '#E8DFD1',
+              300: '#D6C5B3',
+              400: '#BFA68F',
+              800: '#40352C',
+              900: '#2A221B',
+            },
+            pigment: {
+              ultramarine: '#1E3A8A',
+              ochre: '#D97706',
+              sienna: '#B45309',
+              cadmium: '#DC2626',
+              viridian: '#047857',
+              lead: '#F3F4F6'
+            }
+          }
         }
-        body {
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background-color: black;
-        }
+      }
+    }
+  </script>
 
-        h1 {
-            background: #7F7FD5;
-            background: linear-gradient(to right, blue, green, orange);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF8F5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BFA68F;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #40352C;
+    }
 
-        #drawing-board {
-            position: absolute;
-            border: 1px solid black;
-            background-color: white;
-        }
+    /* Wet Paint Texture Filter utilizing SVG Turbulence */
+    .oil-texture {
+      filter: url(#oil-emboss);
+    }
 
-        .container {
-            height: 100%;
-            display: flex;
-        }
+    .canvas-grain {
+      background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0),
+                        radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0);
+      background-size: 8px 8px;
+      background-position: 0 0, 4px 4px;
+    }
 
-        #toolbar {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            padding: 5px;
-            width: 10vw;
-            background-color: lightblue;
-        }
+    /* Canvas background texture simulating raw stretched linen */
+    .linen-canvas {
+      background-color: #FAF8F5;
+      background-image: 
+        linear-gradient(90deg, rgba(139,115,85,0.04) 1px, transparent 1px),
+        linear-gradient(rgba(139,115,85,0.04) 1px, transparent 1px);
+      background-size: 4px 4px;
+    }
 
-       
+    /* Cursor customization class */
+    .brush-cursor-active {
+      cursor: none !important;
+    }
 
-        #toolbar label {
-            font-size: 12px;
-        }
+    /* Smooth custom cursor indicator */
+    #custom-brush-cursor {
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.1s, height 0.1s;
+      z-index: 9999;
+    }
 
-        #toolbar input {
-            width: 100%;
-        }
+    /* Fluid canvas transitions */
+    .wet-stroke {
+      mix-blend-mode: multiply;
+      filter: contrast(1.15) saturate(1.1);
+    }
+    
+    /* Elegant spotlight overlay */
+    .gallery-spotlight {
+      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.45) 100%);
+    }
 
-        button {
-            overflow: hidden;
-        }
-
-        #clear {
-            background-color: #1565c0;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            padding: 2px;
-        }
-
-        #erase {
-            background-color: black;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            padding: 2px;
-        }
-h1{
-    color: black;
-    font-size: 100pt;
-}
-#name{
-    font-size: 30pt;
-}
-        #map {
-            rotate: 1 0 0 20deg;
-            position: absolute;
-            left: 200px;
-            top: -800px;
-        }
-
-        img {
-            overflow: hidden;
-        }
-
-        #new {
-            font-size: 100pt;
-            background: cyan;
-            font-size: 100pt;
-            width: 20vh;
-            color: black;
-            height: 20vh;
-            position: absolute;
-            left: 0px;
-            border-radius: 50%;
-        }
-
-        #gallery {
-            height: 100vh;
-            width: 100vw;
-            overflow-y: scroll;
-            background: darkblue;
-            
-        }
-        #toolbar * {
-            margin-bottom: 6px;
-            position: relative;
-            z-index: 3;
-            height: 45px;
-            font-size: 15pt;
-       }
-        label{
-        font-size: 30pt;
-       }
-    </style>
+    /* Palette paint blobs */
+    .paint-blob {
+      box-shadow: 
+        inset 0 4px 6px rgba(255,255,255,0.6),
+        inset 0 -4px 8px rgba(0,0,0,0.3),
+        0 6px 12px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    
+    .paint-blob::after {
+      content: '';
+      position: absolute;
+      top: 15%;
+      left: 15%;
+      width: 25%;
+      height: 25%;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      filter: blur(1px);
+    }
+  </style>
 </head>
+<body class="font-sans bg-linen-100 text-linen-900 overflow-x-hidden selection:bg-linen-400 selection:text-linen-900">
 
-<body>
-    <div id="gallery">
-        <button id="new">+<br><br></button>
+  <!-- SVG Oil Paint Embossing & Shading Filter (Applies dynamic physical bump mapping / impasto look) -->
+  <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Thick Impasto Wet Filter -->
+      <filter id="oil-emboss" x="-10%" y="-10%" width="120%" height="120%">
+        <!-- Generate realistic heavy brush stroke ridges -->
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 2 -0.2" result="highContrastNoise"/>
+        <!-- Displace the paint slightly for realistic organic boundaries -->
+        <feDisplacementMap in="SourceGraphic" in2="highContrastNoise" scale="8" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+        <!-- Generate heavy 3D shading -->
+        <feDiffuseLighting in="highContrastNoise" lighting-color="#fff" surfaceScale="5" diffuseConstant="1.2" result="light">
+          <feDistantLight azimuth="135" elevation="45" />
+        </feDiffuseLighting>
+        <!-- Blend diffuse light highlights with original painting colors -->
+        <feBlend mode="multiply" in="displaced" in2="light" result="litPaint"/>
+        <!-- Elevate structural shadows using another overlay layer -->
+        <feSpecularLighting in="highContrastNoise" lighting-color="#fff" surfaceScale="4" specularConstant="1.5" specularExponent="20" result="spec">
+          <feDistantLight azimuth="135" elevation="45" />
+        </feSpecularLighting>
+        <feBlend mode="screen" in="litPaint" in2="spec" result="final"/>
+      </filter>
+
+      <!-- Canvas Base Texture -->
+      <filter id="canvas-texture-filter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.2" numOctaves="3" result="noise"/>
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.07 0"/>
+        <feBlend mode="multiply" in="SourceGraphic" in2="noise"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Custom Brush Pointer (Follows cursor inside the virtual canvas area) -->
+  <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border border-white/60 shadow-lg hidden pointer-events-none"></div>
+
+  <!-- Header Navigation -->
+  <header class="fixed top-0 left-0 w-full bg-linen-50/80 backdrop-blur-md border-b border-linen-200 z-50 px-6 py-4 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-700 via-red-500 to-indigo-800 p-0.5 flex items-center justify-center shadow-md">
+          <div class="w-full h-full bg-linen-50 rounded-full flex items-center justify-center">
+            <span class="font-serif font-bold text-lg text-amber-900">A</span>
+          </div>
+        </div>
+        <div>
+          <h1 class="font-serif font-bold text-lg tracking-wide leading-none text-linen-900">L'Atelier d'Huile</h1>
+          <span class="text-xs uppercase tracking-widest text-linen-400 font-semibold">Wet Oil Paint Engine</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
+        <a href="#studio" class="text-linen-900 hover:text-amber-800 transition-colors">Interactive Studio</a>
+        <a href="#gallery" class="text-linen-800 hover:text-amber-800 transition-colors">The Salon Gallery</a>
+        <a href="#about" class="text-linen-800 hover:text-amber-800 transition-colors">The Physics</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="#studio" class="px-5 py-2 rounded-full border border-linen-300 text-xs uppercase tracking-widest font-semibold hover:bg-linen-900 hover:text-white hover:border-linen-900 transition-all duration-300">
+          Enter Canvas
+        </a>
+      </div>
     </div>
-    <section class="container">
-        <div id="toolbar" hidden>
-            <img id="name" height="100px" width="100px" src="icon.png">
-            <label style="font-size: 24pt;" for="stroke">Stroke</label>
-            <input id="stroke" name='stroke' type="color">
-            <button id="erase">Eraser</button>
-            <label style="font-size: 24pt;" for="lineWidth">Width</label>
-            <input id="lineWidth" name='lineWidth' type="number" value="5">
-            <button id="clear">Clear</button>
-            <br><br>
-            <button id="undo">Undo</button>
-            <button id="dry">Dry</button>
-            <button id="save">Save Image</button>
+  </header>
+
+  <!-- Main Hero / Introduction Section -->
+  <section class="pt-32 pb-16 px-6 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-5 space-y-6">
+        <span class="text-xs font-semibold uppercase tracking-widest text-amber-800 px-3 py-1 bg-amber-50 border border-amber-200/50 rounded-full inline-block">Interactive Experience</span>
+        <h2 class="font-serif text-5xl md:text-6xl text-linen-900 font-bold leading-tight">
+          Where physics meets the <span class="italic text-amber-800 underline decoration-amber-500/30">palette.</span>
+        </h2>
+        <p class="text-linen-800 leading-relaxed text-base md:text-lg">
+          Experience the organic, tactile flow of real oil paint. Our physical pigment mixing simulator brings the dynamic gloss, viscosity, and rich impasto texture of oil directly onto your digital screen.
+        </p>
+        <div class="pt-4 flex flex-wrap gap-4">
+          <a href="#studio" class="bg-linen-900 hover:bg-linen-800 text-linen-50 px-8 py-4 rounded-full font-semibold text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2">
+            <i class="fa-solid fa-palette"></i> Start Painting
+          </a>
+          <a href="#gallery" class="bg-transparent hover:bg-linen-200/50 border border-linen-300 px-8 py-4 rounded-full font-semibold text-sm tracking-wider uppercase transition-all flex items-center gap-2">
+            Explore Salon
+          </a>
         </div>
-        <div id="map"></div>
-        <div class="drawing-board">
-            <canvas id="drawing-board"></canvas>
-        </div>
-    </section>
-    <script>
-        var width = window.innerWidth/10;
-        var strokes = [];
-        var pointarray = [];
-        var paintings = [];
-        var arts = [];
-        if (localStorage.canvas) {
-            arts = JSON.parse(localStorage.getItem("canvas"));
-        }
-        function recolorImage(img, newColor) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, -width, 0);
-
-
-
-            return canvas.toDataURL();
-        }
-        var isNumber = function isNumber(value) {
-  return typeof value === 'number' && isFinite(value);
-}
-        var lasttouch = null, touch;
-        var number = -1;
-        const canvas = document.getElementById('drawing-board');
-        const toolbar = document.getElementById('toolbar');
-        var points = []
-        document.querySelector("#dry").onclick = () => {
-            points = []
-        }
-        const eraser = document.getElementById('erase');
-        const ctx = canvas.getContext('2d');
-
-        const canvasOffsetX = canvas.offsetLeft;
-        const canvasOffsetY = canvas.offsetTop;
-        var color = "#000000";
-        let isPainting = false;
-        let lineWidth = 5;
-
-        if (isNumber(localStorage.getItem("lw"))) lineWidth = parseInt(localStorage.getItem("lw"));
-        if (localStorage.getItem("color")) color = localStorage.getItem("color");
-
-        let startX;
-        let startY;
-        canvas.height = screen.height * 0.7;
-        canvas.width = screen.width * 0.7;
-        canvas.style.height = screen.height * 0.7 + "px";
-        canvas.style.width = screen.width * 0.7 + "px";
-        var isOil = true;
-        ctx.translate(-width, 0)
-        ctx.fillStyle = "white";
-        toolbar.addEventListener('click', e => {
-            if (e.target.id === 'clear') {
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width * 3, canvas.height * 3);
-                points = [];
-            }
-        });
-        var draws = 0;
-        toolbar.addEventListener('change', e => {
-            if (e.target.id === 'stroke') {
-                ctx.strokeStyle = e.target.value;
-                color = e.target.value;
-            }
-
-            if (e.target.id === 'lineWidth') {
-                lineWidth = parseInt(e.target.value);
-            }
-
-        });
-        function shadeColor(color, amount) {
-            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
-        }
-        function hexToRgb(hex) {
-            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-        function lerpColor(color1, color2, amount) {
-            const r1 = parseInt(color1.slice(1, 3), 16);
-            const g1 = parseInt(color1.slice(3, 5), 16);
-            const b1 = parseInt(color1.slice(5, 7), 16);
-
-            const r2 = parseInt(color2.slice(1, 3), 16);
-            const g2 = parseInt(color2.slice(3, 5), 16);
-            const b2 = parseInt(color2.slice(5, 7), 16);
-
-            const r = Math.round(r1 + amount * (r2 - r1));
-            const g = Math.round(g1 + amount * (g2 - g1));
-            const b = Math.round(b1 + amount * (b2 - b1));
-
-            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-        }
-        function openDrawing(image, p, num) {
-            number = num;
-            document.querySelector("#toolbar").hidden = false;
-            ctx.drawImage(image, -width,0, canvas.width, canvas.height);
-            points = p;
-            document.querySelector("#gallery").hidden = true;
-            restore();
-        }
-        var imgs = 0;
-        if (localStorage.getItem("canvas")) {
-            arts.forEach(can => {
-                
-                var i = new Image();
-                i.src = can[can.length-1].canvas;
-                i.style.background = "white";
-                i.style.marginLeft = "13vw";
-                i.style.marginTop = "15vh";
-                
-                i.style.width = canvas.width / 6;
-                i.style.height = canvas.height / 6;
-                i.style.border = "1px solid black"
-
-                i.onclick = () => {
-                    strokes = can[can.length-1].strokes;
-                    openDrawing(i, can[can.length-1].points, can[can.length-1].number)
-                };
-                document.getElementById("gallery").appendChild(i);
-                imgs++;
-                if(imgs % 4 === 0){
-                    document.getElementById("gallery").innerHTML += "<br>";
-
-                }
-            });
+      </div>
+      
+      <!-- Interactive Showcase Painting -->
+      <div class="lg:col-span-7">
+        <div class="relative group">
+          <div class="absolute -inset-1 bg-gradient-to-r from-amber-700 to-indigo-900 rounded-2xl blur-lg opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+          <div class="relative bg-linen-50 rounded-2xl overflow-hidden border border-linen-300/60 shadow-xl p-4 md:p-6">
             
-        }
-        document.getElementById("new").onclick = () => {
+            <!-- Stretched Canvas Container -->
+            <div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden linen-canvas shadow-inner group">
+              <!-- Showcase Art Element with Impasto Layering -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <!-- Heavy texture applied to a background graphic -->
+                <div class="absolute inset-0 opacity-90 oil-texture z-10 pointer-events-none" style="background: radial-gradient(circle at 60% 40%, #ffffff 0%, rgba(220,38,38,0.85) 30%, rgba(180,83,9,0.95) 50%, rgba(30,58,138,0.9) 80%, #030712 100%);"></div>
+                <div class="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+                
+                <!-- Inner Title Overlay -->
+                <div class="absolute bottom-8 left-8 z-20 text-white drop-shadow-md">
+                  <span class="text-xs tracking-widest font-semibold uppercase opacity-75">Demonstration Piece</span>
+                  <h3 class="font-serif text-3xl font-bold mt-1">L'Impression</h3>
+                </div>
+              </div>
+            </div>
 
-            document.querySelector("#toolbar").hidden = false;
-            arts.push([])
-            arts[arts.length-1].push({ canvas: canvas.toDataURL("image/png"), number: arts.length, points: [], strokes: strokes })
-            document.querySelector("#gallery").hidden = true;
-            number = arts.length-1;
-            restore();
-        } 
-        const draw = (e) => {
-            draws++;
-            if (!isPainting) {
-                return;
-            }
-            if (isOil) {
-                if (points.findIndex(x => x.x === e.clientX) > -1 && points.findIndex(y => y.y === e.clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.clientX)].color, 0.7)
-                    points.push({ color: color, x: e.clientX, y: e.clientY })
-                    pointarray.push({ color: color, x: e.clientX, y: e.clientY })
-                }
-                else {
-                    points.push({ color: color, x: e.clientX, y: e.clientY })
+            <!-- Frame Details -->
+            <div class="mt-4 flex justify-between items-center text-xs text-linen-400">
+              <span class="font-serif italic">Oil on digital canvas, 2026</span>
+              <span class="font-mono">Impasto Depth: Heavy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-                }
-                if (lasttouch) {
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
-                        if (i === 2 * lineWidth || i === 4 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -20);
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY);
-                            ctx.stroke();
+  <!-- Interactive Wet Paint Studio (Application Section) -->
+  <section id="studio" class="py-16 bg-linen-800 text-linen-50 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-5 pointer-events-none canvas-grain"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      
+      <!-- Studio Header -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">The Workspace</span>
+          <h2 class="font-serif text-4xl font-bold mt-1">L'Atelier Board</h2>
+          <p class="text-linen-300 text-sm mt-2 max-w-lg">
+            Squeeze out paints, adjust viscosity and impasto volume, and watch pigments dynamically blend on a wet digital linen sheet.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button id="btn-undo" class="px-4 py-2 bg-linen-900/40 hover:bg-linen-900 text-xs rounded-full border border-linen-700 flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-rotate-left text-amber-400"></i> Undo Stroke
+          </button>
+          <button id="btn-clear" class="px-4 py-2 bg-red-950/40 hover:bg-red-900 border border-red-800 text-xs rounded-full flex items-center gap-2 transition-all">
+            <i class="fa-solid fa-trash-can text-red-400"></i> Scrub Canvas Clean
+          </button>
+          <button id="btn-save" class="px-5 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-xs font-semibold rounded-full flex items-center gap-2 transition-all shadow-md">
+            <i class="fa-solid fa-download"></i> Save Masterpiece
+          </button>
+        </div>
+      </div>
 
-                        }
-                        else if (i === 5 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, 20);
-                            ctx.lineWidth = lineWidth * 2;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY);
-                            ctx.stroke();
-
-                        }
-                        else {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -5);
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.lineTo(e.clientX + i, e.clientY);
-                            ctx.stroke();
-                        }
-                    }
-
-                }
-                else {
-                    ctx.moveTo(e.clientX, e.clientY);
-                }
-                lasttouch = { clientX: e.clientX, clientY: e.clientY }
-
-            }
-            else {
-                ctx.lineWidth = lineWidth;
-                ctx.lineCap = 'round';
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.stroke();
-            }
-
-        }
-        const draw2 = (e) => {
-            draws++;
-
-            if (!isPainting) {
-                return;
-            }
-            if (isOil) {
-                if (points.findIndex(x => x.x === e.touches[0].clientX) > -1 && points.findIndex(y => y.y === e.touches[0].clientY) > -1) {
-                    color = lerpColor(document.querySelector("#stroke").value, points[points.findIndex(p => p.x === e.touches[0].clientX)].color, 0.7)
-
-
-                }
-
-                points.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-                pointarray.push({ color: color, x: e.touches[0].clientX, y: e.touches[0].clientY })
-
-
-                if (lasttouch) {
-
-                    for (let i = 0; i < 8 * lineWidth; i += lineWidth) {
-                        if (i === 2 * lineWidth || i === 4 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -20);
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-                        }
-                        else if (i === 5 * lineWidth) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, 20);
-                            ctx.lineWidth = lineWidth * 2;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-
-                        }
-                        else {
-                            ctx.beginPath();
-                            ctx.strokeStyle = shadeColor(color, -5);
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lasttouch.clientX + i, lasttouch.clientY);
-                            ctx.lineCap = 'round';
-                            ctx.lineTo(e.touches[0].clientX + i, e.touches[0].clientY);
-                            ctx.stroke();
-                        }
-                    }
-
-                }
-                else {
-
-                    ctx.moveTo(e.touches[0].clientX, e.touches[0].clientY);
-
-
-                }
-                lasttouch = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY }
-
-            }
-            else {
-                ctx.lineWidth = lineWidth;
-                ctx.lineCap = 'round';
-                ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
-                ctx.stroke();
-            }
-
-        }
-
-
-
-
-        canvas.addEventListener('mousedown', (e) => {
-            isPainting = true;
-            startX = e.clientX;
-            startY = e.clientY;
-        });
-
-        var tap = false;
-        canvas.addEventListener('mouseup', e => {
-            isPainting = false;
-            color = document.querySelector("#stroke").value;
-            lasttouch = null;
-            strokes.push(pointarray);
-            pointarray = [];
-
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes })
-
-        });
-        canvas.addEventListener('touchstart', (e) => {
+      <!-- Studio Layout -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch">
+        
+        <!-- Controls Palette (Left) -->
+        <div class="xl:col-span-3 space-y-6 flex flex-col">
           
-            isPainting = true;
-            color = document.querySelector("#stroke").value;
-           
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
+          <!-- Pigment Selection Board -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-5 border border-linen-800 space-y-4">
+            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-2">
+              <i class="fa-solid fa-palette"></i> Pigment Box
+            </h3>
             
-        });
-        canvas.addEventListener('touchend', e => {
-         
-                isPainting = false;
-            lasttouch = null;
-            strokes.push(pointarray);
-            pointarray = [];
-            arts[number].push({ canvas: canvas.toDataURL("image/png"), number: number, points: points, strokes: strokes });
-             });
-        function rgbaToHex(r, g, b, a) {
-            const rHex = r.toString(16).padStart(2, '0');
-            const gHex = g.toString(16).padStart(2, '0');
-            const bHex = b.toString(16).padStart(2, '0');
-            const aHex = a.toString(16).padStart(2, '0');
-            return `#${rHex}${gHex}${bHex}${aHex}`;
+            <div class="grid grid-cols-4 gap-3" id="pigment-selectors">
+              <!-- Cadmium Red -->
+              <button class="pigment-selector p-0.5 rounded-full ring-2 ring-amber-400" data-color="#DC2626" data-name="Cadmium Red">
+                <div class="w-10 h-10 rounded-full paint-blob bg-red-600"></div>
+              </button>
+              <!-- Cobalt Blue -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#1D4ED8" data-name="Cobalt Blue">
+                <div class="w-10 h-10 rounded-full paint-blob bg-blue-700"></div>
+              </button>
+              <!-- Chrome Yellow -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#F59E0B" data-name="Chrome Yellow">
+                <div class="w-10 h-10 rounded-full paint-blob bg-amber-500"></div>
+              </button>
+              <!-- Viridian Green -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#047857" data-name="Viridian Green">
+                <div class="w-10 h-10 rounded-full paint-blob bg-emerald-700"></div>
+              </button>
+              <!-- Burnt Sienna -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#7C2D12" data-name="Burnt Sienna">
+                <div class="w-10 h-10 rounded-full paint-blob bg-orange-950"></div>
+              </button>
+              <!-- Prussian Black -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#111827" data-name="Prussian Black">
+                <div class="w-10 h-10 rounded-full paint-blob bg-gray-900"></div>
+              </button>
+              <!-- Zinc White -->
+              <button class="pigment-selector p-0.5 rounded-full" data-color="#FFFFFF" data-name="Zinc White">
+                <div class="w-10 h-10 rounded-full paint-blob bg-white border border-linen-700"></div>
+              </button>
+              <!-- Custom Pigment Picker -->
+              <div class="relative flex items-center justify-center">
+                <input type="color" id="custom-color-picker" value="#EC4899" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                <div class="w-11 h-11 rounded-full border-2 border-dashed border-linen-600 flex items-center justify-center hover:border-amber-400 transition-colors">
+                  <i class="fa-solid fa-plus text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-linen-800 flex justify-between items-center">
+              <span class="text-xs text-linen-400">Selected Pigment:</span>
+              <span id="active-pigment-name" class="text-xs font-semibold text-amber-300">Cadmium Red</span>
+            </div>
+          </div>
+
+          <!-- Brush Setting Knobs -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-5 border border-linen-800 space-y-5">
+            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-2">
+              <i class="fa-solid fa-paintbrush"></i> Brush Attributes
+            </h3>
+
+            <!-- Brush Size -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs text-linen-300">
+                <span>Brush Caliber (Size)</span>
+                <span id="val-brush-size" class="font-mono">24px</span>
+              </div>
+              <input type="range" id="input-brush-size" min="5" max="80" value="24" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+
+            <!-- Brush Wetness -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs text-linen-300">
+                <span>Medium Wetness (Blending)</span>
+                <span id="val-brush-wet" class="font-mono">80%</span>
+              </div>
+              <input type="range" id="input-brush-wet" min="10" max="100" value="80" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+
+            <!-- Paint Viscosity -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs text-linen-300">
+                <span>Impasto Thickness (Viscosity)</span>
+                <span id="val-brush-visc" class="font-mono">75%</span>
+              </div>
+              <input type="range" id="input-brush-visc" min="0" max="100" value="75" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+
+            <!-- Brush Texture Profile Selection -->
+            <div class="space-y-2">
+              <span class="text-xs text-linen-300 block">Brush Style</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="brush-profile-btn py-2 bg-linen-800 hover:bg-linen-700 text-xs font-medium rounded border border-amber-500" data-profile="bristle">
+                  Flat Bristle
+                </button>
+                <button class="brush-profile-btn py-2 bg-linen-800 hover:bg-linen-700 text-xs font-medium rounded border border-transparent" data-profile="palette-knife">
+                  Palette Knife
+                </button>
+                <button class="brush-profile-btn py-2 bg-linen-800 hover:bg-linen-700 text-xs font-medium rounded border border-transparent" data-profile="solvent">
+                  Turpentine Wash
+                </button>
+                <button class="brush-profile-btn py-2 bg-linen-800 hover:bg-linen-700 text-xs font-medium rounded border border-transparent" data-profile="fan-brush">
+                  Fan Blender
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions Mini Board -->
+          <div class="bg-linen-900/40 rounded-2xl p-4 border border-linen-800/80 text-xs text-linen-400 leading-relaxed space-y-2 flex-grow">
+            <span class="font-semibold text-linen-300 block"><i class="fa-solid fa-circle-info"></i> Mixing Mechanics:</span>
+            <p>Our paint algorithm dynamically samples adjacent colors upon contact to simulate physical wet-on-wet blending. Click and drag smoothly on the linen canvas to paint. Use different brush profiles for varying impasto texturing heights!</p>
+          </div>
+        </div>
+
+        <!-- Canvas Container Area (Center/Right) -->
+        <div class="xl:col-span-9 flex flex-col gap-4">
+          <div class="flex-grow bg-[#EFECE6] border-8 border-linen-900 rounded-2xl shadow-2xl relative overflow-hidden flex items-center justify-center p-2 min-h-[450px] md:min-h-[550px]" id="studio-canvas-container">
+            <!-- Simulated Canvas Shadow Rim -->
+            <div class="absolute inset-0 border-4 border-black/10 pointer-events-none z-20"></div>
+
+            <!-- Canvas Element Wrapper for CSS Filtering -->
+            <div class="relative w-full h-full rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
+              
+              <!-- Stretched Linen Texture Layer behind Painting -->
+              <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
+
+              <!-- Canvas element where rendering happens -->
+              <canvas id="oil-canvas" class="absolute inset-0 z-10 w-full h-full cursor-none oil-texture"></canvas>
+
+              <!-- Watermark studio signature -->
+              <div class="absolute bottom-4 right-4 pointer-events-none z-20 font-serif italic text-xs text-linen-900/30">
+                L'Atelier Board
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Real-time Telemetry Bar -->
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-linen-900/60 backdrop-blur-md rounded-xl p-4 border border-linen-800 text-xs text-linen-300">
+            <div class="flex items-center gap-4">
+              <span>Status: <span class="text-green-400 font-bold"><i class="fa-solid fa-circle text-[8px] animate-pulse"></i> Wet Paint Ready</span></span>
+              <span class="hidden md:inline text-linen-500">|</span>
+              <span class="hidden md:inline">Viscous Layer Depth: <strong id="telemetry-depth" class="text-amber-400 font-mono">Heavy</strong></span>
+              <span class="hidden md:inline text-linen-500">|</span>
+              <span class="hidden md:inline">Solvent Ratio: <strong id="telemetry-wash" class="text-amber-400 font-mono">0%</strong></span>
+            </div>
+            <div class="text-right">
+              <span class="opacity-75">Click & drag to sculpt oil pigment layers.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Color Mixing Sandbox / Palette Board -->
+  <section class="py-20 px-6 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      
+      <!-- Artistic Side Copy -->
+      <div class="space-y-6">
+        <span class="text-xs uppercase tracking-widest text-amber-800 font-bold block">The Physical Emulation</span>
+        <h2 class="font-serif text-4xl font-bold text-linen-900 leading-tight">
+          Squeeze. Blend. Sweep.<br>Experience pigment mixing.
+        </h2>
+        <p class="text-linen-800 leading-relaxed">
+          Traditional digital brush engines simply overlap semi-transparent pixels, which muddy and lose brilliance. L'Atelier's Wet Paint technology emulates natural medium fluid characteristics:
+        </p>
+
+        <!-- Feature Points -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+          <div class="space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-linen-200 flex items-center justify-center text-amber-800 shadow-sm">
+              <i class="fa-solid fa-droplet"></i>
+            </div>
+            <h4 class="font-serif font-bold text-linen-900">Intermixing Medium</h4>
+            <p class="text-xs text-linen-400 leading-relaxed">
+              Brush movements sample pigment colors of underlying paint, dragging and blending them realistically down the canvas.
+            </p>
+          </div>
+          <div class="space-y-2">
+            <div class="w-10 h-10 rounded-lg bg-linen-200 flex items-center justify-center text-amber-800 shadow-sm">
+              <i class="fa-solid fa-mountain"></i>
+            </div>
+            <h4 class="font-serif font-bold text-linen-900">High-Fidelity Impasto</h4>
+            <p class="text-xs text-linen-400 leading-relaxed">
+              3D lighting filters render structural peaks and valleys according to pressure and paint viscosity.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Realtime Mixing Wheel Canvas Demonstration -->
+      <div class="bg-linen-50 border border-linen-300 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-linen-200 pb-3">
+          <span class="text-xs uppercase tracking-widest font-semibold text-linen-400">Interactive Mixing Block</span>
+          <button id="btn-clear-mixer" class="text-xs text-red-600 hover:text-red-500 flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right"></i> Scrape Clean
+          </button>
+        </div>
+
+        <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-300 shadow-inner overflow-hidden flex items-center justify-center">
+          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
+          <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
+          
+          <!-- Instructions Overlay -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/5 flex-col text-center p-4">
+            <span class="bg-linen-900/90 text-white font-serif px-4 py-2 rounded-lg text-sm shadow-md animate-bounce">
+              Swipe across the colors to blend them together!
+            </span>
+          </div>
+        </div>
+
+        <div class="flex justify-around items-center pt-2">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-blue-700 shadow-sm"></div>
+            <span class="text-xs font-mono text-linen-400">Ultramarine Blue</span>
+          </div>
+          <span class="text-linen-300 text-xs">+</span>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-amber-500 shadow-sm"></div>
+            <span class="text-xs font-mono text-linen-400">Cadmium Yellow</span>
+          </div>
+          <span class="text-linen-300 text-xs">=</span>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-emerald-700 shadow-sm animate-pulse"></div>
+            <span class="text-xs font-semibold font-mono text-linen-900">Viridian Hue</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- The Salon Gallery (Static/Interactive Exhibition) -->
+  <section id="gallery" class="py-24 bg-linen-900 text-linen-100 relative">
+    <div class="absolute inset-0 opacity-10 gallery-spotlight pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+        <span class="text-xs uppercase tracking-widest text-amber-400 font-semibold">Exhibitions</span>
+        <h2 class="font-serif text-4xl md:text-5xl font-bold">The Virtual Salon</h2>
+        <p class="text-linen-400 text-sm">
+          Browse artworks sculpted on L'Atelier's wet oil digital engine. Hover on each piece to see how the impasto structures capture incoming dynamic light source adjustments.
+        </p>
+      </div>
+
+      <!-- Asymmetrical Masonry Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Gallery Item 1 -->
+        <div class="bg-linen-800 rounded-xl p-4 border border-linen-700 shadow-2xl space-y-4 group hover:scale-[1.02] transition-all duration-300">
+          <div class="relative overflow-hidden aspect-[4/5] rounded-lg">
+            <!-- Oil effect applied using CSS filters inside our container -->
+            <div class="absolute inset-0 oil-texture select-none" style="background: radial-gradient(circle at 40% 30%, #e0f2fe 0%, #1e40af 50%, #0f172a 100%);"></div>
+            <div class="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+          </div>
+          <div class="flex justify-between items-end">
+            <div>
+              <h3 class="font-serif font-bold text-lg text-white">Midnight Ocean Swell</h3>
+              <p class="text-xs text-linen-400">Vincent G. (Digital Oil, Impasto)</p>
+            </div>
+            <span class="text-xs font-mono px-2 py-1 bg-linen-700 rounded text-amber-300">Viscosity: 90%</span>
+          </div>
+        </div>
+
+        <!-- Gallery Item 2 -->
+        <div class="bg-linen-800 rounded-xl p-4 border border-linen-700 shadow-2xl space-y-4 group hover:scale-[1.02] transition-all duration-300">
+          <div class="relative overflow-hidden aspect-[4/5] rounded-lg">
+            <div class="absolute inset-0 oil-texture select-none" style="background: linear-gradient(135deg, #fef08a 0%, #f97316 40%, #b91c1c 80%, #450a0a 100%);"></div>
+            <div class="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+          </div>
+          <div class="flex justify-between items-end">
+            <div>
+              <h3 class="font-serif font-bold text-lg text-white">Solar Flares & Sienna</h3>
+              <p class="text-xs text-linen-400">Clara M. (Digital Oil, Heavy Knife)</p>
+            </div>
+            <span class="text-xs font-mono px-2 py-1 bg-linen-700 rounded text-amber-300">Viscosity: 100%</span>
+          </div>
+        </div>
+
+        <!-- Gallery Item 3 -->
+        <div class="bg-linen-800 rounded-xl p-4 border border-linen-700 shadow-2xl space-y-4 group hover:scale-[1.02] transition-all duration-300">
+          <div class="relative overflow-hidden aspect-[4/5] rounded-lg">
+            <div class="absolute inset-0 oil-texture select-none" style="background: radial-gradient(circle at 50% 50%, #ffedd5 0%, #d97706 30%, #115e59 70%, #022c22 100%);"></div>
+            <div class="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+          </div>
+          <div class="flex justify-between items-end">
+            <div>
+              <h3 class="font-serif font-bold text-lg text-white">Oasis Mirage</h3>
+              <p class="text-xs text-linen-400">Henri R. (Digital Oil, Blend)</p>
+            </div>
+            <span class="text-xs font-mono px-2 py-1 bg-linen-700 rounded text-amber-300">Viscosity: 65%</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Technical Mechanics Overview Section -->
+  <section id="about" class="py-24 bg-linen-100 text-linen-900 border-t border-linen-300/50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <div class="lg:col-span-6 space-y-6">
+          <span class="text-xs uppercase tracking-widest text-amber-800 font-bold block">Physical Physics Engine</span>
+          <h2 class="font-serif text-4xl font-bold">The Canvas Shader Technology</h2>
+          <p class="text-linen-800 leading-relaxed">
+            Standard digital drawing software stacks pixels flatly over pixels. L'Atelier's Wet Paint simulator calculates a <strong>displacement map overlay</strong> based on paint deposit height.
+          </p>
+
+          <div class="space-y-4 pt-2">
+            <!-- Dynamic shader visualization rows -->
+            <div class="flex items-center gap-4 bg-linen-50 border border-linen-200 p-4 rounded-xl shadow-sm">
+              <span class="text-2xl text-amber-700"><i class="fa-solid fa-compass-drafting"></i></span>
+              <div>
+                <h4 class="font-bold text-sm">3D Bump Shading (Normal Mapping)</h4>
+                <p class="text-xs text-linen-400 mt-0.5">Custom SVG multi-pass emboss filter matches canvas lighting coordinates dynamically as you adjust heights.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 bg-linen-50 border border-linen-200 p-4 rounded-xl shadow-sm">
+              <span class="text-2xl text-indigo-700"><i class="fa-solid fa-water"></i></span>
+              <div>
+                <h4 class="font-bold text-sm">Wet Pigment Sampling</h4>
+                <p class="text-xs text-linen-400 mt-0.5">As the brush slides across a colored background, the algorithm samples and dilutes current ink colors with newly gathered pigments.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 bg-linen-900 text-white rounded-2xl p-8 border border-linen-800 shadow-xl space-y-6">
+          <div class="flex justify-between items-center border-b border-linen-800 pb-4">
+            <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">Shader Attributes Console</span>
+            <span class="px-2 py-0.5 bg-green-950 text-green-400 border border-green-800 rounded text-[10px] uppercase font-mono">Live Simulation</span>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex justify-between text-xs">
+              <span class="text-linen-400">Turbulence Frequency:</span>
+              <span class="font-mono text-amber-300">0.04 Hz (Organic Bristles)</span>
+            </div>
+            <div class="w-full bg-linen-800 rounded-full h-1.5">
+              <div class="bg-amber-400 h-1.5 rounded-full" style="width: 75%"></div>
+            </div>
+
+            <div class="flex justify-between text-xs">
+              <span class="text-linen-400">Illumination Elevation:</span>
+              <span class="font-mono text-amber-300">45° Spotlight Angle</span>
+            </div>
+            <div class="w-full bg-linen-800 rounded-full h-1.5">
+              <div class="bg-amber-400 h-1.5 rounded-full" style="width: 45%"></div>
+            </div>
+
+            <div class="flex justify-between text-xs">
+              <span class="text-linen-400">Color Drag Dilution:</span>
+              <span class="font-mono text-amber-300">High Viscous drag (Wet on Wet)</span>
+            </div>
+            <div class="w-full bg-linen-800 rounded-full h-1.5">
+              <div class="bg-amber-400 h-1.5 rounded-full" style="width: 85%"></div>
+            </div>
+          </div>
+
+          <!-- Decorative Code Block simulating underlying Shader mechanics -->
+          <div class="bg-black/40 rounded-xl p-4 font-mono text-[11px] text-amber-200/80 space-y-1">
+            <p class="text-linen-500">// Custom WebGL Shader Blend Mapping Block</p>
+            <p><span class="text-indigo-400">vec4</span> oilPigment = texture2D(u_canvas, v_texCoord);</p>
+            <p><span class="text-indigo-400">float</span> heightMap = colorToHeight(oilPigment.rgb);</p>
+            <p><span class="text-indigo-400">vec3</span> normal = calculateSpecularNormals(v_texCoord, heightMap);</p>
+            <p><span class="text-indigo-400">vec3</span> lightVector = normalize(u_lightPos - v_pixelPos);</p>
+            <p class="text-linen-500">// Resulting Impasto Emboss Depth applied</p>
+            <p>gl_FragColor = applyOilSpecular(oilPigment, normal, lightVector);</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="bg-linen-900 text-linen-300 border-t border-linen-800 py-12 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-amber-700 flex items-center justify-center font-serif text-white font-bold text-sm">
+          A
+        </div>
+        <div>
+          <span class="font-serif font-bold text-white text-md tracking-wider">L'Atelier d'Huile</span>
+          <p class="text-[10px] text-linen-500">Interactive Wet Oil Painting Simulation Engine © 2026</p>
+        </div>
+      </div>
+      <div class="flex gap-6 text-xs text-linen-400">
+        <a href="#studio" class="hover:text-white transition-colors">Workspace</a>
+        <a href="#gallery" class="hover:text-white transition-colors">Exhibits</a>
+        <a href="#about" class="hover:text-white transition-colors">Physics & Shader Specs</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript for Simulator Logic & Canvas Interactions -->
+  <script>
+    // System variables and settings
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'oil-paint-studio';
+    
+    // UI elements references
+    const activePigmentName = document.getElementById('active-pigment-name');
+    const brushSizeSlider = document.getElementById('input-brush-size');
+    const brushSizeLabel = document.getElementById('val-brush-size');
+    const brushWetSlider = document.getElementById('input-brush-wet');
+    const brushWetLabel = document.getElementById('val-brush-wet');
+    const brushViscSlider = document.getElementById('input-brush-visc');
+    const brushViscLabel = document.getElementById('val-brush-visc');
+    const colorPicker = document.getElementById('custom-color-picker');
+    const customCursor = document.getElementById('custom-brush-cursor');
+    const telemetryDepth = document.getElementById('telemetry-depth');
+    const telemetryWash = document.getElementById('telemetry-wash');
+
+    // State Variables for Canvas 
+    let currentPigment = "#DC2626"; // Cadmium red
+    let currentPigmentName = "Cadmium Red";
+    let brushSize = parseInt(brushSizeSlider.value);
+    let brushWetness = parseFloat(brushWetSlider.value) / 100;
+    let brushViscosity = parseFloat(brushViscSlider.value) / 100;
+    let currentBrushProfile = "bristle"; // bristle, palette-knife, solvent, fan-brush
+    let isDrawing = false;
+    let historyStack = [];
+
+    // Palette Paint Setup
+    const paintCanvas = document.getElementById('oil-canvas');
+    const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
+
+    // Initialize Canvas Dimensions properly
+    function resizeCanvas() {
+      const container = document.getElementById('studio-canvas-container');
+      const bounding = container.getBoundingClientRect();
+      // Keep canvas dimension optimized for resolution
+      paintCanvas.width = container.clientWidth - 16; 
+      paintCanvas.height = container.clientHeight - 16;
+      
+      // Paint Initial Background Base
+      ctx.fillStyle = '#faf8f5';
+      ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+      
+      // Save background to history
+      saveHistoryState();
+    }
+
+    // Capture Canvas Image States for Undo functions
+    function saveHistoryState() {
+      if (historyStack.length > 15) historyStack.shift(); // Max 15 undo steps
+      historyStack.push(ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
+    }
+
+    // Undo action
+    document.getElementById('btn-undo').addEventListener('click', () => {
+      if (historyStack.length > 1) {
+        historyStack.pop(); // Remove current state
+        const lastState = historyStack[historyStack.length - 1];
+        ctx.putImageData(lastState, 0, 0);
+      } else {
+        // Redraw initial blank if only 1 state
+        ctx.fillStyle = '#faf8f5';
+        ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+      }
+    });
+
+    // Clear Screen
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      if (confirm('Are you sure you want to scrape the canvas clean? You will lose current layers.')) {
+        ctx.fillStyle = '#faf8f5';
+        ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+        saveHistoryState();
+      }
+    });
+
+    // Save Masterpiece to file
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `oil-masterpiece-${Date.now()}.png`;
+      link.href = paintCanvas.toDataURL();
+      link.click();
+    });
+
+    // Paint Blob Pigment Selectors Handling
+    const pigmentSelectors = document.querySelectorAll('.pigment-selector');
+    pigmentSelectors.forEach(selector => {
+      selector.addEventListener('click', (e) => {
+        // Remove ring border indicator
+        pigmentSelectors.forEach(p => p.classList.remove('ring-2', 'ring-amber-400'));
+        
+        // Mark selected
+        const btn = e.currentTarget;
+        btn.classList.add('ring-2', 'ring-amber-400');
+        
+        currentPigment = btn.dataset.color;
+        currentPigmentName = btn.dataset.name;
+        activePigmentName.innerText = currentPigmentName;
+
+        // Custom Cursor styling update
+        customCursor.style.backgroundColor = currentPigment;
+      });
+    });
+
+    // Custom Input Color Picker
+    colorPicker.addEventListener('input', (e) => {
+      currentPigment = e.target.value;
+      currentPigmentName = "Custom Blend";
+      activePigmentName.innerText = currentPigmentName;
+      customCursor.style.backgroundColor = currentPigment;
+    });
+
+    // Brush Profiles Handlers
+    const profileButtons = document.querySelectorAll('.brush-profile-btn');
+    profileButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        profileButtons.forEach(b => b.classList.remove('border-amber-500'));
+        profileButtons.forEach(b => b.classList.add('border-transparent'));
+        
+        btn.classList.remove('border-transparent');
+        btn.classList.add('border-amber-500');
+
+        currentBrushProfile = btn.dataset.profile;
+
+        // Dynamically adjust parameters according to selected tool
+        if (currentBrushProfile === 'palette-knife') {
+          brushSizeSlider.value = 40;
+          brushWetSlider.value = 30;
+          brushViscSlider.value = 100;
+        } else if (currentBrushProfile === 'solvent') {
+          brushSizeSlider.value = 55;
+          brushWetSlider.value = 100;
+          brushViscSlider.value = 10;
+        } else if (currentBrushProfile === 'fan-brush') {
+          brushSizeSlider.value = 35;
+          brushWetSlider.value = 85;
+          brushViscSlider.value = 40;
+        } else {
+          // bristle
+          brushSizeSlider.value = 24;
+          brushWetSlider.value = 80;
+          brushViscSlider.value = 75;
         }
-        canvas.addEventListener('touchmove', draw2);
-        canvas.addEventListener('mousemove', draw);
 
-        toolbar.addEventListener('click', e => {
-            if (e.target.id === 'erase') {
-                eraser.style.backgroundColor = "#b58691";
-                ctx.strokeStyle = 'white';
-            }
-            if (e.target.id != 'erase' && eraser.style.backgroundColor === '#b58691') {
-                eraser.style.backgroundColor = "black";
-                ctx.strokeStyle = color;
-            }
-        });
+        // Trigger updates
+        updateBrushParameters();
+      });
+    });
 
-        document.querySelector("#save").onclick = () => {
-            var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-            var a = document.createElement("a");
-            var name = prompt("Choose a name for your drawing.")
-            a.href = image;
-            a.download = name + ".png";
-            a.click();
+    // Update Slider Labels and state on slide interaction
+    function updateBrushParameters() {
+      brushSize = parseInt(brushSizeSlider.value);
+      brushWetness = parseFloat(brushWetSlider.value) / 100;
+      brushViscosity = parseFloat(brushViscSlider.value) / 100;
+
+      brushSizeLabel.innerText = `${brushSize}px`;
+      brushWetLabel.innerText = `${brushWetSlider.value}%`;
+      brushViscLabel.innerText = `${brushViscSlider.value}%`;
+
+      // Update active telemetry
+      if (brushViscosity > 0.75) {
+        telemetryDepth.innerText = "Extra Heavy Impasto";
+      } else if (brushViscosity > 0.4) {
+        telemetryDepth.innerText = "Heavy";
+      } else {
+        telemetryDepth.innerText = "Thin wash";
+      }
+
+      telemetryWash.innerText = `${Math.round((1 - brushViscosity) * 100)}%`;
+    }
+
+    brushSizeSlider.addEventListener('input', updateBrushParameters);
+    brushWetSlider.addEventListener('input', updateBrushParameters);
+    brushViscSlider.addEventListener('input', updateBrushParameters);
+
+    // Initialize custom cursor dimensions matching active brush sizes
+    function updateCursorSize() {
+      customCursor.style.width = `${brushSize}px`;
+      customCursor.style.height = `${brushSize}px`;
+    }
+    
+    brushSizeSlider.addEventListener('input', updateCursorSize);
+
+    // ==========================================
+    // PHYSICALLY-BASED OIL MIXING CORE DRAW ENGINE
+    // ==========================================
+
+    // Convert hex color values to RGB objects
+    function hexToRgb(hex) {
+      // Handle short hex formats e.g. #FFF
+      if (hex.length === 4) {
+        hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+      }
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 255, g: 255, b: 255 };
+    }
+
+    // Blend Colors incorporating simulated wet canvas mechanics
+    function mixWetPaint(brushRgb, sampledRgb, blendRatio) {
+      // Calculates how much paint transfers based on viscosity & wetness parameters
+      return {
+        r: Math.round(brushRgb.r * (1 - blendRatio) + sampledRgb.r * blendRatio),
+        g: Math.round(brushRgb.g * (1 - blendRatio) + sampledRgb.g * blendRatio),
+        b: Math.round(brushRgb.b * (1 - blendRatio) + sampledRgb.b * blendRatio)
+      };
+    }
+
+    // Core Drawing Logic
+    let lastX = 0;
+    let lastY = 0;
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const pos = getMousePos(paintCanvas, e);
+      lastX = pos.x;
+      lastY = pos.y;
+      
+      drawStroke(pos.x, pos.y, pos.x, pos.y);
+    }
+
+    function stopDrawing() {
+      if (isDrawing) {
+        isDrawing = false;
+        saveHistoryState();
+      }
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const pos = getMousePos(paintCanvas, e);
+      drawStroke(lastX, lastY, pos.x, pos.y);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function getMousePos(canvas, evt) {
+      const rect = canvas.getBoundingClientRect();
+      
+      // Calculate touch support
+      const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      
+      return {
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
+      };
+    }
+
+    // Draw wet simulation paint strokes
+    function drawStroke(x0, y0, x1, y1) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const steps = Math.max(Math.floor(distance / 2), 1); // Paint dab spacing
+      
+      const brushRgb = hexToRgb(currentPigment);
+
+      for (let i = 0; i <= steps; i++) {
+        const t = steps === 0 ? 0 : i / steps;
+        const cx = x0 + dx * t;
+        const cy = y0 + dy * t;
+
+        // 1. Wet-on-wet Sample Stage
+        // Sample paint pigments from background canvas to simulate realistic dragging/mixing
+        const sampleSize = Math.max(Math.round(brushSize * 0.4), 1);
+        let sampleX = Math.round(cx - sampleSize / 2);
+        let sampleY = Math.round(cy - sampleSize / 2);
+        
+        // Boundary checks
+        if (sampleX < 0) sampleX = 0;
+        if (sampleY < 0) sampleY = 0;
+        
+        let sampledRgb = { r: 250, g: 248, b: 245 }; // Default linen raw base color
+        try {
+          const imgData = ctx.getImageData(cx, cy, 1, 1).data;
+          if (imgData[3] > 0) {
+            sampledRgb = { r: imgData[0], g: imgData[1], b: imgData[2] };
+          }
+        } catch (e) {
+          // Fallback if boundary check fails
         }
-        function restore() {
-            localStorage.setItem("canvas", JSON.stringify(arts));
-            localStorage.setItem("lw", lineWidth)
-            localStorage.setItem("color", color)
-            setTimeout(restore, 10)
+
+        // Adjust Blend Ratio dynamically based on brush settings and wet medium levels
+        let blendRatio = 0.3 * brushWetness; // Higher wetness leads to aggressive background pickup
+        
+        // Dry knife has less drag mixing
+        if (currentBrushProfile === 'palette-knife') {
+          blendRatio = 0.05;
+        } else if (currentBrushProfile === 'solvent') {
+          blendRatio = 0.7; // Completely blends underlying paint layers
         }
-        document.getElementById("undo").onclick = ()=> {
 
-            if(strokes.length > 0){
+        const blendedColor = mixWetPaint(brushRgb, sampledRgb, blendRatio);
+        const rgbStr = `rgb(${blendedColor.r}, ${blendedColor.g}, ${blendedColor.b})`;
 
+        // 2. Painting Dab Rendering Stage
+        ctx.save();
+        
+        // Setup varying brush stroke geometries
+        if (currentBrushProfile === 'bristle') {
+          // Standard fine bristle clusters
+          const bristleCount = 8;
+          ctx.globalAlpha = 0.15 + (brushViscosity * 0.35); // Viscosity affects coverage opaqueness
+          
+          for (let b = 0; b < bristleCount; b++) {
+            const rx = cx + (Math.random() - 0.5) * brushSize * 0.7;
+            const ry = cy + (Math.random() - 0.5) * brushSize * 0.7;
+            const bristleSize = Math.max(Math.random() * (brushSize / 4), 2);
             
-arts[number].pop();
-strokes[strokes.length -1].forEach(p=> {
-    points.splice(points.indexOf(p), 1);
-});
-strokes.pop();
-var old = new Image(canvas.width, canvas.height);
-old.src = arts[number][arts[number].length-1].canvas;
-old.onload = ()=> {
-    ctx.fillRect(width,0,canvas.width, canvas.height);
-    ctx.drawImage(old, width,0, canvas.width, canvas.height);
-}
-}
+            ctx.beginPath();
+            ctx.fillStyle = rgbStr;
+            ctx.arc(rx, ry, bristleSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } 
+        else if (currentBrushProfile === 'palette-knife') {
+          // Flat angular heavy stroke layers
+          ctx.globalAlpha = 0.85;
+          ctx.fillStyle = rgbStr;
+          
+          ctx.beginPath();
+          // Draw hard angular polygons to simulate metal knife edges
+          ctx.rect(cx - brushSize / 2, cy - brushSize / 4, brushSize, brushSize / 2);
+          ctx.fill();
+          
+          // Outer hard highlight rim
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * brushViscosity})`;
+          ctx.stroke();
+        } 
+        else if (currentBrushProfile === 'solvent') {
+          // Broad, highly diluted circular sweeps (like mineral spirits)
+          ctx.globalAlpha = 0.08;
+          const grad = ctx.createRadialGradient(cx, cy, brushSize * 0.1, cx, cy, brushSize);
+          grad.addColorStop(0, rgbStr);
+          grad.addColorStop(1, 'transparent');
+          
+          ctx.beginPath();
+          ctx.fillStyle = grad;
+          ctx.arc(cx, cy, brushSize, 0, Math.PI * 2);
+          ctx.fill();
+        } 
+        else if (currentBrushProfile === 'fan-brush') {
+          // Thin aligned streaks
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle = rgbStr;
+          const streakCount = 5;
+          
+          for (let s = 0; s < streakCount; s++) {
+            const sx = cx + (s - streakCount / 2) * (brushSize / 4);
+            const sy = cy + (Math.random() - 0.5) * 4;
             
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
-        document.onkeydown =  (e)=> {
-            if(e.key === "z" && (e.ctrlKey || e.metaKey)){
-                document.querySelector("#undo").click();
-            }
-        }
-    </script>
+
+        ctx.restore();
+      }
+    }
+
+    // Attach Event Listeners to Canvas element
+    paintCanvas.addEventListener('mousedown', startDrawing);
+    paintCanvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+
+    // Responsive Touch Screen Events
+    paintCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startDrawing(e);
+    });
+    paintCanvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      draw(e);
+    });
+    window.addEventListener('touchend', stopDrawing);
+
+    // Custom Cursor tracking inside canvas region
+    const canvasContainer = document.getElementById('studio-canvas-container');
+    
+    canvasContainer.addEventListener('mouseenter', () => {
+      canvasContainer.classList.add('brush-cursor-active');
+      customCursor.classList.remove('hidden');
+      updateCursorSize();
+      customCursor.style.backgroundColor = currentPigment;
+    });
+
+    canvasContainer.addEventListener('mouseleave', () => {
+      canvasContainer.classList.remove('brush-cursor-active');
+      customCursor.classList.add('hidden');
+    });
+
+    canvasContainer.addEventListener('mousemove', (e) => {
+      customCursor.style.left = `${e.clientX}px`;
+      customCursor.style.top = `${e.clientY}px`;
+    });
+
+
+    // ==========================================
+    // COLOR MIXER SANDBOX INTERACTIVE PLAYGROUND
+    // ==========================================
+    const mixerCanvas = document.getElementById('mixer-canvas');
+    const mCtx = mixerCanvas.getContext('2d', { willReadFrequently: true });
+
+    function initMixer() {
+      mixerCanvas.width = mixerCanvas.parentElement.clientWidth;
+      mixerCanvas.height = mixerCanvas.parentElement.clientHeight;
+
+      // Draw background raw linen texture base
+      mCtx.fillStyle = '#EFECE6';
+      mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
+
+      // Squeeze large dollops of pure pigments on opposite sides
+      drawPigmentDollop(mCtx, 60, mixerCanvas.height / 2, 45, '#1D4ED8');  // Blue
+      drawPigmentDollop(mCtx, mixerCanvas.width - 60, mixerCanvas.height / 2, 45, '#F59E0B'); // Yellow
+
+      // Wet blending instructions
+      mCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      mCtx.font = 'italic 12px serif';
+      mCtx.textAlign = 'center';
+      mCtx.fillText("Mix here", mixerCanvas.width / 2, mixerCanvas.height / 2 + 40);
+    }
+
+    function drawPigmentDollop(ctx, x, y, size, hexColor) {
+      ctx.save();
+      const rgb = hexToRgb(hexColor);
+      const grad = ctx.createRadialGradient(x, y, 2, x, y, size);
+      grad.addColorStop(0, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      grad.addColorStop(0.8, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`);
+      grad.addColorStop(1, 'transparent');
+
+      ctx.beginPath();
+      ctx.fillStyle = grad;
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Mixer Canvas Interaction Handler (Slick dragging across to blend)
+    let isMixing = false;
+    let mxLastX = 0;
+    let mxLastY = 0;
+
+    function mixBlendStroke(x0, y0, x1, y1) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const steps = Math.floor(distance / 1.5);
+      
+      const blendSize = 18;
+
+      for (let i = 0; i < steps; i++) {
+        const t = i / steps;
+        const cx = x0 + dx * t;
+        const cy = y0 + dy * t;
+
+        // Sample current paint composition around brush
+        let sampledColor = { r: 239, g: 236, b: 230 };
+        try {
+          const pix = mCtx.getImageData(cx, cy, 1, 1).data;
+          if (pix[3] > 0) {
+            sampledColor = { r: pix[0], g: pix[1], b: pix[2] };
+          }
+        } catch(err){}
+
+        // Sweep dynamically. It samples colors backwards along the path and deposits them forward
+        let dragColor = { r: 150, g: 150, b: 150 };
+        try {
+          const backPix = mCtx.getImageData(cx - (dx*0.1), cy - (dy*0.1), 1, 1).data;
+          if (backPix[3] > 0) {
+            dragColor = { r: backPix[0], g: backPix[1], b: backPix[2] };
+          }
+        } catch(err){}
+
+        // Mix sampled pixels
+        const blended = mixWetPaint(dragColor, sampledColor, 0.45);
+        const rgbStr = `rgb(${blended.r}, ${blended.g}, ${blended.b})`;
+
+        mCtx.save();
+        mCtx.globalAlpha = 0.35;
+        mCtx.beginPath();
+        mCtx.fillStyle = rgbStr;
+        mCtx.arc(cx, cy, blendSize, 0, Math.PI * 2);
+        mCtx.fill();
+        mCtx.restore();
+      }
+    }
+
+    mixerCanvas.addEventListener('mousedown', (e) => {
+      isMixing = true;
+      const rect = mixerCanvas.getBoundingClientRect();
+      mxLastX = e.clientX - rect.left;
+      mxLastY = e.clientY - rect.top;
+    });
+
+    mixerCanvas.addEventListener('mousemove', (e) => {
+      if (!isMixing) return;
+      const rect = mixerCanvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+
+      mixBlendStroke(mxLastX, mxLastY, cx, cy);
+      mxLastX = cx;
+      mxLastY = cy;
+    });
+
+    window.addEventListener('mouseup', () => { isMixing = false; });
+
+    // Touch support for mixer
+    mixerCanvas.addEventListener('touchstart', (e) => {
+      isMixing = true;
+      const rect = mixerCanvas.getBoundingClientRect();
+      mxLastX = e.touches[0].clientX - rect.left;
+      mxLastY = e.touches[0].clientY - rect.top;
+    });
+
+    mixerCanvas.addEventListener('touchmove', (e) => {
+      if (!isMixing) return;
+      const rect = mixerCanvas.getBoundingClientRect();
+      const cx = e.touches[0].clientX - rect.left;
+      const cy = e.touches[0].clientY - rect.top;
+
+      mixBlendStroke(mxLastX, mxLastY, cx, cy);
+      mxLastX = cx;
+      mxLastY = cy;
+    });
+
+    mixerCanvas.addEventListener('touchend', () => { isMixing = false; });
+
+    document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
+
+
+    // Init everything upon load
+    window.onload = function() {
+      resizeCanvas();
+      initMixer();
+      updateBrushParameters();
+    };
+
+    // Keep layouts optimized upon resize
+    window.addEventListener('resize', () => {
+      // Non-destructive check to ensure canvas is set up
+      initMixer();
+    });
+  </script>
 </body>
-
 </html>
+
+
