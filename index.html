@@ -120,7 +120,7 @@
     }
   </style>
 </head>
-<body class="font-sans bg-linen-100 text-linen-900 overflow-x-hidden selection:bg-linen-400 selection:text-linen-900">
+<body class="font-sans bg-linen-800 text-linen-50 overflow-hidden selection:bg-linen-400 selection:text-linen-900 h-screen flex flex-col">
 
   <!-- SVG Oil Paint Embossing & Shading Filter (Physical bump mapping / impasto look) -->
   <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
@@ -155,8 +155,8 @@
 
   <!-- Non-blocking custom alert/confirmation modal -->
   <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-linen-50 rounded-2xl p-6 max-w-md w-full border border-linen-300 shadow-2xl space-y-4">
-      <h3 class="font-serif text-xl font-bold text-linen-900">Scrape Canvas Clean?</h3>
+    <div class="bg-linen-50 rounded-2xl p-6 max-w-md w-full border border-linen-300 shadow-2xl space-y-4 text-linen-900">
+      <h3 class="font-serif text-xl font-bold">Scrape Canvas Clean?</h3>
       <p class="text-xs text-linen-800 leading-relaxed">This action will scrape away your wet oil layers permanently. There is no automatic restore for this action unless you have saved a backup.</p>
       <div class="flex justify-end gap-3 pt-2">
         <button id="modal-cancel-btn" class="px-4 py-2 bg-linen-200 hover:bg-linen-300 text-linen-900 text-xs font-semibold rounded-full uppercase tracking-wider transition-all">Cancel</button>
@@ -165,338 +165,269 @@
     </div>
   </div>
 
-  <!-- Compact Studio Header -->
-  <header class="bg-linen-50/90 backdrop-blur-md border-b border-linen-200 px-6 py-3 transition-all duration-300 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+  <!-- Compact Studio Header & Navigation Tabs -->
+  <header class="bg-linen-50/95 backdrop-blur-md border-b border-linen-200 px-6 py-2 shrink-0 z-40 text-linen-900">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
+      
+      <!-- Brand Identity -->
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-700 via-red-500 to-indigo-800 p-0.5 flex items-center justify-center shadow-md">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-700 via-red-500 to-indigo-800 p-0.5 flex items-center justify-center shadow-md">
           <div class="w-full h-full bg-linen-50 rounded-full flex items-center justify-center">
-            <span class="font-serif font-bold text-base text-amber-900">A</span>
+            <span class="font-serif font-bold text-sm text-amber-900">A</span>
           </div>
         </div>
         <div>
-          <h1 class="font-serif font-bold text-base tracking-wide leading-none text-linen-900">DrawPaw</h1>
-          <span class="text-[10px] uppercase tracking-widest text-amber-800 font-bold">Interactive Wet Oil Studio</span>
+          <h1 class="font-serif font-bold text-sm tracking-wide leading-none">DrawPaw</h1>
+          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">Interactive Wet Oil Studio</span>
         </div>
       </div>
 
+      <!-- App Tabs -->
+      <nav class="flex bg-linen-200/60 p-1 rounded-lg border border-linen-300 text-xs font-semibold">
+        <button id="tab-btn-studio" class="tab-btn px-4 py-1 rounded bg-linen-900 text-white font-medium transition-all" onclick="switchTab('studio')">
+          <i class="fa-solid fa-paintbrush mr-1.5"></i>Studio Board
+        </button>
+        <button id="tab-btn-mixer" class="tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all" onclick="switchTab('mixer')">
+          <i class="fa-solid fa-arrows-spin mr-1.5"></i>Mixing Pad
+        </button>
+        <button id="tab-btn-physics" class="tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all" onclick="switchTab('physics')">
+          <i class="fa-solid fa-flask mr-1.5"></i>About Physics
+        </button>
+      </nav>
+
       <!-- Quick UI Config Controller inside Header -->
-      <div class="flex flex-wrap items-center gap-3">
-        <button id="btn-show-shortcuts" class="px-3 py-1.5 bg-linen-200/50 hover:bg-linen-200 text-linen-900 border border-linen-300 text-[11px] rounded-full flex items-center gap-1 transition-all">
-          <i class="fa-solid fa-keyboard text-amber-800"></i> Shortcuts Info
+      <div class="flex items-center gap-2">
+        <button id="btn-show-shortcuts" class="px-2.5 py-1 bg-linen-200/50 hover:bg-linen-200 border border-linen-300 text-[10px] rounded-full flex items-center gap-1 transition-all">
+          <i class="fa-solid fa-keyboard text-amber-800"></i> Shortcuts
         </button>
-        <button id="btn-toggle-focus" class="px-3 py-1.5 bg-linen-200/50 hover:bg-linen-200 text-linen-900 border border-linen-300 text-[11px] rounded-full flex items-center gap-1 transition-all">
-          <i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[9px] bg-linen-300 rounded font-mono">F</kbd>
+        <button id="btn-toggle-focus" class="px-2.5 py-1 bg-linen-200/50 hover:bg-linen-200 border border-linen-300 text-[10px] rounded-full flex items-center gap-1 transition-all">
+          <i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>
         </button>
-        <a href="#studio" class="px-4 py-1.5 bg-linen-900 text-white hover:bg-linen-800 text-[11px] rounded-full uppercase tracking-wider font-semibold transition-all">
-          Workspace
-        </a>
       </div>
     </div>
   </header>
 
-  <!-- Interactive Wet Paint Studio Workspace Section -->
-  <section id="studio" class="py-8 bg-linen-800 text-linen-50 relative overflow-hidden min-h-[calc(100vh-62px)]">
+  <!-- Main Viewports Frame -->
+  <main class="flex-grow overflow-hidden relative">
     <div class="absolute inset-0 opacity-5 pointer-events-none canvas-grain"></div>
-    
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-      
-      <!-- Studio Control Bar -->
-      <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-4 mb-6">
+
+    <!-- TAB CONTAINER 1: STUDIO WORKSPACE -->
+    <div id="tab-studio" class="tab-view absolute inset-0 p-4 flex flex-col gap-4 overflow-hidden">
+      <!-- Control Bar -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
-          <span class="text-xs uppercase tracking-widest text-amber-400 font-bold">The Canvas Workspace</span>
-          <h2 class="font-serif text-3xl font-bold mt-1">L'Atelier Board (RGB Fluid)</h2>
-          <p class="text-linen-300 text-xs mt-1">
-            Smudge pigments in the mixable palette well, pick up combinations, and paint. Use keyboard shortcuts or tap gestures to toggle options.
-          </p>
+          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (RGB Fluid)</h2>
+          <span class="text-[10px] text-linen-400">Sample, blend, and stroke wet layers across raw linen canvas templates.</span>
         </div>
-        <div class="flex flex-wrap gap-2 w-full xl:w-auto">
-          <button id="btn-undo" class="px-3 py-1.5 bg-linen-900/40 hover:bg-linen-900 text-xs rounded-full border border-linen-700 flex items-center gap-1.5 transition-all">
-            <i class="fa-solid fa-rotate-left text-amber-400"></i> Undo <kbd class="px-1 text-[10px] bg-linen-800 rounded">U</kbd>
+        <div class="flex flex-wrap gap-1.5 justify-end">
+          <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
+            <i class="fa-solid fa-rotate-left text-amber-400"></i> Undo <kbd class="px-1 text-[9px] bg-linen-800 rounded">U</kbd>
           </button>
-          
-          <button id="btn-clear" class="px-3 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-800/80 text-xs rounded-full flex items-center gap-1.5 transition-all">
-            <i class="fa-solid fa-trash-can text-red-400"></i> Scrub Clean <kbd class="px-1 text-[10px] bg-red-950/80 rounded">C</kbd>
+          <button id="btn-clear" class="px-2.5 py-1 bg-red-950/40 hover:bg-red-900 border border-red-800/80 text-[10px] rounded-full flex items-center gap-1 transition-all">
+            <i class="fa-solid fa-trash-can text-red-400"></i> Scrub <kbd class="px-1 text-[9px] bg-red-950/80 rounded">C</kbd>
           </button>
-
-          <div class="h-6 w-px bg-linen-700 self-center hidden sm:block"></div>
-
-          <button id="btn-local-save" class="px-3 py-1.5 bg-emerald-950/40 hover:bg-emerald-900 border border-emerald-800 text-xs rounded-full flex items-center gap-1.5 transition-all">
+          <div class="h-4 w-px bg-linen-700 self-center hidden sm:block"></div>
+          <button id="btn-local-save" onclick="saveToLocalForage(false)" class="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-900 border border-emerald-800 text-[10px] rounded-full flex items-center gap-1 transition-all">
             <i class="fa-solid fa-circle-check text-emerald-400"></i> Save progress
           </button>
-
-          <button id="btn-local-restore" class="px-3 py-1.5 bg-indigo-950/40 hover:bg-indigo-900 border border-indigo-800 text-xs rounded-full flex items-center gap-1.5 transition-all">
+          <button id="btn-local-restore" onclick="loadFromLocalForage(false)" class="px-2.5 py-1 bg-indigo-950/40 hover:bg-indigo-900 border border-indigo-800 text-[10px] rounded-full flex items-center gap-1 transition-all">
             <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> Load backup
           </button>
-
-          <button id="btn-save" class="px-4 py-1.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all shadow-md ml-auto sm:ml-0">
+          <button id="btn-save" class="px-3 py-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-[10px] font-semibold rounded-full flex items-center gap-1 transition-all shadow-md">
             <i class="fa-solid fa-download"></i> Export PNG
           </button>
         </div>
       </div>
 
-      <!-- Studio Layout Grid (With support for swapped sidebar and focus toggles) -->
-      <div id="studio-grid" class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start transition-all duration-300">
+      <!-- Studio Layout Grid -->
+      <div id="studio-grid" class="flex-grow grid grid-cols-12 gap-4 overflow-hidden relative">
         
-        <!-- Controls Palette (Left Column) -->
-        <div id="controls-panel" class="xl:col-span-3 space-y-6 flex flex-col justify-start transition-all duration-300">
+        <!-- Controls Panel (Left Sidebar) -->
+        <div id="controls-panel" class="col-span-12 xl:col-span-3 flex flex-col gap-3 overflow-y-auto pr-1">
           
-          <!-- Mixable Palette Slab - Replacement for static color defaults -->
-          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
+          <!-- Mixable Palette Slab -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
             <div class="flex justify-between items-center">
-              <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
+              <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
                 <i class="fa-solid fa-palette"></i> Mixable Palette Slab
               </h3>
-              <button id="btn-palette-reset" class="text-[10px] text-amber-400/80 hover:text-amber-300 flex items-center gap-1 font-semibold" title="Replenish default blobs on the palette slab">
+              <button id="btn-palette-reset" class="text-[9px] text-amber-400/80 hover:text-amber-300 flex items-center gap-0.5 font-semibold">
                 <i class="fa-solid fa-rotate-right"></i> Replenish
               </button>
             </div>
-
-            <!-- Palette instructions -->
-            <p class="text-[10px] text-linen-400 leading-tight">
-              Swirl your brush on the slab to blend paints. Tap anywhere on it to select that exact color!
-            </p>
-
-            <!-- Interactive Palette Canvas Container -->
+            <p class="text-[9px] text-linen-400 leading-tight">Swirl your brush on the slab to blend paints. Tap anywhere to select that color.</p>
             <div class="relative w-full aspect-[4/3] rounded-lg bg-linen-100 overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
-              <!-- Wooden slab style graphic container -->
               <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-linen-200 to-linen-300 pointer-events-none"></div>
               <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
             </div>
-
-            <div class="pt-2 border-t border-linen-800 flex justify-between items-center text-xs">
+            <div class="pt-1.5 border-t border-linen-800 flex justify-between items-center text-[10px]">
               <span class="text-linen-400">Selected Color:</span>
-              <div class="flex items-center gap-2">
-                <div id="active-color-swatch" class="w-4 h-4 rounded-full border border-white" style="background-color: #E11D48;"></div>
+              <div class="flex items-center gap-1.5">
+                <div id="active-color-swatch" class="w-3.5 h-3.5 rounded-full border border-white" style="background-color: #E11D48;"></div>
                 <span id="active-pigment-name" class="font-semibold text-amber-300">Cadmium Red</span>
               </div>
             </div>
           </div>
 
-          <!-- Adjustable UI Preferences Selector -->
-          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
-            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
+          <!-- Adjustable UI Workspace -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
+            <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
               <i class="fa-solid fa-sliders"></i> Adjustable UI Workspace
             </h3>
-            
-            <div class="space-y-2 text-xs">
+            <div class="space-y-1.5 text-[10px]">
               <div class="flex justify-between items-center">
                 <span class="text-linen-300">Sidebar Position</span>
                 <div class="flex gap-1.5">
-                  <button id="btn-sidebar-left" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold">Left</button>
-                  <button id="btn-sidebar-right" class="px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold">Right</button>
+                  <button id="btn-sidebar-left" class="px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold">Left</button>
+                  <button id="btn-sidebar-right" class="px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold">Right</button>
                 </div>
               </div>
-
               <div class="flex justify-between items-center">
                 <span class="text-linen-300">Studio Resolution Mode</span>
                 <div class="flex gap-1.5">
-                  <button id="btn-res-high" class="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold" title="High quality detailing">High 3D</button>
-                  <button id="btn-res-fast" class="px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold" title="Low latency tracking">Fast</button>
+                  <button id="btn-res-high" class="px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold">High 3D</button>
+                  <button id="btn-res-fast" class="px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold">Fast</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Impasto Shading & Lighting Studio Module -->
-          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
-            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-lightbulb"></i> Impasto Light & Shadows
-            </h3>
-            <p class="text-[10px] text-linen-400 leading-tight">
-              Change the angle and altitude of the virtual light source to dynamically recalculate 3D ridges and shadow depth!
-            </p>
-
-            <!-- Light Azimuth angle -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-linen-300">
-                <span>Light Source Direction (Azimuth)</span>
-                <span id="val-light-azimuth" class="font-mono text-amber-400">135°</span>
-              </div>
-              <input type="range" id="input-light-azimuth" min="0" max="360" value="135" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
-            </div>
-
-            <!-- Light Elevation altitude -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-linen-300">
-                <span>Light Pitch Angle (Elevation)</span>
-                <span id="val-light-elevation" class="font-mono text-amber-400">50°</span>
-              </div>
-              <input type="range" id="input-light-elevation" min="15" max="90" value="50" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
-            </div>
-
-            <!-- Ridge Depth mapping surfaceScale -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-linen-300">
-                <span>Ridge Relief Strength (Scale)</span>
-                <span id="val-light-scale" class="font-mono text-amber-400">4.5</span>
-              </div>
-              <input type="range" id="input-light-scale" min="1.0" max="9.0" step="0.5" value="4.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
-            </div>
-
-            <!-- Specular glossiness specularExponent -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-[11px] text-linen-300">
-                <span>Paint Specular Gloss</span>
-                <span id="val-light-spec" class="font-mono text-amber-400">22</span>
-              </div>
-              <input type="range" id="input-light-spec" min="5" max="50" value="22" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
-            </div>
-          </div>
-
-          <!-- Paint Mediums Configuration -->
-          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
-            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-flask"></i> Paint Mediums <kbd class="px-1 text-[10px] bg-linen-800 rounded uppercase font-normal">M</kbd>
-            </h3>
-            
-            <p class="text-[10px] text-linen-400 leading-tight">
-              Select an oil medium to modify blending physics, wetness retention, and viscosity.
-            </p>
-
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <!-- No Medium -->
-              <button class="medium-btn py-2 px-1 rounded border border-amber-500 bg-linen-800/80 hover:bg-linen-700 text-center flex flex-col items-center justify-center gap-0.5" data-medium="none">
-                <span class="font-semibold text-linen-50">No Medium</span>
-                <span class="text-[9px] text-linen-400">Pure Pigment</span>
-              </button>
-              
-              <!-- Linseed Oil -->
-              <button class="medium-btn py-2 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center gap-0.5" data-medium="linseed">
-                <span class="font-semibold text-yellow-300">Linseed Oil</span>
-                <span class="text-[9px] text-linen-400">Gloss & Slow Dry</span>
-              </button>
-              
-              <!-- Turpentine -->
-              <button class="medium-btn py-2 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center gap-0.5" data-medium="turps">
-                <span class="font-semibold text-teal-300">Turpentine</span>
-                <span class="text-[9px] text-linen-400">Thins & Washes</span>
-              </button>
-
-              <!-- Liquin Gel -->
-              <button class="medium-btn py-2 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center gap-0.5" data-medium="liquin">
-                <span class="font-semibold text-pink-300">Liquin Gel</span>
-                <span class="text-[9px] text-linen-400">Impasto Ridge</span>
-              </button>
-            </div>
-
-            <div id="active-medium-info" class="p-2 rounded bg-black/20 text-[10px] text-linen-300 leading-normal">
-              <strong>None:</strong> Using default slider configurations. Standard paint thickness.
-            </div>
-          </div>
-
-          <!-- Brush Setting Knobs -->
-          <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-4">
-            <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
+          <!-- Brush Dynamics -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
+            <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
               <i class="fa-solid fa-paintbrush"></i> Brush Dynamics
             </h3>
-
             <!-- Brush Size -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-xs text-linen-300">
-                <span>Size <kbd class="px-1 text-[10px] bg-linen-800 rounded">[ / ]</kbd></span>
+            <div class="space-y-0.5 text-[10px]">
+              <div class="flex justify-between">
+                <span>Size <kbd class="px-1 bg-linen-800 rounded">[ / ]</kbd></span>
                 <span id="val-brush-size" class="font-mono text-amber-400">30px</span>
               </div>
               <input type="range" id="input-brush-size" min="5" max="80" value="30" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-
             <!-- Wetness / Pickup Ratio -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-xs text-linen-300">
+            <div class="space-y-0.5 text-[10px]">
+              <div class="flex justify-between">
                 <span>Wetness & Color Pickup</span>
                 <span id="val-brush-wet" class="font-mono text-amber-400">75%</span>
               </div>
               <input type="range" id="input-brush-wet" min="10" max="100" value="75" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-
             <!-- Paint Viscosity -->
-            <div class="space-y-1">
-              <div class="flex justify-between text-xs text-linen-300">
+            <div class="space-y-0.5 text-[10px]">
+              <div class="flex justify-between">
                 <span>Viscosity (Impasto)</span>
                 <span id="val-brush-visc" class="font-mono text-amber-400">80%</span>
               </div>
               <input type="range" id="input-brush-visc" min="0" max="100" value="80" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
+            <!-- Brush Profiles -->
+            <div class="space-y-1.5 pt-1">
+              <span class="text-[9px] text-linen-300 block">Profile style <kbd class="px-1 bg-linen-800 rounded">1 - 9</kbd></span>
+              <div class="grid grid-cols-2 gap-1 text-[9px]">
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-amber-500 truncate" data-profile="bristle">Bristle [1]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="palette-knife">Knife [2]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="turpentine">Turps Wash [3]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="fan-brush">Fan Blender [4]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="filbert">Filbert [5]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="dry-scumble">Scumble [6]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="rigger">Rigger [7]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="stippler">Stippler [8]</button>
+                <button class="brush-profile-btn col-span-2 py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point">Round Detail [9]</button>
+              </div>
+            </div>
+          </div>
 
-            <!-- Brush Texture Profile Selection -->
-            <div class="space-y-2">
-              <span class="text-xs text-linen-300 block">Brush Profile style <kbd class="px-1 text-[10px] bg-linen-800 rounded">1 - 9</kbd></span>
-              <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-amber-500 truncate" data-profile="bristle" title="Flat Bristle [1]">
-                  Flat Bristle [1]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="palette-knife" title="Palette Knife [2]">
-                  Palette Knife [2]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="turpentine" title="Turps Wash [3]">
-                  Turps Wash [3]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="fan-brush" title="Fan Blender [4]">
-                  Fan Blender [4]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="filbert" title="Filbert Dome [5]">
-                  Filbert Dome [5]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="dry-scumble" title="Dry Scumble [6]">
-                  Dry Scumble [6]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="rigger" title="Rigger Detail [7]">
-                  Rigger [7]
-                </button>
-                <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="stippler" title="Stippling Sponge [8]">
-                  Stippler [8]
-                </button>
-                <!-- Round Point brush profile element -->
-                <button class="brush-profile-btn col-span-2 py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point" title="Round Point Detail [9]">
-                  <i class="fa-solid fa-pen-fancy mr-1"></i> Round Point [9]
-                </button>
+          <!-- Paint Mediums Config -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
+            <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-flask"></i> Paint Mediums <kbd class="px-1 bg-linen-800 rounded uppercase font-normal text-[9px]">M</kbd>
+            </h3>
+            <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+              <button class="medium-btn py-1 px-1 rounded border border-amber-500 bg-linen-800/80 hover:bg-linen-700 text-center flex flex-col items-center justify-center" data-medium="none">
+                <span class="font-semibold text-linen-50">No Medium</span>
+              </button>
+              <button class="medium-btn py-1 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center" data-medium="linseed">
+                <span class="font-semibold text-yellow-300">Linseed Oil</span>
+              </button>
+              <button class="medium-btn py-1 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center" data-medium="turps">
+                <span class="font-semibold text-teal-300">Turpentine</span>
+              </button>
+              <button class="medium-btn py-1 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center" data-medium="liquin">
+                <span class="font-semibold text-pink-300">Liquin Gel</span>
+              </button>
+            </div>
+            <div id="active-medium-info" class="p-1.5 rounded bg-black/20 text-[9px] text-linen-300 leading-normal">
+              <strong>None:</strong> Using default slider configurations. Standard paint thickness.
+            </div>
+          </div>
+
+          <!-- Impasto Light & Shadows -->
+          <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0 mb-2">
+            <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-lightbulb"></i> Impasto Shadows
+            </h3>
+            <div class="space-y-1.5 text-[10px]">
+              <div class="space-y-0.5">
+                <div class="flex justify-between">
+                  <span>Light Angle (Azimuth)</span>
+                  <span id="val-light-azimuth" class="font-mono text-amber-400">135°</span>
+                </div>
+                <input type="range" id="input-light-azimuth" min="0" max="360" value="135" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+              </div>
+              <div class="space-y-0.5">
+                <div class="flex justify-between">
+                  <span>Light Pitch (Elevation)</span>
+                  <span id="val-light-elevation" class="font-mono text-amber-400">50°</span>
+                </div>
+                <input type="range" id="input-light-elevation" min="15" max="90" value="50" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+              </div>
+              <div class="space-y-0.5">
+                <div class="flex justify-between">
+                  <span>Relief Relief Strength</span>
+                  <span id="val-light-scale" class="font-mono text-amber-400">4.5</span>
+                </div>
+                <input type="range" id="input-light-scale" min="1.0" max="9.0" step="0.5" value="4.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+              </div>
+              <div class="space-y-0.5">
+                <div class="flex justify-between">
+                  <span>Paint Glossiness</span>
+                  <span id="val-light-spec" class="font-mono text-amber-400">22</span>
+                </div>
+                <input type="range" id="input-light-spec" min="5" max="50" value="22" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
             </div>
           </div>
 
         </div>
 
-        <!-- Canvas Container Area (Center/Right Column) -->
-        <div id="canvas-panel" class="xl:col-span-9 flex flex-col gap-4 transition-all duration-300">
+        <!-- Canvas Container & Tracing Board (Center/Right Column) -->
+        <div id="canvas-panel" class="col-span-12 xl:col-span-9 flex flex-col gap-3 overflow-hidden">
           
-          <div class="flex-grow bg-[#EFECE6] border-8 border-linen-900 rounded-2xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1 min-h-[500px] md:min-h-[620px]" id="studio-canvas-container">
+          <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1" id="studio-canvas-container">
             <!-- Simulated Canvas Shadow Rim -->
-            <div class="absolute inset-0 border-4 border-black/10 pointer-events-none z-20"></div>
+            <div class="absolute inset-0 border-2 border-black/10 pointer-events-none z-20"></div>
 
-            <!-- Canvas Element Wrapper for CSS Filtering (Fixed layout collapse bug via absolute inset) -->
-            <div class="absolute inset-2 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
-              
-              <!-- Stretched Linen Texture Layer behind Painting -->
+            <!-- Canvas Element Wrapper for CSS Filtering -->
+            <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
-
-              <!-- UNDERLAY SKETCH (z-5) -->
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
-
-              <!-- Canvas element where rendering happens (z-10) -->
               <canvas id="oil-canvas" class="absolute inset-0 z-10 w-full h-full cursor-none oil-texture"></canvas>
-
-              <!-- OVERLAY SKETCH (z-15) - Sits on top of paint strokes using multiply blend for easy tracing -->
               <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
-
-              <!-- Eyedropper Preview Indicator -->
               <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
-
-              <!-- Watermark studio signature -->
-              <div class="absolute bottom-4 right-4 pointer-events-none z-20 font-serif italic text-xs text-linen-900/30 select-none">
-                L'Atelier Board
-              </div>
+              <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier Board</div>
             </div>
           </div>
 
           <!-- Bottom Control Bar with Sketch Tracing and Telemetry -->
-          <div id="bottom-tracing-panel" class="grid grid-cols-1 md:grid-cols-12 gap-4 transition-all duration-300">
+          <div id="bottom-tracing-panel" class="grid grid-cols-1 md:grid-cols-12 gap-3 shrink-0">
             
             <!-- Sketch Guide Box (Bottom Left) -->
-            <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-4 border border-linen-800 flex flex-col sm:flex-row gap-4 items-center justify-between text-xs">
+            <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col sm:flex-row gap-3 items-center justify-between text-[11px]">
               <div class="space-y-1 w-full">
                 <span class="text-amber-300 font-bold block"><i class="fa-solid fa-image"></i> Tracing Sketch Guide</span>
-                <div class="flex gap-2">
-                  <select id="select-sketch-preset" class="bg-linen-800 border border-linen-700 text-linen-100 rounded px-2 py-1 text-xs focus:outline-none w-full sm:w-auto">
+                <div class="flex gap-1.5">
+                  <select id="select-sketch-preset" class="bg-linen-800 border border-linen-700 text-linen-100 rounded px-1.5 py-1 text-[10px] focus:outline-none w-full sm:w-auto">
                     <option value="none">Blank Linen Canvas</option>
                     <option value="still_life">Still Life Preset</option>
                     <option value="portrait">Portrait Guide</option>
@@ -505,45 +436,41 @@
                   </select>
                   <div id="custom-sketch-upload-area" class="hidden">
                     <input type="file" id="input-sketch-upload" accept="image/*" class="hidden">
-                    <button onclick="document.getElementById('input-sketch-upload').click()" class="px-2 py-1 bg-linen-800 hover:bg-linen-700 text-linen-300 border border-linen-600 rounded">
-                      Upload File
-                    </button>
+                    <button onclick="document.getElementById('input-sketch-upload').click()" class="px-2 py-1 bg-linen-800 hover:bg-linen-700 text-linen-300 border border-linen-600 rounded text-[10px]">Upload</button>
                   </div>
                 </div>
               </div>
 
               <!-- Opacity and Position Sliders -->
-              <div class="flex flex-col gap-1.5 w-full text-[11px] text-linen-300">
+              <div class="flex flex-col gap-1 w-full text-[10px] text-linen-300">
                 <div class="flex justify-between">
                   <span>Opacity</span>
                   <span id="val-sketch-opacity" class="font-mono text-amber-400">40%</span>
                 </div>
                 <input type="range" id="slider-sketch-opacity" min="0" max="100" value="40" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
-                <div class="flex gap-1.5 mt-1">
-                  <button id="btn-sketch-overlay" class="px-2 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[10px]" title="Over paint using multiply">Overlay</button>
-                  <button id="btn-sketch-underlay" class="px-2 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[10px]" title="Behind paint layer">Underlay</button>
+                <div class="flex gap-1.5 mt-0.5">
+                  <button id="btn-sketch-overlay" class="px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]" title="Over paint using multiply">Overlay</button>
+                  <button id="btn-sketch-underlay" class="px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px]" title="Behind paint layer">Underlay</button>
                 </div>
               </div>
             </div>
 
             <!-- Telemetry & Gestures Status (Bottom Right) -->
-            <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-4 border border-linen-800 flex flex-col justify-between text-xs text-linen-300 gap-2">
+            <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col justify-between text-[11px] text-linen-300 gap-1.5">
               <div class="flex justify-between items-center border-b border-linen-800 pb-1">
-                <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> Shortcuts & Gestures Active</span>
-                <span id="save-status-text" class="text-[10px] text-emerald-400 font-mono">Connected</span>
+                <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> Diagnostics</span>
+                <span id="save-status-text" class="text-[9px] text-emerald-400 font-mono">Connected</span>
               </div>
               
               <!-- Telemetry Status Indicators -->
-              <div class="flex justify-between items-center text-[10px] text-linen-400 bg-black/15 px-2 py-1.5 rounded">
+              <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
                 <span>Brush Charge: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
                 <span>Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
               </div>
               
-              <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-linen-400 leading-tight">
-                <div><i class="fa-solid fa-hand-pointer text-amber-600"></i> Long Press Canvas: <span class="text-linen-200">Pick Color</span></div>
-                <div><i class="fa-solid fa-hand text-amber-600"></i> 2-Finger Tap: <span class="text-linen-200">Undo stroke</span></div>
-                <div><kbd class="px-1 bg-linen-800 rounded">Ctrl+Z</kbd> / <kbd class="px-1 bg-linen-800 rounded">U</kbd>: <span class="text-linen-200">Undo Stroke</span></div>
-                <div><kbd class="px-1 bg-linen-800 rounded">[</kbd> and <kbd class="px-1 bg-linen-800 rounded">]</kbd>: <span class="text-linen-200">Brush Size</span></div>
+              <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
+                <div><i class="fa-solid fa-hand-pointer text-amber-600"></i> Hold Canvas: <span class="text-linen-200">Pick Color</span></div>
+                <div><i class="fa-solid fa-hand text-amber-600"></i> 2-Finger Tap: <span class="text-linen-200">Undo</span></div>
               </div>
             </div>
 
@@ -553,21 +480,100 @@
 
       </div>
     </div>
-  </section>
+
+    <!-- TAB CONTAINER 2: VISCOUS MIXING PAD -->
+    <div id="tab-mixer" class="tab-view absolute inset-0 p-6 flex flex-col justify-center items-center overflow-y-auto hidden">
+      <div class="bg-linen-900/40 border border-linen-700/80 rounded-2xl p-6 shadow-xl space-y-4 max-w-2xl w-full">
+        <div class="flex justify-between items-center border-b border-linen-800 pb-3">
+          <div>
+            <h3 class="text-sm font-serif font-bold text-linen-50">Realtime Viscous Mixing Pad</h3>
+            <p class="text-[10px] text-linen-400 leading-tight">Drag colors across the wet canvas well to sample and blend gradients.</p>
+          </div>
+          <button id="btn-clear-mixer" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-bold">
+            <i class="fa-solid fa-rotate-right"></i> Scrape Clean
+          </button>
+        </div>
+
+        <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-700 shadow-inner overflow-hidden flex items-center justify-center">
+          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
+          <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
+          
+          <!-- Instructions Overlay -->
+          <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
+            <span class="bg-linen-900/95 text-white font-serif px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
+              Drag your finger across the colors to blend them!
+            </span>
+          </div>
+        </div>
+
+        <div class="flex justify-around items-center pt-1">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-blue-700 shadow-sm"></div>
+            <span class="text-xs font-mono text-linen-400">Blue</span>
+          </div>
+          <span class="text-linen-500 text-xs">+</span>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 rounded-full bg-yellow-400 shadow-sm"></div>
+            <span class="text-xs font-mono text-linen-400">Yellow</span>
+          </div>
+          <span class="text-linen-500 text-xs">=</span>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-yellow-300 rounded shadow-sm"></div>
+            <span class="text-xs font-semibold font-mono text-linen-100">Gradation Blend</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB CONTAINER 3: PHYSICAL COPYS / PHYSICS -->
+    <div id="tab-physics" class="tab-view absolute inset-0 p-8 overflow-y-auto hidden">
+      <div class="max-w-3xl mx-auto space-y-8 bg-linen-900/30 border border-linen-800 p-8 rounded-2xl">
+        <div class="space-y-3">
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-bold block">Physical Emulation Physics</span>
+          <h2 class="font-serif text-3xl font-bold leading-tight">Viscous Blending:<br>The beauty of RGB oil math.</h2>
+          <p class="text-linen-200 text-xs leading-relaxed">
+            The upgraded RGB engine calculates color values by dynamically tracking your canvas's pigment loads. It blends overlapping strokes together smoothly while preventing compounding color decay or clipping to black.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
+            <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
+              <i class="fa-solid fa-arrows-spin"></i>
+            </div>
+            <h4 class="font-serif font-bold text-sm">Dynamic Reservoir Pickup</h4>
+            <p class="text-[11px] text-linen-400 leading-relaxed">
+              As your brush moves through wet paint, it collects pigment off the canvas, continuously modifying the brush color until the loaded reservoir runs clean or is re-dipped.
+            </p>
+          </div>
+          <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
+            <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <h4 class="font-serif font-bold text-sm">localForage Integration</h4>
+            <p class="text-[11px] text-linen-400 leading-relaxed">
+              Bypasses standard 5MB localStorage size limits, utilizing native IndexedDB storage to persist raw, uncompressed heavy oil brush layers.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 
   <!-- Shortcuts & Gestures Instruction overlay modal -->
-  <div id="shortcuts-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-linen-900 border border-linen-700 text-linen-50 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 mx-4 mx-auto my-auto">
+  <div id="shortcuts-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 text-linen-50">
+    <div class="bg-linen-900 border border-linen-700 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 mx-4">
       <div class="flex justify-between items-center border-b border-linen-800 pb-3">
-        <h3 class="font-serif text-xl font-bold text-amber-300 flex items-center gap-2">
+        <h3 class="font-serif text-lg font-bold text-amber-300 flex items-center gap-2">
           <i class="fa-solid fa-keyboard"></i> Studio Control Matrix
         </h3>
         <button id="close-shortcuts-btn" class="text-linen-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="space-y-4 text-xs">
+      <div class="space-y-3 text-xs">
         <div>
-          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1.5"><i class="fa-solid fa-computer-mouse"></i> Tap & Touch Gestures</h4>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-computer-mouse"></i> Tap & Touch Gestures</h4>
           <ul class="space-y-1 list-disc list-inside text-linen-300">
             <li><strong>Long Press (1 Second)</strong> on drawing canvas: Eyedropper color pickup.</li>
             <li><strong>Two-Finger Tap</strong>: Quick Undo last brush stroke.</li>
@@ -576,106 +582,53 @@
         </div>
 
         <div>
-          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1.5"><i class="fa-solid fa-keyboard"></i> Keyboard Hooks</h4>
-          <div class="grid grid-cols-2 gap-2 text-linen-300 font-sans">
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-linen-800 rounded">Z</kbd> or <kbd class="px-1.5 py-0.5 bg-linen-800 rounded">U</kbd> : Undo</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">C</kbd> : Clean Scrub Canvas</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">[</kbd> : Decrease Size</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">]</kbd> : Increase Size</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">1 - 9</kbd> : Select Brushes</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">M</kbd> : Cycle Active Medium</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded">F</kbd> : Toggle Focus Mode</div>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-keyboard"></i> Keyboard Hooks</h4>
+          <div class="grid grid-cols-2 gap-2 text-linen-300 font-sans text-[11px]">
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">Z</kbd> or <kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">U</kbd> : Undo</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">C</kbd> : Clean Canvas</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">[</kbd> : Decrease Size</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">]</kbd> : Increase Size</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">1 - 9</kbd> : Select Brushes</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">M</kbd> : Cycle Active Medium</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">F</kbd> : Toggle Focus</div>
           </div>
         </div>
       </div>
 
-      <div class="pt-4 border-t border-linen-800 text-center">
+      <div class="pt-3 border-t border-linen-800 text-center">
         <button id="shortcuts-understand-btn" class="px-6 py-2 bg-amber-600 hover:bg-amber-500 font-bold rounded-full uppercase tracking-wider text-[10px] transition-all">Start Painting</button>
       </div>
     </div>
   </div>
 
-  <!-- Interactive Color Mixing Sandbox / Palette Board -->
-  <section class="py-16 px-6 max-w-7xl mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      
-      <!-- Artistic Side Copy -->
-      <div class="space-y-6">
-        <span class="text-xs uppercase tracking-widest text-amber-800 font-bold block">Physical Emulation Physics</span>
-        <h2 class="font-serif text-3xl font-bold text-linen-900 leading-tight">
-          Viscous Blending:<br>The beauty of RGB oil math.
-        </h2>
-        <p class="text-linen-800 text-xs leading-relaxed">
-          The upgraded RGB engine calculates color values by dynamically tracking your canvas's pigment loads. It blends overlapping strokes together smoothly while preventing compounding color decay or clipping to black.
-        </p>
-
-        <!-- Feature Points -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-          <div class="space-y-2">
-            <div class="w-10 h-10 rounded-lg bg-linen-200 flex items-center justify-center text-amber-800 shadow-sm">
-              <i class="fa-solid fa-arrows-spin"></i>
-            </div>
-            <h4 class="font-serif font-bold text-linen-900 text-sm">Dynamic Reservoir Pickup</h4>
-            <p class="text-[10px] text-linen-500 leading-relaxed">
-              As your brush moves through wet paint, it collects pigment off the canvas, continuously modifying the brush color until the loaded reservoir runs clean or is re-dipped.
-            </p>
-          </div>
-          <div class="space-y-2">
-            <div class="w-10 h-10 rounded-lg bg-linen-200 flex items-center justify-center text-amber-800 shadow-sm">
-              <i class="fa-solid fa-database"></i>
-            </div>
-            <h4 class="font-serif font-bold text-linen-900 text-sm">localForage Integration</h4>
-            <p class="text-[10px] text-linen-500 leading-relaxed">
-              Bypasses standard 5MB localStorage size limits, utilizing native IndexedDB storage to persist raw, uncompressed heavy oil brush layers.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Realtime Mixing Wheel Canvas Demonstration -->
-      <div class="bg-linen-50 border border-linen-300 rounded-2xl p-6 shadow-xl space-y-4">
-        <div class="flex justify-between items-center border-b border-linen-200 pb-3">
-          <span class="text-xs uppercase tracking-widest font-semibold text-linen-400">Viscous Mixing Pad</span>
-          <button id="btn-clear-mixer" class="text-xs text-red-600 hover:text-red-500 flex items-center gap-1 font-bold">
-            <i class="fa-solid fa-rotate-right"></i> Scrape Well Clean
-          </button>
-        </div>
-
-        <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-300 shadow-inner overflow-hidden flex items-center justify-center">
-          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
-          <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
-          
-          <!-- Instructions Overlay -->
-          <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/10 flex-col text-center p-4 transition-opacity duration-500">
-            <span class="bg-linen-900/90 text-white font-serif px-5 py-3 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
-              Drag your finger across the colors to blend them!
-            </span>
-          </div>
-        </div>
-
-        <div class="flex justify-around items-center pt-2">
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-blue-700 shadow-sm"></div>
-            <span class="text-xs font-mono text-linen-400">Blue</span>
-          </div>
-          <span class="text-linen-300 text-xs">+</span>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-yellow-400 shadow-sm"></div>
-            <span class="text-xs font-mono text-linen-400">Yellow</span>
-          </div>
-          <span class="text-linen-300 text-xs">=</span>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-yellow-300 rounded shadow-sm"></div>
-            <span class="text-xs font-semibold font-mono text-linen-900">Gradation Blend</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
   <!-- Core JavaScript for DrawPaw Studio Engine -->
   <script>
+    // =========================================================================
+    // TAB NAVIGATION CONTROLLER
+    // =========================================================================
+    function switchTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+      // Show targeted tab
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+      // Update Tab Button Styles
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = "tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all";
+      });
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = "tab-btn px-4 py-1 rounded bg-linen-900 text-white font-medium transition-all";
+      }
+
+      // Re-trigger layout sizes on canvas transitions
+      if (tabId === 'studio') {
+        setTimeout(resizeCanvas, 50);
+      } else if (tabId === 'mixer') {
+        setTimeout(initMixer, 50);
+      }
+    }
+
     // Configure localForage database
     localforage.config({
       name: 'LAtelierDHuile_v6_rgb',
@@ -688,7 +641,7 @@
     const toastContainer = document.getElementById('toast-container');
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
-      toast.className = `p-4 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-white transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto`;
+      toast.className = `p-4 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-white transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto z-[9999]`;
       
       if (type === 'success') {
         toast.className += ' bg-emerald-900 border border-emerald-600';
@@ -720,11 +673,8 @@
     // =========================================================================
 
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      // Prevents unpainted canvas (#faf8f5) from turning active paint black
       const isBBackground = colorB_rgb.r > 245 && colorB_rgb.g > 243 && colorB_rgb.b > 240;
 
-      // FIX: Pure Canvas Isolation - Do not mix background color in at all. 
-      // Return colorA_rgb completely if sketching over blank linen background.
       if (isBBackground) {
         return {
           r: colorA_rgb.r,
@@ -792,7 +742,7 @@
     let brushWetness = parseFloat(brushWetSlider.value) / 100;
     let brushViscosity = parseFloat(brushViscSlider.value) / 100;
     let currentBrushProfile = "bristle"; 
-    let activeMedium = "none"; // linseed, turps, liquin, none
+    let activeMedium = "none";
     let isDrawing = false;
     let historyStack = [];
 
@@ -807,23 +757,38 @@
     const paintCanvas = document.getElementById('oil-canvas');
     const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
 
+    const SKETCH_PRESETS = {
+      still_life: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><circle cx='400' cy='350' r='120' stroke='black' stroke-width='2' fill='none'/><ellipse cx='400' cy='180' rx='30' ry='15' stroke='black' stroke-width='2' fill='none'/><path d='M370,180 L320,400 L480,400 L430,180' stroke='black' stroke-width='2' fill='none'/></svg>",
+      portrait: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><ellipse cx='400' cy='280' rx='110' ry='150' stroke='black' stroke-width='2' fill='none'/><line x1='400' y1='130' x2='400' y2='430' stroke='black' stroke-width='1' stroke-dasharray='5,5' fill='none'/><line x1='290' y1='280' x2='510' y2='280' stroke='black' stroke-width='1' stroke-dasharray='5,5' fill='none'/></svg>",
+      landscape: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><line x1='0' y1='350' x2='800' y2='350' stroke='black' stroke-width='2' fill='none'/><path d='M0,350 L250,220 L450,350 L650,180 L800,350' stroke='black' stroke-width='2' fill='none'/></svg>"
+    };
+
     function resizeCanvas() {
       const container = document.getElementById('studio-canvas-container');
+      if (!container || container.clientWidth === 0) return;
       
-      let targetWidth = container.clientWidth - 16;
-      let targetHeight = container.clientHeight - 16;
+      let targetWidth = container.clientWidth - 8;
+      let targetHeight = container.clientHeight - 8;
 
       if (targetWidth <= 100) targetWidth = 800;
       if (targetHeight <= 100) targetHeight = 600;
       
+      // Store dynamic canvas image to prevent loss during redraws
+      let tempImage = null;
+      if (paintCanvas.width > 0 && paintCanvas.height > 0) {
+        tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      }
+
       paintCanvas.width = targetWidth; 
       paintCanvas.height = targetHeight;
       
-      ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-      saveHistoryState();
-      
-      // Retrieve everything automatically from localForage
-      loadFromLocalForage(true);
+      if (tempImage) {
+        ctx.putImageData(tempImage, 0, 0);
+      } else {
+        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+        saveHistoryState();
+        loadFromLocalForage(true);
+      }
     }
 
     function saveHistoryState() {
@@ -837,7 +802,7 @@
     }
 
     // =========================================================================
-    // MIXABLE PALETTE SLAB CANVAS LOGIC (Smearing and sampling pigments)
+    // MIXABLE PALETTE SLAB CANVAS LOGIC
     // =========================================================================
     const paletteCanvas = document.getElementById('palette-well-canvas');
     const pCtx = paletteCanvas.getContext('2d', { willReadFrequently: true });
@@ -854,15 +819,13 @@
     ];
 
     function initPaletteSlab() {
-      // Scale canvas logically to avoid blurry smear arcs
+      if (paletteCanvas.parentElement.clientWidth === 0) return;
       paletteCanvas.width = paletteCanvas.parentElement.clientWidth;
       paletteCanvas.height = paletteCanvas.parentElement.clientHeight;
 
-      // Draw marble background
       pCtx.fillStyle = '#EDE8DF';
       pCtx.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 
-      // Draw wood streaks or marble texture
       pCtx.strokeStyle = 'rgba(120, 90, 60, 0.08)';
       pCtx.lineWidth = 4;
       for (let i = 0; i < paletteCanvas.height; i += 10) {
@@ -872,14 +835,12 @@
         pCtx.stroke();
       }
 
-      // Render squeeze blobs
       PALETTE_PIGMENTS.forEach(pigment => {
-        // Adjust coordinate mapping to fit responsive canvas widths
         const pX = (pigment.x / 200) * paletteCanvas.width;
         const pY = (pigment.y / 160) * paletteCanvas.height;
 
         pCtx.save();
-        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 18);
+        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 14);
         grad.addColorStop(0, '#FFFFFF');
         grad.addColorStop(0.15, pigment.color);
         grad.addColorStop(0.85, pigment.color);
@@ -887,13 +848,12 @@
 
         pCtx.beginPath();
         pCtx.fillStyle = grad;
-        pCtx.arc(pX, pY, 18, 0, Math.PI * 2);
+        pCtx.arc(pX, pY, 14, 0, Math.PI * 2);
         pCtx.fill();
         pCtx.restore();
       });
     }
 
-    // Smudging and sampling events on palette canvas
     let isSmudgingPalette = false;
     let paletteLastX = 0;
     let paletteLastY = 0;
@@ -910,7 +870,6 @@
       paletteLastX = (clientX - rect.left) * (paletteCanvas.width / rw);
       paletteLastY = (clientY - rect.top) * (paletteCanvas.height / rh);
 
-      // Sample exact color at mouse down point
       samplePaletteColor(paletteLastX, paletteLastY);
     }
 
@@ -926,7 +885,6 @@
       const cx = (clientX - rect.left) * (paletteCanvas.width / rw);
       const cy = (clientY - rect.top) * (paletteCanvas.height / rh);
 
-      // Perform pigment smear blending on the palette
       smudgePaletteColors(paletteLastX, paletteLastY, cx, cy);
       
       paletteLastX = cx;
@@ -939,7 +897,7 @@
       const dist = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.max(Math.floor(dist / 2), 1);
 
-      const smearRadius = 8;
+      const smearRadius = 6;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -953,14 +911,11 @@
           underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
         } catch (err) {}
 
-        // FIX: Detect if we are touching the marble background of the palette slab.
-        // If it is background, do NOT mix the background's color into the brush.
         const isSlabBackground = Math.abs(underlyingColor.r - 237) < 15 && 
                                  Math.abs(underlyingColor.g - 232) < 15 && 
                                  Math.abs(underlyingColor.b - 223) < 15;
 
         if (isSlabBackground) {
-          // Empty slab space: just paint the current tip color directly without mixing in background gray/brown
           const paintColor = activePaletteTipColor || hexToRgb(currentPigment);
           pCtx.save();
           pCtx.globalAlpha = 0.45;
@@ -970,7 +925,6 @@
           pCtx.fill();
           pCtx.restore();
         } else {
-          // Paint-on-paint mixing: blend overlapping colors dynamically
           if (!activePaletteTipColor) {
             activePaletteTipColor = underlyingColor;
           }
@@ -992,13 +946,11 @@
     function samplePaletteColor(x, y) {
       try {
         const pix = pCtx.getImageData(x, y, 1, 1).data;
-        // Skip alpha zero (fully transparent) falls back to marble white
         const pickedRgb = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 237, g: 232, b: 223 };
         
         currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
         currentPigmentName = `Mixed Slab`;
 
-        // Check if picked color corresponds roughly to squeeze presets to show neat labels
         PALETTE_PIGMENTS.forEach(pigment => {
           const rgbPreset = hexToRgb(pigment.color);
           const dist = Math.abs(rgbPreset.r - pickedRgb.r) + Math.abs(rgbPreset.g - pickedRgb.g) + Math.abs(rgbPreset.b - pickedRgb.b);
@@ -1054,26 +1006,26 @@
         modifier: (wet, visc) => ({
           wet: Math.max(wet, 0.85),
           visc: Math.max(visc, 0.5),
-          depletion: 0.001, // lasts much longer
+          depletion: 0.001,
           opacityMult: 0.95
         })
       },
       turps: {
-        info: "<strong>Turpentine Solvent:</strong> Thins out the oils completely. Creates transparent, highly fluid watercolor-like washes that bleed quickly.",
+        info: "<strong>Turpentine Solvent:</strong> Thins out the oils completely. Creates transparent, highly fluid watercolor-like washes.",
         modifier: (wet, visc) => ({
           wet: 1.0,
           visc: 0.05,
-          depletion: 0.006, // depletes quickly
-          opacityMult: 0.45 // runny washes
+          depletion: 0.006,
+          opacityMult: 0.45
         })
       },
       liquin: {
-        info: "<strong>Liquin Gel:</strong> Maintains high paint ridges and visual body. Increases brush viscosity to paint thick impasto peaks with sharp bristles.",
+        info: "<strong>Liquin Gel:</strong> Maintains high paint ridges and visual body. Increases brush viscosity to paint thick impasto peaks.",
         modifier: (wet, visc) => ({
           wet: Math.min(wet, 0.4),
           visc: Math.max(visc, 0.95),
           depletion: 0.004,
-          opacityMult: 1.2 // sharp thick layer
+          opacityMult: 1.2
         })
       }
     };
@@ -1106,7 +1058,6 @@
     // PERSISTENCE & HISTORY LOCALFORAGE BACKUPS
     // =========================================================================
 
-    // localForage - Save painting and config layout
     function saveToLocalForage(silent = false) {
       const dataUrl = paintCanvas.toDataURL();
       saveStatusText.innerText = "Auto-saving...";
@@ -1122,8 +1073,8 @@
         lightElevation: document.getElementById('input-light-elevation').value,
         lightScale: document.getElementById('input-light-scale').value,
         lightSpec: document.getElementById('input-light-spec').value,
-        sidebarOnRight: document.getElementById('studio-grid').classList.contains('xl:flex-row-reverse'),
-        resModeFast: document.getElementById('oil-canvas').classList.contains('filter-none')
+        sidebarOnRight: studioGrid.classList.contains('xl:flex-row-reverse'),
+        resModeFast: paintCanvas.classList.contains('filter-none')
       };
       
       localforage.setItem('atelier_session_bundle_rgb_v6', sessionObj).then(() => {
@@ -1139,13 +1090,11 @@
       });
     }
 
-    // localForage - Restore painting state from IndexedDB
     function loadFromLocalForage(isBootRestore = false) {
       saveStatusText.innerText = "Restoring session...";
       
       localforage.getItem('atelier_session_bundle_rgb_v6').then(bundle => {
         if (bundle) {
-          // 1. Restore Sketch Guide States
           if (bundle.sketchSrc) {
             sketchSrcData = bundle.sketchSrc;
             sketchOpacity = bundle.sketchOpacity;
@@ -1172,7 +1121,6 @@
             selectMedium(bundle.activeMedium);
           }
 
-          // Restore Lighting Parameters
           if (bundle.lightAzimuth) {
             document.getElementById('input-light-azimuth').value = bundle.lightAzimuth;
             document.getElementById('input-light-elevation').value = bundle.lightElevation;
@@ -1181,7 +1129,6 @@
             updateImpastoLighting();
           }
 
-          // Restore adjustable UI configs
           if (bundle.sidebarOnRight) {
             toggleSidebarSide(true);
           }
@@ -1189,7 +1136,6 @@
             toggleResolutionMode(true);
           }
 
-          // 2. Restore Main Paint Canvas Layers
           if (bundle.canvasData) {
             const img = new Image();
             img.onload = () => {
@@ -1242,11 +1188,11 @@
     function setSketchPlacement(mode) {
       sketchMode = mode;
       if (mode === 'overlay') {
-        btnSketchOverlay.className = "px-2 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[10px]";
-        btnSketchUnderlay.className = "px-2 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[10px] hover:text-linen-100";
+        btnSketchOverlay.className = "px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]";
+        btnSketchUnderlay.className = "px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] hover:text-linen-100";
       } else {
-        btnSketchUnderlay.className = "px-2 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[10px]";
-        btnSketchOverlay.className = "px-2 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[10px] hover:text-linen-100";
+        btnSketchUnderlay.className = "px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]";
+        btnSketchOverlay.className = "px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] hover:text-linen-100";
       }
       updateSketchImgLayers();
     }
@@ -1333,7 +1279,7 @@
     // Profiles Configuration Updates
     const profileButtons = document.querySelectorAll('.brush-profile-btn');
     profileButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         selectBrushProfile(btn.dataset.profile);
       });
     });
@@ -1351,7 +1297,6 @@
 
       currentBrushProfile = profileName;
 
-      // Adjust defaults depending on selected style profile
       if (currentBrushProfile === 'palette-knife') {
         brushSizeSlider.value = 35;
         brushWetSlider.value = 30;
@@ -1385,7 +1330,6 @@
         brushWetSlider.value = 70;
         brushViscSlider.value = 75;
       } else {
-        // Bristle default
         brushSizeSlider.value = 30;
         brushWetSlider.value = 75;
         brushViscSlider.value = 80;
@@ -1395,7 +1339,6 @@
     }
 
     function updateBrushParameters() {
-      // Fetch values and pass through the active medium filter
       const baseWet = parseInt(brushWetSlider.value) / 100;
       const baseVisc = parseInt(brushViscSlider.value) / 100;
 
@@ -1509,12 +1452,12 @@
     function toggleSidebarSide(toRight) {
       if (toRight) {
         studioGrid.classList.add('xl:flex-row-reverse');
-        btnSidebarRight.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
-        btnSidebarLeft.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+        btnSidebarRight.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnSidebarLeft.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
       } else {
         studioGrid.classList.remove('xl:flex-row-reverse');
-        btnSidebarLeft.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
-        btnSidebarRight.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+        btnSidebarLeft.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnSidebarRight.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
       }
     }
 
@@ -1529,17 +1472,15 @@
     });
 
     function toggleResolutionMode(isFast) {
-      const oilCanvas = document.getElementById('oil-canvas');
       if (isFast) {
-        // Disables the heavy SVG filter layer for fluid, zero-latency painting
-        oilCanvas.classList.remove('oil-texture');
-        btnResFast.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
-        btnResHigh.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+        paintCanvas.classList.remove('oil-texture');
+        btnResFast.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnResHigh.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
         showToast("Switched to fast performance layout", "info");
       } else {
-        oilCanvas.classList.add('oil-texture');
-        btnResHigh.className = "px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-semibold";
-        btnResFast.className = "px-2 py-1 bg-linen-800 text-linen-300 hover:text-white rounded text-[10px] font-semibold";
+        paintCanvas.classList.add('oil-texture');
+        btnResHigh.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnResFast.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
         showToast("Switched to high-fidelity 3D shading layer", "success");
       }
     }
@@ -1558,17 +1499,16 @@
     function toggleFocusMode() {
       focusModeOn = !focusModeOn;
       if (focusModeOn) {
-        // Hide Panels and expand canvas
         controlsPanel.classList.add('hidden', 'xl:hidden');
         bottomPanel.classList.add('hidden');
-        canvasPanel.className = "xl:col-span-12 flex flex-col gap-4 transition-all duration-300";
-        btnToggleFocus.innerHTML = `<i class="fa-solid fa-compress text-amber-500"></i> Standard Workspace <kbd class="px-1 text-[9px] bg-linen-300 rounded font-mono">F</kbd>`;
+        canvasPanel.className = "col-span-12 flex flex-col gap-4 transition-all duration-300";
+        btnToggleFocus.innerHTML = `<i class="fa-solid fa-compress text-amber-500"></i> Standard Workspace <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>`;
         showToast("Focus Mode Activated: Controls hidden", "info");
       } else {
         controlsPanel.classList.remove('hidden', 'xl:hidden');
         bottomPanel.classList.remove('hidden');
-        canvasPanel.className = "xl:col-span-9 flex flex-col gap-4 transition-all duration-300";
-        btnToggleFocus.innerHTML = `<i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[9px] bg-linen-300 rounded font-mono">F</kbd>`;
+        canvasPanel.className = "col-span-12 xl:col-span-9 flex flex-col gap-4 transition-all duration-300";
+        btnToggleFocus.innerHTML = `<i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>`;
         showToast("Focus Mode Exited: All panels visible", "info");
       }
       setTimeout(resizeCanvas, 150);
@@ -1647,7 +1587,6 @@
       lastY = pos.y;
     }
 
-    // Fully protected from 0 width/height division crashes
     function getMousePos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
@@ -1679,7 +1618,6 @@
         brushDepletionLevel = 1.0;
         customCursor.style.backgroundColor = currentPigment;
 
-        // Show a brief glowing bubble overlay over coordinates
         eyedropperPreview.style.backgroundColor = currentPigment;
         const rect = paintCanvas.getBoundingClientRect();
         
@@ -1729,7 +1667,6 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        // Physical paint pickup from main canvas surface layer
         const sampleRadius = Math.max(Math.round(brushSize * 0.2), 1);
         let accumulatedCanvasColor = { r: 250, g: 248, b: 245 }; 
 
@@ -1765,14 +1702,11 @@
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
-        // FIX: If we are drawing on bare linen, do NOT mix the background linen color (#FAF8F5) into the stroke.
-        // It should paint the pure activeBrushTipColor. Only mix if overlapping wet paint.
         const mixRatio = 0.45 * brushWetness; 
         const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
 
         ctx.save();
-
         ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel * mod.opacityMult;
 
         if (currentBrushProfile === 'bristle') {
@@ -1949,7 +1883,7 @@
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'u') {
         e.preventDefault();
-        document.getElementById('btn-undo').click();
+        triggerGestureUndo();
       }
 
       if (e.key === '[') {
@@ -1997,7 +1931,6 @@
       }
     });
 
-    // Info overlay toggling
     const shortcutsOverlay = document.getElementById('shortcuts-overlay');
     document.getElementById('btn-show-shortcuts').addEventListener('click', () => {
       shortcutsOverlay.classList.remove('opacity-0', 'pointer-events-none');
@@ -2019,14 +1952,15 @@
     const mixerHint = document.getElementById('mixer-hint');
 
     function initMixer() {
+      if (mixerCanvas.parentElement.clientWidth === 0) return;
       mixerCanvas.width = mixerCanvas.parentElement.clientWidth;
       mixerCanvas.height = mixerCanvas.parentElement.clientHeight;
 
       mCtx.fillStyle = '#EFECE6';
       mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
 
-      drawWellBlob(65, mixerCanvas.height / 2, 50, { r: 29, g: 78, b: 216 }); 
-      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 50, { r: 250, g: 204, b: 21 }); 
+      drawWellBlob(65, mixerCanvas.height / 2, 40, { r: 29, g: 78, b: 216 }); 
+      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 40, { r: 250, g: 204, b: 21 }); 
 
       mCtx.fillStyle = 'rgba(40, 34, 27, 0.4)';
       mCtx.font = 'bold 11px sans-serif';
@@ -2059,7 +1993,7 @@
       const distance = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.floor(distance / 1.5);
       
-      const blendDiameter = 20;
+      const blendDiameter = 16;
 
       for (let i = 0; i < steps; i++) {
         const t = i / steps;
@@ -2153,13 +2087,14 @@
     window.onload = function() {
       resizeCanvas();
       initPaletteSlab();
-      initMixer();
       updateBrushParameters();
       updateTelemetry();
       updateImpastoLighting();
     };
 
     window.addEventListener('resize', () => {
+      resizeCanvas();
+      initPaletteSlab();
       initMixer();
     });
   </script>
