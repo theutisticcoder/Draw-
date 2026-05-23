@@ -241,7 +241,7 @@
         <!-- Controls Palette (Left Column) -->
         <div id="controls-panel" class="xl:col-span-3 space-y-6 flex flex-col justify-start transition-all duration-300">
           
-          <!-- Mixable Palette Well - Replacement for static color defaults -->
+          <!-- Mixable Palette Slab - Replacement for static color defaults -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
             <div class="flex justify-between items-center">
               <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
@@ -298,7 +298,7 @@
             </div>
           </div>
 
-          <!-- NEW: Impasto Shading & Lighting Studio Module -->
+          <!-- Impasto Shading & Lighting Studio Module -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-2xl p-4 border border-linen-800 space-y-3">
             <h3 class="text-xs uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1.5">
               <i class="fa-solid fa-lightbulb"></i> Impasto Light & Shadows
@@ -446,7 +446,7 @@
                 <button class="brush-profile-btn py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="stippler" title="Stippling Sponge [8]">
                   Stippler [8]
                 </button>
-                <!-- NEW: Round Point brush profile element -->
+                <!-- Round Point brush profile element -->
                 <button class="brush-profile-btn col-span-2 py-1.5 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point" title="Round Point Detail [9]">
                   <i class="fa-solid fa-pen-fancy mr-1"></i> Round Point [9]
                 </button>
@@ -463,8 +463,8 @@
             <!-- Simulated Canvas Shadow Rim -->
             <div class="absolute inset-0 border-4 border-black/10 pointer-events-none z-20"></div>
 
-            <!-- Canvas Element Wrapper for CSS Filtering -->
-            <div class="relative w-full h-full rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
+            <!-- Canvas Element Wrapper for CSS Filtering (Fixed layout collapse bug via absolute inset) -->
+            <div class="absolute inset-2 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
               
               <!-- Stretched Linen Texture Layer behind Painting -->
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
@@ -684,6 +684,37 @@
       description: 'Persistent storage for user oil painting canvas coordinates, history metadata, and sketch references'
     });
 
+    // Custom Toast Notification System
+    const toastContainer = document.getElementById('toast-container');
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `p-4 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-white transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto`;
+      
+      if (type === 'success') {
+        toast.className += ' bg-emerald-900 border border-emerald-600';
+        toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>${message}</span>`;
+      } else if (type === 'info') {
+        toast.className += ' bg-indigo-900 border border-indigo-600';
+        toast.innerHTML = `<i class="fa-solid fa-cloud-arrow-down text-indigo-400 text-sm"></i> <span>${message}</span>`;
+      } else {
+        toast.className += ' bg-amber-900 border border-amber-600';
+        toast.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-400 text-sm"></i> <span>${message}</span>`;
+      }
+
+      toastContainer.appendChild(toast);
+      
+      // Animate entry
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      // Dismiss automatically
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
     // =========================================================================
     // COLOR UTILITIES AND PHYSIC COEFFICIENTS
     // =========================================================================
@@ -692,11 +723,13 @@
       // Prevents unpainted canvas (#faf8f5) from turning active paint black
       const isBBackground = colorB_rgb.r > 245 && colorB_rgb.g > 243 && colorB_rgb.b > 240;
 
+      // FIX: Pure Canvas Isolation - Do not mix background color in at all. 
+      // Return colorA_rgb completely if sketching over blank linen background.
       if (isBBackground) {
         return {
-          r: colorA_rgb.r * (1 - ratio * 0.15) + 250 * (ratio * 0.15),
-          g: colorA_rgb.g * (1 - ratio * 0.15) + 248 * (ratio * 0.15),
-          b: colorA_rgb.b * (1 - ratio * 0.15) + 245 * (ratio * 0.15)
+          r: colorA_rgb.r,
+          g: colorA_rgb.g,
+          b: colorA_rgb.b
         };
       }
 
@@ -872,8 +905,10 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      paletteLastX = (clientX - rect.left) * (paletteCanvas.width / rect.width);
-      paletteLastY = (clientY - rect.top) * (paletteCanvas.height / rect.height);
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      paletteLastX = (clientX - rect.left) * (paletteCanvas.width / rw);
+      paletteLastY = (clientY - rect.top) * (paletteCanvas.height / rh);
 
       // Sample exact color at mouse down point
       samplePaletteColor(paletteLastX, paletteLastY);
@@ -886,8 +921,10 @@
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      const cx = (clientX - rect.left) * (paletteCanvas.width / rect.width);
-      const cy = (clientY - rect.top) * (paletteCanvas.height / rect.height);
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      const cx = (clientX - rect.left) * (paletteCanvas.width / rw);
+      const cy = (clientY - rect.top) * (paletteCanvas.height / rh);
 
       // Perform pigment smear blending on the palette
       smudgePaletteColors(paletteLastX, paletteLastY, cx, cy);
@@ -916,21 +953,39 @@
           underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
         } catch (err) {}
 
-        if (!activePaletteTipColor) {
-          activePaletteTipColor = underlyingColor;
+        // FIX: Detect if we are touching the marble background of the palette slab.
+        // If it is background, do NOT mix the background's color into the brush.
+        const isSlabBackground = Math.abs(underlyingColor.r - 237) < 15 && 
+                                 Math.abs(underlyingColor.g - 232) < 15 && 
+                                 Math.abs(underlyingColor.b - 223) < 15;
+
+        if (isSlabBackground) {
+          // Empty slab space: just paint the current tip color directly without mixing in background gray/brown
+          const paintColor = activePaletteTipColor || hexToRgb(currentPigment);
+          pCtx.save();
+          pCtx.globalAlpha = 0.45;
+          pCtx.beginPath();
+          pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
+          pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
+          pCtx.fill();
+          pCtx.restore();
+        } else {
+          // Paint-on-paint mixing: blend overlapping colors dynamically
+          if (!activePaletteTipColor) {
+            activePaletteTipColor = underlyingColor;
+          }
+
+          activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.25);
+          const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.4);
+
+          pCtx.save();
+          pCtx.globalAlpha = 0.45;
+          pCtx.beginPath();
+          pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
+          pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
+          pCtx.fill();
+          pCtx.restore();
         }
-
-        // Mix brush tip and palette slab paints
-        activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.25);
-        const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.4);
-
-        pCtx.save();
-        pCtx.globalAlpha = 0.45;
-        pCtx.beginPath();
-        pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
-        pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
-        pCtx.fill();
-        pCtx.restore();
       }
     }
 
@@ -1063,12 +1118,10 @@
         sketchMode: sketchMode,
         sketchPresetValue: selectSketchPreset.value,
         activeMedium: activeMedium,
-        // Added lighting configurations to state
         lightAzimuth: document.getElementById('input-light-azimuth').value,
         lightElevation: document.getElementById('input-light-elevation').value,
         lightScale: document.getElementById('input-light-scale').value,
         lightSpec: document.getElementById('input-light-spec').value,
-        // Added resolution configurations to state
         sidebarOnRight: document.getElementById('studio-grid').classList.contains('xl:flex-row-reverse'),
         resModeFast: document.getElementById('oil-canvas').classList.contains('filter-none')
       };
@@ -1407,7 +1460,6 @@
       valScale.innerText = `${sc}`;
       valSpec.innerText = `${sp}`;
 
-      // Dynamically target SVG lighting elements
       const diffLight = document.getElementById('emboss-diffuse-light');
       const specLight = document.getElementById('emboss-specular-light');
       const diffuseNode = document.querySelector('#oil-emboss feDiffuseLighting');
@@ -1506,7 +1558,7 @@
     function toggleFocusMode() {
       focusModeOn = !focusModeOn;
       if (focusModeOn) {
-        // Hide Left Panels and Bottom Tracing Elements, expand canvas full screen
+        // Hide Panels and expand canvas
         controlsPanel.classList.add('hidden', 'xl:hidden');
         bottomPanel.classList.add('hidden');
         canvasPanel.className = "xl:col-span-12 flex flex-col gap-4 transition-all duration-300";
@@ -1534,7 +1586,6 @@
     let eyedropperTimer = null;
 
     function startDrawing(e) {
-      // Handled gestures: Check if touch multi-tap triggers special undo shortcut
       if (e.touches && e.touches.length === 2) {
         isDrawing = false;
         triggerGestureUndo();
@@ -1543,7 +1594,6 @@
 
       const pos = getMousePos(paintCanvas, e);
 
-      // Long press eyedropper detection logic
       if (e.touches) {
         touchStartTime = Date.now();
         touchStartPos = { x: pos.x, y: pos.y };
@@ -1584,7 +1634,6 @@
       const pos = getMousePos(paintCanvas, e);
 
       if (e.touches) {
-        // If movement distance exceeds 10px, discard eyedropper picker trigger
         const dist = Math.sqrt(Math.pow(pos.x - touchStartPos.x, 2) + Math.pow(pos.y - touchStartPos.y, 2));
         if (dist > 10 && eyedropperTimer) {
           clearTimeout(eyedropperTimer);
@@ -1598,14 +1647,18 @@
       lastY = pos.y;
     }
 
+    // Fully protected from 0 width/height division crashes
     function getMousePos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
       const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
       
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      
       return {
-        x: (clientX - rect.left) * (canvas.width / rect.width),
-        y: (clientY - rect.top) * (canvas.height / rect.height)
+        x: (clientX - rect.left) * (canvas.width / rw),
+        y: (clientY - rect.top) * (canvas.height / rh)
       };
     }
 
@@ -1615,7 +1668,6 @@
       if (isDrawing) isDrawing = false;
       try {
         const pix = ctx.getImageData(x, y, 1, 1).data;
-        // Verify background alpha bounds
         const color = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 250, g: 248, b: 245 };
         
         currentPigment = rgbToHex(color.r, color.g, color.b);
@@ -1631,9 +1683,10 @@
         eyedropperPreview.style.backgroundColor = currentPigment;
         const rect = paintCanvas.getBoundingClientRect();
         
-        // Convert canvas pos to screen client positions
-        const screenX = rect.left + (x * (rect.width / paintCanvas.width));
-        const screenY = rect.top + (y * (rect.height / paintCanvas.height));
+        const rw = rect.width || 1;
+        const rh = rect.height || 1;
+        const screenX = rect.left + (x * (rw / paintCanvas.width));
+        const screenY = rect.top + (y * (rh / paintCanvas.height));
 
         eyedropperPreview.style.left = `${screenX}px`;
         eyedropperPreview.style.top = `${screenY}px`;
@@ -1650,7 +1703,6 @@
       }
     }
 
-    // Gesture triggers
     function triggerGestureUndo() {
       if (historyStack.length > 1) {
         historyStack.pop(); 
@@ -1669,7 +1721,6 @@
       const distance = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.max(Math.floor(distance / 2.5), 1);
 
-      // Medium modifications multipliers
       const mediumPreset = MEDIUM_PRESETS[activeMedium];
       const mod = mediumPreset.modifier(brushWetness, brushViscosity);
 
@@ -1714,13 +1765,14 @@
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
+        // FIX: If we are drawing on bare linen, do NOT mix the background linen color (#FAF8F5) into the stroke.
+        // It should paint the pure activeBrushTipColor. Only mix if overlapping wet paint.
         const mixRatio = 0.45 * brushWetness; 
-        const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
+        const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
 
         ctx.save();
 
-        // Control stroke opacity through mediums washes parameter
         ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel * mod.opacityMult;
 
         if (currentBrushProfile === 'bristle') {
@@ -1830,7 +1882,6 @@
           }
         }
         else if (currentBrushProfile === 'round-point') {
-          // Beautiful round tapered brush simulation with a dense loaded core
           ctx.globalAlpha = (0.45 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
           ctx.fillStyle = rgbStr;
           
@@ -1847,7 +1898,6 @@
 
         ctx.restore();
 
-        // Depletion physics modified dynamically by active paint mediums
         brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.2);
         updateTelemetry();
       }
@@ -1858,7 +1908,6 @@
     window.addEventListener('mouseup', stopDrawing);
 
     paintCanvas.addEventListener('touchstart', (e) => {
-      // Allow multi touch gestures
       if (e.touches.length > 1) {
         e.preventDefault();
         startDrawing(e);
@@ -1894,18 +1943,15 @@
     // =========================================================================
     window.addEventListener('keydown', (e) => {
       const activeElement = document.activeElement;
-      // Skip actions when writing text or uploading files
       if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
         return;
       }
 
-      // Undo stroke: Ctrl+Z or Key U
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'u') {
         e.preventDefault();
         document.getElementById('btn-undo').click();
       }
 
-      // Decrement size: Bracket Left
       if (e.key === '[') {
         e.preventDefault();
         const nextVal = Math.max(parseInt(brushSizeSlider.value) - 5, 5);
@@ -1914,7 +1960,6 @@
         showToast(`Brush Size: ${nextVal}px`, "info");
       }
 
-      // Increment size: Bracket Right
       if (e.key === ']') {
         e.preventDefault();
         const nextVal = Math.min(parseInt(brushSizeSlider.value) + 5, 80);
@@ -1923,19 +1968,16 @@
         showToast(`Brush Size: ${nextVal}px`, "info");
       }
 
-      // Scrub canvas: Key C
       if (e.key.toLowerCase() === 'c') {
         e.preventDefault();
         document.getElementById('btn-clear').click();
       }
 
-      // Focus Mode Toggle: Key F
       if (e.key.toLowerCase() === 'f') {
         e.preventDefault();
         toggleFocusMode();
       }
 
-      // Profiles selection: 1 to 9 keys
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
         const profiles = ["bristle", "palette-knife", "turpentine", "fan-brush", "filbert", "dry-scumble", "rigger", "stippler", "round-point"];
@@ -1946,7 +1988,6 @@
         }
       }
 
-      // Medium cycle: Key M
       if (e.key.toLowerCase() === 'm') {
         e.preventDefault();
         const mediums = ["none", "linseed", "turps", "liquin"];
@@ -2059,16 +2100,20 @@
       isMixing = true;
       hideMixerHint();
       const rect = mixerCanvas.getBoundingClientRect();
-      mxLastX = e.clientX - rect.left;
-      mxLastY = e.clientY - rect.top;
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      mxLastX = (e.clientX - rect.left) * (mixerCanvas.width / rw);
+      mxLastY = (e.clientY - rect.top) * (mixerCanvas.height / rh);
       activeMixerTipColor = null; 
     });
 
     mixerCanvas.addEventListener('mousemove', (e) => {
       if (!isMixing) return;
       const rect = mixerCanvas.getBoundingClientRect();
-      const cx = e.clientX - rect.left;
-      const cy = e.clientY - rect.top;
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      const cx = (e.clientX - rect.left) * (mixerCanvas.width / rw);
+      const cy = (e.clientY - rect.top) * (mixerCanvas.height / rh);
 
       mixBlendStroke(mxLastX, mxLastY, cx, cy);
       mxLastX = cx;
@@ -2081,22 +2126,25 @@
       isMixing = true;
       hideMixerHint();
       const rect = mixerCanvas.getBoundingClientRect();
-      mxLastX = e.touches[0].clientX - rect.left;
-      mxLastY = e.touches[0].clientY - rect.top;
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      mxLastX = (e.touches[0].clientX - rect.left) * (mixerCanvas.width / rw);
+      mxLastY = (e.touches[0].clientY - rect.top) * (mixerCanvas.height / rh);
       activeMixerTipColor = null;
     });
 
     mixerCanvas.addEventListener('touchmove', (e) => {
       if (!isMixing) return;
       const rect = mixerCanvas.getBoundingClientRect();
-      const cx = e.touches[0].clientX - rect.left;
-      const cy = e.touches[0].clientY - rect.top;
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      const cx = (e.touches[0].clientX - rect.left) * (mixerCanvas.width / rw);
+      const cy = (e.touches[0].clientY - rect.top) * (mixerCanvas.height / rh);
 
       mixBlendStroke(mxLastX, mxLastY, cx, cy);
       mxLastX = cx;
       mxLastY = cy;
     });
-
     mixerCanvas.addEventListener('touchend', () => { isMixing = false; });
 
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
