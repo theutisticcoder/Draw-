@@ -41,7 +41,6 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex-grow">
                     <label class="block text-xs font-medium text-gray-400 mb-1">Mistral API Key</label>
-                    <input type="password" id="mistralApiKey" class="w-full md:w-96 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-orange-500" placeholder="Paste your Mistral API Key">
                 </div>
                 <div class="text-[11px] text-gray-500 max-w-sm">
                     This setup uses Mistral's Chat Completions API with the <code>image_generation</code> tool enabled. The model acts as an agent to refine your request and render the image.
@@ -119,17 +118,13 @@
     <!-- JavaScript Agent Integration -->
     <script>
         // Load stored key if available
-        document.getElementById('mistralApiKey').value = localStorage.getItem('mistral_key') || '';
+        var apiKey = localStorage.getItem('mistral_key') || 'nrayQwviJ8l6nyTdq5mTweYgrgnrz6DZ';
 
         async function runMistralAgentFlow() {
-            const apiKey = document.getElementById('mistralApiKey').value.trim();
             const userConcept = document.getElementById('userConcept').value.trim();
             const referenceType = document.getElementById('referenceType').value;
 
-            if (!apiKey) {
-                alert("Please input your Mistral API key.");
-                return;
-            }
+            
 
             if (!userConcept) {
                 alert("Please describe a concept for your study.");
@@ -201,45 +196,17 @@
                 }
 
                 const data = await response.json();
-                const choice = data.choices[0];
-                const message = choice.message;
+                const url = JSON.Parse(data.choices[0].message.content).imageURL;
 
                 // Handle the API response structure containing tool calls or direct content
-                let finalImageUrl = null;
-                let explanationText = message.content || "Image successfully generated.";
 
                 // Check if the agent called the image generation tool
-                if (message.tool_calls && message.tool_calls.length > 0) {
-                    for (const call of message.tool_calls) {
-                        if (call.type === "image_generation" || call.function?.name === "image_generation") {
-                            // Depending on the output structure, parse the tool call arguments or results
-                            const args = JSON.parse(call.function.arguments);
-                            explanationText += `\n\nGenerated prompt: "${args.prompt}"`;
-                        }
-                    }
-                }
+             
 
-                // Parse the response to find returned image data or URL links
-                // Mistral's tool executions typically return markdown image links or object responses
-                const markdownImageRegex = /!\[.*?\]\((https:\/\/.*?)\)/;
-                const match = explanationText.match(markdownImageRegex);
+            
 
-                if (match && match[1]) {
-                    finalImageUrl = match[1];
-                } else if (data.images && data.images.length > 0) {
-                    // Fallback configuration if returning directly in an images payload array
-                    finalImageUrl = data.images[0].url || `data:image/png;base64,${data.images[0].b64_json}`;
-                } else {
-                    // Try to look up inline base64 patterns or URLs in response text
-                    const urlRegex = /(https:\/\/api\.mistral\.ai\/[^\s]+)/g;
-                    const urlMatches = explanationText.match(urlRegex);
-                    if (urlMatches && urlMatches.length > 0) {
-                        finalImageUrl = urlMatches[0];
-                    }
-                }
-
-                if (finalImageUrl) {
-                    imgElement.src = finalImageUrl;
+                if (url) {
+                    imgElement.src = url;
                     imgElement.classList.remove('hidden');
                     placeholder.classList.add('hidden');
                 } else {
