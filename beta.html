@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pixel Art Generator (labs-lesanstral)</title>
+    <title>AI Pixel Art Generator</title>
     <style>
         :root {
             --bg-color: #0d0e12;
@@ -225,7 +225,7 @@
 
     <header>
         <h1>AI Pixel Art Generator</h1>
-        <p class="subtitle">Efficient direct RGB pixel matrix engine using labs-lesanstral</p>
+        <p class="subtitle">Efficient direct RGB pixel matrix engine using labs-leanstral</p>
     </header>
 
     <div class="container">
@@ -383,7 +383,7 @@
                 return;
             }
 
-            setLoading(true, "Querying labs-lesanstral model...");
+            setLoading(true, "Querying labs-leanstral model...");
             statusText.textContent = "Negotiating RGB coordinates...";
             setupCanvasSize(width, height);
 
@@ -414,7 +414,7 @@ Requirements:
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: "labs-lesanstral",
+                        model: "labs-leanstral-2603",
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: `Create an RGB array of size ${width}x${height} for: "${prompt}"` }
