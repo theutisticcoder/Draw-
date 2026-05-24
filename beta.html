@@ -196,7 +196,7 @@
                 }
 
                 const data = await response.json();
-                const url = JSON.parse(data.choices[0].messages[1].content).imageURL;
+                const url = JSON.parse(data.choices[0].messages[1].content).url;
 
                 // Handle the API response structure containing tool calls or direct content
 
