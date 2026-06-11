@@ -702,8 +702,8 @@
       } : { r: 255, g: 255, b: 255 };
     }
 
-    function rgbToHex(r, g, b) {
-      return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+    function rgbToHex(r, g, b, a) {
+      return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1) + a*100;
     }
 
     // =========================================================================
@@ -826,14 +826,7 @@
       pCtx.fillStyle = '#EDE8DF';
       pCtx.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 
-      pCtx.strokeStyle = 'rgba(120, 90, 60, 0.08)';
-      pCtx.lineWidth = 4;
-      for (let i = 0; i < paletteCanvas.height; i += 10) {
-        pCtx.beginPath();
-        pCtx.moveTo(0, i);
-        pCtx.quadraticCurveTo(paletteCanvas.width / 2, i + (Math.random() - 0.5) * 15, paletteCanvas.width, i);
-        pCtx.stroke();
-      }
+    
 
       PALETTE_PIGMENTS.forEach(pigment => {
         const pX = (pigment.x / 200) * paletteCanvas.width;
@@ -948,9 +941,10 @@
         const pix = pCtx.getImageData(x, y, 1, 1).data;
         const pickedRgb = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 237, g: 232, b: 223 };
         
-        currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
+        currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b, 1.0);
+        if(currentPigment === "#EDE8DF") currentPigment = "rgba(0,0,0,0)"
         currentPigmentName = `Mixed Slab`;
-
+        
         PALETTE_PIGMENTS.forEach(pigment => {
           const rgbPreset = hexToRgb(pigment.color);
           const dist = Math.abs(rgbPreset.r - pickedRgb.r) + Math.abs(rgbPreset.g - pickedRgb.g) + Math.abs(rgbPreset.b - pickedRgb.b);
@@ -1609,7 +1603,7 @@
         const pix = ctx.getImageData(x, y, 1, 1).data;
         const color = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 250, g: 248, b: 245 };
         
-        currentPigment = rgbToHex(color.r, color.g, color.b);
+        currentPigment = rgbToHex(color.r, color.g, color.b, 1.0);
         currentPigmentName = "Eyedropper Pick";
         
         activePigmentName.innerText = currentPigmentName;
