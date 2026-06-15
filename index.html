@@ -703,7 +703,7 @@
     }
 
     function rgbToHex(r, g, b, a) {
-      return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1) + a*100;
+      return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
     }
 
     // =========================================================================
@@ -942,7 +942,6 @@
         const pickedRgb = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 237, g: 232, b: 223 };
         
         currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b, 1.0);
-        if(currentPigment === "#EDE8DF") currentPigment = "rgba(0,0,0,0)"
         currentPigmentName = `Mixed Slab`;
         
         PALETTE_PIGMENTS.forEach(pigment => {
@@ -1542,7 +1541,7 @@
       lastY = pos.y;
       
       brushDepletionLevel = 1.0;
-      activeBrushTipColor = mixColorsRGB(activeBrushTipColor, hexToRgb(currentPigment), 0.7);
+      activeBrushTipColor = mixColorsRGB(activeBrushTipColor, hexToRgb(currentPigment), 0.9);
 
       drawStroke(pos.x, pos.y, pos.x, pos.y);
     }
@@ -1691,12 +1690,12 @@
                             Math.abs(accumulatedCanvasColor.b - 245) < 10;
 
         if (!isBareLinen) {
-          const pickupRate = 0.08 * brushWetness;
+          const pickupRate = 0.05 * brushWetness;
           activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
-        const mixRatio = 0.45 * brushWetness; 
+        const mixRatio = 0.30 * brushWetness; 
         const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
 
