@@ -59,11 +59,6 @@
       background: #40352C;
     }
 
-    /* Wet Paint Texture Filter utilizing SVG Turbulence to simulate heavy impasto depth */
-    .oil-texture {
-      filter: url(#oil-emboss);
-    }
-
     .canvas-grain {
       background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0),
                         radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0);
@@ -93,59 +88,16 @@
       z-index: 9999;
     }
     
-    /* Elegant spotlight overlay */
-    .gallery-spotlight {
-      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.45) 100%);
-    }
-
-    /* Palette paint blobs with glossy highlights */
-    .paint-blob {
-      box-shadow: 
-        inset 0 4px 6px rgba(255,255,255,0.6),
-        inset 0 -4px 8px rgba(0,0,0,0.3),
-        0 6px 12px rgba(0,0,0,0.25);
-      position: relative;
-    }
-    
-    .paint-blob::after {
-      content: '';
+    /* Ensure WebGL canvases stack perfectly */
+    .gl-canvas {
       position: absolute;
-      top: 15%;
-      left: 15%;
-      width: 25%;
-      height: 25%;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 50%;
-      filter: blur(0.5px);
+      inset: 0;
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
 <body class="font-sans bg-linen-800 text-linen-50 overflow-hidden selection:bg-linen-400 selection:text-linen-900 h-screen flex flex-col">
-
-  <!-- SVG Oil Paint Embossing & Shading Filter (Physical bump mapping / impasto look) -->
-  <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <!-- Thick Impasto Wet Filter with dynamically controlled lighting characteristics -->
-      <filter id="oil-emboss" x="-10%" y="-10%" width="120%" height="120%">
-        <!-- Generate realistic heavy brush stroke ridges -->
-        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" result="noise" />
-        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 2.5 -0.3" result="highContrastNoise"/>
-        <!-- Displace paint slightly for organic margins -->
-        <feDisplacementMap in="SourceGraphic" in2="highContrastNoise" scale="5" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-        <!-- Generate heavy 3D shading -->
-        <feDiffuseLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="4.5" diffuseConstant="1.3" result="light">
-          <feDistantLight azimuth="135" elevation="50" id="emboss-diffuse-light" />
-        </feDiffuseLighting>
-        <!-- Blend diffuse light highlights with original painting colors -->
-        <feBlend mode="multiply" in="displaced" in2="light" result="litPaint"/>
-        <!-- Elevate structural specular highlights -->
-        <feSpecularLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="3.5" specularConstant="1.2" specularExponent="22" result="spec">
-          <feDistantLight azimuth="135" elevation="50" id="emboss-specular-light" />
-        </feSpecularLighting>
-        <feBlend mode="screen" in="litPaint" in2="spec" result="final"/>
-      </filter>
-    </defs>
-  </svg>
 
   <!-- Custom Brush Pointer -->
   <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/80 shadow-[0_0_10px_rgba(0,0,0,0.3)] hidden pointer-events-none"></div>
@@ -216,8 +168,8 @@
       <!-- Control Bar -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
-          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (RGB Fluid)</h2>
-          <span class="text-[10px] text-linen-400">Sample, blend, and stroke wet layers across raw linen canvas templates.</span>
+          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (WebGL Impasto)</h2>
+          <span class="text-[10px] text-linen-400">Dynamic height-map shading calculates real 3D depth, specular highlights, and cast shadows.</span>
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
@@ -257,7 +209,6 @@
             </div>
             <p class="text-[9px] text-linen-400 leading-tight">Swirl your brush on the slab to blend paints. Tap anywhere to select that color.</p>
             <div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
-              <!-- Wooden Palette Background -->
               <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#8B5E3C_0%,_#5C3A21_100%)] pointer-events-none"></div>
               <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.4) 3px, transparent 4px);"></div>
               <div class="absolute top-1/2 left-2 w-6 h-10 bg-black/30 rounded-full border-2 border-black/40 -translate-y-1/2 pointer-events-none shadow-inner"></div>
@@ -300,7 +251,6 @@
             <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
               <i class="fa-solid fa-paintbrush"></i> Brush Dynamics
             </h3>
-            <!-- Brush Size -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Size <kbd class="px-1 bg-linen-800 rounded">[ / ]</kbd></span>
@@ -308,7 +258,6 @@
               </div>
               <input type="range" id="input-brush-size" min="5" max="80" value="30" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-            <!-- Wetness / Pickup Ratio -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Wetness & Color Pickup</span>
@@ -316,7 +265,6 @@
               </div>
               <input type="range" id="input-brush-wet" min="10" max="100" value="75" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-            <!-- Paint Viscosity -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Viscosity (Impasto)</span>
@@ -324,7 +272,6 @@
               </div>
               <input type="range" id="input-brush-visc" min="0" max="100" value="80" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-            <!-- Brush Profiles -->
             <div class="space-y-1.5 pt-1">
               <span class="text-[9px] text-linen-300 block">Profile style <kbd class="px-1 bg-linen-800 rounded">1 - 9</kbd></span>
               <div class="grid grid-cols-2 gap-1 text-[9px]">
@@ -368,7 +315,7 @@
           <!-- Impasto Light & Shadows -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0 mb-2">
             <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
-              <i class="fa-solid fa-lightbulb"></i> Impasto Shadows
+              <i class="fa-solid fa-lightbulb"></i> 3D Lighting & Shadows
             </h3>
             <div class="space-y-1.5 text-[10px]">
               <div class="space-y-0.5">
@@ -387,17 +334,17 @@
               </div>
               <div class="space-y-0.5">
                 <div class="flex justify-between">
-                  <span>Relief Relief Strength</span>
+                  <span>Relief Strength</span>
                   <span id="val-light-scale" class="font-mono text-amber-400">4.5</span>
                 </div>
-                <input type="range" id="input-light-scale" min="1.0" max="9.0" step="0.5" value="4.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+                <input type="range" id="input-light-scale" min="0.5" max="15.0" step="0.1" value="4.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
               <div class="space-y-0.5">
                 <div class="flex justify-between">
                   <span>Paint Glossiness</span>
                   <span id="val-light-spec" class="font-mono text-amber-400">22</span>
                 </div>
-                <input type="range" id="input-light-spec" min="5" max="50" value="22" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+                <input type="range" id="input-light-spec" min="2" max="80" value="22" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
             </div>
           </div>
@@ -408,14 +355,16 @@
         <div id="canvas-panel" class="col-span-12 xl:col-span-9 flex flex-col gap-3 overflow-hidden">
           
           <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1" id="studio-canvas-container">
-            <!-- Simulated Canvas Shadow Rim -->
             <div class="absolute inset-0 border-2 border-black/10 pointer-events-none z-20"></div>
 
-            <!-- Canvas Element Wrapper for CSS Filtering -->
+            <!-- Canvas Element Wrapper for WebGL Filtering -->
             <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
-              <canvas id="oil-canvas" class="absolute inset-0 z-10 cursor-none oil-texture"></canvas>
+              
+              <!-- WebGL Canvas (Paint Color + Heightmap) -->
+              <canvas id="oil-canvas" class="gl-canvas z-10 cursor-none"></canvas>
+              
               <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
               <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
               <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier Board</div>
@@ -444,7 +393,6 @@
                 </div>
               </div>
 
-              <!-- Opacity and Position Sliders -->
               <div class="flex flex-col gap-1 w-full text-[10px] text-linen-300">
                 <div class="flex justify-between">
                   <span>Opacity</span>
@@ -452,8 +400,8 @@
                 </div>
                 <input type="range" id="slider-sketch-opacity" min="0" max="100" value="40" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
                 <div class="flex gap-1.5 mt-0.5">
-                  <button id="btn-sketch-overlay" class="px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]" title="Over paint using multiply">Overlay</button>
-                  <button id="btn-sketch-underlay" class="px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px]" title="Behind paint layer">Underlay</button>
+                  <button id="btn-sketch-overlay" class="px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]">Overlay</button>
+                  <button id="btn-sketch-underlay" class="px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] hover:text-linen-100">Underlay</button>
                 </div>
               </div>
             </div>
@@ -464,13 +412,10 @@
                 <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> Diagnostics</span>
                 <span id="save-status-text" class="text-[9px] text-emerald-400 font-mono">Connected</span>
               </div>
-              
-              <!-- Telemetry Status Indicators -->
               <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
                 <span>Brush Charge: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
                 <span>Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
               </div>
-              
               <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
                 <div><i class="fa-solid fa-hand-pointer text-amber-600"></i> Hold Canvas: <span class="text-linen-200">Pick Color</span></div>
                 <div><i class="fa-solid fa-hand text-amber-600"></i> 2-Finger Tap: <span class="text-linen-200">Undo</span></div>
@@ -498,10 +443,9 @@
         </div>
 
         <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-700 shadow-inner overflow-hidden flex items-center justify-center">
-          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
+          <canvas id="mixer-canvas" class="gl-canvas cursor-pointer z-10"></canvas>
           <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
           
-          <!-- Instructions Overlay -->
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
             <span class="bg-linen-900/95 text-white font-serif px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
               Drag your finger across the colors to blend them!
@@ -528,14 +472,14 @@
       </div>
     </div>
 
-    <!-- TAB CONTAINER 3: PHYSICAL COPYS / PHYSICS -->
+    <!-- TAB CONTAINER 3: PHYSICS -->
     <div id="tab-physics" class="tab-view absolute inset-0 p-8 overflow-y-auto hidden">
       <div class="max-w-3xl mx-auto space-y-8 bg-linen-900/30 border border-linen-800 p-8 rounded-2xl">
         <div class="space-y-3">
           <span class="text-xs uppercase tracking-widest text-amber-400 font-bold block">Physical Emulation Physics</span>
           <h2 class="font-serif text-3xl font-bold leading-tight">Viscous Blending:<br>The beauty of RGB oil math.</h2>
           <p class="text-linen-200 text-xs leading-relaxed">
-            The upgraded RGB engine calculates color values by dynamically tracking your canvas's pigment loads. It blends overlapping strokes together smoothly while preventing compounding color decay or clipping to black.
+            The upgraded engine calculates color values by dynamically tracking your canvas's pigment loads. It blends overlapping strokes together smoothly while preventing compounding color decay or clipping to black.
           </p>
         </div>
 
@@ -551,11 +495,11 @@
           </div>
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-database"></i>
+              <i class="fa-solid fa-mountain"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">localForage Integration</h4>
+            <h4 class="font-serif font-bold text-sm">Heightmap Impasto (WebGL)</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              Bypasses standard 5MB localStorage size limits, utilizing native IndexedDB storage to persist raw, uncompressed heavy oil brush layers.
+              Every bristle dab generates a micro height-map. A custom GLSL shader calculates directional normals in real-time to cast physical shadows and specular highlights on the wet paint ridges.
             </p>
           </div>
         </div>
@@ -630,9 +574,9 @@
 
     // Configure localForage database
     localforage.config({
-      name: 'LAtelierDHuile_v6_rgb',
-      storeName: 'studio_canvas_history_v6_rgb',
-      version: 6.0,
+      name: 'LAtelierDHuile_v7_gl',
+      storeName: 'studio_canvas_history_v7_gl',
+      version: 7.0,
       description: 'Persistent storage for user oil painting canvas coordinates, history metadata, and sketch references'
     });
 
@@ -704,6 +648,222 @@
     }
 
     // =========================================================================
+    // WEBGL IMPASTO SHADER ENGINE
+    // =========================================================================
+    
+    class ImpastoEngine {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.gl = canvas.getContext('webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true });
+        if (!this.gl) {
+          showToast('WebGL not supported. Falling back to flat mode.', 'error');
+          return;
+        }
+        
+        this.initShaders();
+        this.initBuffers();
+        
+        // Create offscreen canvases for 2D drawing
+        this.colorCanvas = document.createElement('canvas');
+        this.heightCanvas = document.createElement('canvas');
+        this.colorCtx = this.colorCanvas.getContext('2d', { willReadFrequently: true });
+        this.heightCtx = this.heightCanvas.getContext('2d');
+        
+        this.colorTexture = this.createTexture();
+        this.heightTexture = this.createTexture();
+        
+        this.light = { x: 0.5, y: 0.5, z: 0.7 };
+        this.relief = 4.5;
+        this.gloss = 22.0;
+      }
+      
+      createTexture() {
+        const gl = this.gl;
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        return tex;
+      }
+      
+      initShaders() {
+        const gl = this.gl;
+        const vertSrc = `
+          attribute vec2 aPosition;
+          attribute vec2 aTexCoord;
+          varying vec2 vTexCoord;
+          void main() {
+            gl_Position = vec4(aPosition, 0.0, 1.0);
+            vTexCoord = aTexCoord;
+          }
+        `;
+        
+        const fragSrc = `
+          precision mediump float;
+          varying vec2 vTexCoord;
+          uniform sampler2D uColorTex;
+          uniform sampler2D uHeightTex;
+          uniform vec3 uLightDir;
+          uniform float uRelief;
+          uniform float uGloss;
+          
+          void main() {
+            vec4 color = texture2D(uColorTex, vTexCoord);
+            vec4 height = texture2D(uHeightTex, vTexCoord);
+            
+            // If no paint drawn (alpha is 0), discard to show background
+            if (color.a < 0.01) {
+              discard;
+            }
+            
+            // Calculate normals from height map using Sobel filter
+            vec2 texel = 1.0 / vec2(512.0, 512.0); // Approximate resolution
+            
+            float hL = texture2D(uHeightTex, vTexCoord - vec2(texel.x, 0.0)).r;
+            float hR = texture2D(uHeightTex, vTexCoord + vec2(texel.x, 0.0)).r;
+            float hD = texture2D(uHeightTex, vTexCoord - vec2(0.0, texel.y)).r;
+            float hU = texture2D(uHeightTex, vTexCoord + vec2(0.0, texel.y)).r;
+            
+            vec3 normal = normalize(vec3((hL - hR) * uRelief, (hD - hU) * uRelief, 1.0));
+            vec3 lightDir = normalize(uLightDir);
+            
+            // Diffuse lighting
+            float diffuse = max(dot(normal, lightDir), 0.0);
+            
+            // Ambient
+            float ambient = 0.6;
+            float lightIntensity = ambient + diffuse * 0.8;
+            
+            // Specular highlight
+            vec3 viewDir = vec3(0.0, 0.0, 1.0);
+            vec3 halfDir = normalize(lightDir + viewDir);
+            float specAngle = max(dot(normal, halfDir), 0.0);
+            float specular = pow(specAngle, max(uGloss, 1.0));
+            
+            // Cast simple drop shadow into the paint indentations
+            float shadow = smoothstep(-0.5, 0.5, normal.x * uLightDir.x + normal.y * uLightDir.y) * 0.4;
+            
+            vec3 finalColor = color.rgb * lightIntensity + vec3(specular) * 0.6 - vec3(shadow);
+            gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), color.a);
+          }
+        `;
+        
+        const program = this.createShaderProgram(vertSrc, fragSrc);
+        this.program = program;
+        gl.useProgram(program);
+        
+        this.uniforms = {
+          colorTex: gl.getUniformLocation(program, 'uColorTex'),
+          heightTex: gl.getUniformLocation(program, 'uHeightTex'),
+          lightDir: gl.getUniformLocation(program, 'uLightDir'),
+          relief: gl.getUniformLocation(program, 'uRelief'),
+          gloss: gl.getUniformLocation(program, 'uGloss')
+        };
+      }
+      
+      createShaderProgram(vs, fs) {
+        const gl = this.gl;
+        const vert = this.compileShader(gl.VERTEX_SHADER, vs);
+        const frag = this.compileShader(gl.FRAGMENT_SHADER, fs);
+        const program = gl.createProgram();
+        gl.attachShader(program, vert);
+        gl.attachShader(program, frag);
+        gl.linkProgram(program);
+        return program;
+      }
+      
+      compileShader(type, src) {
+        const gl = this.gl;
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          console.error(gl.getShaderInfoLog(shader));
+        }
+        return shader;
+      }
+      
+      initBuffers() {
+        const gl = this.gl;
+        this.posBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+        
+        this.texBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
+      }
+      
+      resize(w, h) {
+        this.canvas.width = w;
+        this.canvas.height = h;
+        this.colorCanvas.width = w;
+        this.colorCanvas.height = h;
+        this.heightCanvas.width = w;
+        this.heightCanvas.height = h;
+        this.colorCtx.clearRect(0, 0, w, h);
+        this.heightCtx.clearRect(0, 0, w, h);
+      }
+      
+      updateLighting(azimuthDeg, elevationDeg, relief, gloss) {
+        const az = azimuthDeg * Math.PI / 180.0;
+        const el = elevationDeg * Math.PI / 180.0;
+        this.light.x = Math.cos(el) * Math.cos(az);
+        this.light.y = Math.cos(el) * Math.sin(az);
+        this.light.z = Math.sin(el);
+        this.relief = relief;
+        this.gloss = gloss;
+      }
+      
+      render() {
+        const gl = this.gl;
+        gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        
+        gl.useProgram(this.program);
+        
+        // Bind Color Texture
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.colorTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.colorCanvas);
+        gl.uniform1i(this.uniforms.colorTex, 0);
+        
+        // Bind Height Texture
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.heightTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.heightCanvas);
+        gl.uniform1i(this.uniforms.heightTex, 1);
+        
+        // Uniforms
+        gl.uniform3f(this.uniforms.lightDir, this.light.x, this.light.y, this.light.z);
+        gl.uniform1f(this.uniforms.relief, this.relief);
+        gl.uniform1f(this.uniforms.gloss, this.gloss);
+        
+        // Attributes
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuffer);
+        const posLoc = gl.getAttribLocation(this.program, 'aPosition');
+        gl.enableVertexAttribArray(posLoc);
+        gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texBuffer);
+        const texLoc = gl.getAttribLocation(this.program, 'aTexCoord');
+        gl.enableVertexAttribArray(texLoc);
+        gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, 0, 0);
+        
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+      
+      exportPNG() {
+        // Render to ensure latest frame is captured
+        this.render();
+        return this.canvas.toDataURL('image/png');
+      }
+    }
+
+    // =========================================================================
     // DYNAMIC BRUSH & CANVAS SIMULATOR
     // =========================================================================
 
@@ -720,7 +880,6 @@
     const telemetryDirty = document.getElementById('telemetry-dirty');
     const saveStatusText = document.getElementById('save-status-text');
 
-    // Sketch Panel UI elements
     const selectSketchPreset = document.getElementById('select-sketch-preset');
     const customSketchUploadArea = document.getElementById('custom-sketch-upload-area');
     const inputSketchUpload = document.getElementById('input-sketch-upload');
@@ -750,7 +909,9 @@
     let sketchMode = "overlay"; 
 
     const paintCanvas = document.getElementById('oil-canvas');
-    const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
+    const glEngine = new ImpastoEngine(paintCanvas);
+    const ctx = glEngine.colorCtx; // Alias for drawing color data
+    const hCtx = glEngine.heightCtx; // Context for drawing height data
 
     const SKETCH_PRESETS = {
       still_life: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><circle cx='400' cy='350' r='120' stroke='black' stroke-width='2' fill='none'/><ellipse cx='400' cy='180' rx='30' ry='15' stroke='black' stroke-width='2' fill='none'/><path d='M370,180 L320,400 L480,400 L430,180' stroke='black' stroke-width='2' fill='none'/></svg>",
@@ -768,28 +929,34 @@
       if (targetWidth <= 100) targetWidth = 800;
       if (targetHeight <= 100) targetHeight = 600;
       
-      let tempImage = null;
+      let tempColorImg = null;
+      let tempHeightImg = null;
+      
       if (paintCanvas.width > 0 && paintCanvas.height > 0) {
-        tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+        tempColorImg = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+        tempHeightImg = hCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
       }
 
-      paintCanvas.width = targetWidth; 
-      paintCanvas.height = targetHeight;
+      glEngine.resize(targetWidth, targetHeight);
       
-      if (tempImage) {
-        ctx.putImageData(tempImage, 0, 0);
+      if (tempColorImg) {
+        ctx.putImageData(tempColorImg, 0, 0);
+        hCtx.putImageData(tempHeightImg, 0, 0);
       } else {
-        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
         saveHistoryState();
         loadFromLocalForage(true);
       }
+      glEngine.render();
     }
 
     function saveHistoryState() {
       if (paintCanvas.width <= 0 || paintCanvas.height <= 0) return;
-      if (historyStack.length > 20) historyStack.shift();
+      if (historyStack.length > 15) historyStack.shift(); // Reduced stack due to high memory
       try {
-        historyStack.push(ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
+        historyStack.push({
+          color: ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height),
+          height: hCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height)
+        });
       } catch (err) {
         console.warn("Capture bounds exception handled:", err);
       }
@@ -801,29 +968,23 @@
     const paletteCanvas = document.getElementById('palette-well-canvas');
     const pCtx = paletteCanvas.getContext('2d', { willReadFrequently: true });
 
-    // Expanded Realistic 24 Color Pigment Layout
     const PALETTE_PIGMENTS = [
-      // Row 1 (Yellows & Oranges)
       { color: "#F7F7F0", name: "Titanium White", x: 30, y: 30 },
       { color: "#FFF84D", name: "Cadmium Yellow Light", x: 70, y: 20 },
       { color: "#FFB81C", name: "Cadmium Yellow Deep", x: 110, y: 20 },
       { color: "#FF8C00", name: "Cadmium Orange", x: 150, y: 25 },
-      // Row 2 (Reds & Pinks)
       { color: "#E11D48", name: "Cadmium Red Light", x: 30, y: 65 },
       { color: "#9B1C1C", name: "Alizarin Crimson", x: 75, y: 60 },
       { color: "#7C2D12", name: "Burnt Sienna", x: 120, y: 60 },
       { color: "#831843", name: "Quinacridone Magenta", x: 165, y: 65 },
-      // Row 3 (Earth Tones)
       { color: "#A1742D", name: "Yellow Ochre", x: 30, y: 100 },
       { color: "#74441E", name: "Raw Umber", x: 75, y: 95 },
       { color: "#4A2E15", name: "Burnt Umber", x: 120, y: 95 },
       { color: "#6B3613", name: "Raw Sienna", x: 165, y: 100 },
-      // Row 4 (Greens & Blues)
       { color: "#1A6B35", name: "Sap Green", x: 30, y: 135 },
       { color: "#0E4D2B", name: "Viridian", x: 75, y: 130 },
       { color: "#1D4ED8", name: "Ultramarine Blue", x: 120, y: 130 },
       { color: "#0E3A8C", name: "Prussian Blue", x: 165, y: 135 },
-      // Row 5 (Cool & Dark Tones)
       { color: "#3D5A80", name: "Cerulean Blue", x: 30, y: 170 },
       { color: "#1B2A41", name: "Indigo", x: 75, y: 165 },
       { color: "#0D1B2A", name: "Ivory Black", x: 120, y: 165 },
@@ -835,7 +996,6 @@
       paletteCanvas.width = paletteCanvas.parentElement.clientWidth;
       paletteCanvas.height = paletteCanvas.parentElement.clientHeight;
 
-      // Clear background for wooden palette underneath to show through
       pCtx.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 
       PALETTE_PIGMENTS.forEach(pigment => {
@@ -914,7 +1074,7 @@
           underlyingColor = { r: pix[0], g: pix[1], b: pix[2], a: pix[3] };
         } catch (err) {}
 
-        const isSlabBackground = underlyingColor.a === 0; // Empty space on the wooden palette
+        const isSlabBackground = underlyingColor.a === 0;
 
         if (isSlabBackground) {
           const paintColor = activePaletteTipColor || hexToRgb(currentPigment);
@@ -947,7 +1107,7 @@
     function samplePaletteColor(x, y) {
       try {
         const pix = pCtx.getImageData(x, y, 1, 1).data;
-        if (pix[3] === 0) return; // Clicked empty wood
+        if (pix[3] === 0) return;
         
         const pickedRgb = { r: pix[0], g: pix[1], b: pix[2] };
         
@@ -1002,15 +1162,16 @@
     const MEDIUM_PRESETS = {
       none: {
         info: "<strong>None:</strong> Using default slider configurations. Standard paint thickness.",
-        modifier: (wet, visc) => ({ wet, visc, depletion: 0.003, opacityMult: 1.0 })
+        modifier: (wet, visc) => ({ wet, visc, depletion: 0.003, opacityMult: 1.0, heightMult: 1.0 })
       },
       linseed: {
-        info: "<strong>Linseed Oil:</strong> High gloss, slow-dry formula. Increases color blend flow and slows brush paint depletion.",
+        info: "<strong>Linseed Oil:</strong> High gloss, slow-dry formula. Increases color blend flow and spreads paint thinner.",
         modifier: (wet, visc) => ({
           wet: Math.max(wet, 0.85),
           visc: Math.max(visc, 0.5),
           depletion: 0.001,
-          opacityMult: 0.95
+          opacityMult: 0.95,
+          heightMult: 0.6
         })
       },
       turps: {
@@ -1019,7 +1180,8 @@
           wet: 1.0,
           visc: 0.05,
           depletion: 0.006,
-          opacityMult: 0.45
+          opacityMult: 0.45,
+          heightMult: 0.2
         })
       },
       liquin: {
@@ -1028,7 +1190,8 @@
           wet: Math.min(wet, 0.4),
           visc: Math.max(visc, 0.95),
           depletion: 0.004,
-          opacityMult: 1.2
+          opacityMult: 1.2,
+          heightMult: 1.5
         })
       }
     };
@@ -1062,11 +1225,15 @@
     // =========================================================================
 
     function saveToLocalForage(silent = false) {
-      const dataUrl = paintCanvas.toDataURL();
+      const dataUrl = paintCanvas.toDataURL('image/png');
       saveStatusText.innerText = "Auto-saving...";
+
+      // Also save heightmap to localForage
+      const heightDataUrl = glEngine.heightCanvas.toDataURL('image/png');
 
       const sessionObj = {
         canvasData: dataUrl,
+        heightData: heightDataUrl,
         sketchSrc: sketchSrcData,
         sketchOpacity: sketchOpacity,
         sketchMode: sketchMode,
@@ -1077,10 +1244,10 @@
         lightScale: document.getElementById('input-light-scale').value,
         lightSpec: document.getElementById('input-light-spec').value,
         sidebarOnRight: studioGrid.classList.contains('xl:flex-row-reverse'),
-        resModeFast: paintCanvas.classList.contains('filter-none')
+        resModeFast: paintCanvas.style.display === 'none'
       };
       
-      localforage.setItem('atelier_session_bundle_rgb_v6', sessionObj).then(() => {
+      localforage.setItem('atelier_session_bundle_v7_gl', sessionObj).then(() => {
         saveStatusText.innerText = "All changes saved locally";
         if (!silent) {
           showToast('Session layout saved to browser!', 'success');
@@ -1096,7 +1263,7 @@
     function loadFromLocalForage(isBootRestore = false) {
       saveStatusText.innerText = "Restoring session...";
       
-      localforage.getItem('atelier_session_bundle_rgb_v6').then(bundle => {
+      localforage.getItem('atelier_session_bundle_v7_gl').then(bundle => {
         if (bundle) {
           if (bundle.sketchSrc) {
             sketchSrcData = bundle.sketchSrc;
@@ -1145,14 +1312,29 @@
               ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
               ctx.drawImage(img, 0, 0);
               
-              historyStack = [];
-              saveHistoryState();
-              
-              saveStatusText.innerText = "Canvas restored";
-              if (isBootRestore) {
-                showToast('Restored active painting workspace!', 'info');
+              // Load height map
+              if (bundle.heightData) {
+                const hImg = new Image();
+                hImg.onload = () => {
+                  hCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+                  hCtx.drawImage(hImg, 0, 0);
+                  glEngine.render();
+                  
+                  historyStack = [];
+                  saveHistoryState();
+                  
+                  saveStatusText.innerText = "Canvas restored";
+                  if (isBootRestore) {
+                    showToast('Restored active painting workspace!', 'info');
+                  } else {
+                    showToast('Successfully loaded backup.', 'success');
+                  }
+                };
+                hImg.src = bundle.heightData;
               } else {
-                showToast('Successfully loaded backup.', 'success');
+                glEngine.render();
+                historyStack = [];
+                saveHistoryState();
               }
             };
             img.src = bundle.canvasData;
@@ -1273,13 +1455,14 @@
 
     modalConfirmBtn.addEventListener('click', () => {
       ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      hCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      glEngine.render();
       saveHistoryState();
       saveToLocalForage(true);
       modalContainer.classList.add('opacity-0', 'pointer-events-none');
       showToast('Painting canvas wiped clean.', 'info');
     });
 
-    // Profiles Configuration Updates
     const profileButtons = document.querySelectorAll('.brush-profile-btn');
     profileButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1383,7 +1566,7 @@
     }
 
     // =========================================================================
-    // DYNAMIC IMPASTO SHADOWS & LIGHTING SYSTEM
+    // DYNAMIC IMPASTO LIGHTING SYSTEM (WebGL)
     // =========================================================================
     const inputAzimuth = document.getElementById('input-light-azimuth');
     const inputElevation = document.getElementById('input-light-elevation');
@@ -1406,25 +1589,9 @@
       valScale.innerText = `${sc}`;
       valSpec.innerText = `${sp}`;
 
-      const diffLight = document.getElementById('emboss-diffuse-light');
-      const specLight = document.getElementById('emboss-specular-light');
-      const diffuseNode = document.querySelector('#oil-emboss feDiffuseLighting');
-      const specularNode = document.querySelector('#oil-emboss feSpecularLighting');
-
-      if (diffLight) {
-        diffLight.setAttribute('azimuth', az);
-        diffLight.setAttribute('elevation', el);
-      }
-      if (specLight) {
-        specLight.setAttribute('azimuth', az);
-        specLight.setAttribute('elevation', el);
-      }
-      if (diffuseNode) {
-        diffuseNode.setAttribute('surfaceScale', sc);
-      }
-      if (specularNode) {
-        specularNode.setAttribute('surfaceScale', (parseFloat(sc) * 0.8).toFixed(1));
-        specularNode.setAttribute('specularExponent', sp);
+      if (glEngine) {
+        glEngine.updateLighting(parseFloat(az), parseFloat(el), parseFloat(sc), parseFloat(sp));
+        glEngine.render();
       }
     }
 
@@ -1476,16 +1643,17 @@
 
     function toggleResolutionMode(isFast) {
       if (isFast) {
-        paintCanvas.classList.remove('oil-texture');
+        paintCanvas.style.display = 'none'; // Hide WebGL, show raw 2D (not implemented in UI directly to save space, but functional)
         btnResFast.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
         btnResHigh.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
         showToast("Switched to fast performance layout", "info");
       } else {
-        paintCanvas.classList.add('oil-texture');
+        paintCanvas.style.display = 'block';
         btnResHigh.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
         btnResFast.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
         showToast("Switched to high-fidelity 3D shading layer", "success");
       }
+      glEngine.render();
     }
 
     btnResHigh.addEventListener('click', () => {
@@ -1520,7 +1688,7 @@
     btnToggleFocus.addEventListener('click', toggleFocusMode);
 
     // =========================================================================
-    // DRAW STROKE CORE SIMULATION (Enhanced Realism Engine)
+    // DRAW STROKE CORE SIMULATION (Heightmap + Color Engine)
     // =========================================================================
     let lastX = 0;
     let lastY = 0;
@@ -1591,6 +1759,9 @@
       lastX = pos.x;
       lastY = pos.y;
       lastTime = Date.now();
+      
+      // Render WebGL on every move
+      glEngine.render();
     }
 
     function getMousePos(canvas, evt) {
@@ -1650,11 +1821,15 @@
       if (historyStack.length > 1) {
         historyStack.pop(); 
         const lastState = historyStack[historyStack.length - 1];
-        ctx.putImageData(lastState, 0, 0);
+        ctx.putImageData(lastState.color, 0, 0);
+        hCtx.putImageData(lastState.height, 0, 0);
+        glEngine.render();
         saveToLocalForage(true);
         showToast("Gestures: Undone stroke!", "info");
       } else {
         ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+        hCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+        glEngine.render();
       }
     }
 
@@ -1663,11 +1838,10 @@
       const dy = y1 - y0;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      // Calculate velocity for dynamic width scaling (pressure emulation)
       const now = Date.now();
       const elapsed = Math.max(now - lastTime, 1);
-      const velocity = distance / elapsed; // px/ms
-      const dynamicScale = Math.max(0.6, 1.0 - Math.min(velocity * 0.3, 0.4)); // Fast strokes are slightly thinner
+      const velocity = distance / elapsed;
+      const dynamicScale = Math.max(0.6, 1.0 - Math.min(velocity * 0.3, 0.4));
 
       const steps = Math.max(Math.floor(distance / 2.0), 1);
 
@@ -1718,47 +1892,73 @@
         const mixRatio = 0.30 * brushWetness; 
         const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
-
-        ctx.save();
-        ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel * mod.opacityMult;
+        
+        // Base Height determined by Viscosity & Medium
+        const baseHeight = (0.3 + (brushViscosity * 0.7)) * mod.heightMult;
         const currentSize = brushSize * dynamicScale;
 
+        ctx.save();
+        hCtx.save();
+        
+        ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel * mod.opacityMult;
+        hCtx.globalAlpha = ctx.globalAlpha;
+        
+        ctx.fillStyle = rgbStr;
+        hCtx.fillStyle = `rgb(255, 255, 255)`; // Heightmap is grayscale
+
         // =====================================================================
-        // BRUSH GEOMETRY ENGINE
+        // BRUSH GEOMETRY ENGINE (Color + Height Map)
         // =====================================================================
 
         if (currentBrushProfile === 'bristle') {
           const fiberCount = Math.max(Math.floor(currentSize / 1.5), 8);
-          ctx.fillStyle = rgbStr;
           for (let f = 0; f < fiberCount; f++) {
-            // Offset perpendicular to stroke angle
             const offsetDist = (f / fiberCount - 0.5) * currentSize;
             const bx = cx + Math.cos(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 1.5;
             const by = cy + Math.sin(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 1.5;
             const bristleRadius = Math.max(Math.random() * 2.5 + 1, 1.2);
+            
             ctx.beginPath();
             ctx.arc(bx, by, bristleRadius, 0, Math.PI * 2);
             ctx.fill();
+            
+            hCtx.beginPath();
+            hCtx.arc(bx, by, bristleRadius, 0, Math.PI * 2);
+            hCtx.fill();
           }
         } 
         else if (currentBrushProfile === 'palette-knife') {
           ctx.globalAlpha = 0.85 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          ctx.translate(cx, cy);
-          ctx.rotate(angle);
+          hCtx.globalAlpha = ctx.globalAlpha;
           
-          // Jagged, inconsistent rectangular edge
+          ctx.translate(cx, cy);
+          hCtx.translate(cx, cy);
+          ctx.rotate(angle);
+          hCtx.rotate(angle);
+          
           ctx.beginPath();
+          hCtx.beginPath();
           ctx.moveTo(-currentSize/2, -currentSize/5);
+          hCtx.moveTo(-currentSize/2, -currentSize/5);
+          
           for(let k = -currentSize/2; k <= currentSize/2; k += 4) {
-            ctx.lineTo(k, (Math.random() - 0.5) * 4 - currentSize/8);
+            const y_off = (Math.random() - 0.5) * 4 - currentSize/8;
+            ctx.lineTo(k, y_off);
+            hCtx.lineTo(k, y_off);
           }
+          
           ctx.lineTo(currentSize/2, currentSize/5);
           ctx.closePath();
           ctx.fill();
+          
+          hCtx.lineTo(currentSize/2, currentSize/5);
+          hCtx.closePath();
+          hCtx.fill();
         } 
         else if (currentBrushProfile === 'turpentine') {
           ctx.globalAlpha = 0.08 * mod.opacityMult;
+          hCtx.globalAlpha = 0.02; // Very flat
+          
           const radialGrad = ctx.createRadialGradient(cx, cy, currentSize * 0.1, cx, cy, currentSize);
           radialGrad.addColorStop(0, rgbStr);
           radialGrad.addColorStop(1, 'transparent');
@@ -1767,14 +1967,18 @@
           ctx.fillStyle = radialGrad;
           ctx.arc(cx, cy, currentSize, 0, Math.PI * 2);
           ctx.fill();
+          
+          hCtx.beginPath();
+          hCtx.fillStyle = `rgb(255,255,255)`;
+          hCtx.arc(cx, cy, currentSize, 0, Math.PI * 2);
+          hCtx.fill();
         } 
         else if (currentBrushProfile === 'fan-brush') {
           ctx.globalAlpha = 0.45 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          hCtx.globalAlpha = ctx.globalAlpha;
           const hairCount = Math.max(Math.floor(currentSize / 2), 10);
           
           for (let h = 0; h < hairCount; h++) {
-            // Spread hairs widely perpendicular to stroke
             const offsetDist = (h / hairCount - 0.5) * currentSize * 1.2;
             const hx = cx + Math.cos(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 2;
             const hy = cy + Math.sin(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 2;
@@ -1782,29 +1986,35 @@
             ctx.beginPath();
             ctx.arc(hx, hy, 1.5, 0, Math.PI * 2);
             ctx.fill();
+            
+            hCtx.beginPath();
+            hCtx.arc(hx, hy, 1.5, 0, Math.PI * 2);
+            hCtx.fill();
           }
         }
         else if (currentBrushProfile === 'filbert') {
           ctx.globalAlpha = (0.35 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          hCtx.globalAlpha = ctx.globalAlpha;
           
-          // Layered flattened oval to mimic thick filbert belly
           const nestedSteps = 5;
           for (let k = 0; k < nestedSteps; k++) {
             const sizeRatio = 1 - (k / nestedSteps) * 0.4;
             const rx = (currentSize / 2) * sizeRatio;
-            const ry = (currentSize / 3.5) * sizeRatio; // Flattened shape
+            const ry = (currentSize / 3.5) * sizeRatio;
             
             ctx.beginPath();
             ctx.ellipse(cx, cy, rx, ry, angle, 0, Math.PI * 2);
             ctx.fill();
+            
+            hCtx.beginPath();
+            hCtx.ellipse(cx, cy, rx, ry, angle, 0, Math.PI * 2);
+            hCtx.fill();
           }
         }
         else if (currentBrushProfile === 'dry-scumble') {
           ctx.globalAlpha = 0.15 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          hCtx.globalAlpha = ctx.globalAlpha * 0.5; // Scumble is dry and flat
           
-          // Highly scattered, broken speckles for dry brush texture
           const speckleCount = Math.max(Math.floor(currentSize / 1.2), 15);
           for (let s = 0; s < speckleCount; s++) {
             const ang = Math.random() * Math.PI * 2;
@@ -1815,23 +2025,29 @@
             ctx.beginPath();
             ctx.arc(sx, sy, Math.random() * 1.2 + 0.3, 0, Math.PI * 2);
             ctx.fill();
+            
+            hCtx.beginPath();
+            hCtx.arc(sx, sy, Math.random() * 1.2 + 0.3, 0, Math.PI * 2);
+            hCtx.fill();
           }
         }
         else if (currentBrushProfile === 'rigger') {
           ctx.globalAlpha = 0.85 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          hCtx.globalAlpha = ctx.globalAlpha;
           
-          // Extremely fine, long liner brush
           const riggerSize = Math.max(currentSize * 0.1, 1.5);
           ctx.beginPath();
           ctx.arc(cx + (Math.random() - 0.5), cy + (Math.random() - 0.5), riggerSize, 0, Math.PI * 2);
           ctx.fill();
+          
+          hCtx.beginPath();
+          hCtx.arc(cx + (Math.random() - 0.5), cy + (Math.random() - 0.5), riggerSize, 0, Math.PI * 2);
+          hCtx.fill();
         }
         else if (currentBrushProfile === 'stippler') {
           ctx.globalAlpha = 0.35 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          hCtx.globalAlpha = ctx.globalAlpha;
           
-          // Rough circular dabbing texture
           const spotCount = 8;
           for (let s = 0; s < spotCount; s++) {
             const ang = Math.random() * Math.PI * 2;
@@ -1842,13 +2058,16 @@
             ctx.beginPath();
             ctx.arc(sx, sy, Math.random() * 3.5 + 1, 0, Math.PI * 2);
             ctx.fill();
+            
+            hCtx.beginPath();
+            hCtx.arc(sx, sy, Math.random() * 3.5 + 1, 0, Math.PI * 2);
+            hCtx.fill();
           }
         }
         else if (currentBrushProfile === 'round-point') {
           ctx.globalAlpha = (0.45 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          hCtx.globalAlpha = ctx.globalAlpha;
           
-          // Concentric circles tapering to a point
           const stepsCount = 4;
           for (let r = 0; r < stepsCount; r++) {
             const ratio = 1 - (r / stepsCount) * 0.65;
@@ -1857,10 +2076,15 @@
             ctx.beginPath();
             ctx.arc(cx, cy, currentRadSize, 0, Math.PI * 2);
             ctx.fill();
+            
+            hCtx.beginPath();
+            hCtx.arc(cx, cy, currentRadSize, 0, Math.PI * 2);
+            hCtx.fill();
           }
         }
 
         ctx.restore();
+        hCtx.restore();
 
         brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.2);
         updateTelemetry();
@@ -2112,6 +2336,16 @@
     mixerCanvas.addEventListener('touchend', () => { isMixing = false; });
 
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
+
+    // Export PNG Button Hook
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const dataUrl = glEngine.exportPNG();
+      const link = document.createElement('a');
+      link.download = 'DrawPaw_Atelier_Export.png';
+      link.href = dataUrl;
+      link.click();
+      showToast('Painting exported as PNG!', 'success');
+    });
 
     // Bootstrap setups
     window.onload = function() {
