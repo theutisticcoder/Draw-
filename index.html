@@ -88,10 +88,11 @@
       z-index: 9999;
     }
     
-    /* Ensure WebGL canvases stack perfectly */
+    /* Ensure WebGL canvases stack perfectly and maintain exact aspect mapping */
     .gl-canvas {
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
     }
@@ -354,11 +355,11 @@
         <!-- Canvas Container & Tracing Board (Center/Right Column) -->
         <div id="canvas-panel" class="col-span-12 xl:col-span-9 flex flex-col gap-3 overflow-hidden">
           
-          <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1" id="studio-canvas-container">
+          <!-- Explicit relative wrapper with absolute canvas ensures perfect mapping -->
+          <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden p-1" id="studio-canvas-container">
             <div class="absolute inset-0 border-2 border-black/10 pointer-events-none z-20"></div>
 
-            <!-- Canvas Element Wrapper for WebGL Filtering -->
-            <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
+            <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
               
@@ -857,7 +858,6 @@
       }
       
       exportPNG() {
-        // Render to ensure latest frame is captured
         this.render();
         return this.canvas.toDataURL('image/png');
       }
@@ -910,8 +910,8 @@
 
     const paintCanvas = document.getElementById('oil-canvas');
     const glEngine = new ImpastoEngine(paintCanvas);
-    const ctx = glEngine.colorCtx; // Alias for drawing color data
-    const hCtx = glEngine.heightCtx; // Context for drawing height data
+    const ctx = glEngine.colorCtx; 
+    const hCtx = glEngine.heightCtx; 
 
     const SKETCH_PRESETS = {
       still_life: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><circle cx='400' cy='350' r='120' stroke='black' stroke-width='2' fill='none'/><ellipse cx='400' cy='180' rx='30' ry='15' stroke='black' stroke-width='2' fill='none'/><path d='M370,180 L320,400 L480,400 L430,180' stroke='black' stroke-width='2' fill='none'/></svg>",
@@ -951,7 +951,7 @@
 
     function saveHistoryState() {
       if (paintCanvas.width <= 0 || paintCanvas.height <= 0) return;
-      if (historyStack.length > 15) historyStack.shift(); // Reduced stack due to high memory
+      if (historyStack.length > 15) historyStack.shift();
       try {
         historyStack.push({
           color: ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height),
@@ -1228,7 +1228,6 @@
       const dataUrl = paintCanvas.toDataURL('image/png');
       saveStatusText.innerText = "Auto-saving...";
 
-      // Also save heightmap to localForage
       const heightDataUrl = glEngine.heightCanvas.toDataURL('image/png');
 
       const sessionObj = {
@@ -1312,7 +1311,6 @@
               ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
               ctx.drawImage(img, 0, 0);
               
-              // Load height map
               if (bundle.heightData) {
                 const hImg = new Image();
                 hImg.onload = () => {
@@ -1643,7 +1641,7 @@
 
     function toggleResolutionMode(isFast) {
       if (isFast) {
-        paintCanvas.style.display = 'none'; // Hide WebGL, show raw 2D (not implemented in UI directly to save space, but functional)
+        paintCanvas.style.display = 'none';
         btnResFast.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
         btnResHigh.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
         showToast("Switched to fast performance layout", "info");
@@ -1760,21 +1758,21 @@
       lastY = pos.y;
       lastTime = Date.now();
       
-      // Render WebGL on every move
       glEngine.render();
     }
 
+    // Calibrated coordinate mapping
     function getMousePos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
       const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
       
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
       
       return {
-        x: (clientX - rect.left) * (canvas.width / rw),
-        y: (clientY - rect.top) * (canvas.height / rh)
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
       };
     }
 
@@ -1797,10 +1795,10 @@
         eyedropperPreview.style.backgroundColor = currentPigment;
         const rect = paintCanvas.getBoundingClientRect();
         
-        const rw = rect.width || 1;
-        const rh = rect.height || 1;
-        const screenX = rect.left + (x * (rw / paintCanvas.width));
-        const screenY = rect.top + (y * (rh / paintCanvas.height));
+        const scaleX = rect.width / paintCanvas.width;
+        const scaleY = rect.height / paintCanvas.height;
+        const screenX = rect.left + (x * scaleX);
+        const screenY = rect.top + (y * scaleY);
 
         eyedropperPreview.style.left = `${screenX}px`;
         eyedropperPreview.style.top = `${screenY}px`;
@@ -1893,7 +1891,6 @@
         const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
         
-        // Base Height determined by Viscosity & Medium
         const baseHeight = (0.3 + (brushViscosity * 0.7)) * mod.heightMult;
         const currentSize = brushSize * dynamicScale;
 
@@ -1904,7 +1901,7 @@
         hCtx.globalAlpha = ctx.globalAlpha;
         
         ctx.fillStyle = rgbStr;
-        hCtx.fillStyle = `rgb(255, 255, 255)`; // Heightmap is grayscale
+        hCtx.fillStyle = `rgb(255, 255, 255)`;
 
         // =====================================================================
         // BRUSH GEOMETRY ENGINE (Color + Height Map)
@@ -1957,7 +1954,7 @@
         } 
         else if (currentBrushProfile === 'turpentine') {
           ctx.globalAlpha = 0.08 * mod.opacityMult;
-          hCtx.globalAlpha = 0.02; // Very flat
+          hCtx.globalAlpha = 0.02; 
           
           const radialGrad = ctx.createRadialGradient(cx, cy, currentSize * 0.1, cx, cy, currentSize);
           radialGrad.addColorStop(0, rgbStr);
@@ -2013,7 +2010,7 @@
         }
         else if (currentBrushProfile === 'dry-scumble') {
           ctx.globalAlpha = 0.15 * brushDepletionLevel * mod.opacityMult;
-          hCtx.globalAlpha = ctx.globalAlpha * 0.5; // Scumble is dry and flat
+          hCtx.globalAlpha = ctx.globalAlpha * 0.5; 
           
           const speckleCount = Math.max(Math.floor(currentSize / 1.2), 15);
           for (let s = 0; s < speckleCount; s++) {
@@ -2288,20 +2285,20 @@
       isMixing = true;
       hideMixerHint();
       const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      mxLastX = (e.clientX - rect.left) * (mixerCanvas.width / rw);
-      mxLastY = (e.clientY - rect.top) * (mixerCanvas.height / rh);
+      const scaleX = mixerCanvas.width / rect.width;
+      const scaleY = mixerCanvas.height / rect.height;
+      mxLastX = (e.clientX - rect.left) * scaleX;
+      mxLastY = (e.clientY - rect.top) * scaleY;
       activeMixerTipColor = null; 
     });
 
     mixerCanvas.addEventListener('mousemove', (e) => {
       if (!isMixing) return;
       const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      const cx = (e.clientX - rect.left) * (mixerCanvas.width / rw);
-      const cy = (e.clientY - rect.top) * (mixerCanvas.height / rh);
+      const scaleX = mixerCanvas.width / rect.width;
+      const scaleY = mixerCanvas.height / rect.height;
+      const cx = (e.clientX - rect.left) * scaleX;
+      const cy = (e.clientY - rect.top) * scaleY;
 
       mixBlendStroke(mxLastX, mxLastY, cx, cy);
       mxLastX = cx;
@@ -2314,20 +2311,20 @@
       isMixing = true;
       hideMixerHint();
       const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      mxLastX = (e.touches[0].clientX - rect.left) * (mixerCanvas.width / rw);
-      mxLastY = (e.touches[0].clientY - rect.top) * (mixerCanvas.height / rh);
+      const scaleX = mixerCanvas.width / rect.width;
+      const scaleY = mixerCanvas.height / rect.height;
+      mxLastX = (e.touches[0].clientX - rect.left) * scaleX;
+      mxLastY = (e.touches[0].clientY - rect.top) * scaleY;
       activeMixerTipColor = null;
     });
 
     mixerCanvas.addEventListener('touchmove', (e) => {
       if (!isMixing) return;
       const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      const cx = (e.touches[0].clientX - rect.left) * (mixerCanvas.width / rw);
-      const cy = (e.touches[0].clientY - rect.top) * (mixerCanvas.height / rh);
+      const scaleX = mixerCanvas.width / rect.width;
+      const scaleY = mixerCanvas.height / rect.height;
+      const cx = (e.touches[0].clientX - rect.left) * scaleX;
+      const cy = (e.touches[0].clientY - rect.top) * scaleY;
 
       mixBlendStroke(mxLastX, mxLastY, cx, cy);
       mxLastX = cx;
