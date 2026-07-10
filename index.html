@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DrawPaw - Professional Dynamic 3D Oil Paint Studio</title>
-
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
+  
   <!-- FontAwesome for thematic UI Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+  
   <!-- localForage for high-performance IndexedDB local storage -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -74,7 +74,7 @@
     /* Canvas background texture simulating raw stretched linen */
     .linen-canvas {
       background-color: #FAF8F5;
-      background-image:
+      background-image: 
         linear-gradient(90deg, rgba(139,115,85,0.04) 1px, transparent 1px),
         linear-gradient(rgba(139,115,85,0.04) 1px, transparent 1px);
       background-size: 4px 4px;
@@ -89,22 +89,24 @@
     #custom-brush-cursor {
       pointer-events: none;
       transform: translate(-50%, -50%);
-      transition: width 0.08s, height 0.08s, transform 0.08s;
+      transition: width 0.08s, height 0.08s;
       z-index: 9999;
-      background-image:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255,255,255,0) 55%),
-        radial-gradient(circle at 55% 65%, rgba(0,0,0,0.25), rgba(0,0,0,0) 60%);
+    }
+    
+    /* Elegant spotlight overlay */
+    .gallery-spotlight {
+      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.45) 100%);
     }
 
     /* Palette paint blobs with glossy highlights */
     .paint-blob {
-      box-shadow:
+      box-shadow: 
         inset 0 4px 6px rgba(255,255,255,0.6),
         inset 0 -4px 8px rgba(0,0,0,0.3),
         0 6px 12px rgba(0,0,0,0.25);
       position: relative;
     }
-
+    
     .paint-blob::after {
       content: '';
       position: absolute;
@@ -115,14 +117,6 @@
       background: rgba(255, 255, 255, 0.85);
       border-radius: 50%;
       filter: blur(0.5px);
-    }
-
-    /* Glossier “glass palette” base look */
-    .glass-palette {
-      background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.15));
-      box-shadow:
-        inset 0 0 0 1px rgba(0,0,0,0.06),
-        inset 0 10px 30px rgba(255,255,255,0.18);
     }
   </style>
 </head>
@@ -174,7 +168,7 @@
   <!-- Compact Studio Header & Navigation Tabs -->
   <header class="bg-linen-50/95 backdrop-blur-md border-b border-linen-200 px-6 py-2 shrink-0 z-40 text-linen-900">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
-
+      
       <!-- Brand Identity -->
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-700 via-red-500 to-indigo-800 p-0.5 flex items-center justify-center shadow-md">
@@ -204,10 +198,10 @@
       <!-- Quick UI Config Controller inside Header -->
       <div class="flex items-center gap-2">
         <button id="btn-show-shortcuts" class="px-2.5 py-1 bg-linen-200/50 hover:bg-linen-200 border border-linen-300 text-[10px] rounded-full flex items-center gap-1 transition-all">
-          <i class="fa-solid fa-keyboard text-amber-800"></i>Shortcuts
+          <i class="fa-solid fa-keyboard text-amber-800"></i> Shortcuts
         </button>
         <button id="btn-toggle-focus" class="px-2.5 py-1 bg-linen-200/50 hover:bg-linen-200 border border-linen-300 text-[10px] rounded-full flex items-center gap-1 transition-all">
-          <i class="fa-solid fa-expand text-amber-800"></i>Focus Mode <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>
+          <i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>
         </button>
       </div>
     </div>
@@ -227,30 +221,30 @@
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
-            <i class="fa-solid fa-rotate-left text-amber-400"></i>Undo <kbd class="px-1 text-[9px] bg-linen-800 rounded">U</kbd>
+            <i class="fa-solid fa-rotate-left text-amber-400"></i> Undo <kbd class="px-1 text-[9px] bg-linen-800 rounded">U</kbd>
           </button>
           <button id="btn-clear" class="px-2.5 py-1 bg-red-950/40 hover:bg-red-900 border border-red-800/80 text-[10px] rounded-full flex items-center gap-1 transition-all">
-            <i class="fa-solid fa-trash-can text-red-400"></i>Scrub <kbd class="px-1 text-[9px] bg-red-950/80 rounded">C</kbd>
+            <i class="fa-solid fa-trash-can text-red-400"></i> Scrub <kbd class="px-1 text-[9px] bg-red-950/80 rounded">C</kbd>
           </button>
           <div class="h-4 w-px bg-linen-700 self-center hidden sm:block"></div>
           <button id="btn-local-save" onclick="saveToLocalForage(false)" class="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-900 border border-emerald-800 text-[10px] rounded-full flex items-center gap-1 transition-all">
-            <i class="fa-solid fa-circle-check text-emerald-400"></i>Save progress
+            <i class="fa-solid fa-circle-check text-emerald-400"></i> Save progress
           </button>
           <button id="btn-local-restore" onclick="loadFromLocalForage(false)" class="px-2.5 py-1 bg-indigo-950/40 hover:bg-indigo-900 border border-indigo-800 text-[10px] rounded-full flex items-center gap-1 transition-all">
-            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>Load backup
+            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> Load backup
           </button>
           <button id="btn-save" class="px-3 py-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-[10px] font-semibold rounded-full flex items-center gap-1 transition-all shadow-md">
-            <i class="fa-solid fa-download"></i>Export PNG
+            <i class="fa-solid fa-download"></i> Export PNG
           </button>
         </div>
       </div>
 
       <!-- Studio Layout Grid -->
       <div id="studio-grid" class="flex-grow grid grid-cols-12 gap-4 overflow-hidden relative">
-
+        
         <!-- Controls Panel (Left Sidebar) -->
         <div id="controls-panel" class="col-span-12 xl:col-span-3 flex flex-col gap-3 overflow-y-auto pr-1">
-
+          
           <!-- Mixable Palette Slab -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
             <div class="flex justify-between items-center">
@@ -262,8 +256,11 @@
               </button>
             </div>
             <p class="text-[9px] text-linen-400 leading-tight">Swirl your brush on the slab to blend paints. Tap anywhere to select that color.</p>
-            <div class="relative w-full aspect-[4/3] rounded-lg bg-linen-100 overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center glass-palette">
-              <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-linen-200 to-linen-300 pointer-events-none"></div>
+            <div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
+              <!-- Wooden Palette Background -->
+              <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#8B5E3C_0%,_#5C3A21_100%)] pointer-events-none"></div>
+              <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.4) 3px, transparent 4px);"></div>
+              <div class="absolute top-1/2 left-2 w-6 h-10 bg-black/30 rounded-full border-2 border-black/40 -translate-y-1/2 pointer-events-none shadow-inner"></div>
               <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
             </div>
             <div class="pt-1.5 border-t border-linen-800 flex justify-between items-center text-[10px]">
@@ -303,7 +300,7 @@
             <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
               <i class="fa-solid fa-paintbrush"></i> Brush Dynamics
             </h3>
-
+            <!-- Brush Size -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Size <kbd class="px-1 bg-linen-800 rounded">[ / ]</kbd></span>
@@ -311,7 +308,7 @@
               </div>
               <input type="range" id="input-brush-size" min="5" max="80" value="30" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-
+            <!-- Wetness / Pickup Ratio -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Wetness & Color Pickup</span>
@@ -319,7 +316,7 @@
               </div>
               <input type="range" id="input-brush-wet" min="10" max="100" value="75" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-
+            <!-- Paint Viscosity -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Viscosity (Impasto)</span>
@@ -327,7 +324,7 @@
               </div>
               <input type="range" id="input-brush-visc" min="0" max="100" value="80" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-
+            <!-- Brush Profiles -->
             <div class="space-y-1.5 pt-1">
               <span class="text-[9px] text-linen-300 block">Profile style <kbd class="px-1 bg-linen-800 rounded">1 - 9</kbd></span>
               <div class="grid grid-cols-2 gap-1 text-[9px]">
@@ -342,7 +339,6 @@
                 <button class="brush-profile-btn col-span-2 py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point">Round Detail [9]</button>
               </div>
             </div>
-
           </div>
 
           <!-- Paint Mediums Config -->
@@ -410,14 +406,16 @@
 
         <!-- Canvas Container & Tracing Board (Center/Right Column) -->
         <div id="canvas-panel" class="col-span-12 xl:col-span-9 flex flex-col gap-3 overflow-hidden">
-
+          
           <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1" id="studio-canvas-container">
+            <!-- Simulated Canvas Shadow Rim -->
             <div class="absolute inset-0 border-2 border-black/10 pointer-events-none z-20"></div>
 
+            <!-- Canvas Element Wrapper for CSS Filtering -->
             <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
-              <canvas id="oil-canvas" class="absolute inset-0 z-10 w-1000px h-800px cursor-none oil-texture"></canvas>
+              <canvas id="oil-canvas" class="absolute inset-0 z-10 cursor-none oil-texture"></canvas>
               <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
               <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
               <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier Board</div>
@@ -426,7 +424,8 @@
 
           <!-- Bottom Control Bar with Sketch Tracing and Telemetry -->
           <div id="bottom-tracing-panel" class="grid grid-cols-1 md:grid-cols-12 gap-3 shrink-0">
-
+            
+            <!-- Sketch Guide Box (Bottom Left) -->
             <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col sm:flex-row gap-3 items-center justify-between text-[11px]">
               <div class="space-y-1 w-full">
                 <span class="text-amber-300 font-bold block"><i class="fa-solid fa-image"></i> Tracing Sketch Guide</span>
@@ -445,6 +444,7 @@
                 </div>
               </div>
 
+              <!-- Opacity and Position Sliders -->
               <div class="flex flex-col gap-1 w-full text-[10px] text-linen-300">
                 <div class="flex justify-between">
                   <span>Opacity</span>
@@ -458,17 +458,19 @@
               </div>
             </div>
 
+            <!-- Telemetry & Gestures Status (Bottom Right) -->
             <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col justify-between text-[11px] text-linen-300 gap-1.5">
               <div class="flex justify-between items-center border-b border-linen-800 pb-1">
                 <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> Diagnostics</span>
                 <span id="save-status-text" class="text-[9px] text-emerald-400 font-mono">Connected</span>
               </div>
-
+              
+              <!-- Telemetry Status Indicators -->
               <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
                 <span>Brush Charge: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
                 <span>Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
               </div>
-
+              
               <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
                 <div><i class="fa-solid fa-hand-pointer text-amber-600"></i> Hold Canvas: <span class="text-linen-200">Pick Color</span></div>
                 <div><i class="fa-solid fa-hand text-amber-600"></i> 2-Finger Tap: <span class="text-linen-200">Undo</span></div>
@@ -498,7 +500,8 @@
         <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-700 shadow-inner overflow-hidden flex items-center justify-center">
           <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
           <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
-
+          
+          <!-- Instructions Overlay -->
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
             <span class="bg-linen-900/95 text-white font-serif px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
               Drag your finger across the colors to blend them!
@@ -607,12 +610,9 @@
     // TAB NAVIGATION CONTROLLER
     // =========================================================================
     function switchTab(tabId) {
-      // Hide all tabs
       document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-      // Show targeted tab
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
 
-      // Update Tab Button Styles
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.className = "tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all";
       });
@@ -621,7 +621,6 @@
         activeBtn.className = "tab-btn px-4 py-1 rounded bg-linen-900 text-white font-medium transition-all";
       }
 
-      // Re-trigger layout sizes on canvas transitions
       if (tabId === 'studio') {
         setTimeout(resizeCanvas, 50);
       } else if (tabId === 'mixer') {
@@ -642,7 +641,7 @@
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
       toast.className = `p-4 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-white transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto z-[9999]`;
-
+      
       if (type === 'success') {
         toast.className += ' bg-emerald-900 border border-emerald-600';
         toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> <span>${message}</span>`;
@@ -655,7 +654,7 @@
       }
 
       toastContainer.appendChild(toast);
-
+      
       setTimeout(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
       }, 50);
@@ -729,26 +728,26 @@
     const valSketchOpacity = document.getElementById('val-sketch-opacity');
     const btnSketchOverlay = document.getElementById('btn-sketch-overlay');
     const btnSketchUnderlay = document.getElementById('btn-sketch-underlay');
-
+    
     const imgSketchOverlay = document.getElementById('sketch-overlay');
     const imgSketchUnderlay = document.getElementById('sketch-underlay');
 
-    let currentPigment = "#E11D48";
+    let currentPigment = "#E11D48"; 
     let currentPigmentName = "Cadmium Red";
     let brushSize = parseInt(brushSizeSlider.value);
     let brushWetness = parseFloat(brushWetSlider.value) / 100;
     let brushViscosity = parseFloat(brushViscSlider.value) / 100;
-    let currentBrushProfile = "bristle";
+    let currentBrushProfile = "bristle"; 
     let activeMedium = "none";
     let isDrawing = false;
     let historyStack = [];
 
-    let activeBrushTipColor = hexToRgb(currentPigment);
-    let brushDepletionLevel = 1.0;
+    let activeBrushTipColor = hexToRgb(currentPigment); 
+    let brushDepletionLevel = 1.0; 
 
-    let sketchSrcData = "";
+    let sketchSrcData = ""; 
     let sketchOpacity = parseFloat(sliderSketchOpacity.value) / 100;
-    let sketchMode = "overlay";
+    let sketchMode = "overlay"; 
 
     const paintCanvas = document.getElementById('oil-canvas');
     const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
@@ -762,21 +761,21 @@
     function resizeCanvas() {
       const container = document.getElementById('studio-canvas-container');
       if (!container || container.clientWidth === 0) return;
-
+      
       let targetWidth = container.clientWidth - 8;
       let targetHeight = container.clientHeight - 8;
 
       if (targetWidth <= 100) targetWidth = 800;
       if (targetHeight <= 100) targetHeight = 600;
-
+      
       let tempImage = null;
       if (paintCanvas.width > 0 && paintCanvas.height > 0) {
         tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
       }
 
-      paintCanvas.width = targetWidth;
+      paintCanvas.width = targetWidth; 
       paintCanvas.height = targetHeight;
-
+      
       if (tempImage) {
         ctx.putImageData(tempImage, 0, 0);
       } else {
@@ -797,146 +796,65 @@
     }
 
     // =========================================================================
-    // REALISTIC BRUSH SPECS
-    // =========================================================================
-    const BRUSH_SPECS = {
-      bristle: { footprint: "round", spread: 1.0, bristleCountScale: 1.25, raggedness: 0.75, directionality: 0.65, depositLayers: 2, edgeSharpness: 0.2 },
-      "palette-knife": { footprint: "knife", spread: 0.35, bristleCountScale: 0, raggedness: 0.15, directionality: 0.95, depositLayers: 2, edgeSharpness: 0.95 },
-      turpentine: { footprint: "wash", spread: 1.2, bristleCountScale: 0, raggedness: 0.35, directionality: 0.35, depositLayers: 1, edgeSharpness: 0.15 },
-      "fan-brush": { footprint: "fan", spread: 1.0, bristleCountScale: 1.15, raggedness: 0.65, directionality: 0.55, depositLayers: 2, edgeSharpness: 0.25 },
-      filbert: { footprint: "filbert", spread: 0.85, bristleCountScale: 1.05, raggedness: 0.55, directionality: 0.55, depositLayers: 2, edgeSharpness: 0.35 },
-      "dry-scumble": { footprint: "scumble", spread: 1.1, bristleCountScale: 0.2, raggedness: 1.0, directionality: 0.25, depositLayers: 1, edgeSharpness: 0.1 },
-      rigger: { footprint: "rigger", spread: 0.25, bristleCountScale: 0.1, raggedness: 0.35, directionality: 0.98, depositLayers: 1, edgeSharpness: 0.8 },
-      stippler: { footprint: "stippler", spread: 0.65, bristleCountScale: 0, raggedness: 0.95, directionality: 0.2, depositLayers: 1, edgeSharpness: 0.05 },
-      "round-point": { footprint: "round-point", spread: 0.45, bristleCountScale: 0.2, raggedness: 0.35, directionality: 0.75, depositLayers: 2, edgeSharpness: 0.6 },
-
-      "hog-bristle": { footprint: "hog", spread: 1.05, bristleCountScale: 1.45, raggedness: 0.95, directionality: 0.75, depositLayers: 2, edgeSharpness: 0.25 },
-      "hake-shader": { footprint: "hake", spread: 0.95, bristleCountScale: 0.75, raggedness: 0.55, directionality: 0.4, depositLayers: 2, edgeSharpness: 0.2 },
-      "soft-mop": { footprint: "mop", spread: 1.25, bristleCountScale: 0.2, raggedness: 0.25, directionality: 0.25, depositLayers: 1, edgeSharpness: 0.05 },
-      "comb-scumble": { footprint: "comb", spread: 1.0, bristleCountScale: 0.2, raggedness: 0.85, directionality: 0.85, depositLayers: 1, edgeSharpness: 0.25 },
-      "chisel-edge": { footprint: "chisel", spread: 0.5, bristleCountScale: 0, raggedness: 0.15, directionality: 0.98, depositLayers: 2, edgeSharpness: 0.95 },
-    };
-
-    function getBrushSpec(profileName) {
-      return BRUSH_SPECS[profileName] || BRUSH_SPECS.bristle;
-    }
-
-    function updateCursorSizeFromBrush() {
-      const spec = getBrushSpec(currentBrushProfile);
-      let scale = 1.0;
-      if (spec.footprint === "knife" || spec.footprint === "chisel") scale = 0.95;
-      if (spec.footprint === "fan") scale = 1.05;
-      if (spec.footprint === "mop" || spec.footprint === "hake") scale = 1.1;
-
-      customCursor.style.width = `${brushSize * scale}px`;
-      customCursor.style.height = `${brushSize * scale}px`;
-
-      if (spec.footprint === "knife" || spec.footprint === "chisel") {
-        customCursor.style.transform = "translate(-50%, -50%) rotate(-15deg)";
-      } else {
-        customCursor.style.transform = "translate(-50%, -50%) rotate(0deg)";
-      }
-    }
-
-    // =========================================================================
-    // MIXABLE PALETTE SLAB CANVAS LOGIC (glass palette variant)
+    // MIXABLE PALETTE SLAB CANVAS LOGIC
     // =========================================================================
     const paletteCanvas = document.getElementById('palette-well-canvas');
     const pCtx = paletteCanvas.getContext('2d', { willReadFrequently: true });
 
+    // Expanded Realistic 24 Color Pigment Layout
     const PALETTE_PIGMENTS = [
-      { color: "#E11D48", name: "Cadmium Red", x: 25, y: 25 },
-      { color: "#1D4ED8", name: "Ultramarine Blue", x: 75, y: 25 },
-      { color: "#FACC15", name: "Zinc Yellow", x: 125, y: 25 },
-      { color: "#10B981", name: "Phthalo Green", x: 175, y: 25 },
-      { color: "#7C2D12", name: "Burnt Sienna", x: 25, y: 135 },
-      { color: "#FFFFFF", name: "Titanium White", x: 75, y: 135 },
-      { color: "#111827", name: "Ivory Black", x: 125, y: 135 },
-      { color: "#9333EA", name: "Cobalt Violet", x: 175, y: 135 }
+      // Row 1 (Yellows & Oranges)
+      { color: "#F7F7F0", name: "Titanium White", x: 30, y: 30 },
+      { color: "#FFF84D", name: "Cadmium Yellow Light", x: 70, y: 20 },
+      { color: "#FFB81C", name: "Cadmium Yellow Deep", x: 110, y: 20 },
+      { color: "#FF8C00", name: "Cadmium Orange", x: 150, y: 25 },
+      // Row 2 (Reds & Pinks)
+      { color: "#E11D48", name: "Cadmium Red Light", x: 30, y: 65 },
+      { color: "#9B1C1C", name: "Alizarin Crimson", x: 75, y: 60 },
+      { color: "#7C2D12", name: "Burnt Sienna", x: 120, y: 60 },
+      { color: "#831843", name: "Quinacridone Magenta", x: 165, y: 65 },
+      // Row 3 (Earth Tones)
+      { color: "#A1742D", name: "Yellow Ochre", x: 30, y: 100 },
+      { color: "#74441E", name: "Raw Umber", x: 75, y: 95 },
+      { color: "#4A2E15", name: "Burnt Umber", x: 120, y: 95 },
+      { color: "#6B3613", name: "Raw Sienna", x: 165, y: 100 },
+      // Row 4 (Greens & Blues)
+      { color: "#1A6B35", name: "Sap Green", x: 30, y: 135 },
+      { color: "#0E4D2B", name: "Viridian", x: 75, y: 130 },
+      { color: "#1D4ED8", name: "Ultramarine Blue", x: 120, y: 130 },
+      { color: "#0E3A8C", name: "Prussian Blue", x: 165, y: 135 },
+      // Row 5 (Cool & Dark Tones)
+      { color: "#3D5A80", name: "Cerulean Blue", x: 30, y: 170 },
+      { color: "#1B2A41", name: "Indigo", x: 75, y: 165 },
+      { color: "#0D1B2A", name: "Ivory Black", x: 120, y: 165 },
+      { color: "#9333EA", name: "Cobalt Violet", x: 165, y: 170 }
     ];
-
-    const GLASS_BG = { r: 237, g: 232, b: 223 }; // keep original background feel, but alter pickup/mix
-
-    const PALETTE_STATE = {
-      freshness: new Map(),
-      tick: 0
-    };
-
-    function initPaletteFreshness() {
-      PALETTE_STATE.freshness.clear();
-      PALETTE_PIGMENTS.forEach(p => PALETTE_STATE.freshness.set(p.name, 1.0));
-    }
-
-    function estimateNearestPigmentName(rgb) {
-      let activeName = "Mixed Slab";
-      let best = Infinity;
-      for (const pr of PALETTE_PIGMENTS) {
-        const presetRgb = hexToRgb(pr.color);
-        const d = Math.abs(presetRgb.r - rgb.r) + Math.abs(presetRgb.g - rgb.g) + Math.abs(presetRgb.b - rgb.b);
-        if (d < best) { best = d; activeName = pr.name; }
-      }
-      return activeName;
-    }
-
-    function getPaletteFreshnessForColor(rgb) {
-      const name = estimateNearestPigmentName(rgb);
-      const f = PALETTE_STATE.freshness.get(name) ?? 1.0;
-      return f;
-    }
 
     function initPaletteSlab() {
       if (paletteCanvas.parentElement.clientWidth === 0) return;
       paletteCanvas.width = paletteCanvas.parentElement.clientWidth;
       paletteCanvas.height = paletteCanvas.parentElement.clientHeight;
 
-      // Glass: slightly cooler/cleaner base with subtle highlights
+      // Clear background for wooden palette underneath to show through
       pCtx.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 
-      const g = pCtx.createLinearGradient(0, 0, 0, paletteCanvas.height);
-      g.addColorStop(0, 'rgba(255,255,255,0.65)');
-      g.addColorStop(1, 'rgba(210,200,180,0.10)');
-      pCtx.fillStyle = g;
-      pCtx.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
-
-      // faint “glass” speckle
-      for (let i = 0; i < 350; i++) {
-        const x = Math.random() * paletteCanvas.width;
-        const y = Math.random() * paletteCanvas.height;
-        const a = Math.random() * 0.08;
-        pCtx.fillStyle = `rgba(0,0,0,${a})`;
-        pCtx.fillRect(x, y, 1, 1);
-      }
-
-      // paint blobs
       PALETTE_PIGMENTS.forEach(pigment => {
         const pX = (pigment.x / 200) * paletteCanvas.width;
-        const pY = (pigment.y / 160) * paletteCanvas.height;
+        const pY = (pigment.y / 200) * paletteCanvas.height;
 
         pCtx.save();
-        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 14);
+        const grad = pCtx.createRadialGradient(pX - 2, pY - 2, 1, pX, pY, 11);
         grad.addColorStop(0, '#FFFFFF');
-        grad.addColorStop(0.12, pigment.color);
-        grad.addColorStop(0.7, pigment.color);
+        grad.addColorStop(0.15, pigment.color);
+        grad.addColorStop(0.85, pigment.color);
         grad.addColorStop(1, 'transparent');
 
+        pCtx.beginPath();
         pCtx.fillStyle = grad;
-        pCtx.beginPath();
-
-        // slightly more “thin/clean” blob on glass
-        pCtx.arc(pX, pY, 13.5, 0, Math.PI * 2);
+        pCtx.arc(pX, pY, 11, 0, Math.PI * 2);
         pCtx.fill();
-
-        // spec highlight
-        pCtx.globalAlpha = 0.6;
-        pCtx.fillStyle = 'rgba(255,255,255,0.7)';
-        pCtx.beginPath();
-        pCtx.arc(pX - 3, pY - 4, 3.1, 0, Math.PI * 2);
-        pCtx.fill();
-
         pCtx.restore();
       });
-
-      initPaletteFreshness();
     }
 
     let isSmudgingPalette = false;
@@ -949,7 +867,7 @@
       const rect = paletteCanvas.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
+      
       const rw = rect.width || 1;
       const rh = rect.height || 1;
       paletteLastX = (clientX - rect.left) * (paletteCanvas.width / rw);
@@ -964,14 +882,14 @@
       const rect = paletteCanvas.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
+      
       const rw = rect.width || 1;
       const rh = rect.height || 1;
       const cx = (clientX - rect.left) * (paletteCanvas.width / rw);
       const cy = (clientY - rect.top) * (paletteCanvas.height / rh);
 
       smudgePaletteColors(paletteLastX, paletteLastY, cx, cy);
-
+      
       paletteLastX = cx;
       paletteLastY = cy;
     }
@@ -989,41 +907,34 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        let underlyingColor = { r: GLASS_BG.r, g: GLASS_BG.g, b: GLASS_BG.b };
+        let underlyingColor = { r: 0, g: 0, b: 0, a: 0 };
+
         try {
           const pix = pCtx.getImageData(cx, cy, 1, 1).data;
-          underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
+          underlyingColor = { r: pix[0], g: pix[1], b: pix[2], a: pix[3] };
         } catch (err) {}
 
-        const isSlabBackground =
-          Math.abs(underlyingColor.r - GLASS_BG.r) < 16 &&
-          Math.abs(underlyingColor.g - GLASS_BG.g) < 16 &&
-          Math.abs(underlyingColor.b - GLASS_BG.b) < 16;
-
-        const tipRgb = activePaletteTipColor || hexToRgb(currentPigment);
-        const freshness = getPaletteFreshnessForColor(tipRgb); // 0.12..1
-        // Glass palette: cleaner + less pickup + less “thick” mixing
-        const freshnessPickup = 0.10 + freshness * 0.55; // lower than wood
+        const isSlabBackground = underlyingColor.a === 0; // Empty space on the wooden palette
 
         if (isSlabBackground) {
-          const paintColor = mixColorsRGB(tipRgb, underlyingColor, 0.10);
+          const paintColor = activePaletteTipColor || hexToRgb(currentPigment);
           pCtx.save();
-          pCtx.globalAlpha = 0.26 + freshnessPickup * 0.22; // lower opacity
+          pCtx.globalAlpha = 0.45;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
           pCtx.fill();
           pCtx.restore();
         } else {
-          // only partially mix to keep it feeling “thinner” and less muddy
-          activePaletteTipColor = activePaletteTipColor
-            ? mixColorsRGB(activePaletteTipColor, underlyingColor, 0.14 + (1 - freshness) * 0.08)
-            : underlyingColor;
+          if (!activePaletteTipColor) {
+            activePaletteTipColor = underlyingColor;
+          }
 
-          const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.18 + (1 - freshness) * 0.10);
+          activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.25);
+          const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.4);
 
           pCtx.save();
-          pCtx.globalAlpha = 0.24 + freshnessPickup * 0.26;
+          pCtx.globalAlpha = 0.45;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -1031,38 +942,29 @@
           pCtx.restore();
         }
       }
-
-      // gentle drying over time while smudging
-      PALETTE_STATE.tick++;
-      if (PALETTE_STATE.tick % 4 === 0 && activePaletteTipColor) {
-        const f = getPaletteFreshnessForColor(activePaletteTipColor);
-        const name = estimateNearestPigmentName(activePaletteTipColor);
-        PALETTE_STATE.freshness.set(name, Math.max(0.08, f - 0.01));
-      }
     }
 
     function samplePaletteColor(x, y) {
       try {
         const pix = pCtx.getImageData(x, y, 1, 1).data;
-        const pickedRgb = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: GLASS_BG.r, g: GLASS_BG.g, b: GLASS_BG.b };
-
-        // Glass palette tends to “pick thinner paint”, so bias slightly toward picked pigment
-        const tint = 0.05 + (getPaletteFreshnessForColor(pickedRgb) * 0.10);
-        const cleanTint = mixColorsRGB(hexToRgb(rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b)), pickedRgb, tint);
-
-        currentPigment = rgbToHex(cleanTint.r, cleanTint.g, cleanTint.b, 1.0);
+        if (pix[3] === 0) return; // Clicked empty wood
+        
+        const pickedRgb = { r: pix[0], g: pix[1], b: pix[2] };
+        
+        currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b, 1.0);
         currentPigmentName = `Mixed Slab`;
-
+        
         PALETTE_PIGMENTS.forEach(pigment => {
-          const presetRgb = hexToRgb(pigment.color);
-          const dist = Math.abs(presetRgb.r - cleanTint.r) + Math.abs(presetRgb.g - cleanTint.g) + Math.abs(presetRgb.b - cleanTint.b);
-          if (dist < 18) currentPigmentName = pigment.name;
+          const rgbPreset = hexToRgb(pigment.color);
+          const dist = Math.abs(rgbPreset.r - pickedRgb.r) + Math.abs(rgbPreset.g - pickedRgb.g) + Math.abs(rgbPreset.b - pickedRgb.b);
+          if (dist < 15) {
+            currentPigmentName = pigment.name;
+          }
         });
 
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
-
-        activePaletteTipColor = cleanTint;
+        activeBrushTipColor = pickedRgb;
         brushDepletionLevel = 1.0;
 
         customCursor.style.backgroundColor = currentPigment;
@@ -1088,7 +990,7 @@
 
     document.getElementById('btn-palette-reset').addEventListener('click', () => {
       initPaletteSlab();
-      showToast("Glass palette replenished!", "success");
+      showToast("Palette slab replenished with fresh colors!", "success");
     });
 
     // =========================================================================
@@ -1158,6 +1060,7 @@
     // =========================================================================
     // PERSISTENCE & HISTORY LOCALFORAGE BACKUPS
     // =========================================================================
+
     function saveToLocalForage(silent = false) {
       const dataUrl = paintCanvas.toDataURL();
       saveStatusText.innerText = "Auto-saving...";
@@ -1176,19 +1079,23 @@
         sidebarOnRight: studioGrid.classList.contains('xl:flex-row-reverse'),
         resModeFast: paintCanvas.classList.contains('filter-none')
       };
-
+      
       localforage.setItem('atelier_session_bundle_rgb_v6', sessionObj).then(() => {
         saveStatusText.innerText = "All changes saved locally";
-        if (!silent) showToast('Session layout saved to browser!', 'success');
+        if (!silent) {
+          showToast('Session layout saved to browser!', 'success');
+        }
       }).catch(err => {
         saveStatusText.innerText = "Local save failed";
-        if (!silent) showToast('Failed to save session: ' + err, 'error');
+        if (!silent) {
+          showToast('Failed to save session: ' + err, 'error');
+        }
       });
     }
 
     function loadFromLocalForage(isBootRestore = false) {
       saveStatusText.innerText = "Restoring session...";
-
+      
       localforage.getItem('atelier_session_bundle_rgb_v6').then(bundle => {
         if (bundle) {
           if (bundle.sketchSrc) {
@@ -1196,21 +1103,26 @@
             sketchOpacity = bundle.sketchOpacity;
             sketchMode = bundle.sketchMode;
             selectSketchPreset.value = bundle.sketchPresetValue || "none";
-
+            
             sliderSketchOpacity.value = Math.round(sketchOpacity * 100);
             valSketchOpacity.innerText = `${Math.round(sketchOpacity * 100)}%`;
-
+            
             if (selectSketchPreset.value === 'custom') {
               customSketchUploadArea.classList.remove('hidden');
             }
 
-            if (sketchMode === 'overlay') setSketchPlacement('overlay');
-            else setSketchPlacement('underlay');
-
+            if (sketchMode === 'overlay') {
+              setSketchPlacement('overlay');
+            } else {
+              setSketchPlacement('underlay');
+            }
+            
             updateSketchImgLayers();
           }
 
-          if (bundle.activeMedium) selectMedium(bundle.activeMedium);
+          if (bundle.activeMedium) {
+            selectMedium(bundle.activeMedium);
+          }
 
           if (bundle.lightAzimuth) {
             document.getElementById('input-light-azimuth').value = bundle.lightAzimuth;
@@ -1220,21 +1132,28 @@
             updateImpastoLighting();
           }
 
-          if (bundle.sidebarOnRight) toggleSidebarSide(true);
-          if (bundle.resModeFast) toggleResolutionMode(true);
+          if (bundle.sidebarOnRight) {
+            toggleSidebarSide(true);
+          }
+          if (bundle.resModeFast) {
+            toggleResolutionMode(true);
+          }
 
           if (bundle.canvasData) {
             const img = new Image();
             img.onload = () => {
               ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
               ctx.drawImage(img, 0, 0);
-
+              
               historyStack = [];
               saveHistoryState();
-
+              
               saveStatusText.innerText = "Canvas restored";
-              if (isBootRestore) showToast('Restored active painting workspace!', 'info');
-              else showToast('Successfully loaded backup.', 'success');
+              if (isBootRestore) {
+                showToast('Restored active painting workspace!', 'info');
+              } else {
+                showToast('Successfully loaded backup.', 'success');
+              }
             };
             img.src = bundle.canvasData;
           }
@@ -1250,6 +1169,7 @@
     // =========================================================================
     // SKETCH TRACING OVERLAYS
     // =========================================================================
+
     function updateSketchImgLayers() {
       if (!sketchSrcData || selectSketchPreset.value === 'none') {
         imgSketchOverlay.style.opacity = '0';
@@ -1322,10 +1242,19 @@
       updateSketchImgLayers();
     });
 
-    sliderSketchOpacity.addEventListener('change', () => saveToLocalForage(true));
+    sliderSketchOpacity.addEventListener('change', () => {
+      saveToLocalForage(true);
+    });
 
-    btnSketchOverlay.addEventListener('click', () => { setSketchPlacement('overlay'); saveToLocalForage(true); });
-    btnSketchUnderlay.addEventListener('click', () => { setSketchPlacement('underlay'); saveToLocalForage(true); });
+    btnSketchOverlay.addEventListener('click', () => {
+      setSketchPlacement('overlay');
+      saveToLocalForage(true);
+    });
+
+    btnSketchUnderlay.addEventListener('click', () => {
+      setSketchPlacement('underlay');
+      saveToLocalForage(true);
+    });
 
     // =========================================================================
     // MODAL POPUPS AND SCRUB CONFIRMATIONS
@@ -1350,39 +1279,13 @@
       showToast('Painting canvas wiped clean.', 'info');
     });
 
-    // =========================================================================
-    // BRUSH PROFILE BUTTONS + REALISTIC UPGRADE
-    // =========================================================================
+    // Profiles Configuration Updates
     const profileButtons = document.querySelectorAll('.brush-profile-btn');
     profileButtons.forEach(btn => {
-      btn.addEventListener('click', () => selectBrushProfile(btn.dataset.profile));
-    });
-
-    // Add extra brushes for realism (glass/palette style)
-    const extraBrushes = [
-      { id: "hog-bristle", label: "Hog Bristle [10]" },
-      { id: "hake-shader", label: "Hake Shader [11]" },
-      { id: "soft-mop", label: "Soft Mop [12]" },
-      { id: "comb-scumble", label: "Comb Scumble [13]" },
-      { id: "chisel-edge", label: "Chisel Edge [14]" },
-    ];
-
-    function ensureBrushButtons() {
-      const grid = document.querySelector('.space-y-1.5.pt-1 .grid');
-      if (!grid) return;
-
-      const existing = new Set(Array.from(document.querySelectorAll('.brush-profile-btn')).map(b => b.dataset.profile));
-      extraBrushes.forEach(b => {
-        if (existing.has(b.id)) return;
-        const btn = document.createElement('button');
-        btn.className = "brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate";
-        btn.dataset.profile = b.id;
-        btn.textContent = b.label;
-        btn.addEventListener('click', () => selectBrushProfile(b.id));
-        grid.appendChild(btn);
+      btn.addEventListener('click', () => {
+        selectBrushProfile(btn.dataset.profile);
       });
-    }
-    ensureBrushButtons();
+    });
 
     function selectBrushProfile(profileName) {
       profileButtons.forEach(b => {
@@ -1395,38 +1298,45 @@
         }
       });
 
-      // also highlight dynamically added buttons (if any)
-      document.querySelectorAll('.brush-profile-btn').forEach(b => {
-        if (b.dataset.profile === profileName) {
-          b.classList.remove('border-transparent');
-          b.classList.add('border-amber-500');
-        }
-      });
-
       currentBrushProfile = profileName;
 
-      const presets = {
-        bristle: { size: 30, wet: 78, visc: 85 },
-        "palette-knife": { size: 38, wet: 40, visc: 100 },
-        turpentine: { size: 55, wet: 100, visc: 15 },
-        "fan-brush": { size: 42, wet: 88, visc: 55 },
-        filbert: { size: 35, wet: 80, visc: 70 },
-        "dry-scumble": { size: 45, wet: 18, visc: 30 },
-        rigger: { size: 12, wet: 45, visc: 90 },
-        stippler: { size: 40, wet: 62, visc: 88 },
-        "round-point": { size: 20, wet: 72, visc: 75 },
-
-        "hog-bristle": { size: 42, wet: 65, visc: 88 },
-        "hake-shader": { size: 52, wet: 72, visc: 60 },
-        "soft-mop": { size: 60, wet: 60, visc: 35 },
-        "comb-scumble": { size: 48, wet: 20, visc: 40 },
-        "chisel-edge": { size: 36, wet: 45, visc: 100 },
-      };
-
-      const p = presets[currentBrushProfile] || presets.bristle;
-      brushSizeSlider.value = p.size;
-      brushWetSlider.value = p.wet;
-      brushViscSlider.value = p.visc;
+      if (currentBrushProfile === 'palette-knife') {
+        brushSizeSlider.value = 35;
+        brushWetSlider.value = 30;
+        brushViscSlider.value = 100;
+      } else if (currentBrushProfile === 'turpentine') {
+        brushSizeSlider.value = 55;
+        brushWetSlider.value = 100;
+        brushViscSlider.value = 15;
+      } else if (currentBrushProfile === 'fan-brush') {
+        brushSizeSlider.value = 40;
+        brushWetSlider.value = 90;
+        brushViscSlider.value = 45;
+      } else if (currentBrushProfile === 'filbert') {
+        brushSizeSlider.value = 35;
+        brushWetSlider.value = 80;
+        brushViscSlider.value = 70;
+      } else if (currentBrushProfile === 'dry-scumble') {
+        brushSizeSlider.value = 45;
+        brushWetSlider.value = 15;
+        brushViscSlider.value = 30;
+      } else if (currentBrushProfile === 'rigger') {
+        brushSizeSlider.value = 12;
+        brushWetSlider.value = 40;
+        brushViscSlider.value = 90;
+      } else if (currentBrushProfile === 'stippler') {
+        brushSizeSlider.value = 40;
+        brushWetSlider.value = 60;
+        brushViscSlider.value = 85;
+      } else if (currentBrushProfile === 'round-point') {
+        brushSizeSlider.value = 20;
+        brushWetSlider.value = 70;
+        brushViscSlider.value = 75;
+      } else {
+        brushSizeSlider.value = 30;
+        brushWetSlider.value = 75;
+        brushViscSlider.value = 80;
+      }
 
       updateBrushParameters();
     }
@@ -1453,17 +1363,20 @@
     brushViscSlider.addEventListener('input', updateBrushParameters);
 
     function updateCursorSize() {
-      updateCursorSizeFromBrush();
+      customCursor.style.width = `${brushSize}px`;
+      customCursor.style.height = `${brushSize}px`;
     }
 
     function updateTelemetry() {
-      if (telemetryLoad) telemetryLoad.innerText = `${Math.round(brushDepletionLevel * 100)}%`;
-
+      if (telemetryLoad) {
+        telemetryLoad.innerText = `${Math.round(brushDepletionLevel * 100)}%`;
+      }
+      
       if (telemetryDirty) {
         const orig = hexToRgb(currentPigment);
-        const diff = Math.abs(activeBrushTipColor.r - orig.r) +
-          Math.abs(activeBrushTipColor.g - orig.g) +
-          Math.abs(activeBrushTipColor.b - orig.b);
+        const diff = Math.abs(activeBrushTipColor.r - orig.r) + 
+                     Math.abs(activeBrushTipColor.g - orig.g) + 
+                     Math.abs(activeBrushTipColor.b - orig.b);
         const dirtyPercent = Math.min(Math.round((diff / 765) * 100), 100);
         telemetryDirty.innerText = `${dirtyPercent}%`;
       }
@@ -1498,9 +1411,17 @@
       const diffuseNode = document.querySelector('#oil-emboss feDiffuseLighting');
       const specularNode = document.querySelector('#oil-emboss feSpecularLighting');
 
-      if (diffLight) { diffLight.setAttribute('azimuth', az); diffLight.setAttribute('elevation', el); }
-      if (specLight) { specLight.setAttribute('azimuth', az); specLight.setAttribute('elevation', el); }
-      if (diffuseNode) diffuseNode.setAttribute('surfaceScale', sc);
+      if (diffLight) {
+        diffLight.setAttribute('azimuth', az);
+        diffLight.setAttribute('elevation', el);
+      }
+      if (specLight) {
+        specLight.setAttribute('azimuth', az);
+        specLight.setAttribute('elevation', el);
+      }
+      if (diffuseNode) {
+        diffuseNode.setAttribute('surfaceScale', sc);
+      }
       if (specularNode) {
         specularNode.setAttribute('surfaceScale', (parseFloat(sc) * 0.8).toFixed(1));
         specularNode.setAttribute('specularExponent', sp);
@@ -1543,8 +1464,15 @@
       }
     }
 
-    btnSidebarLeft.addEventListener('click', () => { toggleSidebarSide(false); saveToLocalForage(true); });
-    btnSidebarRight.addEventListener('click', () => { toggleSidebarSide(true); saveToLocalForage(true); });
+    btnSidebarLeft.addEventListener('click', () => {
+      toggleSidebarSide(false);
+      saveToLocalForage(true);
+    });
+
+    btnSidebarRight.addEventListener('click', () => {
+      toggleSidebarSide(true);
+      saveToLocalForage(true);
+    });
 
     function toggleResolutionMode(isFast) {
       if (isFast) {
@@ -1560,8 +1488,15 @@
       }
     }
 
-    btnResHigh.addEventListener('click', () => { toggleResolutionMode(false); saveToLocalForage(true); });
-    btnResFast.addEventListener('click', () => { toggleResolutionMode(true); saveToLocalForage(true); });
+    btnResHigh.addEventListener('click', () => {
+      toggleResolutionMode(false);
+      saveToLocalForage(true);
+    });
+
+    btnResFast.addEventListener('click', () => {
+      toggleResolutionMode(true);
+      saveToLocalForage(true);
+    });
 
     let focusModeOn = false;
     function toggleFocusMode() {
@@ -1581,13 +1516,15 @@
       }
       setTimeout(resizeCanvas, 150);
     }
+
     btnToggleFocus.addEventListener('click', toggleFocusMode);
 
     // =========================================================================
-    // DRAW STROKE CORE SIMULATION
+    // DRAW STROKE CORE SIMULATION (Enhanced Realism Engine)
     // =========================================================================
     let lastX = 0;
     let lastY = 0;
+    let lastTime = 0;
     let touchStartTime = 0;
     let touchStartPos = { x: 0, y: 0 };
     let eyedropperTimer = null;
@@ -1605,13 +1542,16 @@
         touchStartTime = Date.now();
         touchStartPos = { x: pos.x, y: pos.y };
         if (eyedropperTimer) clearTimeout(eyedropperTimer);
-        eyedropperTimer = setTimeout(() => activateEyedropper(touchStartPos.x, touchStartPos.y), 800);
+        eyedropperTimer = setTimeout(() => {
+          activateEyedropper(touchStartPos.x, touchStartPos.y);
+        }, 800);
       }
 
       isDrawing = true;
       lastX = pos.x;
       lastY = pos.y;
-
+      lastTime = Date.now();
+      
       brushDepletionLevel = 1.0;
       activeBrushTipColor = mixColorsRGB(activeBrushTipColor, hexToRgb(currentPigment), 0.9);
 
@@ -1631,44 +1571,52 @@
     }
 
     function draw(e) {
-      if (e.touches && e.touches.length > 1) { stopDrawing(); return; }
+      if (e.touches && e.touches.length > 1) {
+        stopDrawing();
+        return;
+      }
 
       const pos = getMousePos(paintCanvas, e);
 
       if (e.touches) {
         const dist = Math.sqrt(Math.pow(pos.x - touchStartPos.x, 2) + Math.pow(pos.y - touchStartPos.y, 2));
-        if (dist > 10 && eyedropperTimer) { clearTimeout(eyedropperTimer); eyedropperTimer = null; }
+        if (dist > 10 && eyedropperTimer) {
+          clearTimeout(eyedropperTimer);
+          eyedropperTimer = null;
+        }
       }
 
       if (!isDrawing) return;
       drawStroke(lastX, lastY, pos.x, pos.y);
       lastX = pos.x;
       lastY = pos.y;
+      lastTime = Date.now();
     }
 
     function getMousePos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
       const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      
       const rw = rect.width || 1;
       const rh = rect.height || 1;
+      
       return {
         x: (clientX - rect.left) * (canvas.width / rw),
         y: (clientY - rect.top) * (canvas.height / rh)
       };
     }
 
-    // Eyedropper sampling tool
     const eyedropperPreview = document.getElementById('eyedropper-preview');
     function activateEyedropper(x, y) {
       if (isDrawing) isDrawing = false;
       try {
         const pix = ctx.getImageData(x, y, 1, 1).data;
         const color = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 250, g: 248, b: 245 };
-
+        
         currentPigment = rgbToHex(color.r, color.g, color.b, 1.0);
         currentPigmentName = "Eyedropper Pick";
-
+        
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
         activeBrushTipColor = color;
@@ -1677,7 +1625,7 @@
 
         eyedropperPreview.style.backgroundColor = currentPigment;
         const rect = paintCanvas.getBoundingClientRect();
-
+        
         const rw = rect.width || 1;
         const rh = rect.height || 1;
         const screenX = rect.left + (x * (rw / paintCanvas.width));
@@ -1686,8 +1634,10 @@
         eyedropperPreview.style.left = `${screenX}px`;
         eyedropperPreview.style.top = `${screenY}px`;
         eyedropperPreview.classList.remove('hidden');
-
-        setTimeout(() => { eyedropperPreview.classList.add('hidden'); }, 1200);
+        
+        setTimeout(() => {
+          eyedropperPreview.classList.add('hidden');
+        }, 1200);
 
         showToast("Eyedropper sampled canvas color!", "success");
         updateTelemetry();
@@ -1698,7 +1648,7 @@
 
     function triggerGestureUndo() {
       if (historyStack.length > 1) {
-        historyStack.pop();
+        historyStack.pop(); 
         const lastState = historyStack[historyStack.length - 1];
         ctx.putImageData(lastState, 0, 0);
         saveToLocalForage(true);
@@ -1711,22 +1661,19 @@
     function drawStroke(x0, y0, x1, y1) {
       const dx = x1 - x0;
       const dy = y1 - y0;
-
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const steps = Math.max(Math.floor(distance / 2.5), 1);
+      
+      // Calculate velocity for dynamic width scaling (pressure emulation)
+      const now = Date.now();
+      const elapsed = Math.max(now - lastTime, 1);
+      const velocity = distance / elapsed; // px/ms
+      const dynamicScale = Math.max(0.6, 1.0 - Math.min(velocity * 0.3, 0.4)); // Fast strokes are slightly thinner
 
-      const spec = getBrushSpec(currentBrushProfile);
+      const steps = Math.max(Math.floor(distance / 2.0), 1);
 
       const mediumPreset = MEDIUM_PRESETS[activeMedium];
       const mod = mediumPreset.modifier(brushWetness, brushViscosity);
-
-      // Proxy for “speed/pressure”: faster strokes behave drier (thinner deposit)
-      const speedFactor = Math.min(distance / 18, 2.2);
-      const dryness = 1 - Math.min(0.9, speedFactor * (0.35 + brushViscosity * 0.5));
-      const baseAlpha = (0.14 + (brushViscosity * 0.45)) * brushDepletionLevel * mod.opacityMult;
-
       const angle = Math.atan2(dy, dx);
-      const perp = angle + Math.PI / 2;
 
       for (let i = 0; i <= steps; i++) {
         const t = steps === 0 ? 0 : i / steps;
@@ -1734,182 +1681,185 @@
         const cy = y0 + dy * t;
 
         const sampleRadius = Math.max(Math.round(brushSize * 0.2), 1);
-        let accumulatedCanvasColor = { r: 250, g: 248, b: 245 };
+        let accumulatedCanvasColor = { r: 250, g: 248, b: 245 }; 
 
         try {
-          const sampleData = ctx.getImageData(
-            cx - sampleRadius / 2,
-            cy - sampleRadius / 2,
-            Math.max(sampleRadius, 1),
-            Math.max(sampleRadius, 1)
-          );
-
+          const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, Math.max(sampleRadius, 1), Math.max(sampleRadius, 1));
           let rSum = 0, gSum = 0, bSum = 0, validPixels = 0;
-
+          
           for (let p = 0; p < sampleData.data.length; p += 4) {
-            if (sampleData.data[p + 3] > 0) {
+            if (sampleData.data[p+3] > 0) {
               rSum += sampleData.data[p];
-              gSum += sampleData.data[p + 1];
-              bSum += sampleData.data[p + 2];
+              gSum += sampleData.data[p+1];
+              bSum += sampleData.data[p+2];
               validPixels++;
             }
           }
 
           if (validPixels > 0) {
-            accumulatedCanvasColor = { r: rSum / validPixels, g: gSum / validPixels, b: bSum / validPixels };
+            accumulatedCanvasColor = {
+              r: rSum / validPixels,
+              g: gSum / validPixels,
+              b: bSum / validPixels
+            };
           }
         } catch (e) {}
 
-        const isBareLinen =
-          Math.abs(accumulatedCanvasColor.r - 250) < 10 &&
-          Math.abs(accumulatedCanvasColor.g - 248) < 10 &&
-          Math.abs(accumulatedCanvasColor.b - 245) < 10;
+        const isBareLinen = Math.abs(accumulatedCanvasColor.r - 250) < 10 && 
+                            Math.abs(accumulatedCanvasColor.g - 248) < 10 && 
+                            Math.abs(accumulatedCanvasColor.b - 245) < 10;
 
         if (!isBareLinen) {
-          const pickupRate = 0.04 * brushWetness;
+          const pickupRate = 0.05 * brushWetness;
           activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
-        const mixRatio = 0.26 * brushWetness;
+        const mixRatio = 0.30 * brushWetness; 
         const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
 
-        const layers = spec.depositLayers || 1;
-
         ctx.save();
-        for (let L = 0; L < layers; L++) {
-          const layerT = layers === 1 ? 0 : L / (layers - 1);
-          const layerAlphaMult = layerT > 0.001 ? 0.65 : 1.0;
+        ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel * mod.opacityMult;
+        const currentSize = brushSize * dynamicScale;
 
-          ctx.globalAlpha = baseAlpha * layerAlphaMult * (0.75 + (spec.directionality * 0.25)) * (0.55 + (1 - dryness) * 0.9);
+        // =====================================================================
+        // BRUSH GEOMETRY ENGINE
+        // =====================================================================
+
+        if (currentBrushProfile === 'bristle') {
+          const fiberCount = Math.max(Math.floor(currentSize / 1.5), 8);
           ctx.fillStyle = rgbStr;
-
-          // Brush implementations
-          if (spec.footprint === "round" || spec.footprint === "hog" || currentBrushProfile === "bristle" || currentBrushProfile === "hog-bristle") {
-            const fiberCount = Math.max(Math.floor(brushSize * 0.42 * (spec.bristleCountScale || 1.2)), 10);
-            const ridgeJitter = (0.8 + spec.raggedness) * (1.2 - brushWetness * 0.4);
-
-            for (let f = 0; f < fiberCount; f++) {
-              const offsetNorm = (f / fiberCount - 0.5);
-              const offsetDist = offsetNorm * brushSize * (0.55 + spec.spread * 0.35);
-
-              const along = Math.cos(offsetNorm * Math.PI) * (spec.directionality * 1.2);
-              const jitter = (Math.random() - 0.5) * (2 + ridgeJitter * 4);
-
-              const bx = cx + Math.cos(perp) * offsetDist + along * (dx / (distance + 1)) + jitter * 0.35;
-              const by = cy + Math.sin(perp) * offsetDist + (Math.random() - 0.5) * 2 + jitter * 0.25;
-
-              const bristleRadius = Math.max((Math.random() * 3 + 0.9) * (1.0 + spec.raggedness * 0.15) * (1.0 - layerT * 0.25), 1.1);
-
-              ctx.beginPath();
-              ctx.arc(bx, by, bristleRadius, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-          else if (currentBrushProfile === 'palette-knife' || currentBrushProfile === 'chisel-edge' || spec.footprint === "knife" || spec.footprint === "chisel") {
-            const knifeW = brushSize * (0.55 + (1 - brushWetness) * 0.25);
-            const knifeH = brushSize * 0.14 * (1 + (brushViscosity * 0.25));
-            const rot = angle + (currentBrushProfile === "chisel-edge" ? -Math.PI / 10 : -Math.PI / 7);
-
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(rot);
-
-            ctx.globalAlpha *= 0.95;
+          for (let f = 0; f < fiberCount; f++) {
+            // Offset perpendicular to stroke angle
+            const offsetDist = (f / fiberCount - 0.5) * currentSize;
+            const bx = cx + Math.cos(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 1.5;
+            const by = cy + Math.sin(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 1.5;
+            const bristleRadius = Math.max(Math.random() * 2.5 + 1, 1.2);
             ctx.beginPath();
-            ctx.rect(-knifeW / 2, -knifeH / 2, knifeW, knifeH);
-            ctx.fill();
-
-            // smear/body
-            ctx.globalAlpha *= 0.55;
-            ctx.beginPath();
-            ctx.rect(-knifeW / 2, -knifeH / 2 - knifeH * 0.6, knifeW, knifeH * 0.9);
-            ctx.fill();
-
-            ctx.restore();
-          }
-          else if (currentBrushProfile === 'fan-brush' || spec.footprint === "fan") {
-            const hairCount = Math.max(6, Math.floor(6 + brushSize / 9));
-            for (let h = 0; h < hairCount; h++) {
-              const t2 = (h - hairCount / 2) / hairCount;
-              const hx = cx + Math.cos(angle) * (t2 * brushSize * 0.25) + Math.cos(perp) * (t2 * brushSize * 0.35);
-              const hy = cy + Math.sin(angle) * (t2 * brushSize * 0.25) + Math.sin(perp) * (t2 * brushSize * 0.35);
-
-              const r = (2.1 + Math.random() * 2.2) * (1.0 - layerT * 0.25);
-              ctx.globalAlpha *= (0.9 + (brushWetness * 0.2));
-
-              ctx.beginPath();
-              ctx.arc(hx, hy + (Math.random() - 0.5) * 2.2, r, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-          else if (currentBrushProfile === 'filbert') {
-            const nestedSteps = 6;
-            for (let k = 0; k < nestedSteps; k++) {
-              const sizeRatio = 1 - (k / nestedSteps) * 0.42;
-              const rx = (brushSize / 2) * sizeRatio;
-              const ry = (brushSize / 3.2) * sizeRatio;
-
-              ctx.globalAlpha *= (0.92 - k * 0.06);
-
-              ctx.beginPath();
-              ctx.ellipse(cx, cy, rx, ry, angle + Math.PI * 0.5 * (1 - spec.directionality), 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-          else if (currentBrushProfile === 'stippler' || spec.footprint === "stippler") {
-            const spotCount = Math.max(8, Math.floor(6 + brushSize / 6));
-            for (let s = 0; s < spotCount; s++) {
-              const angle2 = Math.random() * Math.PI * 2;
-              const dist2 = Math.sqrt(Math.random()) * (brushSize / 1.6);
-              const sx = cx + Math.cos(angle2) * dist2;
-              const sy = cy + Math.sin(angle2) * dist2;
-
-              const rr = Math.random() * 2.6 + 0.9;
-              ctx.globalAlpha *= (0.9 - dryness * 0.25);
-
-              ctx.beginPath();
-              ctx.arc(sx, sy, rr, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-          else if (currentBrushProfile === 'dry-scumble' || currentBrushProfile === 'comb-scumble') {
-            // more directional “comb” scumble
-            const speckleCount = Math.max(Math.floor(brushSize * 0.8), 20);
-            const scatter = currentBrushProfile === 'comb-scumble' ? 1.0 : 1.6;
-
-            for (let s = 0; s < speckleCount; s++) {
-              const ang = angle + (Math.random() - 0.5) * scatter;
-              const dist2 = Math.sqrt(Math.random()) * (brushSize / 2);
-
-              const sx = cx + Math.cos(ang) * dist2;
-              const sy = cy + Math.sin(ang) * dist2;
-
-              const rr = Math.random() * 1.7 + 0.4;
-              ctx.beginPath();
-              ctx.arc(sx, sy, rr, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-          else if (currentBrushProfile === 'turpentine' || spec.footprint === "wash") {
-            ctx.globalAlpha = 0.06 * brushDepletionLevel * mod.opacityMult * (0.7 + (1 - dryness) * 0.7);
-            const radialGrad = ctx.createRadialGradient(cx, cy, brushSize * 0.08, cx, cy, brushSize);
-            radialGrad.addColorStop(0, rgbStr);
-            radialGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = radialGrad;
-            ctx.beginPath();
-            ctx.arc(cx, cy, brushSize, 0, Math.PI * 2);
+            ctx.arc(bx, by, bristleRadius, 0, Math.PI * 2);
             ctx.fill();
           }
-          else {
-            // fallback
-            ctx.globalAlpha *= 0.8;
+        } 
+        else if (currentBrushProfile === 'palette-knife') {
+          ctx.globalAlpha = 0.85 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+          
+          // Jagged, inconsistent rectangular edge
+          ctx.beginPath();
+          ctx.moveTo(-currentSize/2, -currentSize/5);
+          for(let k = -currentSize/2; k <= currentSize/2; k += 4) {
+            ctx.lineTo(k, (Math.random() - 0.5) * 4 - currentSize/8);
+          }
+          ctx.lineTo(currentSize/2, currentSize/5);
+          ctx.closePath();
+          ctx.fill();
+        } 
+        else if (currentBrushProfile === 'turpentine') {
+          ctx.globalAlpha = 0.08 * mod.opacityMult;
+          const radialGrad = ctx.createRadialGradient(cx, cy, currentSize * 0.1, cx, cy, currentSize);
+          radialGrad.addColorStop(0, rgbStr);
+          radialGrad.addColorStop(1, 'transparent');
+
+          ctx.beginPath();
+          ctx.fillStyle = radialGrad;
+          ctx.arc(cx, cy, currentSize, 0, Math.PI * 2);
+          ctx.fill();
+        } 
+        else if (currentBrushProfile === 'fan-brush') {
+          ctx.globalAlpha = 0.45 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          const hairCount = Math.max(Math.floor(currentSize / 2), 10);
+          
+          for (let h = 0; h < hairCount; h++) {
+            // Spread hairs widely perpendicular to stroke
+            const offsetDist = (h / hairCount - 0.5) * currentSize * 1.2;
+            const hx = cx + Math.cos(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 2;
+            const hy = cy + Math.sin(angle + Math.PI/2) * offsetDist + (Math.random() - 0.5) * 2;
+
             ctx.beginPath();
-            ctx.arc(cx, cy, brushSize * 0.22 * (1 + (1 - layerT) * 0.4), 0, Math.PI * 2);
+            ctx.arc(hx, hy, 1.5, 0, Math.PI * 2);
             ctx.fill();
           }
         }
+        else if (currentBrushProfile === 'filbert') {
+          ctx.globalAlpha = (0.35 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          
+          // Layered flattened oval to mimic thick filbert belly
+          const nestedSteps = 5;
+          for (let k = 0; k < nestedSteps; k++) {
+            const sizeRatio = 1 - (k / nestedSteps) * 0.4;
+            const rx = (currentSize / 2) * sizeRatio;
+            const ry = (currentSize / 3.5) * sizeRatio; // Flattened shape
+            
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx, ry, angle, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        else if (currentBrushProfile === 'dry-scumble') {
+          ctx.globalAlpha = 0.15 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          
+          // Highly scattered, broken speckles for dry brush texture
+          const speckleCount = Math.max(Math.floor(currentSize / 1.2), 15);
+          for (let s = 0; s < speckleCount; s++) {
+            const ang = Math.random() * Math.PI * 2;
+            const dist = Math.sqrt(Math.random()) * (currentSize / 1.5);
+            const sx = cx + Math.cos(ang) * dist;
+            const sy = cy + Math.sin(ang) * dist;
+            
+            ctx.beginPath();
+            ctx.arc(sx, sy, Math.random() * 1.2 + 0.3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        else if (currentBrushProfile === 'rigger') {
+          ctx.globalAlpha = 0.85 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          
+          // Extremely fine, long liner brush
+          const riggerSize = Math.max(currentSize * 0.1, 1.5);
+          ctx.beginPath();
+          ctx.arc(cx + (Math.random() - 0.5), cy + (Math.random() - 0.5), riggerSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        else if (currentBrushProfile === 'stippler') {
+          ctx.globalAlpha = 0.35 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          
+          // Rough circular dabbing texture
+          const spotCount = 8;
+          for (let s = 0; s < spotCount; s++) {
+            const ang = Math.random() * Math.PI * 2;
+            const dist = Math.sqrt(Math.random()) * (currentSize / 1.8);
+            const sx = cx + Math.cos(ang) * dist;
+            const sy = cy + Math.sin(ang) * dist;
+            
+            ctx.beginPath();
+            ctx.arc(sx, sy, Math.random() * 3.5 + 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        else if (currentBrushProfile === 'round-point') {
+          ctx.globalAlpha = (0.45 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          
+          // Concentric circles tapering to a point
+          const stepsCount = 4;
+          for (let r = 0; r < stepsCount; r++) {
+            const ratio = 1 - (r / stepsCount) * 0.65;
+            const currentRadSize = (currentSize / 2) * ratio;
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, currentRadSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
         ctx.restore();
 
         brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.2);
@@ -1922,10 +1872,17 @@
     window.addEventListener('mouseup', stopDrawing);
 
     paintCanvas.addEventListener('touchstart', (e) => {
-      if (e.touches.length > 1) { e.preventDefault(); startDrawing(e); }
-      else startDrawing(e);
+      if (e.touches.length > 1) {
+        e.preventDefault();
+        startDrawing(e);
+      } else {
+        startDrawing(e);
+      }
     });
-    paintCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+    paintCanvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      draw(e);
+    });
     window.addEventListener('touchend', stopDrawing);
 
     const canvasContainer = document.getElementById('studio-canvas-container');
@@ -1934,10 +1891,12 @@
       customCursor.classList.remove('hidden');
       updateCursorSize();
     });
+
     canvasContainer.addEventListener('mouseleave', () => {
       canvasContainer.classList.remove('brush-cursor-active');
       customCursor.classList.add('hidden');
     });
+
     canvasContainer.addEventListener('mousemove', (e) => {
       customCursor.style.left = `${e.clientX}px`;
       customCursor.style.top = `${e.clientY}px`;
@@ -1948,9 +1907,11 @@
     // =========================================================================
     window.addEventListener('keydown', (e) => {
       const activeElement = document.activeElement;
-      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) return;
+      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
+        return;
+      }
 
-      if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') || e.key.toLowerCase() === 'u') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'u') {
         e.preventDefault();
         triggerGestureUndo();
       }
@@ -1981,7 +1942,6 @@
         toggleFocusMode();
       }
 
-      // Only original 1-9 are mapped by keyboard (to avoid conflict with extra brushes)
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
         const profiles = ["bristle", "palette-knife", "turpentine", "fan-brush", "filbert", "dry-scumble", "rigger", "stippler", "round-point"];
@@ -2005,9 +1965,11 @@
     document.getElementById('btn-show-shortcuts').addEventListener('click', () => {
       shortcutsOverlay.classList.remove('opacity-0', 'pointer-events-none');
     });
+
     document.getElementById('close-shortcuts-btn').addEventListener('click', () => {
       shortcutsOverlay.classList.add('opacity-0', 'pointer-events-none');
     });
+
     document.getElementById('shortcuts-understand-btn').addEventListener('click', () => {
       shortcutsOverlay.classList.add('opacity-0', 'pointer-events-none');
     });
@@ -2027,8 +1989,8 @@
       mCtx.fillStyle = '#EFECE6';
       mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
 
-      drawWellBlob(65, mixerCanvas.height / 2, 40, { r: 29, g: 78, b: 216 });
-      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 40, { r: 250, g: 204, b: 21 });
+      drawWellBlob(65, mixerCanvas.height / 2, 40, { r: 29, g: 78, b: 216 }); 
+      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 40, { r: 250, g: 204, b: 21 }); 
 
       mCtx.fillStyle = 'rgba(40, 34, 27, 0.4)';
       mCtx.font = 'bold 11px sans-serif';
@@ -2060,21 +2022,25 @@
       const dy = y1 - y0;
       const distance = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.floor(distance / 1.5);
-
+      
       const blendDiameter = 16;
 
       for (let i = 0; i < steps; i++) {
-        const t = steps === 0 ? 0 : i / steps;
+        const t = i / steps;
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
         let canvasColor = { r: 239, g: 236, b: 230 };
         try {
           const pix = mCtx.getImageData(cx, cy, 1, 1).data;
-          if (pix[3] > 0) canvasColor = { r: pix[0], g: pix[1], b: pix[2] };
-        } catch (e) {}
+          if (pix[3] > 0) {
+            canvasColor = { r: pix[0], g: pix[1], b: pix[2] };
+          }
+        } catch(e){}
 
-        if (!activeMixerTipColor) activeMixerTipColor = canvasColor;
+        if (!activeMixerTipColor) {
+          activeMixerTipColor = canvasColor;
+        }
 
         activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.25);
         const compositeColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.4);
@@ -2102,7 +2068,7 @@
       const rh = rect.height || 1;
       mxLastX = (e.clientX - rect.left) * (mixerCanvas.width / rw);
       mxLastY = (e.clientY - rect.top) * (mixerCanvas.height / rh);
-      activeMixerTipColor = null;
+      activeMixerTipColor = null; 
     });
 
     mixerCanvas.addEventListener('mousemove', (e) => {
@@ -2143,7 +2109,6 @@
       mxLastX = cx;
       mxLastY = cy;
     });
-
     mixerCanvas.addEventListener('touchend', () => { isMixing = false; });
 
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
