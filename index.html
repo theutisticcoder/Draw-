@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,7 +61,6 @@
       background: #40352C;
     }
 
-    /* Wet Paint Texture Filter utilizing SVG Turbulence for enhanced impasto depth */
     .oil-texture {
       filter: url(#oil-emboss);
     }
@@ -199,7 +199,7 @@
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
           <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (3D Impasto Engine)</h2>
-          <span class="text-[10px] text-linen-400">Directional bristle alignment with real-time shadow & specular light modeling.</span>
+          <span class="text-[10px] text-linen-400">Pure pigment preservation with true directional 3D relief lighting.</span>
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
@@ -340,7 +340,7 @@
               </button>
             </div>
             <div id="active-medium-info" class="p-1.5 rounded bg-black/20 text-[9px] text-linen-300 leading-normal">
-              <strong>Pure Impasto:</strong> Maximum 3D thickness with prominent highlights and deep shadow grooves.
+              <strong>Pure Impasto:</strong> Maximum 3D thickness with vibrant saturated pigment and directional shading.
             </div>
           </div>
 
@@ -441,8 +441,8 @@
               
               <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
                 <span>Brush Load: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
-                <span>Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
-                <span>Relief: <strong id="telemetry-relief" class="text-amber-400 font-mono">Heavy</strong></span>
+                <span>Foreign Blend: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
+                <span>Purity: <strong id="telemetry-relief" class="text-emerald-400 font-mono">100%</strong></span>
               </div>
               
               <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
@@ -506,29 +506,29 @@
       <div class="max-w-3xl mx-auto space-y-8 bg-linen-900/30 border border-linen-800 p-8 rounded-2xl">
         <div class="space-y-3">
           <span class="text-xs uppercase tracking-widest text-amber-400 font-bold block">Physical Emulation Physics</span>
-          <h2 class="font-serif text-3xl font-bold leading-tight">True 3D Bristles & Impasto Lighting</h2>
+          <h2 class="font-serif text-3xl font-bold leading-tight">Chroma Preservation & Self-Contamination Defense</h2>
           <p class="text-linen-200 text-xs leading-relaxed">
-            Oil paint isn't a flat 2D stamp—it builds volumetric height. The updated DrawPaw engine calculates continuous stroke tangent vectors to dynamically align each bristle along the motion arc, rendering sunward specular highlights and deep crevice drop shadows calibrated to your active studio light angle.
+            Standard digital painting engines turn muddy gray when sampling canvas pixels because the brush repeatedly swallows its own shadows and stroke edges. DrawPaw isolates the loaded reservoir, uses chroma-preserving color spaces, and filters out stroke lighting artifacts to ensure your oil paints remain luminous and saturated.
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-compass-drafting"></i>
+              <i class="fa-solid fa-droplet"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">True Directional Bristles</h4>
+            <h4 class="font-serif font-bold text-sm">Chroma-Locked Blending</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              Calculates continuous heading vectors with angle-damping to eliminate bristle flipping, drawing aligned multi-track micro-grooves.
+              Maintains maximum pigment saturation during cross-stroke mixing, preventing RGB linear degradation into murky gray.
             </p>
           </div>
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-sun"></i>
+              <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">Per-Stroke 3D Shading</h4>
+            <h4 class="font-serif font-bold text-sm">Shadow & Highlight Filter</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              Every bristle ridge and knife edge computes vector dot products against the active Azimuth and Pitch angles, creating realistic physical light bevels.
+              The color pickup pipeline filters out 3D bevel specular highlights and shadow grooves, reading solely the underlying pigment body.
             </p>
           </div>
         </div>
@@ -634,25 +634,77 @@
     }
 
     // =========================================================================
-    // COLOR & LIGHTING VECTOR MATHEMATICS
+    // COLOR UTILITIES & SATURATION-PRESERVING BLEND ENGINE
     // =========================================================================
 
+    function rgbToHsv(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, v = max;
+      const d = max - min;
+      s = max === 0 ? 0 : d / max;
+
+      if (max === min) {
+        h = 0; // achromatic
+      } else {
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return { h, s, v };
+    }
+
+    function hsvToRgb(h, s, v) {
+      let r, g, b;
+      const i = Math.floor(h * 6);
+      const f = h * 6 - i;
+      const p = v * (1 - s);
+      const q = v * (1 - f * s);
+      const t = v * (1 - (1 - f) * s);
+
+      switch (i % 6) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+      }
+      return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+      };
+    }
+
+    // Chroma-preserving blend: Prevents desaturating to gray when dragging colors
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      const isBBackground = colorB_rgb.r > 245 && colorB_rgb.g > 243 && colorB_rgb.b > 240;
+      const isBBackground = (colorB_rgb.r > 240 && colorB_rgb.g > 238 && colorB_rgb.b > 235) ||
+                            (colorB_rgb.r === 0 && colorB_rgb.g === 0 && colorB_rgb.b === 0);
 
       if (isBBackground) {
-        return {
-          r: colorA_rgb.r,
-          g: colorA_rgb.g,
-          b: colorA_rgb.b
-        };
+        return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
       }
 
-      return {
-        r: Math.min(Math.max(colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio, 0), 255),
-        g: Math.min(Math.max(colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio, 0), 255),
-        b: Math.min(Math.max(colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio, 0), 255)
-      };
+      const hsvA = rgbToHsv(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
+      const hsvB = rgbToHsv(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
+
+      // Shortest angle hue interpolation
+      let dh = hsvB.h - hsvA.h;
+      if (dh > 0.5) dh -= 1.0;
+      if (dh < -0.5) dh += 1.0;
+      let mixedH = (hsvA.h + dh * ratio) % 1.0;
+      if (mixedH < 0) mixedH += 1.0;
+
+      // Preserve the highest saturation of either pigment so color never turns gray!
+      const targetS = Math.max(hsvA.s, hsvB.s) * (1 - ratio * 0.15);
+      const mixedS = Math.max(hsvA.s * (1 - ratio) + hsvB.s * ratio, targetS * 0.9);
+      const mixedV = hsvA.v * (1 - ratio) + hsvB.v * ratio;
+
+      return hsvToRgb(mixedH, mixedS, mixedV);
     }
 
     function hexToRgb(hex) {
@@ -673,14 +725,12 @@
 
     function adjustColorShade(rgb, factor) {
       if (factor >= 0) {
-        // Brighten towards specular/highlight
         return {
           r: Math.min(255, rgb.r + (255 - rgb.r) * factor),
           g: Math.min(255, rgb.g + (255 - rgb.g) * factor),
           b: Math.min(255, rgb.b + (255 - rgb.b) * factor)
         };
       } else {
-        // Darken towards deep shadow
         const shadowFactor = 1 + factor;
         return {
           r: Math.max(0, rgb.r * shadowFactor),
@@ -690,7 +740,7 @@
       }
     }
 
-    // Dynamic 3D lighting vector cached from controls
+    // Dynamic 3D lighting vector
     let lightVector = { x: -0.707, y: 0.707, z: 0.766 };
 
     function calculateLightVector() {
@@ -721,6 +771,7 @@
     const customCursor = document.getElementById('custom-brush-cursor');
     const telemetryLoad = document.getElementById('telemetry-load');
     const telemetryDirty = document.getElementById('telemetry-dirty');
+    const telemetryRelief = document.getElementById('telemetry-relief');
     const saveStatusText = document.getElementById('save-status-text');
 
     const selectSketchPreset = document.getElementById('select-sketch-preset');
@@ -744,10 +795,12 @@
     let isDrawing = false;
     let historyStack = [];
 
-    // Smooth bristle direction tracking variables
+    // Smooth bristle direction tracking
     let currentStrokeAngle = 0;
     let hasValidStrokeAngle = false;
 
+    // Separate clean reservoir pigment from contaminated tip
+    let loadedReservoirColor = hexToRgb(currentPigment);
     let activeBrushTipColor = hexToRgb(currentPigment); 
     let brushDepletionLevel = 1.0; 
 
@@ -906,7 +959,7 @@
                                  Math.abs(underlyingColor.b - 223) < 15;
 
         if (isSlabBackground) {
-          const paintColor = activePaletteTipColor || hexToRgb(currentPigment);
+          const paintColor = activePaletteTipColor || loadedReservoirColor;
           pCtx.save();
           pCtx.globalAlpha = 0.5;
           pCtx.beginPath();
@@ -951,6 +1004,7 @@
 
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
+        loadedReservoirColor = pickedRgb;
         activeBrushTipColor = pickedRgb;
         brushDepletionLevel = 1.0;
 
@@ -988,7 +1042,7 @@
 
     const MEDIUM_PRESETS = {
       none: {
-        info: "<strong>Pure Impasto:</strong> High 3D viscosity with sculpted bristle highlights and cast bevel shadows.",
+        info: "<strong>Pure Impasto:</strong> High 3D viscosity with pure pigment body, highlights, and cast bevel shadows.",
         modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.002, opacityMult: 1.0, shadowMult: 1.0 })
       },
       linseed: {
@@ -1362,7 +1416,7 @@
       }
       
       if (telemetryDirty) {
-        const orig = hexToRgb(currentPigment);
+        const orig = loadedReservoirColor;
         const diff = Math.abs(activeBrushTipColor.r - orig.r) + 
                      Math.abs(activeBrushTipColor.g - orig.g) + 
                      Math.abs(activeBrushTipColor.b - orig.b);
@@ -1543,7 +1597,8 @@
       hasValidStrokeAngle = false;
       
       brushDepletionLevel = 1.0;
-      activeBrushTipColor = mixColorsRGB(activeBrushTipColor, hexToRgb(currentPigment), 0.9);
+      // Re-dip into fresh reservoir paint at the start of every stroke
+      activeBrushTipColor = { ...loadedReservoirColor };
 
       drawStroke(pos.x, pos.y, pos.x, pos.y);
     }
@@ -1610,6 +1665,7 @@
         
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
+        loadedReservoirColor = color;
         activeBrushTipColor = color;
         brushDepletionLevel = 1.0;
         customCursor.style.backgroundColor = currentPigment;
@@ -1649,7 +1705,6 @@
       }
     }
 
-    // Helper: Draw a physical 3D capsule/dab with directional light & shadow
     function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.35, shadowFactor = 0.45) {
       targetCtx.save();
       targetCtx.translate(x, y);
@@ -1658,7 +1713,7 @@
       const radL = length > 0 ? length : radius * 1.5;
       const radW = radius;
 
-      // 1. Cast ambient crevice / 3D drop shadow (opposite the light normal)
+      // 1. Cast ambient crevice / 3D drop shadow
       const shadowDx = -Math.cos(normalAngle) * (radius * 0.45);
       const shadowDy = -Math.sin(normalAngle) * (radius * 0.45);
       const shadowRgb = adjustColorShade(baseRgb, -shadowFactor);
@@ -1680,7 +1735,7 @@
       targetCtx.fill();
       targetCtx.restore();
 
-      // 3. Sunward specular highlight ridge (facing the light normal)
+      // 3. Sunward specular highlight ridge
       const lightDx = Math.cos(normalAngle) * (radius * 0.35);
       const lightDy = Math.sin(normalAngle) * (radius * 0.35);
       const lightRgb = adjustColorShade(baseRgb, highlightFactor);
@@ -1693,7 +1748,7 @@
       targetCtx.fill();
       targetCtx.restore();
 
-      // 4. Ultra-gloss wet specular micro-pinpoint
+      // 4. Wet specular micro-pinpoint
       if (brushViscosity > 0.4) {
         targetCtx.save();
         targetCtx.globalAlpha = alpha * 0.45;
@@ -1712,24 +1767,20 @@
       const dy = y1 - y0;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Smooth direction tracking:
-      // If the stroke moved sufficiently, compute new heading and smooth it into currentStrokeAngle.
       if (distance > 0.5) {
         const rawAngle = Math.atan2(dy, dx);
         if (!hasValidStrokeAngle) {
           currentStrokeAngle = rawAngle;
           hasValidStrokeAngle = true;
         } else {
-          // Angle interpolation taking wrapping into account
           let diff = (rawAngle - currentStrokeAngle + Math.PI * 3) % (Math.PI * 2) - Math.PI;
           currentStrokeAngle += diff * 0.4;
         }
       }
 
       const strokeAngle = hasValidStrokeAngle ? currentStrokeAngle : 0;
-      const perpAngle = strokeAngle + Math.PI / 2; // Exact perpendicular for bristle alignment
+      const perpAngle = strokeAngle + Math.PI / 2;
 
-      // Light normal angle relative to local stroke coordinates
       const lightAngleWorld = Math.atan2(lightVector.y, lightVector.x);
       const relativeLightAngle = lightAngleWorld - strokeAngle;
 
@@ -1742,24 +1793,34 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        // Sample underlying canvas color for dynamic fluid color pick up
-        const sampleRadius = Math.max(Math.round(brushSize * 0.25), 2);
-        let accumulatedCanvasColor = { r: 250, g: 248, b: 245 }; 
+        // Sample canvas ahead to pick up foreign colors without swallowing own stroke artifacts
+        const sampleRadius = Math.max(Math.round(brushSize * 0.35), 3);
+        let accumulatedCanvasColor = null; 
 
         try {
-          const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, Math.max(sampleRadius, 1), Math.max(sampleRadius, 1));
+          // Sample slightly offset to read canvas paint instead of exact center
+          const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, sampleRadius, sampleRadius);
           let rSum = 0, gSum = 0, bSum = 0, validPixels = 0;
           
           for (let p = 0; p < sampleData.data.length; p += 4) {
-            if (sampleData.data[p+3] > 0) {
-              rSum += sampleData.data[p];
-              gSum += sampleData.data[p+1];
-              bSum += sampleData.data[p+2];
-              validPixels++;
+            const alphaVal = sampleData.data[p+3];
+            if (alphaVal > 50) {
+              const r = sampleData.data[p];
+              const g = sampleData.data[p+1];
+              const b = sampleData.data[p+2];
+
+              // Filter out pure white highlights & pure black shadows from color pickup
+              const brightness = (r + g + b) / 3;
+              if (brightness > 25 && brightness < 245) {
+                rSum += r;
+                gSum += g;
+                bSum += b;
+                validPixels++;
+              }
             }
           }
 
-          if (validPixels > 0) {
+          if (validPixels > 4) {
             accumulatedCanvasColor = {
               r: rSum / validPixels,
               g: gSum / validPixels,
@@ -1768,29 +1829,30 @@
           }
         } catch (e) {}
 
-        const isBareLinen = Math.abs(accumulatedCanvasColor.r - 250) < 10 && 
-                            Math.abs(accumulatedCanvasColor.g - 248) < 10 && 
-                            Math.abs(accumulatedCanvasColor.b - 245) < 10;
+        // Self-Contamination Defense: Only pick up foreign pigments that are genuinely different
+        if (accumulatedCanvasColor) {
+          const colorDiff = Math.abs(accumulatedCanvasColor.r - activeBrushTipColor.r) +
+                            Math.abs(accumulatedCanvasColor.g - activeBrushTipColor.g) +
+                            Math.abs(accumulatedCanvasColor.b - activeBrushTipColor.b);
 
-        if (!isBareLinen) {
-          const pickupRate = 0.05 * brushWetness;
-          activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
-          customCursor.style.backgroundColor = `rgb(${Math.round(activeBrushTipColor.r)}, ${Math.round(activeBrushTipColor.g)}, ${Math.round(activeBrushTipColor.b)})`;
+          // If it's a noticeably different foreign color on canvas, blend it cleanly!
+          if (colorDiff > 45) {
+            const pickupRate = 0.035 * brushWetness;
+            activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
+            customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
+          }
         }
 
-        const mixRatio = 0.28 * brushWetness; 
-        const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
-        const rgbStr = `rgb(${Math.round(blendedStrokeColor.r)}, ${Math.round(blendedStrokeColor.g)}, ${Math.round(blendedStrokeColor.b)})`;
-
-        const baseAlpha = (0.28 + (brushViscosity * 0.55)) * brushDepletionLevel * mod.opacityMult;
+        // Active stroke color anchors to reservoir to prevent saturation degradation
+        const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, loadedReservoirColor, 0.15 * (1 - brushDepletionLevel));
+        const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
+        const baseAlpha = (0.35 + (brushViscosity * 0.55)) * brushDepletionLevel * mod.opacityMult;
 
         // =====================================================================
         // 3D BRUSH PROFILE IMPLEMENTATIONS
         // =====================================================================
 
         if (currentBrushProfile === 'bristle') {
-          // Thick 3D Bristle Brush: Multi-track bristle filaments aligned perpendicular to motion,
-          // extruded as 3D micro-capsules facing the stroke direction.
           const fiberCount = Math.max(Math.floor(brushSize / 2.8), 8);
           const fiberLength = Math.max(brushSize * 0.45, 6);
 
@@ -1798,7 +1860,6 @@
             const spreadRatio = (f / (fiberCount - 1) - 0.5);
             const offsetDist = spreadRatio * brushSize;
             
-            // Jitter slightly for organic bristle spread
             const jitter = (Math.sin(f * 3.7 + cx * 0.1) * 1.5);
             const bx = cx + Math.cos(perpAngle) * (offsetDist + jitter);
             const by = cy + Math.sin(perpAngle) * (offsetDist + jitter);
@@ -1814,13 +1875,12 @@
               blendedStrokeColor,
               baseAlpha,
               relativeLightAngle,
-              0.4 * brushViscosity,
-              0.5 * brushViscosity * mod.shadowMult
+              0.35 * brushViscosity,
+              0.45 * brushViscosity * mod.shadowMult
             );
           }
         } 
         else if (currentBrushProfile === 'palette-knife') {
-          // Heavy 3D Palette Knife: Wide, flat beveled blade with sharp directional ridge and heavy cast shadow
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(strokeAngle);
@@ -1829,31 +1889,26 @@
           const kh = brushSize * 0.45;
           const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.6);
 
-          // Deep cast blade shadow
           const knifeShadow = adjustColorShade(blendedStrokeColor, -0.6 * mod.shadowMult);
           ctx.globalAlpha = 0.55 * brushDepletionLevel * mod.opacityMult;
           ctx.fillStyle = `rgb(${Math.round(knifeShadow.r)}, ${Math.round(knifeShadow.g)}, ${Math.round(knifeShadow.b)})`;
           ctx.fillRect(-kw/2, -kh/2 - shadowOffset, kw, kh);
 
-          // Primary thick slab body
           ctx.globalAlpha = 0.95 * brushDepletionLevel * mod.opacityMult;
           ctx.fillStyle = rgbStr;
           ctx.fillRect(-kw/2, -kh/2, kw, kh);
 
-          // Sharp beveled impasto ridge
           const knifeLight = adjustColorShade(blendedStrokeColor, 0.45);
           ctx.globalAlpha = 0.85 * brushDepletionLevel;
           ctx.fillStyle = `rgb(${Math.round(knifeLight.r)}, ${Math.round(knifeLight.g)}, ${Math.round(knifeLight.b)})`;
           ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw, kh * 0.25);
 
-          // Specular gleam along knife edge
           ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
           ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw * 0.85, 2);
 
           ctx.restore();
         } 
         else if (currentBrushProfile === 'turpentine') {
-          // Turpentine Wash: Translucent fluid wash with soft feathered edges
           ctx.save();
           ctx.globalAlpha = 0.12 * mod.opacityMult;
           const radialGrad = ctx.createRadialGradient(cx, cy, brushSize * 0.15, cx, cy, brushSize * 1.1);
@@ -1868,7 +1923,6 @@
           ctx.restore();
         } 
         else if (currentBrushProfile === 'fan-brush') {
-          // 3D Fan Brush: Spread cluster of distinct bristle trails aligned in an arc perpendicular to motion
           const hairCount = 9;
           const fanSpan = brushSize * 1.4;
 
@@ -1895,7 +1949,6 @@
           }
         }
         else if (currentBrushProfile === 'filbert') {
-          // Thick 3D Filbert Brush: Oval arched dome with smooth curved bevels
           const nestedSteps = 4;
           for (let k = 0; k < nestedSteps; k++) {
             const sizeRatio = 1 - (k / nestedSteps) * 0.45;
@@ -1917,7 +1970,6 @@
           }
         }
         else if (currentBrushProfile === 'dry-scumble') {
-          // 3D Scumble: Broken dry speckles with physical depth and micro drop shadows
           const speckleCount = Math.max(Math.floor(brushSize / 1.6), 8);
           for (let s = 0; s < speckleCount; s++) {
             const angle = Math.random() * Math.PI * 2;
@@ -1940,7 +1992,6 @@
           }
         }
         else if (currentBrushProfile === 'rigger') {
-          // Relief Rigger: Fine line detail with high ridge definition
           const riggerRadius = Math.max(brushSize * 0.15, 2.5);
           drawVolumetricDab(
             ctx,
@@ -1956,7 +2007,6 @@
           );
         }
         else if (currentBrushProfile === 'stippler') {
-          // Impasto Stippler: 3D raised paint peaks with deep crater shadows
           const spotCount = 7;
           for (let s = 0; s < spotCount; s++) {
             const angle = Math.random() * Math.PI * 2;
@@ -1979,7 +2029,6 @@
           }
         }
         else if (currentBrushProfile === 'round-point') {
-          // Sculpted Round Point: Dense cylindrical core with concentric directional lighting
           const stepsCount = 4;
           for (let r = 0; r < stepsCount; r++) {
             const ratio = 1 - (r / stepsCount) * 0.55;
@@ -2000,7 +2049,7 @@
           }
         }
 
-        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.25);
+        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.35);
         updateTelemetry();
       }
     }
