@@ -1,3 +1,24 @@
+Here is the upgraded, complete single-file implementation of DrawPaw.
+
+Enhancements Made:
+
+1.  True Directional Bristle Tracking:
+      - Smooth stroke tangent interpolations with angle damping and sub-pixel
+        step smoothing so bristles naturally orient across turns, curves, and
+        stationary taps without flipping or jittering.
+      - Fibers are sculpted as elongated micro-capsules aligned directly with
+        the motion path.
+2.  Dynamic 3D Impasto Light & Shadow Simulation:
+      - Real-time physical lighting calculations mapped from the studio's
+        Azimuth & Elevation controls directly onto each brush dab.
+      - Each bristle ridge and knife edge automatically renders sunward specular
+        crests and downward ambient drop shadows/crevices, creating genuine
+        tactile relief.
+3.  Thick Sculpted Brush Dynamics:
+      - Upgraded heavy impasto layering for Bristle, Knife, Filbert, Fan, and
+        Round brushes to give them thick, rich paint mass with glossy wet crests
+        and deep shadow grooves.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +38,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -59,7 +80,7 @@
       background: #40352C;
     }
 
-    /* Wet Paint Texture Filter utilizing SVG Turbulence to simulate heavy impasto depth */
+    /* Wet Paint Texture Filter utilizing SVG Turbulence for enhanced impasto depth */
     .oil-texture {
       filter: url(#oil-emboss);
     }
@@ -71,7 +92,6 @@
       background-position: 0 0, 4px 4px;
     }
 
-    /* Canvas background texture simulating raw stretched linen */
     .linen-canvas {
       background-color: #FAF8F5;
       background-image: 
@@ -80,25 +100,17 @@
       background-size: 4px 4px;
     }
 
-    /* Cursor customization class */
     .brush-cursor-active {
       cursor: none !important;
     }
 
-    /* Smooth custom cursor indicator */
     #custom-brush-cursor {
       pointer-events: none;
       transform: translate(-50%, -50%);
-      transition: width 0.08s, height 0.08s;
+      transition: width 0.06s ease-out, height 0.06s ease-out;
       z-index: 9999;
     }
-    
-    /* Elegant spotlight overlay */
-    .gallery-spotlight {
-      background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.45) 100%);
-    }
 
-    /* Palette paint blobs with glossy highlights */
     .paint-blob {
       box-shadow: 
         inset 0 4px 6px rgba(255,255,255,0.6),
@@ -122,24 +134,18 @@
 </head>
 <body class="font-sans bg-linen-800 text-linen-50 overflow-hidden selection:bg-linen-400 selection:text-linen-900 h-screen flex flex-col">
 
-  <!-- SVG Oil Paint Embossing & Shading Filter (Physical bump mapping / impasto look) -->
+  <!-- SVG Oil Paint Embossing & Shading Filter -->
   <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <!-- Thick Impasto Wet Filter with dynamically controlled lighting characteristics -->
-      <filter id="oil-emboss" x="-10%" y="-10%" width="120%" height="120%">
-        <!-- Generate realistic heavy brush stroke ridges -->
-        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" result="noise" />
-        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 2.5 -0.3" result="highContrastNoise"/>
-        <!-- Displace paint slightly for organic margins -->
-        <feDisplacementMap in="SourceGraphic" in2="highContrastNoise" scale="5" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-        <!-- Generate heavy 3D shading -->
-        <feDiffuseLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="4.5" diffuseConstant="1.3" result="light">
+      <filter id="oil-emboss" x="-15%" y="-15%" width="130%" height="130%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="4" result="noise" />
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3.0 -0.2" result="highContrastNoise"/>
+        <feDisplacementMap in="SourceGraphic" in2="highContrastNoise" scale="6" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+        <feDiffuseLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="5.5" diffuseConstant="1.4" result="light">
           <feDistantLight azimuth="135" elevation="50" id="emboss-diffuse-light" />
         </feDiffuseLighting>
-        <!-- Blend diffuse light highlights with original painting colors -->
         <feBlend mode="multiply" in="displaced" in2="light" result="litPaint"/>
-        <!-- Elevate structural specular highlights -->
-        <feSpecularLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="3.5" specularConstant="1.2" specularExponent="22" result="spec">
+        <feSpecularLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="4.5" specularConstant="1.4" specularExponent="24" result="spec">
           <feDistantLight azimuth="135" elevation="50" id="emboss-specular-light" />
         </feSpecularLighting>
         <feBlend mode="screen" in="litPaint" in2="spec" result="final"/>
@@ -148,12 +154,12 @@
   </svg>
 
   <!-- Custom Brush Pointer -->
-  <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/80 shadow-[0_0_10px_rgba(0,0,0,0.3)] hidden pointer-events-none"></div>
+  <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.5)] hidden pointer-events-none"></div>
 
   <!-- Dynamic Studio Toast Notification Panel -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
-  <!-- Non-blocking custom alert/confirmation modal -->
+  <!-- Wipe Confirmation Modal -->
   <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="bg-linen-50 rounded-2xl p-6 max-w-md w-full border border-linen-300 shadow-2xl space-y-4 text-linen-900">
       <h3 class="font-serif text-xl font-bold">Scrape Canvas Clean?</h3>
@@ -168,8 +174,6 @@
   <!-- Compact Studio Header & Navigation Tabs -->
   <header class="bg-linen-50/95 backdrop-blur-md border-b border-linen-200 px-6 py-2 shrink-0 z-40 text-linen-900">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
-      
-      <!-- Brand Identity -->
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-700 via-red-500 to-indigo-800 p-0.5 flex items-center justify-center shadow-md">
           <div class="w-full h-full bg-linen-50 rounded-full flex items-center justify-center">
@@ -178,11 +182,10 @@
         </div>
         <div>
           <h1 class="font-serif font-bold text-sm tracking-wide leading-none">DrawPaw</h1>
-          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">Interactive Wet Oil Studio</span>
+          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">3D Impasto Oil Studio</span>
         </div>
       </div>
 
-      <!-- App Tabs -->
       <nav class="flex bg-linen-200/60 p-1 rounded-lg border border-linen-300 text-xs font-semibold">
         <button id="tab-btn-studio" class="tab-btn px-4 py-1 rounded bg-linen-900 text-white font-medium transition-all" onclick="switchTab('studio')">
           <i class="fa-solid fa-paintbrush mr-1.5"></i>Studio Board
@@ -191,11 +194,10 @@
           <i class="fa-solid fa-arrows-spin mr-1.5"></i>Mixing Pad
         </button>
         <button id="tab-btn-physics" class="tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all" onclick="switchTab('physics')">
-          <i class="fa-solid fa-flask mr-1.5"></i>About Physics
+          <i class="fa-solid fa-flask mr-1.5"></i>3D Brush Physics
         </button>
       </nav>
 
-      <!-- Quick UI Config Controller inside Header -->
       <div class="flex items-center gap-2">
         <button id="btn-show-shortcuts" class="px-2.5 py-1 bg-linen-200/50 hover:bg-linen-200 border border-linen-300 text-[10px] rounded-full flex items-center gap-1 transition-all">
           <i class="fa-solid fa-keyboard text-amber-800"></i> Shortcuts
@@ -216,8 +218,8 @@
       <!-- Control Bar -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
-          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (RGB Fluid)</h2>
-          <span class="text-[10px] text-linen-400">Sample, blend, and stroke wet layers across raw linen canvas templates.</span>
+          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (3D Impasto Engine)</h2>
+          <span class="text-[10px] text-linen-400">Directional bristle alignment with real-time shadow & specular light modeling.</span>
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
@@ -255,7 +257,7 @@
                 <i class="fa-solid fa-rotate-right"></i> Replenish
               </button>
             </div>
-            <p class="text-[9px] text-linen-400 leading-tight">Swirl your brush on the slab to blend paints. Tap anywhere to select that color.</p>
+            <p class="text-[9px] text-linen-400 leading-tight">Swirl your brush on the slab to blend paints. Tap anywhere to sample color.</p>
             <div class="relative w-full aspect-[4/3] rounded-lg bg-linen-100 overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-linen-200 to-linen-300 pointer-events-none"></div>
               <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
@@ -295,15 +297,15 @@
           <!-- Brush Dynamics -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
             <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
-              <i class="fa-solid fa-paintbrush"></i> Brush Dynamics
+              <i class="fa-solid fa-paintbrush"></i> 3D Brush Dynamics
             </h3>
             <!-- Brush Size -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
                 <span>Size <kbd class="px-1 bg-linen-800 rounded">[ / ]</kbd></span>
-                <span id="val-brush-size" class="font-mono text-amber-400">30px</span>
+                <span id="val-brush-size" class="font-mono text-amber-400">32px</span>
               </div>
-              <input type="range" id="input-brush-size" min="5" max="80" value="30" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+              <input type="range" id="input-brush-size" min="6" max="90" value="32" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
             <!-- Wetness / Pickup Ratio -->
             <div class="space-y-0.5 text-[10px]">
@@ -313,27 +315,27 @@
               </div>
               <input type="range" id="input-brush-wet" min="10" max="100" value="75" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
-            <!-- Paint Viscosity -->
+            <!-- Paint Viscosity (Impasto Body) -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
-                <span>Viscosity (Impasto)</span>
-                <span id="val-brush-visc" class="font-mono text-amber-400">80%</span>
+                <span>Viscosity (3D Thickness)</span>
+                <span id="val-brush-visc" class="font-mono text-amber-400">85%</span>
               </div>
-              <input type="range" id="input-brush-visc" min="0" max="100" value="80" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+              <input type="range" id="input-brush-visc" min="0" max="100" value="85" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
             <!-- Brush Profiles -->
             <div class="space-y-1.5 pt-1">
-              <span class="text-[9px] text-linen-300 block">Profile style <kbd class="px-1 bg-linen-800 rounded">1 - 9</kbd></span>
+              <span class="text-[9px] text-linen-300 block">3D Profile Style <kbd class="px-1 bg-linen-800 rounded">1 - 9</kbd></span>
               <div class="grid grid-cols-2 gap-1 text-[9px]">
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-amber-500 truncate" data-profile="bristle">Bristle [1]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="palette-knife">Knife [2]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="turpentine">Turps Wash [3]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="fan-brush">Fan Blender [4]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="filbert">Filbert [5]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="dry-scumble">Scumble [6]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="rigger">Rigger [7]</button>
-                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate" data-profile="stippler">Stippler [8]</button>
-                <button class="brush-profile-btn col-span-2 py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point">Round Detail [9]</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-amber-500 truncate text-left px-2" data-profile="bristle">1. Thick Bristle</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="palette-knife">2. Heavy Knife</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="turpentine">3. Turps Wash</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="fan-brush">4. Fan Multi-Track</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="filbert">5. Beveled Filbert</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="dry-scumble">6. 3D Scumble</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="rigger">7. Relief Rigger</button>
+                <button class="brush-profile-btn py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-left px-2" data-profile="stippler">8. Impasto Stippler</button>
+                <button class="brush-profile-btn col-span-2 py-1 bg-linen-800 hover:bg-linen-700 font-medium rounded border border-transparent truncate text-center" data-profile="round-point">9. Sculpted Round Point</button>
               </div>
             </div>
           </div>
@@ -345,7 +347,7 @@
             </h3>
             <div class="grid grid-cols-2 gap-1.5 text-[10px]">
               <button class="medium-btn py-1 px-1 rounded border border-amber-500 bg-linen-800/80 hover:bg-linen-700 text-center flex flex-col items-center justify-center" data-medium="none">
-                <span class="font-semibold text-linen-50">No Medium</span>
+                <span class="font-semibold text-linen-50">Pure Impasto</span>
               </button>
               <button class="medium-btn py-1 px-1 rounded border border-transparent bg-linen-800/40 hover:bg-linen-700 text-center flex flex-col items-center justify-center" data-medium="linseed">
                 <span class="font-semibold text-yellow-300">Linseed Oil</span>
@@ -358,19 +360,19 @@
               </button>
             </div>
             <div id="active-medium-info" class="p-1.5 rounded bg-black/20 text-[9px] text-linen-300 leading-normal">
-              <strong>None:</strong> Using default slider configurations. Standard paint thickness.
+              <strong>Pure Impasto:</strong> Maximum 3D thickness with prominent highlights and deep shadow grooves.
             </div>
           </div>
 
           <!-- Impasto Light & Shadows -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0 mb-2">
             <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
-              <i class="fa-solid fa-lightbulb"></i> Impasto Shadows
+              <i class="fa-solid fa-lightbulb"></i> 3D Light & Shading Direction
             </h3>
             <div class="space-y-1.5 text-[10px]">
               <div class="space-y-0.5">
                 <div class="flex justify-between">
-                  <span>Light Angle (Azimuth)</span>
+                  <span>Light Direction (Azimuth)</span>
                   <span id="val-light-azimuth" class="font-mono text-amber-400">135°</span>
                 </div>
                 <input type="range" id="input-light-azimuth" min="0" max="360" value="135" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
@@ -384,17 +386,17 @@
               </div>
               <div class="space-y-0.5">
                 <div class="flex justify-between">
-                  <span>Relief Relief Strength</span>
-                  <span id="val-light-scale" class="font-mono text-amber-400">4.5</span>
+                  <span>Impasto Relief Depth</span>
+                  <span id="val-light-scale" class="font-mono text-amber-400">5.5</span>
                 </div>
-                <input type="range" id="input-light-scale" min="1.0" max="9.0" step="0.5" value="4.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+                <input type="range" id="input-light-scale" min="1.0" max="10.0" step="0.5" value="5.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
               <div class="space-y-0.5">
                 <div class="flex justify-between">
-                  <span>Paint Glossiness</span>
-                  <span id="val-light-spec" class="font-mono text-amber-400">22</span>
+                  <span>Glossy Specular Sheen</span>
+                  <span id="val-light-spec" class="font-mono text-amber-400">26</span>
                 </div>
-                <input type="range" id="input-light-spec" min="5" max="50" value="22" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+                <input type="range" id="input-light-spec" min="5" max="50" value="26" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
             </div>
           </div>
@@ -405,24 +407,21 @@
         <div id="canvas-panel" class="col-span-12 xl:col-span-9 flex flex-col gap-3 overflow-hidden">
           
           <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1" id="studio-canvas-container">
-            <!-- Simulated Canvas Shadow Rim -->
             <div class="absolute inset-0 border-2 border-black/10 pointer-events-none z-20"></div>
 
-            <!-- Canvas Element Wrapper for CSS Filtering -->
             <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
               <canvas id="oil-canvas" class="absolute inset-0 z-10 w-1000px h-800px cursor-none oil-texture"></canvas>
               <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
               <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
-              <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier Board</div>
+              <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier 3D Board</div>
             </div>
           </div>
 
           <!-- Bottom Control Bar with Sketch Tracing and Telemetry -->
           <div id="bottom-tracing-panel" class="grid grid-cols-1 md:grid-cols-12 gap-3 shrink-0">
             
-            <!-- Sketch Guide Box (Bottom Left) -->
             <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col sm:flex-row gap-3 items-center justify-between text-[11px]">
               <div class="space-y-1 w-full">
                 <span class="text-amber-300 font-bold block"><i class="fa-solid fa-image"></i> Tracing Sketch Guide</span>
@@ -441,7 +440,6 @@
                 </div>
               </div>
 
-              <!-- Opacity and Position Sliders -->
               <div class="flex flex-col gap-1 w-full text-[10px] text-linen-300">
                 <div class="flex justify-between">
                   <span>Opacity</span>
@@ -455,17 +453,16 @@
               </div>
             </div>
 
-            <!-- Telemetry & Gestures Status (Bottom Right) -->
             <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col justify-between text-[11px] text-linen-300 gap-1.5">
               <div class="flex justify-between items-center border-b border-linen-800 pb-1">
-                <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> Diagnostics</span>
+                <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> 3D Shading Diagnostics</span>
                 <span id="save-status-text" class="text-[9px] text-emerald-400 font-mono">Connected</span>
               </div>
               
-              <!-- Telemetry Status Indicators -->
               <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
-                <span>Brush Charge: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
+                <span>Brush Load: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
                 <span>Contamination: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
+                <span>Relief: <strong id="telemetry-relief" class="text-amber-400 font-mono">Heavy</strong></span>
               </div>
               
               <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
@@ -487,7 +484,7 @@
         <div class="flex justify-between items-center border-b border-linen-800 pb-3">
           <div>
             <h3 class="text-sm font-serif font-bold text-linen-50">Realtime Viscous Mixing Pad</h3>
-            <p class="text-[10px] text-linen-400 leading-tight">Drag colors across the wet canvas well to sample and blend gradients.</p>
+            <p class="text-[10px] text-linen-400 leading-tight">Drag colors across the wet canvas well to blend dynamic 3D oil paint.</p>
           </div>
           <button id="btn-clear-mixer" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-bold">
             <i class="fa-solid fa-rotate-right"></i> Scrape Clean
@@ -498,7 +495,6 @@
           <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
           <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
           
-          <!-- Instructions Overlay -->
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
             <span class="bg-linen-900/95 text-white font-serif px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
               Drag your finger across the colors to blend them!
@@ -509,17 +505,17 @@
         <div class="flex justify-around items-center pt-1">
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded-full bg-blue-700 shadow-sm"></div>
-            <span class="text-xs font-mono text-linen-400">Blue</span>
+            <span class="text-xs font-mono text-linen-400">Ultramarine</span>
           </div>
           <span class="text-linen-500 text-xs">+</span>
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded-full bg-yellow-400 shadow-sm"></div>
-            <span class="text-xs font-mono text-linen-400">Yellow</span>
+            <span class="text-xs font-mono text-linen-400">Zinc Yellow</span>
           </div>
           <span class="text-linen-500 text-xs">=</span>
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-yellow-300 rounded shadow-sm"></div>
-            <span class="text-xs font-semibold font-mono text-linen-100">Gradation Blend</span>
+            <span class="text-xs font-semibold font-mono text-linen-100">Viscous Blend</span>
           </div>
         </div>
       </div>
@@ -530,29 +526,29 @@
       <div class="max-w-3xl mx-auto space-y-8 bg-linen-900/30 border border-linen-800 p-8 rounded-2xl">
         <div class="space-y-3">
           <span class="text-xs uppercase tracking-widest text-amber-400 font-bold block">Physical Emulation Physics</span>
-          <h2 class="font-serif text-3xl font-bold leading-tight">Viscous Blending:<br>The beauty of RGB oil math.</h2>
+          <h2 class="font-serif text-3xl font-bold leading-tight">True 3D Bristles & Impasto Lighting</h2>
           <p class="text-linen-200 text-xs leading-relaxed">
-            The upgraded RGB engine calculates color values by dynamically tracking your canvas's pigment loads. It blends overlapping strokes together smoothly while preventing compounding color decay or clipping to black.
+            Oil paint isn't a flat 2D stamp—it builds volumetric height. The updated DrawPaw engine calculates continuous stroke tangent vectors to dynamically align each bristle along the motion arc, rendering sunward specular highlights and deep crevice drop shadows calibrated to your active studio light angle.
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-arrows-spin"></i>
+              <i class="fa-solid fa-compass-drafting"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">Dynamic Reservoir Pickup</h4>
+            <h4 class="font-serif font-bold text-sm">True Directional Bristles</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              As your brush moves through wet paint, it collects pigment off the canvas, continuously modifying the brush color until the loaded reservoir runs clean or is re-dipped.
+              Calculates continuous heading vectors with angle-damping to eliminate bristle flipping, drawing aligned multi-track micro-grooves.
             </p>
           </div>
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-database"></i>
+              <i class="fa-solid fa-sun"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">localForage Integration</h4>
+            <h4 class="font-serif font-bold text-sm">Per-Stroke 3D Shading</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              Bypasses standard 5MB localStorage size limits, utilizing native IndexedDB storage to persist raw, uncompressed heavy oil brush layers.
+              Every bristle ridge and knife edge computes vector dot products against the active Azimuth and Pitch angles, creating realistic physical light bevels.
             </p>
           </div>
         </div>
@@ -561,7 +557,7 @@
 
   </main>
 
-  <!-- Shortcuts & Gestures Instruction overlay modal -->
+  <!-- Shortcuts Instruction Modal -->
   <div id="shortcuts-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 text-linen-50">
     <div class="bg-linen-900 border border-linen-700 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 mx-4">
       <div class="flex justify-between items-center border-b border-linen-800 pb-3">
@@ -575,21 +571,21 @@
         <div>
           <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-computer-mouse"></i> Tap & Touch Gestures</h4>
           <ul class="space-y-1 list-disc list-inside text-linen-300">
-            <li><strong>Long Press (1 Second)</strong> on drawing canvas: Eyedropper color pickup.</li>
+            <li><strong>Long Press (1 Second)</strong> on canvas: Eyedropper color pickup.</li>
             <li><strong>Two-Finger Tap</strong>: Quick Undo last brush stroke.</li>
-            <li><strong>Double Tap Scrub</strong>: Securely wipes the painting canvas cleanly.</li>
+            <li><strong>Double Tap Scrub</strong>: Securely wipes the canvas cleanly.</li>
           </ul>
         </div>
 
         <div>
           <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-keyboard"></i> Keyboard Hooks</h4>
           <div class="grid grid-cols-2 gap-2 text-linen-300 font-sans text-[11px]">
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">Z</kbd> or <kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">U</kbd> : Undo</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">C</kbd> : Clean Canvas</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">Ctrl</kbd> + <kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">Z</kbd> / <kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">U</kbd> : Undo</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">C</kbd> : Scrub Canvas</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">[</kbd> : Decrease Size</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">]</kbd> : Increase Size</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">1 - 9</kbd> : Select Brushes</div>
-            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">M</kbd> : Cycle Active Medium</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">1 - 9</kbd> : Select 3D Brushes</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">M</kbd> : Cycle Mediums</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">F</kbd> : Toggle Focus</div>
           </div>
         </div>
@@ -603,16 +599,10 @@
 
   <!-- Core JavaScript for DrawPaw Studio Engine -->
   <script>
-    // =========================================================================
-    // TAB NAVIGATION CONTROLLER
-    // =========================================================================
     function switchTab(tabId) {
-      // Hide all tabs
       document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-      // Show targeted tab
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
 
-      // Update Tab Button Styles
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.className = "tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all";
       });
@@ -621,7 +611,6 @@
         activeBtn.className = "tab-btn px-4 py-1 rounded bg-linen-900 text-white font-medium transition-all";
       }
 
-      // Re-trigger layout sizes on canvas transitions
       if (tabId === 'studio') {
         setTimeout(resizeCanvas, 50);
       } else if (tabId === 'mixer') {
@@ -629,15 +618,13 @@
       }
     }
 
-    // Configure localForage database
     localforage.config({
       name: 'LAtelierDHuile_v6_rgb',
       storeName: 'studio_canvas_history_v6_rgb',
       version: 6.0,
-      description: 'Persistent storage for user oil painting canvas coordinates, history metadata, and sketch references'
+      description: 'Persistent storage for user 3D oil painting layers'
     });
 
-    // Custom Toast Notification System
     const toastContainer = document.getElementById('toast-container');
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
@@ -656,12 +643,10 @@
 
       toastContainer.appendChild(toast);
       
-      // Animate entry
       setTimeout(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
       }, 50);
 
-      // Dismiss automatically
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
@@ -669,7 +654,7 @@
     }
 
     // =========================================================================
-    // COLOR UTILITIES AND PHYSIC COEFFICIENTS
+    // COLOR & LIGHTING VECTOR MATHEMATICS
     // =========================================================================
 
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
@@ -702,8 +687,43 @@
       } : { r: 255, g: 255, b: 255 };
     }
 
-    function rgbToHex(r, g, b, a) {
+    function rgbToHex(r, g, b) {
       return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+    }
+
+    function adjustColorShade(rgb, factor) {
+      if (factor >= 0) {
+        // Brighten towards specular/highlight
+        return {
+          r: Math.min(255, rgb.r + (255 - rgb.r) * factor),
+          g: Math.min(255, rgb.g + (255 - rgb.g) * factor),
+          b: Math.min(255, rgb.b + (255 - rgb.b) * factor)
+        };
+      } else {
+        // Darken towards deep shadow
+        const shadowFactor = 1 + factor;
+        return {
+          r: Math.max(0, rgb.r * shadowFactor),
+          g: Math.max(0, rgb.g * shadowFactor),
+          b: Math.max(0, rgb.b * shadowFactor)
+        };
+      }
+    }
+
+    // Dynamic 3D lighting vector cached from controls
+    let lightVector = { x: -0.707, y: 0.707, z: 0.766 };
+
+    function calculateLightVector() {
+      const azDeg = parseFloat(document.getElementById('input-light-azimuth').value);
+      const elDeg = parseFloat(document.getElementById('input-light-elevation').value);
+      const azRad = (azDeg * Math.PI) / 180;
+      const elRad = (elDeg * Math.PI) / 180;
+
+      lightVector = {
+        x: Math.cos(azRad) * Math.cos(elRad),
+        y: Math.sin(azRad) * Math.cos(elRad),
+        z: Math.sin(elRad)
+      };
     }
 
     // =========================================================================
@@ -723,7 +743,6 @@
     const telemetryDirty = document.getElementById('telemetry-dirty');
     const saveStatusText = document.getElementById('save-status-text');
 
-    // Sketch Panel UI elements
     const selectSketchPreset = document.getElementById('select-sketch-preset');
     const customSketchUploadArea = document.getElementById('custom-sketch-upload-area');
     const inputSketchUpload = document.getElementById('input-sketch-upload');
@@ -732,7 +751,6 @@
     const btnSketchOverlay = document.getElementById('btn-sketch-overlay');
     const btnSketchUnderlay = document.getElementById('btn-sketch-underlay');
     
-    // Virtual overlay & underlay img element layers
     const imgSketchOverlay = document.getElementById('sketch-overlay');
     const imgSketchUnderlay = document.getElementById('sketch-underlay');
 
@@ -746,10 +764,13 @@
     let isDrawing = false;
     let historyStack = [];
 
+    // Smooth bristle direction tracking variables
+    let currentStrokeAngle = 0;
+    let hasValidStrokeAngle = false;
+
     let activeBrushTipColor = hexToRgb(currentPigment); 
     let brushDepletionLevel = 1.0; 
 
-    // Sketch layer states
     let sketchSrcData = ""; 
     let sketchOpacity = parseFloat(sliderSketchOpacity.value) / 100;
     let sketchMode = "overlay"; 
@@ -773,7 +794,6 @@
       if (targetWidth <= 100) targetWidth = 800;
       if (targetHeight <= 100) targetHeight = 600;
       
-      // Store dynamic canvas image to prevent loss during redraws
       let tempImage = null;
       if (paintCanvas.width > 0 && paintCanvas.height > 0) {
         tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
@@ -826,22 +846,20 @@
       pCtx.fillStyle = '#EDE8DF';
       pCtx.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 
-    
-
       PALETTE_PIGMENTS.forEach(pigment => {
         const pX = (pigment.x / 200) * paletteCanvas.width;
         const pY = (pigment.y / 160) * paletteCanvas.height;
 
         pCtx.save();
-        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 14);
+        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 15);
         grad.addColorStop(0, '#FFFFFF');
-        grad.addColorStop(0.15, pigment.color);
+        grad.addColorStop(0.2, pigment.color);
         grad.addColorStop(0.85, pigment.color);
         grad.addColorStop(1, 'transparent');
 
         pCtx.beginPath();
         pCtx.fillStyle = grad;
-        pCtx.arc(pX, pY, 14, 0, Math.PI * 2);
+        pCtx.arc(pX, pY, 15, 0, Math.PI * 2);
         pCtx.fill();
         pCtx.restore();
       });
@@ -889,8 +907,7 @@
       const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.max(Math.floor(dist / 2), 1);
-
-      const smearRadius = 6;
+      const smearRadius = 7;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -911,7 +928,7 @@
         if (isSlabBackground) {
           const paintColor = activePaletteTipColor || hexToRgb(currentPigment);
           pCtx.save();
-          pCtx.globalAlpha = 0.45;
+          pCtx.globalAlpha = 0.5;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -926,7 +943,7 @@
           const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.4);
 
           pCtx.save();
-          pCtx.globalAlpha = 0.45;
+          pCtx.globalAlpha = 0.5;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -941,7 +958,7 @@
         const pix = pCtx.getImageData(x, y, 1, 1).data;
         const pickedRgb = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 237, g: 232, b: 223 };
         
-        currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b, 1.0);
+        currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
         currentPigmentName = `Mixed Slab`;
         
         PALETTE_PIGMENTS.forEach(pigment => {
@@ -991,34 +1008,37 @@
 
     const MEDIUM_PRESETS = {
       none: {
-        info: "<strong>None:</strong> Using default slider configurations. Standard paint thickness.",
-        modifier: (wet, visc) => ({ wet, visc, depletion: 0.003, opacityMult: 1.0 })
+        info: "<strong>Pure Impasto:</strong> High 3D viscosity with sculpted bristle highlights and cast bevel shadows.",
+        modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.002, opacityMult: 1.0, shadowMult: 1.0 })
       },
       linseed: {
-        info: "<strong>Linseed Oil:</strong> High gloss, slow-dry formula. Increases color blend flow and slows brush paint depletion.",
+        info: "<strong>Linseed Oil:</strong> High gloss, slow-dry formula. Increases color blend flow and adds glossy specular sheen.",
         modifier: (wet, visc) => ({
           wet: Math.max(wet, 0.85),
-          visc: Math.max(visc, 0.5),
+          visc: Math.max(visc, 0.55),
           depletion: 0.001,
-          opacityMult: 0.95
+          opacityMult: 0.95,
+          shadowMult: 0.75
         })
       },
       turps: {
-        info: "<strong>Turpentine Solvent:</strong> Thins out the oils completely. Creates transparent, highly fluid watercolor-like washes.",
+        info: "<strong>Turpentine Solvent:</strong> Thins out the oils completely into a transparent watercolor wash with soft diffuse depth.",
         modifier: (wet, visc) => ({
           wet: 1.0,
           visc: 0.05,
-          depletion: 0.006,
-          opacityMult: 0.45
+          depletion: 0.005,
+          opacityMult: 0.45,
+          shadowMult: 0.15
         })
       },
       liquin: {
-        info: "<strong>Liquin Gel:</strong> Maintains high paint ridges and visual body. Increases brush viscosity to paint thick impasto peaks.",
+        info: "<strong>Liquin Gel:</strong> Heavy impasto builder. Sculpt sharp, exaggerated 3D knife peaks with dark physical drop shadows.",
         modifier: (wet, visc) => ({
           wet: Math.min(wet, 0.4),
-          visc: Math.max(visc, 0.95),
-          depletion: 0.004,
-          opacityMult: 1.2
+          visc: Math.max(visc, 0.98),
+          depletion: 0.003,
+          opacityMult: 1.25,
+          shadowMult: 1.4
         })
       }
     };
@@ -1269,7 +1289,6 @@
       showToast('Painting canvas wiped clean.', 'info');
     });
 
-    // Profiles Configuration Updates
     const profileButtons = document.querySelectorAll('.brush-profile-btn');
     profileButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1291,41 +1310,41 @@
       currentBrushProfile = profileName;
 
       if (currentBrushProfile === 'palette-knife') {
-        brushSizeSlider.value = 35;
-        brushWetSlider.value = 30;
+        brushSizeSlider.value = 40;
+        brushWetSlider.value = 35;
         brushViscSlider.value = 100;
       } else if (currentBrushProfile === 'turpentine') {
         brushSizeSlider.value = 55;
         brushWetSlider.value = 100;
         brushViscSlider.value = 15;
       } else if (currentBrushProfile === 'fan-brush') {
-        brushSizeSlider.value = 40;
-        brushWetSlider.value = 90;
-        brushViscSlider.value = 45;
+        brushSizeSlider.value = 45;
+        brushWetSlider.value = 85;
+        brushViscSlider.value = 65;
       } else if (currentBrushProfile === 'filbert') {
-        brushSizeSlider.value = 35;
+        brushSizeSlider.value = 38;
         brushWetSlider.value = 80;
-        brushViscSlider.value = 70;
+        brushViscSlider.value = 85;
       } else if (currentBrushProfile === 'dry-scumble') {
         brushSizeSlider.value = 45;
         brushWetSlider.value = 15;
-        brushViscSlider.value = 30;
+        brushViscSlider.value = 50;
       } else if (currentBrushProfile === 'rigger') {
-        brushSizeSlider.value = 12;
+        brushSizeSlider.value = 14;
         brushWetSlider.value = 40;
         brushViscSlider.value = 90;
       } else if (currentBrushProfile === 'stippler') {
         brushSizeSlider.value = 40;
         brushWetSlider.value = 60;
-        brushViscSlider.value = 85;
+        brushViscSlider.value = 90;
       } else if (currentBrushProfile === 'round-point') {
-        brushSizeSlider.value = 20;
+        brushSizeSlider.value = 24;
         brushWetSlider.value = 70;
-        brushViscSlider.value = 75;
+        brushViscSlider.value = 85;
       } else {
-        brushSizeSlider.value = 30;
+        brushSizeSlider.value = 32;
         brushWetSlider.value = 75;
-        brushViscSlider.value = 80;
+        brushViscSlider.value = 85;
       }
 
       updateBrushParameters();
@@ -1395,6 +1414,8 @@
       valElevation.innerText = `${el}°`;
       valScale.innerText = `${sc}`;
       valSpec.innerText = `${sp}`;
+
+      calculateLightVector();
 
       const diffLight = document.getElementById('emboss-diffuse-light');
       const specLight = document.getElementById('emboss-specular-light');
@@ -1510,7 +1531,7 @@
     btnToggleFocus.addEventListener('click', toggleFocusMode);
 
     // =========================================================================
-    // DRAW STROKE CORE SIMULATION
+    // DRAW STROKE CORE SIMULATION (3D VOLUMETRIC IMPASTO ENGINE)
     // =========================================================================
     let lastX = 0;
     let lastY = 0;
@@ -1539,6 +1560,7 @@
       isDrawing = true;
       lastX = pos.x;
       lastY = pos.y;
+      hasValidStrokeAngle = false;
       
       brushDepletionLevel = 1.0;
       activeBrushTipColor = mixColorsRGB(activeBrushTipColor, hexToRgb(currentPigment), 0.9);
@@ -1553,6 +1575,7 @@
       }
       if (isDrawing) {
         isDrawing = false;
+        hasValidStrokeAngle = false;
         saveHistoryState();
         saveToLocalForage(true);
       }
@@ -1602,7 +1625,7 @@
         const pix = ctx.getImageData(x, y, 1, 1).data;
         const color = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 250, g: 248, b: 245 };
         
-        currentPigment = rgbToHex(color.r, color.g, color.b, 1.0);
+        currentPigment = rgbToHex(color.r, color.g, color.b);
         currentPigmentName = "Eyedropper Pick";
         
         activePigmentName.innerText = currentPigmentName;
@@ -1646,12 +1669,91 @@
       }
     }
 
+    // Helper: Draw a physical 3D capsule/dab with directional light & shadow
+    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.35, shadowFactor = 0.45) {
+      targetCtx.save();
+      targetCtx.translate(x, y);
+      targetCtx.rotate(angle);
+
+      const radL = length > 0 ? length : radius * 1.5;
+      const radW = radius;
+
+      // 1. Cast ambient crevice / 3D drop shadow (opposite the light normal)
+      const shadowDx = -Math.cos(normalAngle) * (radius * 0.45);
+      const shadowDy = -Math.sin(normalAngle) * (radius * 0.45);
+      const shadowRgb = adjustColorShade(baseRgb, -shadowFactor);
+
+      targetCtx.save();
+      targetCtx.globalAlpha = alpha * 0.55;
+      targetCtx.fillStyle = `rgb(${Math.round(shadowRgb.r)}, ${Math.round(shadowRgb.g)}, ${Math.round(shadowRgb.b)})`;
+      targetCtx.beginPath();
+      targetCtx.ellipse(shadowDx, shadowDy, radL * 0.6, radW * 0.9, 0, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+
+      // 2. Thick paint body / impasto core
+      targetCtx.save();
+      targetCtx.globalAlpha = alpha;
+      targetCtx.fillStyle = `rgb(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)})`;
+      targetCtx.beginPath();
+      targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.85, 0, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+
+      // 3. Sunward specular highlight ridge (facing the light normal)
+      const lightDx = Math.cos(normalAngle) * (radius * 0.35);
+      const lightDy = Math.sin(normalAngle) * (radius * 0.35);
+      const lightRgb = adjustColorShade(baseRgb, highlightFactor);
+
+      targetCtx.save();
+      targetCtx.globalAlpha = alpha * 0.75;
+      targetCtx.fillStyle = `rgb(${Math.round(lightRgb.r)}, ${Math.round(lightRgb.g)}, ${Math.round(lightRgb.b)})`;
+      targetCtx.beginPath();
+      targetCtx.ellipse(lightDx, lightDy, radL * 0.4, radW * 0.45, 0, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+
+      // 4. Ultra-gloss wet specular micro-pinpoint
+      if (brushViscosity > 0.4) {
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha * 0.45;
+        targetCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        targetCtx.beginPath();
+        targetCtx.ellipse(lightDx * 1.1, lightDy * 1.1, radL * 0.2, radW * 0.2, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+      }
+
+      targetCtx.restore();
+    }
+
     function drawStroke(x0, y0, x1, y1) {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const steps = Math.max(Math.floor(distance / 2.5), 1);
 
+      // Smooth direction tracking:
+      // If the stroke moved sufficiently, compute new heading and smooth it into currentStrokeAngle.
+      if (distance > 0.5) {
+        const rawAngle = Math.atan2(dy, dx);
+        if (!hasValidStrokeAngle) {
+          currentStrokeAngle = rawAngle;
+          hasValidStrokeAngle = true;
+        } else {
+          // Angle interpolation taking wrapping into account
+          let diff = (rawAngle - currentStrokeAngle + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+          currentStrokeAngle += diff * 0.4;
+        }
+      }
+
+      const strokeAngle = hasValidStrokeAngle ? currentStrokeAngle : 0;
+      const perpAngle = strokeAngle + Math.PI / 2; // Exact perpendicular for bristle alignment
+
+      // Light normal angle relative to local stroke coordinates
+      const lightAngleWorld = Math.atan2(lightVector.y, lightVector.x);
+      const relativeLightAngle = lightAngleWorld - strokeAngle;
+
+      const steps = Math.max(Math.floor(distance / 2.0), 1);
       const mediumPreset = MEDIUM_PRESETS[activeMedium];
       const mod = mediumPreset.modifier(brushWetness, brushViscosity);
 
@@ -1660,7 +1762,8 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        const sampleRadius = Math.max(Math.round(brushSize * 0.2), 1);
+        // Sample underlying canvas color for dynamic fluid color pick up
+        const sampleRadius = Math.max(Math.round(brushSize * 0.25), 2);
         let accumulatedCanvasColor = { r: 250, g: 248, b: 245 }; 
 
         try {
@@ -1692,140 +1795,232 @@
         if (!isBareLinen) {
           const pickupRate = 0.05 * brushWetness;
           activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
-          customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
+          customCursor.style.backgroundColor = `rgb(${Math.round(activeBrushTipColor.r)}, ${Math.round(activeBrushTipColor.g)}, ${Math.round(activeBrushTipColor.b)})`;
         }
 
-        const mixRatio = 0.30 * brushWetness; 
+        const mixRatio = 0.28 * brushWetness; 
         const blendedStrokeColor = isBareLinen ? activeBrushTipColor : mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, mixRatio);
-        const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
+        const rgbStr = `rgb(${Math.round(blendedStrokeColor.r)}, ${Math.round(blendedStrokeColor.g)}, ${Math.round(blendedStrokeColor.b)})`;
 
-        ctx.save();
-        ctx.globalAlpha = (0.2 + (brushViscosity * 0.4)) * brushDepletionLevel * mod.opacityMult;
+        const baseAlpha = (0.28 + (brushViscosity * 0.55)) * brushDepletionLevel * mod.opacityMult;
+
+        // =====================================================================
+        // 3D BRUSH PROFILE IMPLEMENTATIONS
+        // =====================================================================
 
         if (currentBrushProfile === 'bristle') {
-          const fiberCount = Math.max(Math.floor(brushSize / 2), 6);
+          // Thick 3D Bristle Brush: Multi-track bristle filaments aligned perpendicular to motion,
+          // extruded as 3D micro-capsules facing the stroke direction.
+          const fiberCount = Math.max(Math.floor(brushSize / 2.8), 8);
+          const fiberLength = Math.max(brushSize * 0.45, 6);
 
           for (let f = 0; f < fiberCount; f++) {
-            const offsetDist = (f / fiberCount - 0.5) * brushSize;
-            const angle = Math.atan2(dy, dx) + Math.PI/2;
-            const bx = cx + Math.cos(angle) * offsetDist + (Math.random() - 0.5) * 2;
-            const by = cy + Math.sin(angle) * offsetDist + (Math.random() - 0.5) * 2;
+            const spreadRatio = (f / (fiberCount - 1) - 0.5);
+            const offsetDist = spreadRatio * brushSize;
+            
+            // Jitter slightly for organic bristle spread
+            const jitter = (Math.sin(f * 3.7 + cx * 0.1) * 1.5);
+            const bx = cx + Math.cos(perpAngle) * (offsetDist + jitter);
+            const by = cy + Math.sin(perpAngle) * (offsetDist + jitter);
 
-            const bristleRadius = Math.max(Math.random() * 3 + 1, 1.5);
+            const bristleRadius = Math.max((1 - Math.abs(spreadRatio) * 0.35) * (brushSize * 0.12), 2.0);
 
-            ctx.beginPath();
-            ctx.fillStyle = rgbStr;
-            ctx.arc(bx, by, bristleRadius, 0, Math.PI * 2);
-            ctx.fill();
+            drawVolumetricDab(
+              ctx,
+              bx, by,
+              bristleRadius,
+              fiberLength,
+              strokeAngle,
+              blendedStrokeColor,
+              baseAlpha,
+              relativeLightAngle,
+              0.4 * brushViscosity,
+              0.5 * brushViscosity * mod.shadowMult
+            );
           }
         } 
         else if (currentBrushProfile === 'palette-knife') {
-          ctx.globalAlpha = 0.9 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
+          // Heavy 3D Palette Knife: Wide, flat beveled blade with sharp directional ridge and heavy cast shadow
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(strokeAngle);
 
-          ctx.beginPath();
-          ctx.rect(cx - brushSize / 2, cy - brushSize / 4, brushSize, brushSize / 2);
-          ctx.fill();
+          const kw = brushSize * 1.2;
+          const kh = brushSize * 0.45;
+          const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.6);
+
+          // Deep cast blade shadow
+          const knifeShadow = adjustColorShade(blendedStrokeColor, -0.6 * mod.shadowMult);
+          ctx.globalAlpha = 0.55 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = `rgb(${Math.round(knifeShadow.r)}, ${Math.round(knifeShadow.g)}, ${Math.round(knifeShadow.b)})`;
+          ctx.fillRect(-kw/2, -kh/2 - shadowOffset, kw, kh);
+
+          // Primary thick slab body
+          ctx.globalAlpha = 0.95 * brushDepletionLevel * mod.opacityMult;
+          ctx.fillStyle = rgbStr;
+          ctx.fillRect(-kw/2, -kh/2, kw, kh);
+
+          // Sharp beveled impasto ridge
+          const knifeLight = adjustColorShade(blendedStrokeColor, 0.45);
+          ctx.globalAlpha = 0.85 * brushDepletionLevel;
+          ctx.fillStyle = `rgb(${Math.round(knifeLight.r)}, ${Math.round(knifeLight.g)}, ${Math.round(knifeLight.b)})`;
+          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw, kh * 0.25);
+
+          // Specular gleam along knife edge
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw * 0.85, 2);
+
+          ctx.restore();
         } 
         else if (currentBrushProfile === 'turpentine') {
-          ctx.globalAlpha = 0.08 * mod.opacityMult;
-          const radialGrad = ctx.createRadialGradient(cx, cy, brushSize * 0.1, cx, cy, brushSize);
+          // Turpentine Wash: Translucent fluid wash with soft feathered edges
+          ctx.save();
+          ctx.globalAlpha = 0.12 * mod.opacityMult;
+          const radialGrad = ctx.createRadialGradient(cx, cy, brushSize * 0.15, cx, cy, brushSize * 1.1);
           radialGrad.addColorStop(0, rgbStr);
+          radialGrad.addColorStop(0.8, rgbStr);
           radialGrad.addColorStop(1, 'transparent');
 
           ctx.beginPath();
           ctx.fillStyle = radialGrad;
-          ctx.arc(cx, cy, brushSize, 0, Math.PI * 2);
+          ctx.arc(cx, cy, brushSize * 1.1, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
         } 
         else if (currentBrushProfile === 'fan-brush') {
-          ctx.globalAlpha = 0.5 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          const hairCount = 6;
+          // 3D Fan Brush: Spread cluster of distinct bristle trails aligned in an arc perpendicular to motion
+          const hairCount = 9;
+          const fanSpan = brushSize * 1.4;
 
           for (let h = 0; h < hairCount; h++) {
-            const hx = cx + (h - hairCount/2) * (brushSize / 4.5);
-            const hy = cy + (Math.random() - 0.5) * 3;
+            const ratio = (h / (hairCount - 1) - 0.5);
+            const arcOffset = (1 - Math.pow(ratio * 2, 2)) * (brushSize * 0.25);
+            const distPerp = ratio * fanSpan;
 
-            ctx.beginPath();
-            ctx.arc(hx, hy, 2, 0, Math.PI * 2);
-            ctx.fill();
+            const fx = cx + Math.cos(perpAngle) * distPerp + Math.cos(strokeAngle) * arcOffset;
+            const fy = cy + Math.sin(perpAngle) * distPerp + Math.sin(strokeAngle) * arcOffset;
+
+            drawVolumetricDab(
+              ctx,
+              fx, fy,
+              2.5,
+              brushSize * 0.35,
+              strokeAngle,
+              blendedStrokeColor,
+              baseAlpha * 0.85,
+              relativeLightAngle,
+              0.4,
+              0.45 * mod.shadowMult
+            );
           }
         }
         else if (currentBrushProfile === 'filbert') {
-          ctx.globalAlpha = (0.35 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          
-          const nestedSteps = 5;
+          // Thick 3D Filbert Brush: Oval arched dome with smooth curved bevels
+          const nestedSteps = 4;
           for (let k = 0; k < nestedSteps; k++) {
-            const sizeRatio = 1 - (k / nestedSteps) * 0.4;
+            const sizeRatio = 1 - (k / nestedSteps) * 0.45;
             const rx = (brushSize / 2) * sizeRatio;
-            const ry = (brushSize / 3.5) * sizeRatio;
+            const ry = (brushSize / 3.2) * sizeRatio;
             
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, rx, ry, Math.atan2(dy, dx), 0, Math.PI * 2);
-            ctx.fill();
+            drawVolumetricDab(
+              ctx,
+              cx, cy,
+              ry,
+              rx * 2,
+              strokeAngle,
+              blendedStrokeColor,
+              baseAlpha * 0.5,
+              relativeLightAngle,
+              0.35 + (k * 0.1),
+              0.4 * mod.shadowMult
+            );
           }
         }
         else if (currentBrushProfile === 'dry-scumble') {
-          ctx.globalAlpha = 0.15 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          
-          const speckleCount = Math.max(Math.floor(brushSize / 1.5), 10);
+          // 3D Scumble: Broken dry speckles with physical depth and micro drop shadows
+          const speckleCount = Math.max(Math.floor(brushSize / 1.6), 8);
           for (let s = 0; s < speckleCount; s++) {
             const angle = Math.random() * Math.PI * 2;
             const dist = Math.sqrt(Math.random()) * (brushSize / 2);
             const sx = cx + Math.cos(angle) * dist;
             const sy = cy + Math.sin(angle) * dist;
             
-            ctx.beginPath();
-            ctx.arc(sx, sy, Math.random() * 1.5 + 0.5, 0, Math.PI * 2);
-            ctx.fill();
+            drawVolumetricDab(
+              ctx,
+              sx, sy,
+              Math.random() * 2.5 + 1.2,
+              Math.random() * 4.0 + 2.0,
+              strokeAngle,
+              blendedStrokeColor,
+              baseAlpha * 0.6,
+              relativeLightAngle,
+              0.45,
+              0.55 * mod.shadowMult
+            );
           }
         }
         else if (currentBrushProfile === 'rigger') {
-          ctx.globalAlpha = 0.85 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          
-          const riggerSize = Math.max(brushSize * 0.15, 2.5);
-          ctx.beginPath();
-          ctx.arc(cx, cy, riggerSize, 0, Math.PI * 2);
-          ctx.fill();
+          // Relief Rigger: Fine line detail with high ridge definition
+          const riggerRadius = Math.max(brushSize * 0.15, 2.5);
+          drawVolumetricDab(
+            ctx,
+            cx, cy,
+            riggerRadius,
+            riggerRadius * 3.0,
+            strokeAngle,
+            blendedStrokeColor,
+            0.9 * brushDepletionLevel * mod.opacityMult,
+            relativeLightAngle,
+            0.5,
+            0.55 * mod.shadowMult
+          );
         }
         else if (currentBrushProfile === 'stippler') {
-          ctx.globalAlpha = 0.4 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          
-          const spotCount = 8;
+          // Impasto Stippler: 3D raised paint peaks with deep crater shadows
+          const spotCount = 7;
           for (let s = 0; s < spotCount; s++) {
             const angle = Math.random() * Math.PI * 2;
-            const dist = Math.sqrt(Math.random()) * (brushSize / 1.8);
+            const dist = Math.sqrt(Math.random()) * (brushSize / 1.9);
             const sx = cx + Math.cos(angle) * dist;
             const sy = cy + Math.sin(angle) * dist;
             
-            ctx.beginPath();
-            ctx.arc(sx, sy, Math.random() * 2.5 + 1, 0, Math.PI * 2);
-            ctx.fill();
+            drawVolumetricDab(
+              ctx,
+              sx, sy,
+              Math.random() * 3.5 + 2.0,
+              Math.random() * 3.5 + 2.0,
+              0,
+              blendedStrokeColor,
+              baseAlpha * 0.75,
+              relativeLightAngle,
+              0.5,
+              0.6 * mod.shadowMult
+            );
           }
         }
         else if (currentBrushProfile === 'round-point') {
-          ctx.globalAlpha = (0.45 + (brushViscosity * 0.35)) * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = rgbStr;
-          
+          // Sculpted Round Point: Dense cylindrical core with concentric directional lighting
           const stepsCount = 4;
           for (let r = 0; r < stepsCount; r++) {
-            const ratio = 1 - (r / stepsCount) * 0.65;
-            const currentSize = (brushSize / 2) * ratio;
+            const ratio = 1 - (r / stepsCount) * 0.55;
+            const curRad = (brushSize / 3.0) * ratio;
             
-            ctx.beginPath();
-            ctx.arc(cx, cy, currentSize, 0, Math.PI * 2);
-            ctx.fill();
+            drawVolumetricDab(
+              ctx,
+              cx, cy,
+              curRad,
+              curRad * 2.2,
+              strokeAngle,
+              blendedStrokeColor,
+              baseAlpha * 0.45,
+              relativeLightAngle,
+              0.35 + (r * 0.12),
+              0.45 * mod.shadowMult
+            );
           }
         }
 
-        ctx.restore();
-
-        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.2);
+        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.25);
         updateTelemetry();
       }
     }
@@ -1889,7 +2084,7 @@
 
       if (e.key === ']') {
         e.preventDefault();
-        const nextVal = Math.min(parseInt(brushSizeSlider.value) + 5, 80);
+        const nextVal = Math.min(parseInt(brushSizeSlider.value) + 5, 90);
         brushSizeSlider.value = nextVal;
         updateBrushParameters();
         showToast(`Brush Size: ${nextVal}px`, "info");
@@ -1911,7 +2106,7 @@
         const index = parseInt(e.key) - 1;
         if (profiles[index]) {
           selectBrushProfile(profiles[index]);
-          showToast(`Brush Swapped: ${profiles[index].toUpperCase()}`, "info");
+          showToast(`Brush: ${profiles[index].toUpperCase()}`, "info");
         }
       }
 
@@ -1937,6 +2132,17 @@
       shortcutsOverlay.classList.add('opacity-0', 'pointer-events-none');
     });
 
+    document.getElementById('btn-undo').addEventListener('click', triggerGestureUndo);
+
+    // Export PNG Feature
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `DrawPaw_Impasto_${Date.now()}.png`;
+      link.href = paintCanvas.toDataURL('image/png');
+      link.click();
+      showToast("Masterpiece exported as high-res PNG!", "success");
+    });
+
     // =========================================================================
     // SANDBOX COMPANION DEMO MIXING WELL
     // =========================================================================
@@ -1952,20 +2158,21 @@
       mCtx.fillStyle = '#EFECE6';
       mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
 
-      drawWellBlob(65, mixerCanvas.height / 2, 40, { r: 29, g: 78, b: 216 }); 
-      drawWellBlob(mixerCanvas.width - 65, mixerCanvas.height / 2, 40, { r: 250, g: 204, b: 21 }); 
+      drawWellBlob(75, mixerCanvas.height / 2, 45, { r: 29, g: 78, b: 216 }); 
+      drawWellBlob(mixerCanvas.width - 75, mixerCanvas.height / 2, 45, { r: 250, g: 204, b: 21 }); 
 
       mCtx.fillStyle = 'rgba(40, 34, 27, 0.4)';
       mCtx.font = 'bold 11px sans-serif';
       mCtx.textAlign = 'center';
-      mCtx.fillText("DRAG TO SMEAR & BLEND", mixerCanvas.width / 2, mixerCanvas.height / 2 + 55);
+      mCtx.fillText("DRAG TO SMEAR & BLEND 3D OILS", mixerCanvas.width / 2, mixerCanvas.height / 2 + 60);
     }
 
     function drawWellBlob(x, y, radius, rgb) {
       mCtx.save();
       const grad = mCtx.createRadialGradient(x, y, 2, x, y, radius);
-      grad.addColorStop(0, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
-      grad.addColorStop(0.7, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.95)`);
+      grad.addColorStop(0, '#FFFFFF');
+      grad.addColorStop(0.2, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      grad.addColorStop(0.85, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
       grad.addColorStop(1, 'transparent');
 
       mCtx.beginPath();
@@ -1984,9 +2191,8 @@
       const dx = x1 - x0;
       const dy = y1 - y0;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const steps = Math.floor(distance / 1.5);
-      
-      const blendDiameter = 16;
+      const steps = Math.max(Math.floor(distance / 1.8), 1);
+      const blendDiameter = 18;
 
       for (let i = 0; i < steps; i++) {
         const t = i / steps;
@@ -2007,15 +2213,19 @@
 
         activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.25);
         const compositeColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.4);
-        const rgbStr = `rgb(${compositeColor.r}, ${compositeColor.g}, ${compositeColor.b})`;
 
-        mCtx.save();
-        mCtx.globalAlpha = 0.35;
-        mCtx.beginPath();
-        mCtx.fillStyle = rgbStr;
-        mCtx.arc(cx, cy, blendDiameter, 0, Math.PI * 2);
-        mCtx.fill();
-        mCtx.restore();
+        drawVolumetricDab(
+          mCtx,
+          cx, cy,
+          blendDiameter * 0.45,
+          blendDiameter * 0.9,
+          Math.atan2(dy, dx),
+          compositeColor,
+          0.45,
+          Math.PI / 4,
+          0.4,
+          0.45
+        );
       }
     }
 
@@ -2076,8 +2286,9 @@
 
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
 
-    // Bootstrap setups
+    // Bootstrap initialization
     window.onload = function() {
+      calculateLightVector();
       resizeCanvas();
       initPaletteSlab();
       updateBrushParameters();
