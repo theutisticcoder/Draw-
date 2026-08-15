@@ -702,35 +702,28 @@
         return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
       }
 
-      const hsvA = rgbToHsv(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
-      const hsvB = rgbToHsv(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
+      // Geometric RGB midpoint mixing to prevent hue corruption from HSV wrapping
+      // This naturally yields rich greens (Y+B), oranges (R+Y), and purples (R+B)
+      const mx = colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio;
+      const my = colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio;
+      const mz = colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio;
+      
+      // Scale the midpoint back to the average brightness of the two inputs
+      // This prevents the mix from collapsing into a dark gray/black
+      const avgBrightness = ((colorA_rgb.r + colorA_rgb.g + colorA_rgb.b) + 
+                             (colorB_rgb.r + colorB_rgb.g + colorB_rgb.b)) / (2 * 3);
+      const midpointBrightness = (mx + my + mz) / 3;
+      
+      let scale = 1;
+      if (midpointBrightness > 0) {
+        scale = avgBrightness / midpointBrightness;
+      }
 
-      // Map to artistic subtractive wheel for rich green/orange/violet mixes
-      const ahA = rgbHueToArtistHue(hsvA.h);
-      const ahB = rgbHueToArtistHue(hsvB.h);
+      const mixedR = Math.min(255, Math.max(0, mx * scale));
+      const mixedG = Math.min(255, Math.max(0, my * scale));
+      const mixedB = Math.min(255, Math.max(0, mz * scale));
 
-      let dh = ahB - ahA;
-      if (dh > 0.5) dh -= 1.0;
-      if (dh < -0.5) dh += 1.0;
-      let mixedAh = (ahA + dh * ratio) % 1.0;
-      if (mixedAh < 0) mixedAh += 1.0;
-
-      const mixedH = artistHueToRgbHue(mixedAh);
-
-      // Preserve pigment saturation — take the higher of the two sources
-      // then apply a small penalty proportional to how different the hues are
-      // This prevents the rapid washout that made everything white
-      const baseSat = Math.max(hsvA.s, hsvB.s);
-      const hueDistance = Math.abs(dh);
-      const saturationPenalty = hueDistance * 0.15;
-      const mixedS = Math.max(0.08, Math.min(1.0, baseSat - saturationPenalty));
-
-      // Subtractive density: two pigments absorb more light than either alone
-      // producing a natural darkening at the midpoint of the blend
-      const densityDarkening = 1.0 - Math.sin(ratio * Math.PI) * 0.10;
-      const mixedV = Math.max(0.08, (hsvA.v * (1 - ratio) + hsvB.v * ratio) * densityDarkening);
-
-      return hsvToRgb(mixedH, mixedS, mixedV);
+      return { r: Math.round(mixedR), g: Math.round(mixedG), b: Math.round(mixedB) };
     }
     
     function hexToRgb(hex) {
