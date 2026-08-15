@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,28 +98,33 @@
 </head>
 <body class="font-sans bg-linen-800 text-linen-50 overflow-hidden selection:bg-linen-400 selection:text-linen-900 h-screen flex flex-col">
 
-  <!-- SVG Oil Paint Embossing & Shading Filter -->
+  <!-- Calibrated SVG Impasto Shading Filter (Masked to Paint Shape, Zero White-Fog) -->
   <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <filter id="oil-emboss" x="-15%" y="-15%" width="130%" height="130%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="4" result="noise" />
-        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3.0 -0.2" result="highContrastNoise"/>
-        <feDisplacementMap in="SourceGraphic" in2="highContrastNoise" scale="6" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-        <feDiffuseLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="5.5" diffuseConstant="1.4" result="light">
-          <feDistantLight azimuth="135" elevation="50" id="emboss-diffuse-light" />
+      <filter id="oil-emboss" x="-10%" y="-10%" width="120%" height="120%">
+        <!-- Generate micro paint ridges only from paint pixels -->
+        <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="3" result="noise" />
+        <!-- Alpha-mask noise to stroke silhouette -->
+        <feComposite in="noise" in2="SourceAlpha" operator="in" result="maskedNoise"/>
+        <!-- Soft directional impasto relief light -->
+        <feDiffuseLighting in="maskedNoise" lighting-color="#fff5ea" surfaceScale="2.8" diffuseConstant="1.1" result="diffuseLight">
+          <feDistantLight azimuth="135" elevation="55" id="emboss-diffuse-light" />
         </feDiffuseLighting>
-        <feBlend mode="multiply" in="displaced" in2="light" result="litPaint"/>
-        <feSpecularLighting in="highContrastNoise" lighting-color="#ffffff" surfaceScale="4.5" specularConstant="1.4" specularExponent="24" result="spec">
-          <feDistantLight azimuth="135" elevation="50" id="emboss-specular-light" />
+        <!-- Blend diffuse shading directly into color without desaturating -->
+        <feBlend mode="multiply" in="SourceGraphic" in2="diffuseLight" result="shadedPaint"/>
+        <!-- Subtle localized specular ridge (no washed out screen layer) -->
+        <feSpecularLighting in="maskedNoise" lighting-color="#ffffff" surfaceScale="2.0" specularConstant="0.45" specularExponent="35" result="specularLight">
+          <feDistantLight azimuth="135" elevation="55" id="emboss-specular-light" />
         </feSpecularLighting>
-        <feBlend mode="screen" in="litPaint" in2="spec" result="final"/>
+        <feComposite in="specularLight" in2="SourceAlpha" operator="in" result="maskedSpec"/>
+        <feBlend mode="screen" in="shadedPaint" in2="maskedSpec" result="final"/>
       </filter>
     </defs>
   </svg>
 
   <!-- Custom Brush Pointer with Pressure Ring -->
   <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.5)] hidden pointer-events-none flex items-center justify-center">
-    <div id="cursor-pressure-core" class="w-1.5 h-1.5 rounded-full bg-white/80 transition-all"></div>
+    <div id="cursor-pressure-core" class="w-1.5 h-1.5 rounded-full bg-white/90 transition-all"></div>
   </div>
 
   <!-- Studio Toast Panel -->
@@ -147,7 +153,7 @@
         </div>
         <div>
           <h1 class="font-serif font-bold text-sm tracking-wide leading-none">DrawPaw</h1>
-          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">Pressure-Sensitive 3D Oil Studio</span>
+          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">Vibrant 3D Oil Studio</span>
         </div>
       </div>
 
@@ -183,8 +189,8 @@
       <!-- Control Bar -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
-          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (Wet-on-Wet Fluid Engine)</h2>
-          <span class="text-[10px] text-linen-400">Stylus pressure & tilt support with spectral color mixing and tactile 3D impasto relief.</span>
+          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (Pure Saturated Oils)</h2>
+          <span class="text-[10px] text-linen-400">Tactile 3D impasto with pure spectral pigment blending and pressure response.</span>
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
@@ -222,9 +228,9 @@
                 <i class="fa-solid fa-rotate-right"></i> Replenish
               </button>
             </div>
-            <p class="text-[9px] text-linen-400 leading-tight">Swirl paints to blend new pigments. Tap anywhere to load the mixed color onto your brush.</p>
+            <p class="text-[9px] text-linen-400 leading-tight">Swirl paints on the slab to blend new pure pigments. Tap anywhere to load the color.</p>
             <div class="relative w-full aspect-[4/3] rounded-lg bg-linen-100 overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
-              <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
+              <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-linen-200 to-linen-300 pointer-events-none"></div>
               <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
             </div>
             <div class="pt-1.5 border-t border-linen-800 flex justify-between items-center text-[10px]">
@@ -253,7 +259,7 @@
                 <span class="text-linen-300">Impasto Quality</span>
                 <div class="flex gap-1.5">
                   <button id="btn-res-high" class="px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold">High 3D</button>
-                  <button id="btn-res-fast" class="px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold">Fast</button>
+                  <button id="btn-res-fast" class="px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold">Flat 2D</button>
                 </div>
               </div>
             </div>
@@ -353,23 +359,16 @@
               <div class="space-y-0.5">
                 <div class="flex justify-between">
                   <span>Light Pitch (Elevation)</span>
-                  <span id="val-light-elevation" class="font-mono text-amber-400">50°</span>
+                  <span id="val-light-elevation" class="font-mono text-amber-400">55°</span>
                 </div>
-                <input type="range" id="input-light-elevation" min="15" max="90" value="50" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+                <input type="range" id="input-light-elevation" min="15" max="90" value="55" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
               <div class="space-y-0.5">
                 <div class="flex justify-between">
                   <span>Impasto Relief Depth</span>
-                  <span id="val-light-scale" class="font-mono text-amber-400">5.5</span>
+                  <span id="val-light-scale" class="font-mono text-amber-400">2.8</span>
                 </div>
-                <input type="range" id="input-light-scale" min="1.0" max="10.0" step="0.5" value="5.5" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
-              </div>
-              <div class="space-y-0.5">
-                <div class="flex justify-between">
-                  <span>Glossy Specular Sheen</span>
-                  <span id="val-light-spec" class="font-mono text-amber-400">26</span>
-                </div>
-                <input type="range" id="input-light-spec" min="5" max="50" value="26" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+                <input type="range" id="input-light-scale" min="0.5" max="6.0" step="0.2" value="2.8" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
               </div>
             </div>
           </div>
@@ -471,7 +470,7 @@
         </div>
 
         <div class="relative aspect-video w-full rounded-xl bg-[#E8E2D6] border-2 border-linen-700 shadow-inner overflow-hidden flex items-center justify-center">
-          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
+          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
           <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
           
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
@@ -489,7 +488,7 @@
             <span id="mixer-output-name" class="font-bold text-amber-300">Ready to blend</span>
           </div>
           <div class="flex items-center gap-3 text-[11px] text-linen-400">
-            <span><strong class="text-blue-400">Blue</strong> + <strong class="text-yellow-300">Yellow</strong> = <span class="text-emerald-400 font-semibold">Emerald</span></span>
+            <span><strong class="text-blue-400">Blue</strong> + <strong class="text-yellow-300">Yellow</strong> = <span class="text-emerald-400 font-semibold">Emerald Green</span></span>
             <span>•</span>
             <span><strong class="text-red-400">Red</strong> + <strong class="text-yellow-300">Yellow</strong> = <span class="text-amber-400 font-semibold">Cadmium Orange</span></span>
             <span>•</span>
@@ -636,14 +635,8 @@
     // =========================================================================
 
     function isBackgroundBoardColor(r, g, b) {
-      // Identifies dry board or raw canvas backgrounds (cream/linen tones)
       return (r > 218 && g > 212 && b > 200 && Math.abs(r - g) < 22 && Math.abs(g - b) < 22) ||
              (r === 0 && g === 0 && b === 0);
-    }
-
-    function isSpecularGlareColor(r, g, b) {
-      // Identifies artificial white highlights
-      return r > 248 && g > 248 && b > 248;
     }
 
     function rgbToHsv(r, g, b) {
@@ -689,7 +682,6 @@
       };
     }
 
-    // Convert standard RGB hue to traditional artistic Color-Wheel Hue (RYB mapping)
     function rgbHueToArtistHue(h) {
       const deg = h * 360;
       if (deg < 60) return (deg * 2) / 360; // Red to Yellow
@@ -708,10 +700,10 @@
 
     // Vibrant Subtractive-Pigment Oil Blending Function
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      if (isBackgroundBoardColor(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b) || isSpecularGlareColor(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b)) {
+      if (isBackgroundBoardColor(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b)) {
         return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
       }
-      if (isBackgroundBoardColor(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b) || isSpecularGlareColor(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b)) {
+      if (isBackgroundBoardColor(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b)) {
         return { r: colorB_rgb.r, g: colorB_rgb.g, b: colorB_rgb.b };
       }
 
@@ -730,7 +722,7 @@
       const mixedH = artistHueToRgbHue(mixedAh);
 
       const maxSaturation = Math.max(hsvA.s, hsvB.s);
-      const mixedS = Math.min(1.0, Math.max(maxSaturation * 0.94, (hsvA.s * (1 - ratio) + hsvB.s * ratio)));
+      const mixedS = Math.min(1.0, Math.max(maxSaturation * 0.95, (hsvA.s * (1 - ratio) + hsvB.s * ratio)));
       const mixedV = Math.max(20, (hsvA.v * (1 - ratio) + hsvB.v * ratio) * (1 - Math.sin(ratio * Math.PI) * 0.08));
 
       return hsvToRgb(mixedH, mixedS, mixedV);
@@ -920,7 +912,7 @@
         pCtx.save();
         const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 15);
         grad.addColorStop(0, pigment.color);
-        grad.addColorStop(0.85, pigment.color);
+        grad.addColorStop(0.9, pigment.color);
         grad.addColorStop(1, 'transparent');
 
         pCtx.beginPath();
@@ -967,7 +959,7 @@
       const dy = y1 - y0;
       const dist = Math.hypot(dx, dy);
       const steps = Math.max(Math.floor(dist / 2), 1);
-      const smearRadius = 8;
+      const smearRadius = 9;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -986,7 +978,7 @@
         if (!underlyingColor) {
           const paintColor = activePaletteTipColor || loadedReservoirColor;
           pCtx.save();
-          pCtx.globalAlpha = 0.55;
+          pCtx.globalAlpha = 0.65;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -997,13 +989,12 @@
             activePaletteTipColor = underlyingColor;
           }
 
-          activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.32);
-          const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.45);
+          activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.35);
 
           pCtx.save();
-          pCtx.globalAlpha = 0.65;
+          pCtx.globalAlpha = 0.75;
           pCtx.beginPath();
-          pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
+          pCtx.fillStyle = `rgb(${activePaletteTipColor.r}, ${activePaletteTipColor.g}, ${activePaletteTipColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
           pCtx.fill();
           pCtx.restore();
@@ -1136,7 +1127,6 @@
         lightAzimuth: document.getElementById('input-light-azimuth').value,
         lightElevation: document.getElementById('input-light-elevation').value,
         lightScale: document.getElementById('input-light-scale').value,
-        lightSpec: document.getElementById('input-light-spec').value,
         sidebarOnRight: studioGrid.classList.contains('xl:flex-row-reverse'),
         resModeFast: paintCanvas.classList.contains('filter-none')
       };
@@ -1189,7 +1179,6 @@
             document.getElementById('input-light-azimuth').value = bundle.lightAzimuth;
             document.getElementById('input-light-elevation').value = bundle.lightElevation;
             document.getElementById('input-light-scale').value = bundle.lightScale;
-            document.getElementById('input-light-spec').value = bundle.lightSpec;
             updateImpastoLighting();
           }
 
@@ -1458,30 +1447,25 @@
     const inputAzimuth = document.getElementById('input-light-azimuth');
     const inputElevation = document.getElementById('input-light-elevation');
     const inputScale = document.getElementById('input-light-scale');
-    const inputSpec = document.getElementById('input-light-spec');
 
     const valAzimuth = document.getElementById('val-light-azimuth');
     const valElevation = document.getElementById('val-light-elevation');
     const valScale = document.getElementById('val-light-scale');
-    const valSpec = document.getElementById('val-light-spec');
 
     function updateImpastoLighting() {
       const az = inputAzimuth.value;
       const el = inputElevation.value;
       const sc = inputScale.value;
-      const sp = inputSpec.value;
 
       valAzimuth.innerText = `${az}°`;
       valElevation.innerText = `${el}°`;
       valScale.innerText = `${sc}`;
-      valSpec.innerText = `${sp}`;
 
       calculateLightVector();
 
       const diffLight = document.getElementById('emboss-diffuse-light');
       const specLight = document.getElementById('emboss-specular-light');
       const diffuseNode = document.querySelector('#oil-emboss feDiffuseLighting');
-      const specularNode = document.querySelector('#oil-emboss feSpecularLighting');
 
       if (diffLight) {
         diffLight.setAttribute('azimuth', az);
@@ -1494,21 +1478,15 @@
       if (diffuseNode) {
         diffuseNode.setAttribute('surfaceScale', sc);
       }
-      if (specularNode) {
-        specularNode.setAttribute('surfaceScale', (parseFloat(sc) * 0.8).toFixed(1));
-        specularNode.setAttribute('specularExponent', sp);
-      }
     }
 
     inputAzimuth.addEventListener('input', updateImpastoLighting);
     inputElevation.addEventListener('input', updateImpastoLighting);
     inputScale.addEventListener('input', updateImpastoLighting);
-    inputSpec.addEventListener('input', updateImpastoLighting);
 
     inputAzimuth.addEventListener('change', () => saveToLocalForage(true));
     inputElevation.addEventListener('change', () => saveToLocalForage(true));
     inputScale.addEventListener('change', () => saveToLocalForage(true));
-    inputSpec.addEventListener('change', () => saveToLocalForage(true));
 
     // =========================================================================
     // ADJUSTABLE WORKSPACE LAYOUT CONTROLLERS
@@ -1745,59 +1723,35 @@
       }
     }
 
-    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.35, shadowFactor = 0.45, pressureMod = 1.0) {
+    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, shadowFactor = 0.35, pressureMod = 1.0) {
       targetCtx.save();
       targetCtx.translate(x, y);
       targetCtx.rotate(angle);
 
-      const radL = (length > 0 ? length : radius * 1.5) * (0.8 + pressureMod * 0.3);
-      const radW = radius * (0.8 + pressureMod * 0.4);
+      const radL = (length > 0 ? length : radius * 1.5) * (0.85 + pressureMod * 0.25);
+      const radW = radius * (0.85 + pressureMod * 0.3);
 
-      // 1. Directional cast shadow
-      const shadowDx = -Math.cos(normalAngle) * (radW * 0.45);
-      const shadowDy = -Math.sin(normalAngle) * (radW * 0.45);
+      // 1. Subtle cast bevel shadow (deepens edge relief)
+      const shadowDx = -Math.cos(normalAngle) * (radW * 0.35);
+      const shadowDy = -Math.sin(normalAngle) * (radW * 0.35);
       const shadowRgb = adjustColorShade(baseRgb, -shadowFactor);
 
       targetCtx.save();
-      targetCtx.globalAlpha = alpha * 0.55 * pressureMod;
+      targetCtx.globalAlpha = alpha * 0.4 * pressureMod;
       targetCtx.fillStyle = `rgb(${shadowRgb.r}, ${shadowRgb.g}, ${shadowRgb.b})`;
       targetCtx.beginPath();
-      targetCtx.ellipse(shadowDx, shadowDy, radL * 0.6, radW * 0.9, 0, 0, Math.PI * 2);
+      targetCtx.ellipse(shadowDx, shadowDy, radL * 0.6, radW * 0.85, 0, 0, Math.PI * 2);
       targetCtx.fill();
       targetCtx.restore();
 
-      // 2. Thick sculpted paint body
+      // 2. Thick sculpted pure paint body
       targetCtx.save();
       targetCtx.globalAlpha = alpha;
       targetCtx.fillStyle = `rgb(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b})`;
       targetCtx.beginPath();
-      targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.85, 0, 0, Math.PI * 2);
+      targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.8, 0, 0, Math.PI * 2);
       targetCtx.fill();
       targetCtx.restore();
-
-      // 3. Sunward specular highlight ridge
-      const lightDx = Math.cos(normalAngle) * (radW * 0.35);
-      const lightDy = Math.sin(normalAngle) * (radW * 0.35);
-      const lightRgb = adjustColorShade(baseRgb, highlightFactor);
-
-      targetCtx.save();
-      targetCtx.globalAlpha = alpha * 0.75 * pressureMod;
-      targetCtx.fillStyle = `rgb(${lightRgb.r}, ${lightRgb.g}, ${lightRgb.b})`;
-      targetCtx.beginPath();
-      targetCtx.ellipse(lightDx, lightDy, radL * 0.4, radW * 0.45, 0, 0, Math.PI * 2);
-      targetCtx.fill();
-      targetCtx.restore();
-
-      // 4. Wet specular micro-pinpoint
-      if (brushViscosity > 0.4) {
-        targetCtx.save();
-        targetCtx.globalAlpha = alpha * 0.45 * pressureMod;
-        targetCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        targetCtx.beginPath();
-        targetCtx.ellipse(lightDx * 1.1, lightDy * 1.1, radL * 0.2, radW * 0.2, 0, 0, Math.PI * 2);
-        targetCtx.fill();
-        targetCtx.restore();
-      }
 
       targetCtx.restore();
     }
@@ -1849,7 +1803,7 @@
             const g = sampleData.data[p+1];
             const b = sampleData.data[p+2];
 
-            if (alphaVal > 40 && !isBackgroundBoardColor(r, g, b) && !isSpecularGlareColor(r, g, b)) {
+            if (alphaVal > 40 && !isBackgroundBoardColor(r, g, b)) {
               rSum += r;
               gSum += g;
               bSum += b;
@@ -1867,15 +1821,15 @@
         } catch (e) {}
 
         if (accumulatedCanvasColor) {
-          const pickupRate = (0.045 + (1 - pressure) * 0.05) * brushWetness;
+          const pickupRate = (0.05 + (1 - pressure) * 0.05) * brushWetness;
           activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
-        const reservoirMixRatio = 0.12 * pressure * (1 - brushDepletionLevel);
+        const reservoirMixRatio = 0.14 * pressure * (1 - brushDepletionLevel);
         const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, loadedReservoirColor, reservoirMixRatio);
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
-        const baseAlpha = (0.35 + (brushViscosity * 0.5) + (pressure * 0.15)) * brushDepletionLevel * mod.opacityMult;
+        const baseAlpha = (0.45 + (brushViscosity * 0.45) + (pressure * 0.15)) * brushDepletionLevel * mod.opacityMult;
 
         // =====================================================================
         // 3D BRUSH PROFILE IMPLEMENTATIONS WITH PRESSURE
@@ -1904,8 +1858,7 @@
               blendedStrokeColor,
               baseAlpha,
               relativeLightAngle,
-              0.35 * brushViscosity,
-              0.45 * brushViscosity * mod.shadowMult,
+              0.35 * brushViscosity * mod.shadowMult,
               pressure
             );
           }
@@ -1917,9 +1870,9 @@
 
           const kw = dynamicBrushSize * 1.25;
           const kh = dynamicBrushSize * (0.35 + pressure * 0.2);
-          const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.6);
+          const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.4);
 
-          const knifeShadow = adjustColorShade(blendedStrokeColor, -0.6 * mod.shadowMult);
+          const knifeShadow = adjustColorShade(blendedStrokeColor, -0.45 * mod.shadowMult);
           ctx.globalAlpha = 0.55 * brushDepletionLevel * mod.opacityMult * pressure;
           ctx.fillStyle = `rgb(${knifeShadow.r}, ${knifeShadow.g}, ${knifeShadow.b})`;
           ctx.fillRect(-kw/2, -kh/2 - shadowOffset, kw, kh);
@@ -1928,22 +1881,14 @@
           ctx.fillStyle = rgbStr;
           ctx.fillRect(-kw/2, -kh/2, kw, kh);
 
-          const knifeLight = adjustColorShade(blendedStrokeColor, 0.45);
-          ctx.globalAlpha = 0.85 * brushDepletionLevel;
-          ctx.fillStyle = `rgb(${knifeLight.r}, ${knifeLight.g}, ${knifeLight.b})`;
-          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw, kh * 0.25);
-
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw * 0.85, 2);
-
           ctx.restore();
         } 
         else if (currentBrushProfile === 'turpentine') {
           ctx.save();
-          ctx.globalAlpha = (0.08 + pressure * 0.1) * mod.opacityMult;
+          ctx.globalAlpha = (0.1 + pressure * 0.12) * mod.opacityMult;
           const radialGrad = ctx.createRadialGradient(cx, cy, dynamicBrushSize * 0.15, cx, cy, dynamicBrushSize * 1.1);
           radialGrad.addColorStop(0, rgbStr);
-          radialGrad.addColorStop(0.8, rgbStr);
+          radialGrad.addColorStop(0.85, rgbStr);
           radialGrad.addColorStop(1, 'transparent');
 
           ctx.beginPath();
@@ -1973,8 +1918,7 @@
               blendedStrokeColor,
               baseAlpha * 0.85,
               relativeLightAngle,
-              0.4,
-              0.45 * mod.shadowMult,
+              0.35 * mod.shadowMult,
               pressure
             );
           }
@@ -1995,8 +1939,7 @@
               blendedStrokeColor,
               baseAlpha * 0.5,
               relativeLightAngle,
-              0.35 + (k * 0.1),
-              0.4 * mod.shadowMult,
+              0.35 * mod.shadowMult,
               pressure
             );
           }
@@ -2016,10 +1959,9 @@
               Math.random() * 4.0 + 2.0,
               strokeAngle,
               blendedStrokeColor,
-              baseAlpha * 0.6,
+              baseAlpha * 0.65,
               relativeLightAngle,
-              0.45,
-              0.55 * mod.shadowMult,
+              0.4 * mod.shadowMult,
               pressure
             );
           }
@@ -2033,10 +1975,9 @@
             riggerRadius * 3.0,
             strokeAngle,
             blendedStrokeColor,
-            0.9 * brushDepletionLevel * mod.opacityMult,
+            0.95 * brushDepletionLevel * mod.opacityMult,
             relativeLightAngle,
-            0.5,
-            0.55 * mod.shadowMult,
+            0.45 * mod.shadowMult,
             pressure
           );
         }
@@ -2055,10 +1996,9 @@
               Math.random() * 3.5 + 2.0,
               0,
               blendedStrokeColor,
-              baseAlpha * 0.75,
+              baseAlpha * 0.8,
               relativeLightAngle,
-              0.5,
-              0.6 * mod.shadowMult,
+              0.45 * mod.shadowMult,
               pressure
             );
           }
@@ -2076,10 +2016,9 @@
               curRad * 2.2,
               strokeAngle,
               blendedStrokeColor,
-              baseAlpha * 0.45,
+              baseAlpha * 0.55,
               relativeLightAngle,
-              0.35 + (r * 0.12),
-              0.45 * mod.shadowMult,
+              0.35 * mod.shadowMult,
               pressure
             );
           }
@@ -2250,8 +2189,8 @@
     function drawMixerWellDollop(x, y, radius, rgb) {
       mCtx.save();
       const grad = mCtx.createRadialGradient(x, y, 2, x, y, radius);
-      grad.addColorStop(0, `rgb(${Math.min(255, rgb.r + 30)}, ${Math.min(255, rgb.g + 30)}, ${Math.min(255, rgb.b + 30)})`);
-      grad.addColorStop(0.7, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      grad.addColorStop(0, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      grad.addColorStop(0.85, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
       grad.addColorStop(1, 'transparent');
 
       mCtx.beginPath();
@@ -2270,7 +2209,7 @@
       const dy = y1 - y0;
       const distance = Math.hypot(dx, dy);
       const steps = Math.max(Math.floor(distance / 2.0), 1);
-      const blendRadius = 16;
+      const blendRadius = 18;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -2285,7 +2224,7 @@
             const r = sample.data[p];
             const g = sample.data[p+1];
             const b = sample.data[p+2];
-            if (!isBackgroundBoardColor(r, g, b) && !isSpecularGlareColor(r, g, b)) {
+            if (!isBackgroundBoardColor(r, g, b)) {
               rSum += r; gSum += g; bSum += b; valid++;
             }
           }
@@ -2308,20 +2247,10 @@
 
         if (activeMixerTipColor) {
           mCtx.save();
-          mCtx.globalAlpha = 0.85;
+          mCtx.globalAlpha = 0.9;
           mCtx.fillStyle = `rgb(${activeMixerTipColor.r}, ${activeMixerTipColor.g}, ${activeMixerTipColor.b})`;
           mCtx.beginPath();
           mCtx.arc(cx, cy, blendRadius, 0, Math.PI * 2);
-          mCtx.fill();
-          mCtx.restore();
-
-          // Soft highlight edge on the wet oil slab
-          const litEdge = adjustColorShade(activeMixerTipColor, 0.25);
-          mCtx.save();
-          mCtx.globalAlpha = 0.4;
-          mCtx.fillStyle = `rgb(${litEdge.r}, ${litEdge.g}, ${litEdge.b})`;
-          mCtx.beginPath();
-          mCtx.arc(cx - 2, cy - 2, blendRadius * 0.55, 0, Math.PI * 2);
           mCtx.fill();
           mCtx.restore();
 
