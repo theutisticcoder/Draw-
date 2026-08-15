@@ -1,6 +1,4 @@
 
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -87,7 +85,7 @@
     #custom-brush-cursor {
       pointer-events: none;
       transform: translate(-50%, -50%);
-      transition: width 0.06s ease-out, height 0.06s ease-out;
+      transition: width 0.04s ease-out, height 0.04s ease-out;
       z-index: 9999;
     }
 
@@ -133,8 +131,10 @@
     </defs>
   </svg>
 
-  <!-- Custom Brush Pointer -->
-  <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.5)] hidden pointer-events-none"></div>
+  <!-- Custom Brush Pointer with Pressure Ring -->
+  <div id="custom-brush-cursor" class="fixed top-0 left-0 w-8 h-8 rounded-full border-2 border-white/90 shadow-[0_2px_10px_rgba(0,0,0,0.5)] hidden pointer-events-none flex items-center justify-center">
+    <div id="cursor-pressure-core" class="w-2 h-2 rounded-full bg-white/70 transition-transform"></div>
+  </div>
 
   <!-- Dynamic Studio Toast Notification Panel -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
@@ -162,7 +162,7 @@
         </div>
         <div>
           <h1 class="font-serif font-bold text-sm tracking-wide leading-none">DrawPaw</h1>
-          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">3D Impasto Oil Studio</span>
+          <span class="text-[9px] uppercase tracking-widest text-amber-800 font-bold">Subtractive 3D Oil Studio</span>
         </div>
       </div>
 
@@ -171,10 +171,10 @@
           <i class="fa-solid fa-paintbrush mr-1.5"></i>Studio Board
         </button>
         <button id="tab-btn-mixer" class="tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all" onclick="switchTab('mixer')">
-          <i class="fa-solid fa-arrows-spin mr-1.5"></i>Mixing Pad
+          <i class="fa-solid fa-arrows-spin mr-1.5"></i>Subtractive Mixing Pad
         </button>
         <button id="tab-btn-physics" class="tab-btn px-4 py-1 rounded text-linen-800 hover:text-linen-900 transition-all" onclick="switchTab('physics')">
-          <i class="fa-solid fa-flask mr-1.5"></i>3D Brush Physics
+          <i class="fa-solid fa-flask mr-1.5"></i>Color & Pressure Physics
         </button>
       </nav>
 
@@ -198,8 +198,8 @@
       <!-- Control Bar -->
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
-          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (3D Impasto Engine)</h2>
-          <span class="text-[10px] text-linen-400">Pure pigment preservation with true directional 3D relief lighting.</span>
+          <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (Subtractive Pigment Engine)</h2>
+          <span class="text-[10px] text-linen-400">Authentic Blue + Yellow = Green mixing with stylus & velocity pressure dynamics.</span>
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
@@ -231,19 +231,19 @@
           <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
             <div class="flex justify-between items-center">
               <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
-                <i class="fa-solid fa-palette"></i> Mixable Palette Slab
+                <i class="fa-solid fa-palette"></i> Subtractive Palette Slab
               </h3>
               <button id="btn-palette-reset" class="text-[9px] text-amber-400/80 hover:text-amber-300 flex items-center gap-0.5 font-semibold">
                 <i class="fa-solid fa-rotate-right"></i> Replenish
               </button>
             </div>
-            <p class="text-[9px] text-linen-400 leading-tight">Swirl your brush on the slab to blend paints. Tap anywhere to sample color.</p>
+            <p class="text-[9px] text-linen-400 leading-tight">Swirl paints to blend. Blue & Yellow produce rich greens!</p>
             <div class="relative w-full aspect-[4/3] rounded-lg bg-linen-100 overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-linen-200 to-linen-300 pointer-events-none"></div>
-              <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
+              <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10 touch-none"></canvas>
             </div>
             <div class="pt-1.5 border-t border-linen-800 flex justify-between items-center text-[10px]">
-              <span class="text-linen-400">Selected Color:</span>
+              <span class="text-linen-400">Loaded Pigment:</span>
               <div class="flex items-center gap-1.5">
                 <div id="active-color-swatch" class="w-3.5 h-3.5 rounded-full border border-white" style="background-color: #E11D48;"></div>
                 <span id="active-pigment-name" class="font-semibold text-amber-300">Cadmium Red</span>
@@ -265,10 +265,10 @@
                 </div>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-linen-300">Studio Resolution Mode</span>
+                <span class="text-linen-300">Pressure Response</span>
                 <div class="flex gap-1.5">
-                  <button id="btn-res-high" class="px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold">High 3D</button>
-                  <button id="btn-res-fast" class="px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold">Fast</button>
+                  <button id="btn-pressure-pen" class="px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold" title="Stylus / Apple Pencil hardware pressure">Stylus/Pen</button>
+                  <button id="btn-pressure-auto" class="px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold" title="Simulate dynamic pressure by stroke speed">Velocity</button>
                 </div>
               </div>
             </div>
@@ -277,15 +277,23 @@
           <!-- Brush Dynamics -->
           <div class="bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 space-y-2 shrink-0">
             <h3 class="text-[10px] uppercase tracking-wider text-amber-300 font-bold flex items-center gap-1">
-              <i class="fa-solid fa-paintbrush"></i> 3D Brush Dynamics
+              <i class="fa-solid fa-paintbrush"></i> 3D Brush & Pressure Dynamics
             </h3>
             <!-- Brush Size -->
             <div class="space-y-0.5 text-[10px]">
               <div class="flex justify-between">
-                <span>Size <kbd class="px-1 bg-linen-800 rounded">[ / ]</kbd></span>
+                <span>Base Size <kbd class="px-1 bg-linen-800 rounded">[ / ]</kbd></span>
                 <span id="val-brush-size" class="font-mono text-amber-400">32px</span>
               </div>
               <input type="range" id="input-brush-size" min="6" max="90" value="32" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
+            </div>
+            <!-- Pressure Sensitivity Curve -->
+            <div class="space-y-0.5 text-[10px]">
+              <div class="flex justify-between">
+                <span>Pressure Sensitivity Curve</span>
+                <span id="val-pressure-sens" class="font-mono text-amber-400">100%</span>
+              </div>
+              <input type="range" id="input-pressure-sens" min="0" max="200" value="100" class="w-full accent-amber-500 cursor-pointer bg-linen-800 rounded-lg">
             </div>
             <!-- Wetness / Pickup Ratio -->
             <div class="space-y-0.5 text-[10px]">
@@ -340,7 +348,7 @@
               </button>
             </div>
             <div id="active-medium-info" class="p-1.5 rounded bg-black/20 text-[9px] text-linen-300 leading-normal">
-              <strong>Pure Impasto:</strong> Maximum 3D thickness with vibrant saturated pigment and directional shading.
+              <strong>Pure Impasto:</strong> Subtractive pigment synthesis with tactile pressure relief.
             </div>
           </div>
 
@@ -392,7 +400,7 @@
             <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
-              <canvas id="oil-canvas" class="absolute inset-0 z-10 w-1000px h-800px cursor-none oil-texture"></canvas>
+              <canvas id="oil-canvas" class="absolute inset-0 z-10 w-1000px h-800px cursor-none oil-texture touch-none"></canvas>
               <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
               <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
               <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier 3D Board</div>
@@ -435,18 +443,18 @@
 
             <div class="md:col-span-6 bg-linen-900/60 backdrop-blur-md rounded-xl p-3 border border-linen-800 flex flex-col justify-between text-[11px] text-linen-300 gap-1.5">
               <div class="flex justify-between items-center border-b border-linen-800 pb-1">
-                <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> 3D Shading Diagnostics</span>
+                <span class="font-bold text-amber-300"><i class="fa-solid fa-wand-magic-sparkles"></i> 3D Pressure Diagnostics</span>
                 <span id="save-status-text" class="text-[9px] text-emerald-400 font-mono">Connected</span>
               </div>
               
               <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
-                <span>Brush Load: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
-                <span>Foreign Blend: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
-                <span>Purity: <strong id="telemetry-relief" class="text-emerald-400 font-mono">100%</strong></span>
+                <span>Applied Pressure: <strong id="telemetry-pressure" class="text-amber-400 font-mono">50%</strong></span>
+                <span>Subtractive Chroma: <strong id="telemetry-chroma" class="text-emerald-400 font-mono">Rich RYB</strong></span>
+                <span>Load: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
               </div>
               
               <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
-                <div><i class="fa-solid fa-hand-pointer text-amber-600"></i> Hold Canvas: <span class="text-linen-200">Pick Color</span></div>
+                <div><i class="fa-solid fa-pen-fancy text-amber-600"></i> Apple Pencil / Wacom: <span class="text-linen-200">Active</span></div>
                 <div><i class="fa-solid fa-hand text-amber-600"></i> 2-Finger Tap: <span class="text-linen-200">Undo</span></div>
               </div>
             </div>
@@ -463,8 +471,8 @@
       <div class="bg-linen-900/40 border border-linen-700/80 rounded-2xl p-6 shadow-xl space-y-4 max-w-2xl w-full">
         <div class="flex justify-between items-center border-b border-linen-800 pb-3">
           <div>
-            <h3 class="text-sm font-serif font-bold text-linen-50">Realtime Viscous Mixing Pad</h3>
-            <p class="text-[10px] text-linen-400 leading-tight">Drag colors across the wet canvas well to blend dynamic 3D oil paint.</p>
+            <h3 class="text-sm font-serif font-bold text-linen-50">Subtractive Pigment Mixing Pad</h3>
+            <p class="text-[10px] text-linen-400 leading-tight">Test physical oil mixing: Blue and Yellow blend directly into rich Green.</p>
           </div>
           <button id="btn-clear-mixer" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-bold">
             <i class="fa-solid fa-rotate-right"></i> Scrape Clean
@@ -472,12 +480,12 @@
         </div>
 
         <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-700 shadow-inner overflow-hidden flex items-center justify-center">
-          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
+          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10 touch-none"></canvas>
           <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
           
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
             <span class="bg-linen-900/95 text-white font-serif px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
-              Drag your finger across the colors to blend them!
+              Drag across Blue & Yellow to see physical Green mixing!
             </span>
           </div>
         </div>
@@ -494,8 +502,8 @@
           </div>
           <span class="text-linen-500 text-xs">=</span>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-yellow-300 rounded shadow-sm"></div>
-            <span class="text-xs font-semibold font-mono text-linen-100">Viscous Blend</span>
+            <div class="w-4 h-4 bg-emerald-600 rounded shadow-sm"></div>
+            <span class="text-xs font-semibold font-mono text-emerald-400">Vibrant Green</span>
           </div>
         </div>
       </div>
@@ -506,29 +514,29 @@
       <div class="max-w-3xl mx-auto space-y-8 bg-linen-900/30 border border-linen-800 p-8 rounded-2xl">
         <div class="space-y-3">
           <span class="text-xs uppercase tracking-widest text-amber-400 font-bold block">Physical Emulation Physics</span>
-          <h2 class="font-serif text-3xl font-bold leading-tight">Chroma Preservation & Self-Contamination Defense</h2>
+          <h2 class="font-serif text-3xl font-bold leading-tight">Subtractive RYB Color & Pressure Mechanics</h2>
           <p class="text-linen-200 text-xs leading-relaxed">
-            Standard digital painting engines turn muddy gray when sampling canvas pixels because the brush repeatedly swallows its own shadows and stroke edges. DrawPaw isolates the loaded reservoir, uses chroma-preserving color spaces, and filters out stroke lighting artifacts to ensure your oil paints remain luminous and saturated.
+            Unlike standard digital paint software that calculates additive RGB light (producing murky gray or purple when mixing yellow and blue), DrawPaw utilizes a true subtractive Red-Yellow-Blue (RYB) pigment interpolation model combined with real-time pressure dynamics.
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-droplet"></i>
+              <i class="fa-solid fa-palette"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">Chroma-Locked Blending</h4>
+            <h4 class="font-serif font-bold text-sm">Subtractive RYB Synthesis</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              Maintains maximum pigment saturation during cross-stroke mixing, preventing RGB linear degradation into murky gray.
+              Trilinear interpolation through artist pigment space. Yellow and Blue produce emerald greens; Red and Yellow produce vibrant oranges.
             </p>
           </div>
           <div class="space-y-2 bg-linen-900/60 p-4 rounded-xl border border-linen-800">
             <div class="w-8 h-8 rounded-lg bg-linen-800 flex items-center justify-center text-amber-400 shadow-sm">
-              <i class="fa-solid fa-shield-halved"></i>
+              <i class="fa-solid fa-pen-nib"></i>
             </div>
-            <h4 class="font-serif font-bold text-sm">Shadow & Highlight Filter</h4>
+            <h4 class="font-serif font-bold text-sm">Hardware & Velocity Pressure</h4>
             <p class="text-[11px] text-linen-400 leading-relaxed">
-              The color pickup pipeline filters out 3D bevel specular highlights and shadow grooves, reading solely the underlying pigment body.
+              Full PointerEvent pressure support for Apple Pencil, Surface Pen, and Wacom styluses with velocity-decay fallback for mice.
             </p>
           </div>
         </div>
@@ -549,11 +557,11 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-computer-mouse"></i> Tap & Touch Gestures</h4>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-computer-mouse"></i> Tap & Stylus Controls</h4>
           <ul class="space-y-1 list-disc list-inside text-linen-300">
-            <li><strong>Long Press (1 Second)</strong> on canvas: Eyedropper color pickup.</li>
+            <li><strong>Stylus Pressure</strong>: Light touch yields fine ridges; heavy touch deposits thick impasto paint.</li>
+            <li><strong>Long Press (1 Second)</strong>: Eyedropper color pickup.</li>
             <li><strong>Two-Finger Tap</strong>: Quick Undo last brush stroke.</li>
-            <li><strong>Double Tap Scrub</strong>: Securely wipes the canvas cleanly.</li>
           </ul>
         </div>
 
@@ -634,54 +642,75 @@
     }
 
     // =========================================================================
-    // COLOR UTILITIES & SATURATION-PRESERVING BLEND ENGINE
+    // SUBTRACTIVE RYB (RED-YELLOW-BLUE) PIGMENT MIXING ENGINE
     // =========================================================================
+    // Converts RGB to physical artist pigment space (RYB), mixes subtractively, 
+    // and converts back to RGB (e.g., Blue + Yellow = Green, Red + Yellow = Orange).
 
-    function rgbToHsv(r, g, b) {
+    function rgbToRyb(r, g, b) {
       r /= 255; g /= 255; b /= 255;
-      const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h, s, v = max;
-      const d = max - min;
-      s = max === 0 ? 0 : d / max;
+      const w = Math.min(r, g, b);
+      r -= w; g -= w; b -= w;
 
-      if (max === min) {
-        h = 0; // achromatic
-      } else {
-        switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
+      const maxG = Math.max(r, g, b);
+      let y = Math.min(r, g);
+      r -= y;
+      g -= y;
+
+      if (b > 0 && g > 0) {
+        b /= 2;
+        g /= 2;
       }
-      return { h, s, v };
-    }
+      y += g;
+      b += g;
 
-    function hsvToRgb(h, s, v) {
-      let r, g, b;
-      const i = Math.floor(h * 6);
-      const f = h * 6 - i;
-      const p = v * (1 - s);
-      const q = v * (1 - f * s);
-      const t = v * (1 - (1 - f) * s);
-
-      switch (i % 6) {
-        case 0: r = v; g = t; b = p; break;
-        case 1: r = q; g = v; b = p; break;
-        case 2: r = p; g = v; b = t; break;
-        case 3: r = p; g = q; b = v; break;
-        case 4: r = t; g = p; b = v; break;
-        case 5: r = v; g = p; b = q; break;
+      const maxRyb = Math.max(r, y, b);
+      if (maxRyb > 0 && maxG > 0) {
+        const factor = maxG / maxRyb;
+        r *= factor;
+        y *= factor;
+        b *= factor;
       }
+
       return {
-        r: Math.round(r * 255),
-        g: Math.round(g * 255),
-        b: Math.round(b * 255)
+        r: Math.min(1, r + w),
+        y: Math.min(1, y + w),
+        b: Math.min(1, b + w)
       };
     }
 
-    // Chroma-preserving blend: Prevents desaturating to gray when dragging colors
-    function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
+    function rybToRgb(r, y, b) {
+      const w = Math.min(r, y, b);
+      r -= w; y -= w; b -= w;
+
+      const maxRyb = Math.max(r, y, b);
+      let g = Math.min(y, b);
+      y -= g;
+      b -= g;
+
+      if (b > 0 && g > 0) {
+        b *= 2;
+        g *= 2;
+      }
+      r += y;
+      g += y;
+
+      const maxG = Math.max(r, g, b);
+      if (maxG > 0 && maxRyb > 0) {
+        const factor = maxRyb / maxG;
+        r *= factor;
+        g *= factor;
+        b *= factor;
+      }
+
+      return {
+        r: Math.round(Math.min(255, (r + w) * 255)),
+        g: Math.round(Math.min(255, (g + w) * 255)),
+        b: Math.round(Math.min(255, (b + w) * 255))
+      };
+    }
+
+    function mixColorsSubtractive(colorA_rgb, colorB_rgb, ratio) {
       const isBBackground = (colorB_rgb.r > 240 && colorB_rgb.g > 238 && colorB_rgb.b > 235) ||
                             (colorB_rgb.r === 0 && colorB_rgb.g === 0 && colorB_rgb.b === 0);
 
@@ -689,22 +718,29 @@
         return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
       }
 
-      const hsvA = rgbToHsv(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
-      const hsvB = rgbToHsv(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
+      const rybA = rgbToRyb(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
+      const rybB = rgbToRyb(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
 
-      // Shortest angle hue interpolation
-      let dh = hsvB.h - hsvA.h;
-      if (dh > 0.5) dh -= 1.0;
-      if (dh < -0.5) dh += 1.0;
-      let mixedH = (hsvA.h + dh * ratio) % 1.0;
-      if (mixedH < 0) mixedH += 1.0;
+      // Subtractive density weighting
+      const mixedRYB = {
+        r: rybA.r * (1 - ratio) + rybB.r * ratio,
+        y: rybA.y * (1 - ratio) + rybB.y * ratio,
+        b: rybA.b * (1 - ratio) + rybB.b * ratio
+      };
 
-      // Preserve the highest saturation of either pigment so color never turns gray!
-      const targetS = Math.max(hsvA.s, hsvB.s) * (1 - ratio * 0.15);
-      const mixedS = Math.max(hsvA.s * (1 - ratio) + hsvB.s * ratio, targetS * 0.9);
-      const mixedV = hsvA.v * (1 - ratio) + hsvB.v * ratio;
+      const resultRgb = rybToRgb(mixedRYB.r, mixedRYB.y, mixedRYB.b);
 
-      return hsvToRgb(mixedH, mixedS, mixedV);
+      // Boost saturation slightly so wet blends stay luminous
+      return boostChroma(resultRgb, 1.08);
+    }
+
+    function boostChroma(rgb, factor) {
+      const avg = (rgb.r + rgb.g + rgb.b) / 3;
+      return {
+        r: Math.min(255, Math.max(0, Math.round(avg + (rgb.r - avg) * factor))),
+        g: Math.min(255, Math.max(0, Math.round(avg + (rgb.g - avg) * factor))),
+        b: Math.min(255, Math.max(0, Math.round(avg + (rgb.b - avg) * factor)))
+      };
     }
 
     function hexToRgb(hex) {
@@ -757,21 +793,25 @@
     }
 
     // =========================================================================
-    // DYNAMIC BRUSH & CANVAS SIMULATOR
+    // DYNAMIC BRUSH & PRESSURE CONTROLLER
     // =========================================================================
 
     const activePigmentName = document.getElementById('active-pigment-name');
     const activeColorSwatch = document.getElementById('active-color-swatch');
     const brushSizeSlider = document.getElementById('input-brush-size');
     const brushSizeLabel = document.getElementById('val-brush-size');
+    const pressureSensSlider = document.getElementById('input-pressure-sens');
+    const pressureSensLabel = document.getElementById('val-pressure-sens');
     const brushWetSlider = document.getElementById('input-brush-wet');
     const brushWetLabel = document.getElementById('val-brush-wet');
     const brushViscSlider = document.getElementById('input-brush-visc');
     const brushViscLabel = document.getElementById('val-brush-visc');
     const customCursor = document.getElementById('custom-brush-cursor');
+    const cursorPressureCore = document.getElementById('cursor-pressure-core');
+    
+    const telemetryPressure = document.getElementById('telemetry-pressure');
     const telemetryLoad = document.getElementById('telemetry-load');
-    const telemetryDirty = document.getElementById('telemetry-dirty');
-    const telemetryRelief = document.getElementById('telemetry-relief');
+    const telemetryChroma = document.getElementById('telemetry-chroma');
     const saveStatusText = document.getElementById('save-status-text');
 
     const selectSketchPreset = document.getElementById('select-sketch-preset');
@@ -788,6 +828,7 @@
     let currentPigment = "#E11D48"; 
     let currentPigmentName = "Cadmium Red";
     let brushSize = parseInt(brushSizeSlider.value);
+    let pressureSensitivity = parseFloat(pressureSensSlider.value) / 100;
     let brushWetness = parseFloat(brushWetSlider.value) / 100;
     let brushViscosity = parseFloat(brushViscSlider.value) / 100;
     let currentBrushProfile = "bristle"; 
@@ -795,11 +836,16 @@
     let isDrawing = false;
     let historyStack = [];
 
-    // Smooth bristle direction tracking
+    // Pressure tracking
+    let currentPressure = 0.5;
+    let smoothedPressure = 0.5;
+    let isStylusActive = true;
+
+    // Direction tracking
     let currentStrokeAngle = 0;
     let hasValidStrokeAngle = false;
 
-    // Separate clean reservoir pigment from contaminated tip
+    // Pigment reservoirs
     let loadedReservoirColor = hexToRgb(currentPigment);
     let activeBrushTipColor = hexToRgb(currentPigment); 
     let brushDepletionLevel = 1.0; 
@@ -855,7 +901,7 @@
     }
 
     // =========================================================================
-    // MIXABLE PALETTE SLAB CANVAS LOGIC
+    // SUBTRACTIVE PALETTE SLAB CANVAS LOGIC
     // =========================================================================
     const paletteCanvas = document.getElementById('palette-well-canvas');
     const pCtx = paletteCanvas.getContext('2d', { willReadFrequently: true });
@@ -903,31 +949,25 @@
     let paletteLastY = 0;
     let activePaletteTipColor = null;
 
-    function handlePaletteMouseDown(e) {
+    function handlePalettePointerDown(e) {
       isSmudgingPalette = true;
       const rect = paletteCanvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
       const rw = rect.width || 1;
       const rh = rect.height || 1;
-      paletteLastX = (clientX - rect.left) * (paletteCanvas.width / rw);
-      paletteLastY = (clientY - rect.top) * (paletteCanvas.height / rh);
+      paletteLastX = (e.clientX - rect.left) * (paletteCanvas.width / rw);
+      paletteLastY = (e.clientY - rect.top) * (paletteCanvas.height / rh);
 
       samplePaletteColor(paletteLastX, paletteLastY);
     }
 
-    function handlePaletteMouseMove(e) {
+    function handlePalettePointerMove(e) {
       if (!isSmudgingPalette) return;
 
       const rect = paletteCanvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
       const rw = rect.width || 1;
       const rh = rect.height || 1;
-      const cx = (clientX - rect.left) * (paletteCanvas.width / rw);
-      const cy = (clientY - rect.top) * (paletteCanvas.height / rh);
+      const cx = (e.clientX - rect.left) * (paletteCanvas.width / rw);
+      const cy = (e.clientY - rect.top) * (paletteCanvas.height / rh);
 
       smudgePaletteColors(paletteLastX, paletteLastY, cx, cy);
       
@@ -940,7 +980,7 @@
       const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
       const steps = Math.max(Math.floor(dist / 2), 1);
-      const smearRadius = 7;
+      const smearRadius = 8;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -961,7 +1001,7 @@
         if (isSlabBackground) {
           const paintColor = activePaletteTipColor || loadedReservoirColor;
           pCtx.save();
-          pCtx.globalAlpha = 0.5;
+          pCtx.globalAlpha = 0.55;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -972,11 +1012,12 @@
             activePaletteTipColor = underlyingColor;
           }
 
-          activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.25);
-          const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.4);
+          // Subtractive blending on the palette slab!
+          activePaletteTipColor = mixColorsSubtractive(activePaletteTipColor, underlyingColor, 0.28);
+          const paintColor = mixColorsSubtractive(activePaletteTipColor, underlyingColor, 0.45);
 
           pCtx.save();
-          pCtx.globalAlpha = 0.5;
+          pCtx.globalAlpha = 0.6;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -1015,19 +1056,9 @@
       }
     }
 
-    paletteCanvas.addEventListener('mousedown', handlePaletteMouseDown);
-    paletteCanvas.addEventListener('mousemove', handlePaletteMouseMove);
-    window.addEventListener('mouseup', () => isSmudgingPalette = false);
-
-    paletteCanvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      handlePaletteMouseDown(e);
-    });
-    paletteCanvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      handlePaletteMouseMove(e);
-    });
-    window.addEventListener('touchend', () => isSmudgingPalette = false);
+    paletteCanvas.addEventListener('pointerdown', handlePalettePointerDown);
+    paletteCanvas.addEventListener('pointermove', handlePalettePointerMove);
+    window.addEventListener('pointerup', () => isSmudgingPalette = false);
 
     document.getElementById('btn-palette-reset').addEventListener('click', () => {
       initPaletteSlab();
@@ -1391,10 +1422,12 @@
       const mod = MEDIUM_PRESETS[activeMedium].modifier(baseWet, baseVisc);
 
       brushSize = parseInt(brushSizeSlider.value);
+      pressureSensitivity = parseFloat(pressureSensSlider.value) / 100;
       brushWetness = mod.wet;
       brushViscosity = mod.visc;
 
       brushSizeLabel.innerText = `${brushSize}px`;
+      pressureSensLabel.innerText = `${Math.round(pressureSensitivity * 100)}%`;
       brushWetLabel.innerText = `${Math.round(brushWetness * 100)}%`;
       brushViscLabel.innerText = `${Math.round(brushViscosity * 100)}%`;
 
@@ -1402,26 +1435,23 @@
     }
 
     brushSizeSlider.addEventListener('input', updateBrushParameters);
+    pressureSensSlider.addEventListener('input', updateBrushParameters);
     brushWetSlider.addEventListener('input', updateBrushParameters);
     brushViscSlider.addEventListener('input', updateBrushParameters);
 
-    function updateCursorSize() {
-      customCursor.style.width = `${brushSize}px`;
-      customCursor.style.height = `${brushSize}px`;
+    function updateCursorSize(scale = 1.0) {
+      const displaySize = brushSize * scale;
+      customCursor.style.width = `${displaySize}px`;
+      customCursor.style.height = `${displaySize}px`;
+      cursorPressureCore.style.transform = `scale(${smoothedPressure * 1.5})`;
     }
 
     function updateTelemetry() {
       if (telemetryLoad) {
         telemetryLoad.innerText = `${Math.round(brushDepletionLevel * 100)}%`;
       }
-      
-      if (telemetryDirty) {
-        const orig = loadedReservoirColor;
-        const diff = Math.abs(activeBrushTipColor.r - orig.r) + 
-                     Math.abs(activeBrushTipColor.g - orig.g) + 
-                     Math.abs(activeBrushTipColor.b - orig.b);
-        const dirtyPercent = Math.min(Math.round((diff / 765) * 100), 100);
-        telemetryDirty.innerText = `${dirtyPercent}%`;
+      if (telemetryPressure) {
+        telemetryPressure.innerText = `${Math.round(smoothedPressure * 100)}%`;
       }
     }
 
@@ -1488,6 +1518,8 @@
     // =========================================================================
     const btnSidebarLeft = document.getElementById('btn-sidebar-left');
     const btnSidebarRight = document.getElementById('btn-sidebar-right');
+    const btnPressurePen = document.getElementById('btn-pressure-pen');
+    const btnPressureAuto = document.getElementById('btn-pressure-auto');
     const btnResHigh = document.getElementById('btn-res-high');
     const btnResFast = document.getElementById('btn-res-fast');
     const btnToggleFocus = document.getElementById('btn-toggle-focus');
@@ -1517,6 +1549,20 @@
     btnSidebarRight.addEventListener('click', () => {
       toggleSidebarSide(true);
       saveToLocalForage(true);
+    });
+
+    btnPressurePen.addEventListener('click', () => {
+      isStylusActive = true;
+      btnPressurePen.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+      btnPressureAuto.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
+      showToast("Pressure Mode: Stylus / Apple Pencil hardware priority", "info");
+    });
+
+    btnPressureAuto.addEventListener('click', () => {
+      isStylusActive = false;
+      btnPressureAuto.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+      btnPressurePen.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
+      showToast("Pressure Mode: Dynamic stroke velocity", "info");
     });
 
     function toggleResolutionMode(isFast) {
@@ -1565,45 +1611,59 @@
     btnToggleFocus.addEventListener('click', toggleFocusMode);
 
     // =========================================================================
-    // DRAW STROKE CORE SIMULATION (3D VOLUMETRIC IMPASTO ENGINE)
+    // DRAW STROKE CORE SIMULATION WITH PRESSURE & SUBTRACTIVE MIXING
     // =========================================================================
     let lastX = 0;
     let lastY = 0;
+    let lastTime = 0;
     let touchStartTime = 0;
     let touchStartPos = { x: 0, y: 0 };
     let eyedropperTimer = null;
 
+    function extractPressure(e) {
+      if (isStylusActive && e.pressure && e.pressure > 0 && e.pressure !== 0.5) {
+        return e.pressure;
+      }
+      // Velocity-based dynamic pressure emulation for mouse/standard touch
+      const now = performance.now();
+      const dt = Math.max(now - lastTime, 10);
+      const dist = Math.sqrt(Math.pow(e.clientX - lastX, 2) + Math.pow(e.clientY - lastY, 2));
+      const speed = dist / dt;
+      lastTime = now;
+
+      // Faster motion = lighter stroke; steady motion = heavy impasto
+      const velocityPressure = Math.max(0.2, Math.min(1.0, 1.2 - speed * 0.35));
+      return e.pressure > 0 && e.pressure !== 0.5 ? e.pressure : velocityPressure;
+    }
+
     function startDrawing(e) {
-      if (e.touches && e.touches.length === 2) {
-        isDrawing = false;
-        triggerGestureUndo();
-        return;
-      }
+      e.preventDefault();
+      const pos = getPointerPos(paintCanvas, e);
 
-      const pos = getMousePos(paintCanvas, e);
-
-      if (e.touches) {
-        touchStartTime = Date.now();
-        touchStartPos = { x: pos.x, y: pos.y };
-        if (eyedropperTimer) clearTimeout(eyedropperTimer);
-        eyedropperTimer = setTimeout(() => {
-          activateEyedropper(touchStartPos.x, touchStartPos.y);
-        }, 800);
-      }
+      // Stylus or touch long-press for eyedropper
+      touchStartTime = Date.now();
+      touchStartPos = { x: pos.x, y: pos.y };
+      if (eyedropperTimer) clearTimeout(eyedropperTimer);
+      eyedropperTimer = setTimeout(() => {
+        activateEyedropper(touchStartPos.x, touchStartPos.y);
+      }, 750);
 
       isDrawing = true;
       lastX = pos.x;
       lastY = pos.y;
+      lastTime = performance.now();
       hasValidStrokeAngle = false;
+
+      currentPressure = extractPressure(e);
+      smoothedPressure = currentPressure;
       
       brushDepletionLevel = 1.0;
-      // Re-dip into fresh reservoir paint at the start of every stroke
       activeBrushTipColor = { ...loadedReservoirColor };
 
-      drawStroke(pos.x, pos.y, pos.x, pos.y);
+      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
     }
 
-    function stopDrawing() {
+    function stopDrawing(e) {
       if (eyedropperTimer) {
         clearTimeout(eyedropperTimer);
         eyedropperTimer = null;
@@ -1617,39 +1677,44 @@
     }
 
     function draw(e) {
-      if (e.touches && e.touches.length > 1) {
-        stopDrawing();
-        return;
-      }
-
-      const pos = getMousePos(paintCanvas, e);
-
-      if (e.touches) {
-        const dist = Math.sqrt(Math.pow(pos.x - touchStartPos.x, 2) + Math.pow(pos.y - touchStartPos.y, 2));
-        if (dist > 10 && eyedropperTimer) {
-          clearTimeout(eyedropperTimer);
-          eyedropperTimer = null;
-        }
-      }
-
       if (!isDrawing) return;
-      drawStroke(lastX, lastY, pos.x, pos.y);
+      e.preventDefault();
+
+      const pos = getPointerPos(paintCanvas, e);
+
+      const dist = Math.sqrt(Math.pow(pos.x - touchStartPos.x, 2) + Math.pow(pos.y - touchStartPos.y, 2));
+      if (dist > 8 && eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+
+      const rawP = extractPressure(e);
+      // Smooth pressure transitions across stroke segments
+      smoothedPressure += (rawP - smoothedPressure) * 0.35;
+
+      drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
       lastX = pos.x;
       lastY = pos.y;
+
+      updateCursorSize(getEffectiveSizeRatio(smoothedPressure));
+      updateTelemetry();
     }
 
-    function getMousePos(canvas, evt) {
+    function getPointerPos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
-      const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-      const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-      
       const rw = rect.width || 1;
       const rh = rect.height || 1;
-      
       return {
-        x: (clientX - rect.left) * (canvas.width / rw),
-        y: (clientY - rect.top) * (canvas.height / rh)
+        x: (evt.clientX - rect.left) * (canvas.width / rw),
+        y: (evt.clientY - rect.top) * (canvas.height / rh)
       };
+    }
+
+    function getEffectiveSizeRatio(pressure) {
+      if (pressureSensitivity === 0) return 1.0;
+      // Pressure curve: maps 0.0-1.0 pressure to width modulation
+      const curve = Math.pow(pressure, 0.85);
+      return 0.35 + curve * (0.65 + pressureSensitivity * 0.5);
     }
 
     // Eyedropper sampling tool
@@ -1686,7 +1751,7 @@
           eyedropperPreview.classList.add('hidden');
         }, 1200);
 
-        showToast("Eyedropper sampled canvas color!", "success");
+        showToast("Eyedropper sampled canvas pigment!", "success");
         updateTelemetry();
       } catch (err) {
         console.warn("Eyedropper boundary exception handled.");
@@ -1699,28 +1764,28 @@
         const lastState = historyStack[historyStack.length - 1];
         ctx.putImageData(lastState, 0, 0);
         saveToLocalForage(true);
-        showToast("Gestures: Undone stroke!", "info");
+        showToast("Undone last stroke!", "info");
       } else {
         ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
       }
     }
 
-    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.35, shadowFactor = 0.45) {
+    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.35, shadowFactor = 0.45, pressureMult = 1.0) {
       targetCtx.save();
       targetCtx.translate(x, y);
       targetCtx.rotate(angle);
 
-      const radL = length > 0 ? length : radius * 1.5;
-      const radW = radius;
+      const radL = (length > 0 ? length : radius * 1.5) * pressureMult;
+      const radW = radius * pressureMult;
 
       // 1. Cast ambient crevice / 3D drop shadow
-      const shadowDx = -Math.cos(normalAngle) * (radius * 0.45);
-      const shadowDy = -Math.sin(normalAngle) * (radius * 0.45);
+      const shadowDx = -Math.cos(normalAngle) * (radW * 0.45);
+      const shadowDy = -Math.sin(normalAngle) * (radW * 0.45);
       const shadowRgb = adjustColorShade(baseRgb, -shadowFactor);
 
       targetCtx.save();
       targetCtx.globalAlpha = alpha * 0.55;
-      targetCtx.fillStyle = `rgb(${Math.round(shadowRgb.r)}, ${Math.round(shadowRgb.g)}, ${Math.round(shadowRgb.b)})`;
+      targetCtx.fillStyle = `rgb(${shadowRgb.r}, ${shadowRgb.g}, ${shadowRgb.b})`;
       targetCtx.beginPath();
       targetCtx.ellipse(shadowDx, shadowDy, radL * 0.6, radW * 0.9, 0, 0, Math.PI * 2);
       targetCtx.fill();
@@ -1729,29 +1794,29 @@
       // 2. Thick paint body / impasto core
       targetCtx.save();
       targetCtx.globalAlpha = alpha;
-      targetCtx.fillStyle = `rgb(${Math.round(baseRgb.r)}, ${Math.round(baseRgb.g)}, ${Math.round(baseRgb.b)})`;
+      targetCtx.fillStyle = `rgb(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b})`;
       targetCtx.beginPath();
       targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.85, 0, 0, Math.PI * 2);
       targetCtx.fill();
       targetCtx.restore();
 
       // 3. Sunward specular highlight ridge
-      const lightDx = Math.cos(normalAngle) * (radius * 0.35);
-      const lightDy = Math.sin(normalAngle) * (radius * 0.35);
+      const lightDx = Math.cos(normalAngle) * (radW * 0.35);
+      const lightDy = Math.sin(normalAngle) * (radW * 0.35);
       const lightRgb = adjustColorShade(baseRgb, highlightFactor);
 
       targetCtx.save();
       targetCtx.globalAlpha = alpha * 0.75;
-      targetCtx.fillStyle = `rgb(${Math.round(lightRgb.r)}, ${Math.round(lightRgb.g)}, ${Math.round(lightRgb.b)})`;
+      targetCtx.fillStyle = `rgb(${lightRgb.r}, ${lightRgb.g}, ${lightRgb.b})`;
       targetCtx.beginPath();
       targetCtx.ellipse(lightDx, lightDy, radL * 0.4, radW * 0.45, 0, 0, Math.PI * 2);
       targetCtx.fill();
       targetCtx.restore();
 
       // 4. Wet specular micro-pinpoint
-      if (brushViscosity > 0.4) {
+      if (brushViscosity > 0.4 && pressureMult > 0.6) {
         targetCtx.save();
-        targetCtx.globalAlpha = alpha * 0.45;
+        targetCtx.globalAlpha = alpha * 0.5;
         targetCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         targetCtx.beginPath();
         targetCtx.ellipse(lightDx * 1.1, lightDy * 1.1, radL * 0.2, radW * 0.2, 0, 0, Math.PI * 2);
@@ -1762,7 +1827,7 @@
       targetCtx.restore();
     }
 
-    function drawStroke(x0, y0, x1, y1) {
+    function drawStroke(x0, y0, x1, y1, pressure) {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1788,17 +1853,20 @@
       const mediumPreset = MEDIUM_PRESETS[activeMedium];
       const mod = mediumPreset.modifier(brushWetness, brushViscosity);
 
+      // Modulate size and body by active pressure
+      const pScale = getEffectiveSizeRatio(pressure);
+      const dynamicSize = brushSize * pScale;
+
       for (let i = 0; i <= steps; i++) {
         const t = steps === 0 ? 0 : i / steps;
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        // Sample canvas ahead to pick up foreign colors without swallowing own stroke artifacts
-        const sampleRadius = Math.max(Math.round(brushSize * 0.35), 3);
+        // Sample underlying canvas paint
+        const sampleRadius = Math.max(Math.round(dynamicSize * 0.35), 3);
         let accumulatedCanvasColor = null; 
 
         try {
-          // Sample slightly offset to read canvas paint instead of exact center
           const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, sampleRadius, sampleRadius);
           let rSum = 0, gSum = 0, bSum = 0, validPixels = 0;
           
@@ -1808,8 +1876,6 @@
               const r = sampleData.data[p];
               const g = sampleData.data[p+1];
               const b = sampleData.data[p+2];
-
-              // Filter out pure white highlights & pure black shadows from color pickup
               const brightness = (r + g + b) / 3;
               if (brightness > 25 && brightness < 245) {
                 rSum += r;
@@ -1829,42 +1895,41 @@
           }
         } catch (e) {}
 
-        // Self-Contamination Defense: Only pick up foreign pigments that are genuinely different
+        // Subtractive color pickup on canvas collision
         if (accumulatedCanvasColor) {
           const colorDiff = Math.abs(accumulatedCanvasColor.r - activeBrushTipColor.r) +
                             Math.abs(accumulatedCanvasColor.g - activeBrushTipColor.g) +
                             Math.abs(accumulatedCanvasColor.b - activeBrushTipColor.b);
 
-          // If it's a noticeably different foreign color on canvas, blend it cleanly!
-          if (colorDiff > 45) {
-            const pickupRate = 0.035 * brushWetness;
-            activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
+          if (colorDiff > 40) {
+            const pickupRate = 0.04 * brushWetness * pressure;
+            activeBrushTipColor = mixColorsSubtractive(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
             customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
           }
         }
 
-        // Active stroke color anchors to reservoir to prevent saturation degradation
-        const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, loadedReservoirColor, 0.15 * (1 - brushDepletionLevel));
+        // Anchor slightly to reservoir so strokes retain pure paint body
+        const blendedStrokeColor = mixColorsSubtractive(activeBrushTipColor, loadedReservoirColor, 0.12 * (1 - brushDepletionLevel));
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
-        const baseAlpha = (0.35 + (brushViscosity * 0.55)) * brushDepletionLevel * mod.opacityMult;
+        const baseAlpha = (0.35 + (brushViscosity * 0.55)) * brushDepletionLevel * mod.opacityMult * Math.min(1.0, pressure + 0.25);
 
         // =====================================================================
-        // 3D BRUSH PROFILE IMPLEMENTATIONS
+        // 3D BRUSH PROFILE RENDERERS WITH PRESSURE SCALING
         // =====================================================================
 
         if (currentBrushProfile === 'bristle') {
-          const fiberCount = Math.max(Math.floor(brushSize / 2.8), 8);
-          const fiberLength = Math.max(brushSize * 0.45, 6);
+          const fiberCount = Math.max(Math.floor(dynamicSize / 2.8), 8);
+          const fiberLength = Math.max(dynamicSize * 0.45, 6);
 
           for (let f = 0; f < fiberCount; f++) {
             const spreadRatio = (f / (fiberCount - 1) - 0.5);
-            const offsetDist = spreadRatio * brushSize;
+            const offsetDist = spreadRatio * dynamicSize;
             
             const jitter = (Math.sin(f * 3.7 + cx * 0.1) * 1.5);
             const bx = cx + Math.cos(perpAngle) * (offsetDist + jitter);
             const by = cy + Math.sin(perpAngle) * (offsetDist + jitter);
 
-            const bristleRadius = Math.max((1 - Math.abs(spreadRatio) * 0.35) * (brushSize * 0.12), 2.0);
+            const bristleRadius = Math.max((1 - Math.abs(spreadRatio) * 0.35) * (dynamicSize * 0.12), 2.0);
 
             drawVolumetricDab(
               ctx,
@@ -1876,7 +1941,8 @@
               baseAlpha,
               relativeLightAngle,
               0.35 * brushViscosity,
-              0.45 * brushViscosity * mod.shadowMult
+              0.45 * brushViscosity * mod.shadowMult,
+              pScale
             );
           }
         } 
@@ -1885,13 +1951,13 @@
           ctx.translate(cx, cy);
           ctx.rotate(strokeAngle);
 
-          const kw = brushSize * 1.2;
-          const kh = brushSize * 0.45;
+          const kw = dynamicSize * 1.2;
+          const kh = dynamicSize * 0.45;
           const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.6);
 
           const knifeShadow = adjustColorShade(blendedStrokeColor, -0.6 * mod.shadowMult);
           ctx.globalAlpha = 0.55 * brushDepletionLevel * mod.opacityMult;
-          ctx.fillStyle = `rgb(${Math.round(knifeShadow.r)}, ${Math.round(knifeShadow.g)}, ${Math.round(knifeShadow.b)})`;
+          ctx.fillStyle = `rgb(${knifeShadow.r}, ${knifeShadow.g}, ${knifeShadow.b})`;
           ctx.fillRect(-kw/2, -kh/2 - shadowOffset, kw, kh);
 
           ctx.globalAlpha = 0.95 * brushDepletionLevel * mod.opacityMult;
@@ -1900,7 +1966,7 @@
 
           const knifeLight = adjustColorShade(blendedStrokeColor, 0.45);
           ctx.globalAlpha = 0.85 * brushDepletionLevel;
-          ctx.fillStyle = `rgb(${Math.round(knifeLight.r)}, ${Math.round(knifeLight.g)}, ${Math.round(knifeLight.b)})`;
+          ctx.fillStyle = `rgb(${knifeLight.r}, ${knifeLight.g}, ${knifeLight.b})`;
           ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw, kh * 0.25);
 
           ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
@@ -1910,25 +1976,25 @@
         } 
         else if (currentBrushProfile === 'turpentine') {
           ctx.save();
-          ctx.globalAlpha = 0.12 * mod.opacityMult;
-          const radialGrad = ctx.createRadialGradient(cx, cy, brushSize * 0.15, cx, cy, brushSize * 1.1);
+          ctx.globalAlpha = 0.12 * mod.opacityMult * pressure;
+          const radialGrad = ctx.createRadialGradient(cx, cy, dynamicSize * 0.15, cx, cy, dynamicSize * 1.1);
           radialGrad.addColorStop(0, rgbStr);
           radialGrad.addColorStop(0.8, rgbStr);
           radialGrad.addColorStop(1, 'transparent');
 
           ctx.beginPath();
           ctx.fillStyle = radialGrad;
-          ctx.arc(cx, cy, brushSize * 1.1, 0, Math.PI * 2);
+          ctx.arc(cx, cy, dynamicSize * 1.1, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         } 
         else if (currentBrushProfile === 'fan-brush') {
           const hairCount = 9;
-          const fanSpan = brushSize * 1.4;
+          const fanSpan = dynamicSize * 1.4;
 
           for (let h = 0; h < hairCount; h++) {
             const ratio = (h / (hairCount - 1) - 0.5);
-            const arcOffset = (1 - Math.pow(ratio * 2, 2)) * (brushSize * 0.25);
+            const arcOffset = (1 - Math.pow(ratio * 2, 2)) * (dynamicSize * 0.25);
             const distPerp = ratio * fanSpan;
 
             const fx = cx + Math.cos(perpAngle) * distPerp + Math.cos(strokeAngle) * arcOffset;
@@ -1938,13 +2004,14 @@
               ctx,
               fx, fy,
               2.5,
-              brushSize * 0.35,
+              dynamicSize * 0.35,
               strokeAngle,
               blendedStrokeColor,
               baseAlpha * 0.85,
               relativeLightAngle,
               0.4,
-              0.45 * mod.shadowMult
+              0.45 * mod.shadowMult,
+              pScale
             );
           }
         }
@@ -1952,8 +2019,8 @@
           const nestedSteps = 4;
           for (let k = 0; k < nestedSteps; k++) {
             const sizeRatio = 1 - (k / nestedSteps) * 0.45;
-            const rx = (brushSize / 2) * sizeRatio;
-            const ry = (brushSize / 3.2) * sizeRatio;
+            const rx = (dynamicSize / 2) * sizeRatio;
+            const ry = (dynamicSize / 3.2) * sizeRatio;
             
             drawVolumetricDab(
               ctx,
@@ -1965,15 +2032,16 @@
               baseAlpha * 0.5,
               relativeLightAngle,
               0.35 + (k * 0.1),
-              0.4 * mod.shadowMult
+              0.4 * mod.shadowMult,
+              pScale
             );
           }
         }
         else if (currentBrushProfile === 'dry-scumble') {
-          const speckleCount = Math.max(Math.floor(brushSize / 1.6), 8);
+          const speckleCount = Math.max(Math.floor(dynamicSize / 1.6), 8);
           for (let s = 0; s < speckleCount; s++) {
             const angle = Math.random() * Math.PI * 2;
-            const dist = Math.sqrt(Math.random()) * (brushSize / 2);
+            const dist = Math.sqrt(Math.random()) * (dynamicSize / 2);
             const sx = cx + Math.cos(angle) * dist;
             const sy = cy + Math.sin(angle) * dist;
             
@@ -1987,12 +2055,13 @@
               baseAlpha * 0.6,
               relativeLightAngle,
               0.45,
-              0.55 * mod.shadowMult
+              0.55 * mod.shadowMult,
+              pScale
             );
           }
         }
         else if (currentBrushProfile === 'rigger') {
-          const riggerRadius = Math.max(brushSize * 0.15, 2.5);
+          const riggerRadius = Math.max(dynamicSize * 0.15, 2.5);
           drawVolumetricDab(
             ctx,
             cx, cy,
@@ -2003,14 +2072,15 @@
             0.9 * brushDepletionLevel * mod.opacityMult,
             relativeLightAngle,
             0.5,
-            0.55 * mod.shadowMult
+            0.55 * mod.shadowMult,
+            pScale
           );
         }
         else if (currentBrushProfile === 'stippler') {
           const spotCount = 7;
           for (let s = 0; s < spotCount; s++) {
             const angle = Math.random() * Math.PI * 2;
-            const dist = Math.sqrt(Math.random()) * (brushSize / 1.9);
+            const dist = Math.sqrt(Math.random()) * (dynamicSize / 1.9);
             const sx = cx + Math.cos(angle) * dist;
             const sy = cy + Math.sin(angle) * dist;
             
@@ -2024,7 +2094,8 @@
               baseAlpha * 0.75,
               relativeLightAngle,
               0.5,
-              0.6 * mod.shadowMult
+              0.6 * mod.shadowMult,
+              pScale
             );
           }
         }
@@ -2032,7 +2103,7 @@
           const stepsCount = 4;
           for (let r = 0; r < stepsCount; r++) {
             const ratio = 1 - (r / stepsCount) * 0.55;
-            const curRad = (brushSize / 3.0) * ratio;
+            const curRad = (dynamicSize / 3.0) * ratio;
             
             drawVolumetricDab(
               ctx,
@@ -2044,47 +2115,35 @@
               baseAlpha * 0.45,
               relativeLightAngle,
               0.35 + (r * 0.12),
-              0.45 * mod.shadowMult
+              0.45 * mod.shadowMult,
+              pScale
             );
           }
         }
 
-        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion, 0.35);
-        updateTelemetry();
+        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion * (0.5 + pressure * 0.5), 0.3);
       }
     }
 
-    paintCanvas.addEventListener('mousedown', startDrawing);
-    paintCanvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', stopDrawing);
-
-    paintCanvas.addEventListener('touchstart', (e) => {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-        startDrawing(e);
-      } else {
-        startDrawing(e);
-      }
-    });
-    paintCanvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      draw(e);
-    });
-    window.addEventListener('touchend', stopDrawing);
+    // Modern Pointer Events API for Apple Pencil / Stylus pressure + multi-touch
+    paintCanvas.addEventListener('pointerdown', startDrawing);
+    paintCanvas.addEventListener('pointermove', draw);
+    window.addEventListener('pointerup', stopDrawing);
+    window.addEventListener('pointercancel', stopDrawing);
 
     const canvasContainer = document.getElementById('studio-canvas-container');
-    canvasContainer.addEventListener('mouseenter', () => {
+    canvasContainer.addEventListener('pointerenter', () => {
       canvasContainer.classList.add('brush-cursor-active');
       customCursor.classList.remove('hidden');
       updateCursorSize();
     });
 
-    canvasContainer.addEventListener('mouseleave', () => {
+    canvasContainer.addEventListener('pointerleave', () => {
       canvasContainer.classList.remove('brush-cursor-active');
       customCursor.classList.add('hidden');
     });
 
-    canvasContainer.addEventListener('mousemove', (e) => {
+    canvasContainer.addEventListener('pointermove', (e) => {
       customCursor.style.left = `${e.clientX}px`;
       customCursor.style.top = `${e.clientY}px`;
     });
@@ -2105,7 +2164,7 @@
 
       if (e.key === '[') {
         e.preventDefault();
-        const nextVal = Math.max(parseInt(brushSizeSlider.value) - 5, 5);
+        const nextVal = Math.max(parseInt(brushSizeSlider.value) - 5, 6);
         brushSizeSlider.value = nextVal;
         updateBrushParameters();
         showToast(`Brush Size: ${nextVal}px`, "info");
@@ -2173,7 +2232,7 @@
     });
 
     // =========================================================================
-    // SANDBOX COMPANION DEMO MIXING WELL
+    // SUBTRACTIVE DEMO MIXING WELL
     // =========================================================================
     const mixerCanvas = document.getElementById('mixer-canvas');
     const mCtx = mixerCanvas.getContext('2d', { willReadFrequently: true });
@@ -2193,7 +2252,7 @@
       mCtx.fillStyle = 'rgba(40, 34, 27, 0.4)';
       mCtx.font = 'bold 11px sans-serif';
       mCtx.textAlign = 'center';
-      mCtx.fillText("DRAG TO SMEAR & BLEND 3D OILS", mixerCanvas.width / 2, mixerCanvas.height / 2 + 60);
+      mCtx.fillText("DRAG BLUE OVER YELLOW TO MIX GREEN", mixerCanvas.width / 2, mixerCanvas.height / 2 + 60);
     }
 
     function drawWellBlob(x, y, radius, rgb) {
@@ -2240,8 +2299,9 @@
           activeMixerTipColor = canvasColor;
         }
 
-        activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.25);
-        const compositeColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.4);
+        // Physical subtractive mix on the companion pad!
+        activeMixerTipColor = mixColorsSubtractive(activeMixerTipColor, canvasColor, 0.28);
+        const compositeColor = mixColorsSubtractive(activeMixerTipColor, canvasColor, 0.45);
 
         drawVolumetricDab(
           mCtx,
@@ -2250,7 +2310,7 @@
           blendDiameter * 0.9,
           Math.atan2(dy, dx),
           compositeColor,
-          0.45,
+          0.5,
           Math.PI / 4,
           0.4,
           0.45
@@ -2262,7 +2322,7 @@
       if (mixerHint) mixerHint.style.opacity = '0';
     }
 
-    mixerCanvas.addEventListener('mousedown', (e) => {
+    mixerCanvas.addEventListener('pointerdown', (e) => {
       isMixing = true;
       hideMixerHint();
       const rect = mixerCanvas.getBoundingClientRect();
@@ -2273,7 +2333,7 @@
       activeMixerTipColor = null; 
     });
 
-    mixerCanvas.addEventListener('mousemove', (e) => {
+    mixerCanvas.addEventListener('pointermove', (e) => {
       if (!isMixing) return;
       const rect = mixerCanvas.getBoundingClientRect();
       const rw = rect.width || 1;
@@ -2286,33 +2346,7 @@
       mxLastY = cy;
     });
 
-    window.addEventListener('mouseup', () => { isMixing = false; });
-
-    mixerCanvas.addEventListener('touchstart', (e) => {
-      isMixing = true;
-      hideMixerHint();
-      const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      mxLastX = (e.touches[0].clientX - rect.left) * (mixerCanvas.width / rw);
-      mxLastY = (e.touches[0].clientY - rect.top) * (mixerCanvas.height / rh);
-      activeMixerTipColor = null;
-    });
-
-    mixerCanvas.addEventListener('touchmove', (e) => {
-      if (!isMixing) return;
-      const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      const cx = (e.touches[0].clientX - rect.left) * (mixerCanvas.width / rw);
-      const cy = (e.touches[0].clientY - rect.top) * (mixerCanvas.height / rh);
-
-      mixBlendStroke(mxLastX, mxLastY, cx, cy);
-      mxLastX = cx;
-      mxLastY = cy;
-    });
-    mixerCanvas.addEventListener('touchend', () => { isMixing = false; });
-
+    window.addEventListener('pointerup', () => { isMixing = false; });
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
 
     // Bootstrap initialization
