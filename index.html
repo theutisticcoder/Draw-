@@ -560,7 +560,7 @@
     // =========================================================================
 
     function isBackgroundBoardColor(r, g, b) {
-      return (r > 218 && g > 212 && b > 200 && Math.abs(r - g) < 22 && Math.abs(g - b) < 22) ||
+      return (r > 215 && g > 210 && b > 195 && Math.abs(r - g) < 25 && Math.abs(g - b) < 25) ||
              (r === 0 && g === 0 && b === 0);
     }
 
@@ -647,7 +647,7 @@
 
       const maxSaturation = Math.max(hsvA.s, hsvB.s);
       const mixedS = Math.min(1.0, Math.max(maxSaturation * 0.95, (hsvA.s * (1 - ratio) + hsvB.s * ratio)));
-      const mixedV = Math.max(25, (hsvA.v * (1 - ratio) + hsvB.v * ratio));
+      const mixedV = Math.max(30, (hsvA.v * (1 - ratio) + hsvB.v * ratio));
 
       return hsvToRgb(mixedH, mixedS, mixedV);
     }
@@ -1719,19 +1719,16 @@
       }
     }
 
-    paintCanvas.addEventListener('pointerdown', (e) => {
-      paintCanvas.setPointerCapture(e.pointerId);
-      startDrawing(e);
+    // Window-level pointer listeners for robust drawing tracking anywhere
+    window.addEventListener('pointerdown', (e) => {
+      const rect = paintCanvas.getBoundingClientRect();
+      if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        startDrawing(e);
+      }
     });
-    paintCanvas.addEventListener('pointermove', draw);
-    paintCanvas.addEventListener('pointerup', (e) => {
-      paintCanvas.releasePointerCapture(e.pointerId);
-      stopDrawing(e);
-    });
-    paintCanvas.addEventListener('pointercancel', (e) => {
-      paintCanvas.releasePointerCapture(e.pointerId);
-      stopDrawing(e);
-    });
+    window.addEventListener('pointermove', draw);
+    window.addEventListener('pointerup', stopDrawing);
+    window.addEventListener('pointercancel', stopDrawing);
 
     const canvasContainer = document.getElementById('studio-canvas-container');
     canvasContainer.addEventListener('pointerenter', () => {
@@ -1963,7 +1960,18 @@
       const rh = rect.height || 1;
       mxLastX = (e.clientX - rect.left) * (mixerCanvas.width / rw);
       mxLastY = (e.clientY - rect.top) * (mixerCanvas.height / rh);
-      activeMixerTipColor = null; 
+      
+      // Immediately pick up color under click point so it never drags white/background
+      try {
+        const pix = mCtx.getImageData(mxLastX, mxLastY, 1, 1).data;
+        if (pix[3] > 0 && !isBackgroundBoardColor(pix[0], pix[1], pix[2])) {
+          activeMixerTipColor = { r: pix[0], g: pix[1], b: pix[2] };
+        }
+      } catch(err){}
+
+      if (!activeMixerTipColor) {
+        activeMixerTipColor = { ...loadedReservoirColor };
+      }
 
       mixBlendStroke(mxLastX, mxLastY, mxLastX, mxLastY);
     });
@@ -2023,4 +2031,4 @@
     });
   </script>
 </body>
-</html> 
+</html>
