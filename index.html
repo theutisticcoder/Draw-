@@ -500,7 +500,8 @@
   </div>
 
   <!-- Core JavaScript for DrawPaw Studio Engine -->
-  <script>
+<script>
+
     function switchTab(tabId) {
       document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
@@ -559,8 +560,10 @@
     // COLOR UTILITIES & TRUE SPECTRAL SUBTRACTIVE BLEND ENGINE
     // =========================================================================
 
-    function isBackgroundBoardColor(r, g, b) {
-      return (r > 215 && g > 210 && b > 195 && Math.abs(r - g) < 25 && Math.abs(g - b) < 25) ||
+    // Only flags the MAIN CANVAS background, not the palette slab background
+    function isMainCanvasBackground(r, g, b) {
+      // Main canvas bg is ~#FAF8F5 = rgb(250,248,245)
+      return (r > 245 && g > 243 && b > 240 && Math.abs(r - g) < 8 && Math.abs(g - b) < 8) ||
              (r === 0 && g === 0 && b === 0);
     }
 
@@ -624,10 +627,10 @@
     }
 
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      if (isBackgroundBoardColor(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b)) {
+      if (isMainCanvasBackground(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b)) {
         return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
       }
-      if (isBackgroundBoardColor(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b)) {
+      if (isMainCanvasBackground(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b)) {
         return { r: colorB_rgb.r, g: colorB_rgb.g, b: colorB_rgb.b };
       }
 
@@ -669,7 +672,7 @@
     }
 
     // =========================================================================
-    // DYNAMIC BRUSH & CANVAS SIMULATOR
+    // STATE & UI REFERENCES
     // =========================================================================
 
     const activePigmentName = document.getElementById('active-pigment-name');
@@ -743,7 +746,7 @@
       
       let tempImage = null;
       if (paintCanvas.width > 0 && paintCanvas.height > 0) {
-        tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+        try { tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height); } catch(e) {}
       }
 
       paintCanvas.width = targetWidth; 
@@ -768,6 +771,17 @@
       }
     }
 
+    function undoStroke() {
+      if (historyStack.length > 1) {
+        historyStack.pop();
+        const prev = historyStack[historyStack.length - 1];
+        ctx.putImageData(prev, 0, 0);
+        showToast("Stroke undone", "info");
+      } else {
+        showToast("Nothing to undo", "warning");
+      }
+    }
+
     // =========================================================================
     // MIXABLE PALETTE SLAB CANVAS LOGIC
     // =========================================================================
@@ -784,6 +798,15 @@
       { color: "#111827", name: "Ivory Black", x: 125, y: 135 },
       { color: "#9333EA", name: "Cobalt Violet", x: 175, y: 135 }
     ];
+
+    // Palette slab background color for detection (not main canvas bg)
+    const PALETTE_SLAB_BG = { r: 237, g: 232, b: 223 };
+
+    function isPaletteBackground(r, g, b) {
+      return Math.abs(r - PALETTE_SLAB_BG.r) < 8 &&
+             Math.abs(g - PALETTE_SLAB_BG.g) < 8 &&
+             Math.abs(b - PALETTE_SLAB_BG.b) < 8;
+    }
 
     function initPaletteSlab() {
       if (paletteCanvas.parentElement.clientWidth === 0) return;
@@ -817,6 +840,7 @@
     let activePaletteTipColor = null;
 
     function handlePalettePointerDown(e) {
+      e.preventDefault();
       isSmudgingPalette = true;
       const rect = paletteCanvas.getBoundingClientRect();
       const rw = rect.width || 1;
@@ -824,11 +848,24 @@
       paletteLastX = (e.clientX - rect.left) * (paletteCanvas.width / rw);
       paletteLastY = (e.clientY - rect.top) * (paletteCanvas.height / rh);
 
+      // Sample the color at the starting point to pick up paint
+      try {
+        const pix = pCtx.getImageData(
+          Math.max(0, Math.min(Math.floor(paletteLastX), paletteCanvas.width - 1)),
+          Math.max(0, Math.min(Math.floor(paletteLastY), paletteCanvas.height - 1)),
+          1, 1
+        ).data;
+        if (!isPaletteBackground(pix[0], pix[1], pix[2]) && pix[3] > 10) {
+          activePaletteTipColor = { r: pix[0], g: pix[1], b: pix[2] };
+        }
+      } catch(err) {}
+
       samplePaletteColor(paletteLastX, paletteLastY);
     }
 
     function handlePalettePointerMove(e) {
       if (!isSmudgingPalette) return;
+      e.preventDefault();
 
       const rect = paletteCanvas.getBoundingClientRect();
       const rw = rect.width || 1;
@@ -854,17 +891,23 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
+        const sampleX = Math.max(0, Math.min(Math.floor(cx), paletteCanvas.width - 1));
+        const sampleY = Math.max(0, Math.min(Math.floor(cy), paletteCanvas.height - 1));
+
         let underlyingColor = null;
 
         try {
-          const pix = pCtx.getImageData(cx, cy, 1, 1).data;
-          if (pix[3] > 0 && !isBackgroundBoardColor(pix[0], pix[1], pix[2])) {
+          const pix = pCtx.getImageData(sampleX, sampleY, 1, 1).data;
+          // Use palette-specific background check, NOT the main canvas check
+          if (pix[3] > 10 && !isPaletteBackground(pix[0], pix[1], pix[2])) {
             underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
           }
         } catch (err) {}
 
         if (!underlyingColor) {
+          // On empty slab area, lay down the tip color
           const paintColor = activePaletteTipColor || loadedReservoirColor;
+          if (!paintColor) continue;
           pCtx.save();
           pCtx.globalAlpha = 0.8;
           pCtx.beginPath();
@@ -873,8 +916,9 @@
           pCtx.fill();
           pCtx.restore();
         } else {
+          // On existing paint, blend tip color with underlying
           if (!activePaletteTipColor) {
-            activePaletteTipColor = underlyingColor;
+            activePaletteTipColor = { ...underlyingColor };
           }
 
           activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.35);
@@ -892,8 +936,10 @@
 
     function samplePaletteColor(x, y) {
       try {
-        const pix = pCtx.getImageData(x, y, 1, 1).data;
-        if (isBackgroundBoardColor(pix[0], pix[1], pix[2])) return;
+        const sampleX = Math.max(0, Math.min(Math.floor(x), paletteCanvas.width - 1));
+        const sampleY = Math.max(0, Math.min(Math.floor(y), paletteCanvas.height - 1));
+        const pix = pCtx.getImageData(sampleX, sampleY, 1, 1).data;
+        if (isPaletteBackground(pix[0], pix[1], pix[2]) || pix[3] < 10) return;
 
         const pickedRgb = { r: pix[0], g: pix[1], b: pix[2] };
         currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
@@ -922,8 +968,9 @@
 
     paletteCanvas.addEventListener('pointerdown', handlePalettePointerDown);
     paletteCanvas.addEventListener('pointermove', handlePalettePointerMove);
-    window.addEventListener('pointerup', () => isSmudgingPalette = false);
-    window.addEventListener('pointercancel', () => isSmudgingPalette = false);
+    paletteCanvas.addEventListener('pointerup', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
+    paletteCanvas.addEventListener('pointercancel', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
+    window.addEventListener('pointerup', () => { if (isSmudgingPalette) { isSmudgingPalette = false; activePaletteTipColor = null; } });
 
     document.getElementById('btn-palette-reset').addEventListener('click', () => {
       initPaletteSlab();
@@ -931,158 +978,817 @@
     });
 
     // =========================================================================
-    // MEDIUMS LOGIC & OVERRIDES
-    // =========================================================================
-    const mediumButtons = document.querySelectorAll('.medium-btn');
-    const mediumInfoBlock = document.getElementById('active-medium-info');
-
-    const MEDIUM_PRESETS = {
-      none: {
-        info: "<strong>Pure Paint:</strong> Maximum color saturation and bold pigment body.",
-        modifier: (wet) => ({ wet, depletion: 0.002, opacityMult: 1.0 })
-      },
-      linseed: {
-        info: "<strong>Linseed Oil:</strong> Increases fluid color blend flow and extends smear lengths.",
-        modifier: (wet) => ({ wet: Math.max(wet, 0.9), depletion: 0.001, opacityMult: 0.95 })
-      },
-      turps: {
-        info: "<strong>Turpentine Solvent:</strong> Highly fluid wash with soft diffuse depth and fast color dispersion.",
-        modifier: (wet) => ({ wet: 1.0, depletion: 0.005, opacityMult: 0.5 })
-      },
-      liquin: {
-        info: "<strong>Liquin Gel:</strong> Thick gel body for rich impasto texture.",
-        modifier: (wet) => ({ wet: Math.min(wet, 0.4), depletion: 0.003, opacityMult: 1.2 })
-      }
-    };
-
-    function selectMedium(mediumKey) {
-      activeMedium = mediumKey;
-      mediumButtons.forEach(btn => {
-        if (btn.dataset.medium === mediumKey) {
-          btn.classList.remove('border-transparent');
-          btn.classList.add('border-amber-500');
-        } else {
-          btn.classList.remove('border-amber-500');
-          btn.classList.add('border-transparent');
-        }
-      });
-
-      const preset = MEDIUM_PRESETS[mediumKey];
-      mediumInfoBlock.innerHTML = preset.info;
-      updateBrushParameters();
-      showToast(`Swapped medium to ${mediumKey.toUpperCase()}`, "info");
-    }
-
-    mediumButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectMedium(btn.dataset.medium);
-      });
-    });
-
-    // =========================================================================
-    // PERSISTENCE & HISTORY LOCALFORAGE BACKUPS
+    // MAIN OIL CANVAS — DRAWING ENGINE
     // =========================================================================
 
-    function saveToLocalForage(silent = false) {
-      const dataUrl = paintCanvas.toDataURL();
-      saveStatusText.innerText = "Auto-saving...";
+    let lastCanvasX = 0;
+    let lastCanvasY = 0;
+    let isEyedropping = false;
+    let eyedropperTimer = null;
+    let twoFingerTapTimer = null;
 
-      const sessionObj = {
-        canvasData: dataUrl,
-        sketchSrc: sketchSrcData,
-        sketchOpacity: sketchOpacity,
-        sketchMode: sketchMode,
-        sketchPresetValue: selectSketchPreset.value,
-        activeMedium: activeMedium,
-        sidebarOnRight: studioGrid.classList.contains('xl:flex-row-reverse')
+    function getCanvasCoords(e) {
+      const rect = paintCanvas.getBoundingClientRect();
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      return {
+        x: (e.clientX - rect.left) * (paintCanvas.width / rw),
+        y: (e.clientY - rect.top) * (paintCanvas.height / rh)
       };
-      
-      localforage.setItem('atelier_session_bundle_rgb_v6', sessionObj).then(() => {
-        saveStatusText.innerText = "All changes saved locally";
-        if (!silent) {
-          showToast('Session layout saved to browser!', 'success');
-        }
-      }).catch(err => {
-        saveStatusText.innerText = "Local save failed";
-        if (!silent) {
-          showToast('Failed to save session: ' + err, 'error');
-        }
-      });
     }
 
-    function loadFromLocalForage(isBootRestore = false) {
-      saveStatusText.innerText = "Restoring session...";
-      
-      localforage.getItem('atelier_session_bundle_rgb_v6').then(bundle => {
-        if (bundle) {
-          if (bundle.sketchSrc) {
-            sketchSrcData = bundle.sketchSrc;
-            sketchOpacity = bundle.sketchOpacity;
-            sketchMode = bundle.sketchMode;
-            selectSketchPreset.value = bundle.sketchPresetValue || "none";
-            
-            sliderSketchOpacity.value = Math.round(sketchOpacity * 100);
-            valSketchOpacity.innerText = `${Math.round(sketchOpacity * 100)}%`;
-            
-            if (selectSketchPreset.value === 'custom') {
-              customSketchUploadArea.classList.remove('hidden');
-            }
-
-            if (sketchMode === 'overlay') {
-              setSketchPlacement('overlay');
-            } else {
-              setSketchPlacement('underlay');
-            }
-            
-            updateSketchImgLayers();
-          }
-
-          if (bundle.activeMedium) {
-            selectMedium(bundle.activeMedium);
-          }
-
-          if (bundle.sidebarOnRight) {
-            toggleSidebarSide(true);
-          }
-
-          if (bundle.canvasData) {
-            const img = new Image();
-            img.onload = () => {
-              ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-              ctx.drawImage(img, 0, 0);
-              
-              historyStack = [];
-              saveHistoryState();
-              
-              saveStatusText.innerText = "Canvas restored";
-              if (isBootRestore) {
-                showToast('Restored active painting workspace!', 'info');
-              } else {
-                showToast('Successfully loaded backup.', 'success');
-              }
-            };
-            img.src = bundle.canvasData;
-          }
+    function handleCanvasPointerDown(e) {
+      if (e.pointerType === 'touch' && e.isPrimary === false) {
+        // Non-primary touch = likely second finger => undo
+        if (!twoFingerTapTimer) {
+          twoFingerTapTimer = setTimeout(() => { twoFingerTapTimer = null; }, 300);
         } else {
-          saveStatusText.innerText = "Ready to paint";
+          clearTimeout(twoFingerTapTimer);
+          twoFingerTapTimer = null;
+          undoStroke();
         }
-      }).catch(err => {
-        saveStatusText.innerText = "Database restore failed";
-        console.error("localForage Error:", err);
-      });
-    }
-
-    // =========================================================================
-    // SKETCH TRACING OVERLAYS
-    // =========================================================================
-
-    function updateSketchImgLayers() {
-      if (!sketchSrcData || selectSketchPreset.value === 'none') {
-        imgSketchOverlay.style.opacity = '0';
-        imgSketchUnderlay.style.opacity = '0';
         return;
       }
 
+      e.preventDefault();
+      paintCanvas.setPointerCapture(e.pointerId);
+
+      const { x, y } = getCanvasCoords(e);
+      lastCanvasX = x;
+      lastCanvasY = y;
+
+      // Read pressure
+      currentPressure = e.pressure > 0 ? e.pressure : 0.5;
+      smoothedPressure = currentPressure * pressureSensitivity;
+      smoothedPressure = Math.max(0.05, Math.min(1.5, smoothedPressure));
+
+      // Long press eyedropper
+      isEyedropping = false;
+      eyedropperTimer = setTimeout(() => {
+        isEyedropping = true;
+        eyedropperPick(x, y);
+      }, 800);
+
+      isDrawing = true;
+      saveHistoryState();
+
+      // Reset brush tip to fresh reservoir color
+      activeBrushTipColor = { ...loadedReservoirColor };
+      brushDepletionLevel = 1.0;
+
+      // Draw a single dot at the starting point
+      drawOilDab(x, y, x, y);
+    }
+
+    function handleCanvasPointerMove(e) {
+      const { x, y } = getCanvasCoords(e);
+
+      // Update pressure telemetry always
+      currentPressure = e.pressure > 0 ? e.pressure : 0.5;
+      smoothedPressure = currentPressure * pressureSensitivity;
+      smoothedPressure = Math.max(0.05, Math.min(1.5, smoothedPressure));
+      updateTelemetry();
+
+      // Update cursor
+      updateBrushCursor(e.clientX, e.clientY);
+
+      if (isEyedropping) {
+        eyedropperPick(x, y);
+        return;
+      }
+
+      if (!isDrawing) return;
+      e.preventDefault();
+
+      // Clear eyedropper timer if we moved
+      if (eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+
+      // Calculate stroke angle for directional brushes
+      const dx = x - lastCanvasX;
+      const dy = y - lastCanvasY;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 1) {
+        currentStrokeAngle = Math.atan2(dy, dx);
+        hasValidStrokeAngle = true;
+      }
+
+      drawOilStroke(lastCanvasX, lastCanvasY, x, y);
+
+      lastCanvasX = x;
+      lastCanvasY = y;
+    }
+
+    function handleCanvasPointerUp(e) {
+      if (eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+
+      if (isEyedropping) {
+        isEyedropping = false;
+        document.getElementById('eyedropper-preview').classList.add('hidden');
+        isDrawing = false;
+        return;
+      }
+
+      isDrawing = false;
+      hasValidStrokeAngle = false;
+    }
+
+    function drawOilDab(x0, y0, x1, y1) {
+      const effectiveSize = brushSize * smoothedPressure;
+      const paintColor = activeBrushTipColor || loadedReservoirColor;
+
+      ctx.save();
+
+      switch (currentBrushProfile) {
+        case 'bristle':
+          drawBristleDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'palette-knife':
+          drawKnifeDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'turpentine':
+          drawTurpsDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'fan-brush':
+          drawFanDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'filbert':
+          drawFilbertDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'dry-scumble':
+          drawScumbleDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'rigger':
+          drawRiggerDab(ctx, x0, y0, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'stippler':
+          drawStipplerDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+        case 'round-point':
+        default:
+          drawRoundDab(ctx, x1, y1, effectiveSize, paintColor);
+          break;
+      }
+
+      ctx.restore();
+    }
+
+    function drawOilStroke(x0, y0, x1, y1) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const dist = Math.hypot(dx, dy);
+      const spacing = Math.max(2, brushSize * 0.15);
+      const steps = Math.max(1, Math.floor(dist / spacing));
+
+      for (let i = 0; i <= steps; i++) {
+        const t = steps === 0 ? 1 : i / steps;
+        const cx = x0 + dx * t;
+        const cy = y0 + dy * t;
+
+        // Wet-on-wet: pick up underlying paint and blend
+        if (brushWetness > 0.2) {
+          const pickupRadius = Math.max(1, Math.floor(brushSize * 0.4 * smoothedPressure));
+          const sx = Math.max(0, Math.min(Math.floor(cx), paintCanvas.width - 1));
+          const sy = Math.max(0, Math.min(Math.floor(cy), paintCanvas.height - 1));
+          const pw = Math.min(pickupRadius * 2, paintCanvas.width - sx);
+          const ph = Math.min(pickupRadius * 2, paintCanvas.height - sy);
+
+          if (pw > 0 && ph > 0) {
+            try {
+              const imgData = ctx.getImageData(sx, sy, pw, ph);
+              const data = imgData.data;
+              let totalR = 0, totalG = 0, totalB = 0, count = 0;
+              for (let py = 0; py < ph; py += 2) {
+                for (let px = 0; px < pw; px += 2) {
+                  const idx = (py * pw + px) * 4;
+                  const r = data[idx], g = data[idx+1], b = data[idx+2];
+                  if (!isMainCanvasBackground(r, g, b)) {
+                    totalR += r; totalG += g; totalB += b; count++;
+                  }
+                }
+              }
+              if (count > 0) {
+                const underlyingColor = {
+                  r: Math.round(totalR / count),
+                  g: Math.round(totalG / count),
+                  b: Math.round(totalB / count)
+                };
+                const blendRatio = brushWetness * 0.3;
+                activeBrushTipColor = mixColorsRGB(activeBrushTipColor, underlyingColor, blendRatio);
+                brushDepletionLevel = Math.max(0.1, brushDepletionLevel - 0.002);
+              }
+            } catch(err) {}
+          }
+        }
+
+        drawOilDab(x0, y0, cx, cy);
+      }
+    }
+
+    // ---- Brush Profile Dab Functions ----
+
+    function drawRoundDab(context, x, y, size, color) {
+      const r = Math.max(1, size / 2);
+      const grad = context.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0, `rgba(${color.r},${color.g},${color.b},0.95)`);
+      grad.addColorStop(0.7, `rgba(${color.r},${color.g},${color.b},0.8)`);
+      grad.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0.1)`);
+      context.fillStyle = grad;
+      context.beginPath();
+      context.arc(x, y, r, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    function drawBristleDab(context, x, y, size, color) {
+      const r = Math.max(2, size / 2);
+      const bristleCount = Math.max(4, Math.floor(size / 3));
+      for (let i = 0; i < bristleCount; i++) {
+        const offset = (i / (bristleCount - 1) - 0.5) * size * 0.8;
+        const perpX = -Math.sin(currentStrokeAngle) * offset;
+        const perpY = Math.cos(currentStrokeAngle) * offset;
+        const bx = x + perpX + (Math.random() - 0.5) * 2;
+        const by = y + perpY + (Math.random() - 0.5) * 2;
+        const br = Math.max(1, r * 0.15);
+        context.globalAlpha = 0.5 + Math.random() * 0.4;
+        context.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+        context.beginPath();
+        context.arc(bx, by, br, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.globalAlpha = 1;
+    }
+
+    function drawKnifeDab(context, x, y, size, color) {
+      const halfW = Math.max(2, size * 0.6);
+      const halfH = Math.max(1, size * 0.12);
+      context.save();
+      context.translate(x, y);
+      context.rotate(currentStrokeAngle);
+      context.fillStyle = `rgba(${color.r},${color.g},${color.b},0.92)`;
+      context.beginPath();
+      context.ellipse(0, 0, halfW, halfH, 0, 0, Math.PI * 2);
+      context.fill();
+      // Highlight edge
+      context.fillStyle = `rgba(${Math.min(255, color.r+40)},${Math.min(255, color.g+40)},${Math.min(255, color.b+40)},0.5)`;
+      context.beginPath();
+      context.ellipse(0, -halfH * 0.5, halfW * 0.8, halfH * 0.3, 0, 0, Math.PI);
+      context.fill();
+      context.restore();
+    }
+
+    function drawTurpsDab(context, x, y, size, color) {
+      const r = Math.max(2, size / 2);
+      const grad = context.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0, `rgba(${color.r},${color.g},${color.b},0.2)`);
+      grad.addColorStop(0.5, `rgba(${color.r},${color.g},${color.b},0.1)`);
+      grad.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0.0)`);
+      context.fillStyle = grad;
+      context.beginPath();
+      context.arc(x, y, r * 1.5, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    function drawFanDab(context, x, y, size, color) {
+      const trackCount = Math.max(3, Math.floor(size / 4));
+      const spread = size * 0.5;
+      for (let i = 0; i < trackCount; i++) {
+        const offset = (i / (trackCount - 1) - 0.5) * spread;
+        const px = x + offset;
+        const py = y + (Math.random() - 0.5) * 3;
+        context.globalAlpha = 0.3 + Math.random() * 0.3;
+        context.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+        context.beginPath();
+        context.arc(px, py, Math.max(1, size * 0.06), 0, Math.PI * 2);
+        context.fill();
+      }
+      context.globalAlpha = 1;
+    }
+
+    function drawFilbertDab(context, x, y, size, color) {
+      const r = Math.max(2, size / 2);
+      context.save();
+      context.translate(x, y);
+      context.rotate(currentStrokeAngle);
+      context.fillStyle = `rgba(${color.r},${color.g},${color.b},0.88)`;
+      context.beginPath();
+      context.ellipse(0, 0, r * 0.9, r * 0.55, 0, 0, Math.PI * 2);
+      context.fill();
+      context.restore();
+    }
+
+    function drawScumbleDab(context, x, y, size, color) {
+      const r = Math.max(2, size / 2);
+      const speckleCount = Math.max(5, Math.floor(size * 1.5));
+      for (let i = 0; i < speckleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * r;
+        const sx = x + Math.cos(angle) * dist;
+        const sy = y + Math.sin(angle) * dist;
+        context.globalAlpha = 0.2 + Math.random() * 0.5;
+        context.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+        context.fillRect(sx, sy, Math.max(1, size * 0.08), Math.max(1, size * 0.08));
+      }
+      context.globalAlpha = 1;
+    }
+
+    function drawRiggerDab(context, x0, y0, x1, y1, size, color) {
+      context.strokeStyle = `rgba(${color.r},${color.g},${color.b},0.85)`;
+      context.lineWidth = Math.max(1, size * 0.08);
+      context.lineCap = 'round';
+      context.beginPath();
+      context.moveTo(x0, y0);
+      context.lineTo(x1, y1);
+      context.stroke();
+    }
+
+    function drawStipplerDab(context, x, y, size, color) {
+      const r = Math.max(2, size / 2);
+      const dotCount = Math.max(8, Math.floor(size * 0.8));
+      for (let i = 0; i < dotCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * r * 0.9;
+        const dx = x + Math.cos(angle) * dist;
+        const dy = y + Math.sin(angle) * dist;
+        const dotR = Math.max(1, size * 0.06 + Math.random() * size * 0.06);
+        context.globalAlpha = 0.6 + Math.random() * 0.35;
+        context.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+        context.beginPath();
+        context.arc(dx, dy, dotR, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.globalAlpha = 1;
+    }
+
+    // ---- Eyedropper ----
+
+    function eyedropperPick(x, y) {
+      const sx = Math.max(0, Math.min(Math.floor(x), paintCanvas.width - 1));
+      const sy = Math.max(0, Math.min(Math.floor(y), paintCanvas.height - 1));
+      try {
+        const pix = ctx.getImageData(sx, sy, 1, 1).data;
+        if (isMainCanvasBackground(pix[0], pix[1], pix[2])) return;
+
+        const picked = { r: pix[0], g: pix[1], b: pix[2] };
+        currentPigment = rgbToHex(picked.r, picked.g, picked.b);
+        currentPigmentName = "Picked from Canvas";
+        activePigmentName.innerText = currentPigmentName;
+        activeColorSwatch.style.backgroundColor = currentPigment;
+        loadedReservoirColor = picked;
+        activeBrushTipColor = picked;
+        brushDepletionLevel = 1.0;
+
+        const preview = document.getElementById('eyedropper-preview');
+        preview.style.backgroundColor = currentPigment;
+        preview.style.left = `${x / paintCanvas.width * 100}%`;
+        preview.style.top = `${y / paintCanvas.height * 100}%`;
+        preview.classList.remove('hidden');
+      } catch(err) {}
+    }
+
+    // ---- Custom Brush Cursor ----
+
+    function updateBrushCursor(clientX, clientY) {
+      const effectiveSize = brushSize * smoothedPressure;
+      const displaySize = Math.max(8, effectiveSize * (paintCanvas.getBoundingClientRect().width / paintCanvas.width));
+      customCursor.style.left = clientX + 'px';
+      customCursor.style.top = clientY + 'px';
+      customCursor.style.width = displaySize + 'px';
+      customCursor.style.height = displaySize + 'px';
+
+      const coreSize = Math.max(2, displaySize * 0.2 * smoothedPressure);
+      cursorPressureCore.style.width = coreSize + 'px';
+      cursorPressureCore.style.height = coreSize + 'px';
+    }
+
+    paintCanvas.addEventListener('pointerdown', handleCanvasPointerDown);
+    paintCanvas.addEventListener('pointermove', handleCanvasPointerMove);
+    paintCanvas.addEventListener('pointerup', handleCanvasPointerUp);
+    paintCanvas.addEventListener('pointercancel', handleCanvasPointerUp);
+    paintCanvas.addEventListener('pointerenter', () => {
+      customCursor.classList.remove('hidden');
+      paintCanvas.classList.add('brush-cursor-active');
+    });
+    paintCanvas.addEventListener('pointerleave', () => {
+      customCursor.classList.add('hidden');
+      paintCanvas.classList.remove('brush-cursor-active');
+      if (isDrawing) {
+        isDrawing = false;
+        hasValidStrokeAngle = false;
+      }
+    });
+
+    // =========================================================================
+    // TELEMETRY UPDATE
+    // =========================================================================
+
+    function updateTelemetry() {
+      const pPct = Math.round(currentPressure * 100);
+      const lPct = Math.round(brushDepletionLevel * 100);
+      const dirtyPct = brushWetness > 0.2 ? Math.round(brushWetness * 40) : 0;
+      telemetryPressure.innerText = pPct + '%';
+      telemetryLoad.innerText = lPct + '%';
+      telemetryDirty.innerText = dirtyPct + '%';
+      saveStatusText.innerText = pPct > 0 ? `Active ${pPct}%` : 'Stylus Ready';
+    }
+
+    // =========================================================================
+    // MIXER TAB CANVAS
+    // =========================================================================
+
+    const mixerCanvas = document.getElementById('mixer-canvas');
+    const mCtx = mixerCanvas ? mixerCanvas.getContext('2d', { willReadFrequently: true }) : null;
+    let mixerInited = false;
+    let isMixing = false;
+    let mixerLastX = 0, mixerLastY = 0;
+    let mixerTipColor = null;
+
+    const MIXER_COLORS = [
+      { color: "#E11D48", name: "Cadmium Red" },
+      { color: "#1D4ED8", name: "Ultramarine Blue" },
+      { color: "#FACC15", name: "Zinc Yellow" },
+      { color: "#10B981", name: "Phthalo Green" },
+      { color: "#7C2D12", name: "Burnt Sienna" },
+      { color: "#FFFFFF", name: "Titanium White" },
+      { color: "#111827", name: "Ivory Black" },
+      { color: "#9333EA", name: "Cobalt Violet" }
+    ];
+
+    const MIXER_SLAB_BG = { r: 232, g: 226, b: 214 };
+
+    function isMixerBackground(r, g, b) {
+      return Math.abs(r - MIXER_SLAB_BG.r) < 10 &&
+             Math.abs(g - MIXER_SLAB_BG.g) < 10 &&
+             Math.abs(b - MIXER_SLAB_BG.b) < 10;
+    }
+
+    function initMixer() {
+      if (!mixerCanvas || !mCtx) return;
+      const parent = mixerCanvas.parentElement;
+      if (parent.clientWidth === 0) return;
+
+      mixerCanvas.width = parent.clientWidth;
+      mixerCanvas.height = parent.clientHeight;
+
+      mCtx.fillStyle = '#E8E2D6';
+      mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
+
+      const cols = 4;
+      const rows = 2;
+      const cellW = mixerCanvas.width / cols;
+      const cellH = mixerCanvas.height / rows;
+
+      MIXER_COLORS.forEach((mc, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const cx = cellW * col + cellW / 2;
+        const cy = cellH * row + cellH / 2;
+        const blobR = Math.min(cellW, cellH) * 0.25;
+
+        const grad = mCtx.createRadialGradient(cx, cy, 0, cx, cy, blobR);
+        grad.addColorStop(0, mc.color);
+        grad.addColorStop(0.85, mc.color);
+        grad.addColorStop(1, 'transparent');
+        mCtx.fillStyle = grad;
+        mCtx.beginPath();
+        mCtx.arc(cx, cy, blobR, 0, Math.PI * 2);
+        mCtx.fill();
+      });
+
+      mixerInited = true;
+      mixerTipColor = null;
+
+      // Hide hint after first interaction
+      const hint = document.getElementById('mixer-hint');
+      if (hint) hint.style.opacity = '0';
+    }
+
+    if (mixerCanvas) {
+      mixerCanvas.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        isMixing = true;
+        const rect = mixerCanvas.getBoundingClientRect();
+        mixerLastX = (e.clientX - rect.left) * (mixerCanvas.width / (rect.width || 1));
+        mixerLastY = (e.clientY - rect.top) * (mixerCanvas.height / (rect.height || 1));
+
+        // Pick up color at start
+        const sx = Math.max(0, Math.min(Math.floor(mixerLastX), mixerCanvas.width - 1));
+        const sy = Math.max(0, Math.min(Math.floor(mixerLastY), mixerCanvas.height - 1));
+        try {
+          const pix = mCtx.getImageData(sx, sy, 1, 1).data;
+          if (!isMixerBackground(pix[0], pix[1], pix[2]) && pix[3] > 10) {
+            mixerTipColor = { r: pix[0], g: pix[1], b: pix[2] };
+          }
+        } catch(err) {}
+
+        sampleMixerColor(mixerLastX, mixerLastY);
+      });
+
+      mixerCanvas.addEventListener('pointermove', (e) => {
+        if (!isMixing) return;
+        e.preventDefault();
+        const rect = mixerCanvas.getBoundingClientRect();
+        const cx = (e.clientX - rect.left) * (mixerCanvas.width / (rect.width || 1));
+        const cy = (e.clientY - rect.top) * (mixerCanvas.height / (rect.height || 1));
+
+        // Smudge on mixer
+        const dx = cx - mixerLastX;
+        const dy = cy - mixerLastY;
+        const dist = Math.hypot(dx, dy);
+        const steps = Math.max(1, Math.floor(dist / 2));
+
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          const px = mixerLastX + dx * t;
+          const py = mixerLastY + dy * t;
+
+          const sX = Math.max(0, Math.min(Math.floor(px), mixerCanvas.width - 1));
+          const sY = Math.max(0, Math.min(Math.floor(py), mixerCanvas.height - 1));
+
+          let underlying = null;
+          try {
+            const p = mCtx.getImageData(sX, sY, 1, 1).data;
+            if (p[3] > 10 && !isMixerBackground(p[0], p[1], p[2])) {
+              underlying = { r: p[0], g: p[1], b: p[2] };
+            }
+          } catch(err) {}
+
+          if (!underlying) {
+            if (mixerTipColor) {
+              mCtx.save();
+              mCtx.globalAlpha = 0.8;
+              mCtx.fillStyle = `rgb(${mixerTipColor.r},${mixerTipColor.g},${mixerTipColor.b})`;
+              mCtx.beginPath();
+              mCtx.arc(px, py, 12, 0, Math.PI * 2);
+              mCtx.fill();
+              mCtx.restore();
+            }
+          } else {
+            if (!mixerTipColor) mixerTipColor = { ...underlying };
+            mixerTipColor = mixColorsRGB(mixerTipColor, underlying, 0.35);
+            mCtx.save();
+            mCtx.globalAlpha = 0.9;
+            mCtx.fillStyle = `rgb(${mixerTipColor.r},${mixerTipColor.g},${mixerTipColor.b})`;
+            mCtx.beginPath();
+            mCtx.arc(px, py, 12, 0, Math.PI * 2);
+            mCtx.fill();
+            mCtx.restore();
+          }
+        }
+
+        mixerLastX = cx;
+        mixerLastY = cy;
+        sampleMixerColor(cx, cy);
+      });
+
+      mixerCanvas.addEventListener('pointerup', () => { isMixing = false; mixerTipColor = null; });
+      mixerCanvas.addEventListener('pointercancel', () => { isMixing = false; mixerTipColor = null; });
+    }
+
+    function sampleMixerColor(x, y) {
+      if (!mCtx) return;
+      const sx = Math.max(0, Math.min(Math.floor(x), mixerCanvas.width - 1));
+      const sy = Math.max(0, Math.min(Math.floor(y), mixerCanvas.height - 1));
+      try {
+        const pix = mCtx.getImageData(sx, sy, 1, 1).data;
+        if (isMixerBackground(pix[0], pix[1], pix[2]) || pix[3] < 10) return;
+        const hex = rgbToHex(pix[0], pix[1], pix[2]);
+        const swatch = document.getElementById('mixer-output-swatch');
+        const nameEl = document.getElementById('mixer-output-name');
+        if (swatch) swatch.style.backgroundColor = hex;
+        if (nameEl) nameEl.innerText = hex.toUpperCase();
+      } catch(err) {}
+    }
+
+    document.getElementById('btn-load-mixer-color').addEventListener('click', () => {
+      if (!mCtx) return;
+      const sx = Math.max(0, Math.floor(mixerCanvas.width / 2));
+      const sy = Math.max(0, Math.floor(mixerCanvas.height / 2));
+      // Try to find a non-background pixel near center
+      let found = null;
+      for (let r = 0; r < 100; r++) {
+        for (let a = 0; a < 8; a++) {
+          const angle = (a / 8) * Math.PI * 2;
+          const px = Math.max(0, Math.min(Math.floor(sx + Math.cos(angle) * r), mixerCanvas.width - 1));
+          const py = Math.max(0, Math.min(Math.floor(sy + Math.sin(angle) * r), mixerCanvas.height - 1));
+          try {
+            const p = mCtx.getImageData(px, py, 1, 1).data;
+            if (p[3] > 10 && !isMixerBackground(p[0], p[1], p[2])) {
+              found = { r: p[0], g: p[1], b: p[2] };
+              break;
+            }
+          } catch(e) {}
+        }
+        if (found) break;
+      }
+      if (found) {
+        currentPigment = rgbToHex(found.r, found.g, found.b);
+        currentPigmentName = "Mixer Blend";
+        activePigmentName.innerText = currentPigmentName;
+        activeColorSwatch.style.backgroundColor = currentPigment;
+        loadedReservoirColor = found;
+        activeBrushTipColor = found;
+        brushDepletionLevel = 1.0;
+        showToast("Mixer color loaded to brush!", "success");
+        switchTab('studio');
+      } else {
+        showToast("No paint found on mixer slab", "warning");
+      }
+    });
+
+    document.getElementById('btn-clear-mixer').addEventListener('click', () => {
+      initMixer();
+      const swatch = document.getElementById('mixer-output-swatch');
+      const nameEl = document.getElementById('mixer-output-name');
+      if (swatch) swatch.style.backgroundColor = '#1D4ED8';
+      if (nameEl) nameEl.innerText = 'Ready to blend';
+      showToast("Mixer slab scraped clean", "success");
+    });
+
+    // =========================================================================
+    // UI CONTROL BINDINGS
+    // =========================================================================
+
+    brushSizeSlider.addEventListener('input', () => {
+      brushSize = parseInt(brushSizeSlider.value);
+      brushSizeLabel.innerText = brushSize + 'px';
+    });
+
+    brushWetSlider.addEventListener('input', () => {
+      brushWetness = parseFloat(brushWetSlider.value) / 100;
+      brushWetLabel.innerText = brushWetSlider.value + '%';
+    });
+
+    pressureSensSlider.addEventListener('input', () => {
+      pressureSensitivity = parseFloat(pressureSensSlider.value) / 100;
+      pressureSensLabel.innerText = pressureSensSlider.value + '%';
+    });
+
+    // Brush profiles
+    document.querySelectorAll('.brush-profile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentBrushProfile = btn.dataset.profile;
+        document.querySelectorAll('.brush-profile-btn').forEach(b => {
+          b.classList.remove('border-amber-500');
+          b.classList.add('border-transparent');
+        });
+        btn.classList.remove('border-transparent');
+        btn.classList.add('border-amber-500');
+      });
+    });
+
+    // Medium buttons
+    const MEDIUM_INFO = {
+      none: '<strong>Pure Paint:</strong> Maximum color saturation and bold pigment body.',
+      linseed: '<strong>Linseed Oil:</strong> Increases flow and blending, slightly extends drying time. Adds glossy sheen.',
+      turps: '<strong>Turpentine:</strong> Thins paint to washes. Lower viscosity, faster drying, more transparent layers.',
+      liquin: '<strong>Liquin Gel:</strong> Fast-drying alkyd medium. Improves glazing and impasto hold.'
+    };
+
+    document.querySelectorAll('.medium-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeMedium = btn.dataset.medium;
+        document.querySelectorAll('.medium-btn').forEach(b => {
+          b.classList.remove('border-amber-500');
+          b.classList.add('border-transparent');
+          b.classList.remove('bg-linen-800/80');
+          b.classList.add('bg-linen-800/40');
+        });
+        btn.classList.remove('border-transparent', 'bg-linen-800/40');
+        btn.classList.add('border-amber-500', 'bg-linen-800/80');
+        document.getElementById('active-medium-info').innerHTML = MEDIUM_INFO[activeMedium] || '';
+
+        // Apply medium effects
+        if (activeMedium === 'turps') {
+          brushWetness = Math.max(brushWetness, 0.5);
+          brushWetSlider.value = Math.round(brushWetness * 100);
+          brushWetLabel.innerText = brushWetSlider.value + '%';
+        }
+      });
+    });
+
+    // Sidebar position toggle
+    document.getElementById('btn-sidebar-left').addEventListener('click', () => {
+      const grid = document.getElementById('studio-grid');
+      const controls = document.getElementById('controls-panel');
+      const canvas = document.getElementById('canvas-panel');
+      controls.classList.remove('col-span-12', 'xl:col-span-3', 'order-last');
+      controls.classList.add('xl:col-span-3');
+      canvas.classList.remove('xl:col-span-9', 'xl:col-span-12');
+      canvas.classList.add('xl:col-span-9');
+      grid.insertBefore(controls, canvas);
+      document.getElementById('btn-sidebar-left').className = 'px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold';
+      document.getElementById('btn-sidebar-right').className = 'px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold';
+      setTimeout(resizeCanvas, 100);
+    });
+
+    document.getElementById('btn-sidebar-right').addEventListener('click', () => {
+      const grid = document.getElementById('studio-grid');
+      const controls = document.getElementById('controls-panel');
+      const canvas = document.getElementById('canvas-panel');
+      controls.classList.remove('xl:col-span-3');
+      controls.classList.add('xl:col-span-3', 'order-last');
+      canvas.classList.remove('xl:col-span-9', 'xl:col-span-12');
+      canvas.classList.add('xl:col-span-9');
+      grid.insertBefore(canvas, controls);
+      document.getElementById('btn-sidebar-right').className = 'px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold';
+      document.getElementById('btn-sidebar-left').className = 'px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold';
+      setTimeout(resizeCanvas, 100);
+    });
+
+    // Undo & Clear
+    document.getElementById('btn-undo').addEventListener('click', undoStroke);
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      document.getElementById('modal-container').classList.remove('opacity-0', 'pointer-events-none');
+    });
+    document.getElementById('modal-cancel-btn').addEventListener('click', () => {
+      document.getElementById('modal-container').classList.add('opacity-0', 'pointer-events-none');
+    });
+    document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+      ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      historyStack = [];
+      saveHistoryState();
+      document.getElementById('modal-container').classList.add('opacity-0', 'pointer-events-none');
+      showToast("Canvas scraped clean", "success");
+    });
+
+    // Save / Load / Export
+    document.getElementById('btn-save').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'drawpaw-painting.png';
+      link.href = paintCanvas.toDataURL('image/png');
+      link.click();
+      showToast("PNG exported to downloads", "success");
+    });
+
+    async function saveToLocalForage(silent) {
+      try {
+        const data = paintCanvas.toDataURL('image/png');
+        await localforage.setItem('canvas_data_v6', data);
+        if (!silent) showToast("Progress saved to browser storage", "success");
+      } catch(err) {
+        if (!silent) showToast("Save failed: " + err.message, "warning");
+      }
+    }
+
+    async function loadFromLocalForage(silent) {
+      try {
+        const data = await localforage.getItem('canvas_data_v6');
+        if (data) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+            ctx.drawImage(img, 0, 0);
+            saveHistoryState();
+            if (!silent) showToast("Backup restored from browser storage", "info");
+          };
+          img.src = data;
+        }
+      } catch(err) {
+        if (!silent) console.warn("Load failed:", err);
+      }
+    }
+
+    // Sketch tracing
+    selectSketchPreset.addEventListener('change', () => {
+      const val = selectSketchPreset.value;
+      if (val === 'custom') {
+        customSketchUploadArea.classList.remove('hidden');
+      } else {
+        customSketchUploadArea.classList.add('hidden');
+      }
+
+      if (val === 'none') {
+        imgSketchOverlay.style.opacity = '0';
+        imgSketchUnderlay.style.opacity = '0';
+        sketchSrcData = '';
+        return;
+      }
+
+      if (SKETCH_PRESETS[val]) {
+        sketchSrcData = SKETCH_PRESETS[val];
+        applySketchOverlay();
+      }
+    });
+
+    inputSketchUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        sketchSrcData = ev.target.result;
+        applySketchOverlay();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function applySketchOverlay() {
+      if (!sketchSrcData) return;
       if (sketchMode === 'overlay') {
         imgSketchOverlay.src = sketchSrcData;
         imgSketchOverlay.style.opacity = sketchOpacity;
@@ -1094,941 +1800,121 @@
       }
     }
 
-    function setSketchPlacement(mode) {
-      sketchMode = mode;
-      if (mode === 'overlay') {
-        btnSketchOverlay.className = "px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]";
-        btnSketchUnderlay.className = "px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] hover:text-linen-100";
-      } else {
-        btnSketchUnderlay.className = "px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]";
-        btnSketchOverlay.className = "px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] hover:text-linen-100";
-      }
-      updateSketchImgLayers();
-    }
-
-    selectSketchPreset.addEventListener('change', (e) => {
-      const val = e.target.value;
-      customSketchUploadArea.classList.add('hidden');
-
-      if (val === 'none') {
-        sketchSrcData = "";
-        updateSketchImgLayers();
-        saveToLocalForage(true);
-      } else if (val === 'custom') {
-        customSketchUploadArea.classList.remove('hidden');
-        if (!sketchSrcData.startsWith('data:image')) {
-          sketchSrcData = "";
-          updateSketchImgLayers();
-        }
-      } else if (SKETCH_PRESETS[val]) {
-        sketchSrcData = SKETCH_PRESETS[val];
-        updateSketchImgLayers();
-        saveToLocalForage(true);
-        showToast(`Loaded preset trace guide: ${val}`, 'info');
-      }
-    });
-
-    inputSketchUpload.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          sketchSrcData = event.target.result;
-          updateSketchImgLayers();
-          saveToLocalForage(true);
-          showToast('Custom sketch uploaded successfully!', 'success');
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    sliderSketchOpacity.addEventListener('input', (e) => {
-      sketchOpacity = parseFloat(e.target.value) / 100;
-      valSketchOpacity.innerText = `${e.target.value}%`;
-      updateSketchImgLayers();
-    });
-
-    sliderSketchOpacity.addEventListener('change', () => {
-      saveToLocalForage(true);
+    sliderSketchOpacity.addEventListener('input', () => {
+      sketchOpacity = parseFloat(sliderSketchOpacity.value) / 100;
+      valSketchOpacity.innerText = sliderSketchOpacity.value + '%';
+      applySketchOverlay();
     });
 
     btnSketchOverlay.addEventListener('click', () => {
-      setSketchPlacement('overlay');
-      saveToLocalForage(true);
+      sketchMode = 'overlay';
+      btnSketchOverlay.className = 'px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]';
+      btnSketchUnderlay.className = 'px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px]';
+      applySketchOverlay();
     });
 
     btnSketchUnderlay.addEventListener('click', () => {
-      setSketchPlacement('underlay');
-      saveToLocalForage(true);
+      sketchMode = 'underlay';
+      btnSketchUnderlay.className = 'px-1.5 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px]';
+      btnSketchOverlay.className = 'px-1.5 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px]';
+      applySketchOverlay();
     });
 
-    // =========================================================================
-    // MODAL POPUPS AND SCRUB CONFIRMATIONS
-    // =========================================================================
-    const modalContainer = document.getElementById('modal-container');
-    const modalCancelBtn = document.getElementById('modal-cancel-btn');
-    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-
-    document.getElementById('btn-clear').addEventListener('click', () => {
-      modalContainer.classList.remove('opacity-0', 'pointer-events-none');
-    });
-
-    modalCancelBtn.addEventListener('click', () => {
-      modalContainer.classList.add('opacity-0', 'pointer-events-none');
-    });
-
-    modalConfirmBtn.addEventListener('click', () => {
-      ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-      saveHistoryState();
-      saveToLocalForage(true);
-      modalContainer.classList.add('opacity-0', 'pointer-events-none');
-      showToast('Painting canvas wiped clean.', 'info');
-    });
-
-    const profileButtons = document.querySelectorAll('.brush-profile-btn');
-    profileButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectBrushProfile(btn.dataset.profile);
-      });
-    });
-
-    function selectBrushProfile(profileName) {
-      profileButtons.forEach(b => {
-        if (b.dataset.profile === profileName) {
-          b.classList.remove('border-transparent');
-          b.classList.add('border-amber-500');
-        } else {
-          b.classList.remove('border-amber-500');
-          b.classList.add('border-transparent');
-        }
-      });
-
-      currentBrushProfile = profileName;
-
-      if (currentBrushProfile === 'palette-knife') {
-        brushSizeSlider.value = 40;
-        brushWetSlider.value = 35;
-      } else if (currentBrushProfile === 'turpentine') {
-        brushSizeSlider.value = 55;
-        brushWetSlider.value = 100;
-      } else if (currentBrushProfile === 'fan-brush') {
-        brushSizeSlider.value = 45;
-        brushWetSlider.value = 85;
-      } else if (currentBrushProfile === 'filbert') {
-        brushSizeSlider.value = 38;
-        brushWetSlider.value = 80;
-      } else if (currentBrushProfile === 'dry-scumble') {
-        brushSizeSlider.value = 45;
-        brushWetSlider.value = 15;
-      } else if (currentBrushProfile === 'rigger') {
-        brushSizeSlider.value = 14;
-        brushWetSlider.value = 40;
-      } else if (currentBrushProfile === 'stippler') {
-        brushSizeSlider.value = 40;
-        brushWetSlider.value = 60;
-      } else if (currentBrushProfile === 'round-point') {
-        brushSizeSlider.value = 24;
-        brushWetSlider.value = 70;
-      } else {
-        brushSizeSlider.value = 32;
-        brushWetSlider.value = 75;
-      }
-
-      updateBrushParameters();
-    }
-
-    function updateBrushParameters() {
-      const baseWet = parseInt(brushWetSlider.value) / 100;
-      pressureSensitivity = parseInt(pressureSensSlider.value) / 100;
-
-      const mod = MEDIUM_PRESETS[activeMedium].modifier(baseWet);
-
-      brushSize = parseInt(brushSizeSlider.value);
-      brushWetness = mod.wet;
-
-      brushSizeLabel.innerText = `${brushSize}px`;
-      brushWetLabel.innerText = `${Math.round(brushWetness * 100)}%`;
-      pressureSensLabel.innerText = `${Math.round(pressureSensitivity * 100)}%`;
-
-      updateCursorSize();
-    }
-
-    brushSizeSlider.addEventListener('input', updateBrushParameters);
-    brushWetSlider.addEventListener('input', updateBrushParameters);
-    pressureSensSlider.addEventListener('input', updateBrushParameters);
-
-    function updateCursorSize() {
-      const dynamicSize = brushSize * (0.6 + smoothedPressure * 0.8 * pressureSensitivity);
-      customCursor.style.width = `${Math.round(dynamicSize)}px`;
-      customCursor.style.height = `${Math.round(dynamicSize)}px`;
-      
-      const coreSize = Math.max(3, Math.round(dynamicSize * smoothedPressure * 0.5));
-      cursorPressureCore.style.width = `${coreSize}px`;
-      cursorPressureCore.style.height = `${coreSize}px`;
-    }
-
-    function updateTelemetry() {
-      if (telemetryLoad) {
-        telemetryLoad.innerText = `${Math.round(brushDepletionLevel * 100)}%`;
-      }
-      if (telemetryPressure) {
-        telemetryPressure.innerText = `${Math.round(smoothedPressure * 100)}%`;
-      }
-      if (telemetryDirty) {
-        const orig = loadedReservoirColor;
-        const diff = Math.abs(activeBrushTipColor.r - orig.r) + 
-                     Math.abs(activeBrushTipColor.g - orig.g) + 
-                     Math.abs(activeBrushTipColor.b - orig.b);
-        const dirtyPercent = Math.min(Math.round((diff / 765) * 100), 100);
-        telemetryDirty.innerText = `${dirtyPercent}%`;
-      }
-    }
-
-    // =========================================================================
-    // ADJUSTABLE WORKSPACE LAYOUT CONTROLLERS
-    // =========================================================================
-    const btnSidebarLeft = document.getElementById('btn-sidebar-left');
-    const btnSidebarRight = document.getElementById('btn-sidebar-right');
-    const btnResHigh = document.getElementById('btn-res-high');
-    const btnResFast = document.getElementById('btn-res-fast');
-    const btnToggleFocus = document.getElementById('btn-toggle-focus');
-
-    const studioGrid = document.getElementById('studio-grid');
-    const controlsPanel = document.getElementById('controls-panel');
-    const canvasPanel = document.getElementById('canvas-panel');
-    const bottomPanel = document.getElementById('bottom-tracing-panel');
-
-    function toggleSidebarSide(toRight) {
-      if (toRight) {
-        studioGrid.classList.add('xl:flex-row-reverse');
-        btnSidebarRight.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
-        btnSidebarLeft.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
-      } else {
-        studioGrid.classList.remove('xl:flex-row-reverse');
-        btnSidebarLeft.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
-        btnSidebarRight.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
-      }
-    }
-
-    btnSidebarLeft.addEventListener('click', () => {
-      toggleSidebarSide(false);
-      saveToLocalForage(true);
-    });
-
-    btnSidebarRight.addEventListener('click', () => {
-      toggleSidebarSide(true);
-      saveToLocalForage(true);
-    });
-
-    function toggleResolutionMode(isFast) {
-      if (isFast) {
-        btnResFast.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
-        btnResHigh.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
-        showToast("Switched to flat 2D layout", "info");
-      } else {
-        btnResHigh.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
-        btnResFast.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
-        showToast("Switched to high-fidelity canvas layer", "success");
-      }
-    }
-
-    btnResHigh.addEventListener('click', () => {
-      toggleResolutionMode(false);
-      saveToLocalForage(true);
-    });
-
-    btnResFast.addEventListener('click', () => {
-      toggleResolutionMode(true);
-      saveToLocalForage(true);
-    });
-
-    let focusModeOn = false;
-    function toggleFocusMode() {
-      focusModeOn = !focusModeOn;
-      if (focusModeOn) {
-        controlsPanel.classList.add('hidden', 'xl:hidden');
-        bottomPanel.classList.add('hidden');
-        canvasPanel.className = "col-span-12 flex flex-col gap-4 transition-all duration-300";
-        btnToggleFocus.innerHTML = `<i class="fa-solid fa-compress text-amber-500"></i> Standard Workspace <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>`;
-        showToast("Focus Mode Activated: Controls hidden", "info");
-      } else {
-        controlsPanel.classList.remove('hidden', 'xl:hidden');
-        bottomPanel.classList.remove('hidden');
-        canvasPanel.className = "col-span-12 xl:col-span-9 flex flex-col gap-4 transition-all duration-300";
-        btnToggleFocus.innerHTML = `<i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[8px] bg-linen-800 rounded font-mono">F</kbd>`;
-        showToast("Focus Mode Exited: All panels visible", "info");
-      }
-      setTimeout(resizeCanvas, 150);
-    }
-
-    btnToggleFocus.addEventListener('click', toggleFocusMode);
-
-    // =========================================================================
-    // DRAW STROKE CORE SIMULATION (PURE SATURATED OIL ENGINE)
-    // =========================================================================
-    let lastX = 0;
-    let lastY = 0;
-    let lastStrokeTime = 0;
-    let eyedropperTimer = null;
-
-    function getNormalizedPressure(e) {
-      if (e.pressure !== undefined && e.pressure > 0) {
-        return Math.min(Math.max(e.pressure, 0.05), 1.0);
-      }
-      
-      const now = performance.now();
-      const dt = Math.max(now - lastStrokeTime, 8);
-      const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-      const speed = dist / dt;
-
-      const estimatedPressure = Math.min(Math.max(1.0 - speed * 0.18, 0.25), 0.95);
-      return estimatedPressure;
-    }
-
-    function startDrawing(e) {
-      if (e.pointerType === 'touch' && !e.isPrimary) {
-        isDrawing = false;
-        triggerGestureUndo();
-        return;
-      }
-
-      const pos = getMousePos(paintCanvas, e);
-      currentPressure = getNormalizedPressure(e);
-      smoothedPressure = currentPressure;
-      lastStrokeTime = performance.now();
-
-      if (eyedropperTimer) clearTimeout(eyedropperTimer);
-      eyedropperTimer = setTimeout(() => {
-        activateEyedropper(pos.x, pos.y);
-      }, 750);
-
-      isDrawing = true;
-      lastX = pos.x;
-      lastY = pos.y;
-      hasValidStrokeAngle = false;
-      
-      brushDepletionLevel = 1.0;
-      activeBrushTipColor = { ...loadedReservoirColor };
-
-      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
-      updateCursorSize();
-    }
-
-    function stopDrawing(e) {
-      if (eyedropperTimer) {
-        clearTimeout(eyedropperTimer);
-        eyedropperTimer = null;
-      }
-      if (isDrawing) {
-        isDrawing = false;
-        hasValidStrokeAngle = false;
-        saveHistoryState();
-        saveToLocalForage(true);
-      }
-      smoothedPressure = 0.5;
-      updateCursorSize();
-      updateTelemetry();
-    }
-
-    function draw(e) {
-      if (!isDrawing) return;
-
-      const pos = getMousePos(paintCanvas, e);
-      const dist = Math.hypot(pos.x - lastX, pos.y - lastY);
-      
-      if (dist > 8 && eyedropperTimer) {
-        clearTimeout(eyedropperTimer);
-        eyedropperTimer = null;
-      }
-
-      const rawP = getNormalizedPressure(e);
-      smoothedPressure = smoothedPressure * 0.65 + rawP * 0.35;
-      lastStrokeTime = performance.now();
-
-      drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
-      lastX = pos.x;
-      lastY = pos.y;
-
-      updateCursorSize();
-    }
-
-    function getMousePos(canvas, evt) {
-      const rect = canvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      
-      return {
-        x: (evt.clientX - rect.left) * (canvas.width / rw),
-        y: (evt.clientY - rect.top) * (canvas.height / rh)
-      };
-    }
-
-    const eyedropperPreview = document.getElementById('eyedropper-preview');
-    function activateEyedropper(x, y) {
-      if (isDrawing) isDrawing = false;
-      try {
-        const pix = ctx.getImageData(x, y, 1, 1).data;
-        if (isBackgroundBoardColor(pix[0], pix[1], pix[2])) return;
-
-        const color = { r: pix[0], g: pix[1], b: pix[2] };
-        currentPigment = rgbToHex(color.r, color.g, color.b);
-        currentPigmentName = "Eyedropper Pick";
-        
-        activePigmentName.innerText = currentPigmentName;
-        activeColorSwatch.style.backgroundColor = currentPigment;
-        loadedReservoirColor = color;
-        activeBrushTipColor = color;
-        brushDepletionLevel = 1.0;
-        customCursor.style.backgroundColor = currentPigment;
-
-        eyedropperPreview.style.backgroundColor = currentPigment;
-        const rect = paintCanvas.getBoundingClientRect();
-        
-        const rw = rect.width || 1;
-        const rh = rect.height || 1;
-        const screenX = rect.left + (x * (rw / paintCanvas.width));
-        const screenY = rect.top + (y * (rh / paintCanvas.height));
-
-        eyedropperPreview.style.left = `${screenX}px`;
-        eyedropperPreview.style.top = `${screenY}px`;
-        eyedropperPreview.classList.remove('hidden');
-        
-        setTimeout(() => {
-          eyedropperPreview.classList.add('hidden');
-        }, 1200);
-
-        showToast("Eyedropper sampled canvas color!", "success");
-        updateTelemetry();
-      } catch (err) {
-        console.warn("Eyedropper boundary exception handled.");
-      }
-    }
-
-    function triggerGestureUndo() {
-      if (historyStack.length > 1) {
-        historyStack.pop(); 
-        const lastState = historyStack[historyStack.length - 1];
-        ctx.putImageData(lastState, 0, 0);
-        saveToLocalForage(true);
-        showToast("Gestures: Undone stroke!", "info");
-      } else {
-        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-      }
-    }
-
-    function drawPureDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, pressureMod) {
-      targetCtx.save();
-      targetCtx.translate(x, y);
-      targetCtx.rotate(angle);
-
-      const radL = (length > 0 ? length : radius * 1.5) * (0.8 + pressureMod * 0.3);
-      const radW = radius * (0.8 + pressureMod * 0.4);
-
-      targetCtx.globalAlpha = Math.min(alpha * (0.85 + pressureMod * 0.35), 0.98);
-      targetCtx.fillStyle = `rgb(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b})`;
-      targetCtx.beginPath();
-      targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.8, 0, 0, Math.PI * 2);
-      targetCtx.fill();
-
-      targetCtx.restore();
-    }
-
-    function drawStroke(x0, y0, x1, y1, pressure) {
-      const dx = x1 - x0;
-      const dy = y1 - y0;
-      const distance = Math.hypot(dx, dy);
-
-      if (distance > 0.5) {
-        const rawAngle = Math.atan2(dy, dx);
-        if (!hasValidStrokeAngle) {
-          currentStrokeAngle = rawAngle;
-          hasValidStrokeAngle = true;
-        } else {
-          let diff = (rawAngle - currentStrokeAngle + Math.PI * 3) % (Math.PI * 2) - Math.PI;
-          currentStrokeAngle += diff * 0.4;
-        }
-      }
-
-      const strokeAngle = hasValidStrokeAngle ? currentStrokeAngle : 0;
-      const perpAngle = strokeAngle + Math.PI / 2;
-
-      const steps = Math.max(Math.floor(distance / 2.0), 1);
-      const mediumPreset = MEDIUM_PRESETS[activeMedium];
-      const mod = mediumPreset.modifier(brushWetness);
-
-      const pressureEffect = 0.5 + pressure * pressureSensitivity * 0.8;
-      const dynamicBrushSize = brushSize * pressureEffect;
-
-      for (let i = 0; i <= steps; i++) {
-        const t = steps === 0 ? 0 : i / steps;
-        const cx = x0 + dx * t;
-        const cy = y0 + dy * t;
-
-        const sampleRadius = Math.max(Math.round(dynamicBrushSize * 0.4), 3);
-        let accumulatedCanvasColor = null; 
-
-        try {
-          const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, sampleRadius, sampleRadius);
-          let rSum = 0, gSum = 0, bSum = 0, validPixels = 0;
-          
-          for (let p = 0; p < sampleData.data.length; p += 4) {
-            const alphaVal = sampleData.data[p+3];
-            const r = sampleData.data[p];
-            const g = sampleData.data[p+1];
-            const b = sampleData.data[p+2];
-
-            if (alphaVal > 50 && !isBackgroundBoardColor(r, g, b)) {
-              rSum += r;
-              gSum += g;
-              bSum += b;
-              validPixels++;
-            }
-          }
-
-          if (validPixels > 3) {
-            accumulatedCanvasColor = {
-              r: Math.round(rSum / validPixels),
-              g: Math.round(gSum / validPixels),
-              b: Math.round(bSum / validPixels)
-            };
-          }
-        } catch (e) {}
-
-        if (accumulatedCanvasColor) {
-          const pickupRate = (0.06 + (1 - pressure) * 0.06) * brushWetness;
-          activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
-          customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
-        }
-
-        const reservoirMixRatio = 0.15 * pressure * (1 - brushDepletionLevel);
-        const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, loadedReservoirColor, reservoirMixRatio);
-        const baseAlpha = (0.7 + (pressure * 0.3)) * brushDepletionLevel * mod.opacityMult;
-
-        // =====================================================================
-        // BRUSH PROFILES
-        // =====================================================================
-
-        if (currentBrushProfile === 'bristle') {
-          const fiberCount = Math.max(Math.floor(dynamicBrushSize / 2.8), 8);
-          const fiberLength = Math.max(dynamicBrushSize * 0.45, 6);
-
-          for (let f = 0; f < fiberCount; f++) {
-            const spreadRatio = (f / (fiberCount - 1) - 0.5);
-            const offsetDist = spreadRatio * dynamicBrushSize;
-            
-            const jitter = (Math.sin(f * 3.7 + cx * 0.1) * 1.5);
-            const bx = cx + Math.cos(perpAngle) * (offsetDist + jitter);
-            const by = cy + Math.sin(perpAngle) * (offsetDist + jitter);
-
-            const bristleRadius = Math.max((1 - Math.abs(spreadRatio) * 0.35) * (dynamicBrushSize * 0.12), 2.0);
-
-            drawPureDab(ctx, bx, by, bristleRadius, fiberLength, strokeAngle, blendedStrokeColor, baseAlpha, pressure);
-          }
-        } 
-        else if (currentBrushProfile === 'palette-knife') {
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(strokeAngle);
-
-          const kw = dynamicBrushSize * 1.25;
-          const kh = dynamicBrushSize * (0.35 + pressure * 0.2);
-
-          ctx.globalAlpha = Math.min(baseAlpha * 1.1, 1.0);
-          ctx.fillStyle = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
-          ctx.fillRect(-kw/2, -kh/2, kw, kh);
-
-          ctx.restore();
-        } 
-        else if (currentBrushProfile === 'turpentine') {
-          ctx.save();
-          ctx.globalAlpha = (0.12 + pressure * 0.15) * mod.opacityMult;
-          const radialGrad = ctx.createRadialGradient(cx, cy, dynamicBrushSize * 0.15, cx, cy, dynamicBrushSize * 1.1);
-          radialGrad.addColorStop(0, `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`);
-          radialGrad.addColorStop(0.85, `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`);
-          radialGrad.addColorStop(1, 'transparent');
-
-          ctx.beginPath();
-          ctx.fillStyle = radialGrad;
-          ctx.arc(cx, cy, dynamicBrushSize * 1.1, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        } 
-        else if (currentBrushProfile === 'fan-brush') {
-          const hairCount = 9;
-          const fanSpan = dynamicBrushSize * 1.4;
-
-          for (let h = 0; h < hairCount; h++) {
-            const ratio = (h / (hairCount - 1) - 0.5);
-            const arcOffset = (1 - Math.pow(ratio * 2, 2)) * (dynamicBrushSize * 0.25);
-            const distPerp = ratio * fanSpan;
-
-            const fx = cx + Math.cos(perpAngle) * distPerp + Math.cos(strokeAngle) * arcOffset;
-            const fy = cy + Math.sin(perpAngle) * distPerp + Math.sin(strokeAngle) * arcOffset;
-
-            drawPureDab(ctx, fx, fy, 2.5 * pressureEffect, dynamicBrushSize * 0.35, strokeAngle, blendedStrokeColor, baseAlpha * 0.9, pressure);
-          }
-        }
-        else if (currentBrushProfile === 'filbert') {
-          const nestedSteps = 3;
-          for (let k = 0; k < nestedSteps; k++) {
-            const sizeRatio = 1 - (k / nestedSteps) * 0.45;
-            const rx = (dynamicBrushSize / 2) * sizeRatio;
-            const ry = (dynamicBrushSize / 3.2) * sizeRatio;
-            
-            drawPureDab(ctx, cx, cy, ry, rx * 2, strokeAngle, blendedStrokeColor, baseAlpha * 0.7, pressure);
-          }
-        }
-        else if (currentBrushProfile === 'dry-scumble') {
-          const speckleCount = Math.max(Math.floor(dynamicBrushSize / 1.6), 8);
-          for (let s = 0; s < speckleCount; s++) {
-            const angle = Math.random() * Math.PI * 2;
-            const dist = Math.sqrt(Math.random()) * (dynamicBrushSize / 2);
-            const sx = cx + Math.cos(angle) * dist;
-            const sy = cy + Math.sin(angle) * dist;
-            
-            drawPureDab(ctx, sx, sy, Math.random() * 2.5 + 1.2, Math.random() * 4.0 + 2.0, strokeAngle, blendedStrokeColor, baseAlpha * 0.8, pressure);
-          }
-        }
-        else if (currentBrushProfile === 'rigger') {
-          const riggerRadius = Math.max(dynamicBrushSize * 0.15, 2.0);
-          drawPureDab(ctx, cx, cy, riggerRadius, riggerRadius * 3.0, strokeAngle, blendedStrokeColor, 0.98 * brushDepletionLevel * mod.opacityMult, pressure);
-        }
-        else if (currentBrushProfile === 'stippler') {
-          const spotCount = 7;
-          for (let s = 0; s < spotCount; s++) {
-            const angle = Math.random() * Math.PI * 2;
-            const dist = Math.sqrt(Math.random()) * (dynamicBrushSize / 1.9);
-            const sx = cx + Math.cos(angle) * dist;
-            const sy = cy + Math.sin(angle) * dist;
-            
-            drawPureDab(ctx, sx, sy, Math.random() * 3.5 + 2.0, Math.random() * 3.5 + 2.0, 0, blendedStrokeColor, baseAlpha * 0.85, pressure);
-          }
-        }
-        else if (currentBrushProfile === 'round-point') {
-          const stepsCount = 3;
-          for (let r = 0; r < stepsCount; r++) {
-            const ratio = 1 - (r / stepsCount) * 0.55;
-            const curRad = (dynamicBrushSize / 3.0) * ratio;
-            
-            drawPureDab(ctx, cx, cy, curRad, curRad * 2.2, strokeAngle, blendedStrokeColor, baseAlpha * 0.75, pressure);
-          }
-        }
-
-        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion * (0.7 + pressure * 0.6), 0.35);
-        updateTelemetry();
-      }
-    }
-
-    // Window-level pointer listeners for robust drawing tracking anywhere
-    window.addEventListener('pointerdown', (e) => {
-      const rect = paintCanvas.getBoundingClientRect();
-      if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-        startDrawing(e);
-      }
-    });
-    window.addEventListener('pointermove', draw);
-    window.addEventListener('pointerup', stopDrawing);
-    window.addEventListener('pointercancel', stopDrawing);
-
-    const canvasContainer = document.getElementById('studio-canvas-container');
-    canvasContainer.addEventListener('pointerenter', () => {
-      canvasContainer.classList.add('brush-cursor-active');
-      customCursor.classList.remove('hidden');
-      updateCursorSize();
-    });
-
-    canvasContainer.addEventListener('pointerleave', () => {
-      canvasContainer.classList.remove('brush-cursor-active');
-      customCursor.classList.add('hidden');
-    });
-
-    canvasContainer.addEventListener('pointermove', (e) => {
-      customCursor.style.left = `${e.clientX}px`;
-      customCursor.style.top = `${e.clientY}px`;
-    });
-
-    // =========================================================================
-    // KEYBOARD SHORTCUTS CONTROLLER
-    // =========================================================================
-    window.addEventListener('keydown', (e) => {
-      const activeElement = document.activeElement;
-      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' || e.key.toLowerCase() === 'u') {
-        e.preventDefault();
-        triggerGestureUndo();
-      }
-
-      if (e.key === '[') {
-        e.preventDefault();
-        const nextVal = Math.max(parseInt(brushSizeSlider.value) - 5, 5);
-        brushSizeSlider.value = nextVal;
-        updateBrushParameters();
-        showToast(`Brush Size: ${nextVal}px`, "info");
-      }
-
-      if (e.key === ']') {
-        e.preventDefault();
-        const nextVal = Math.min(parseInt(brushSizeSlider.value) + 5, 90);
-        brushSizeSlider.value = nextVal;
-        updateBrushParameters();
-        showToast(`Brush Size: ${nextVal}px`, "info");
-      }
-
-      if (e.key.toLowerCase() === 'c') {
-        e.preventDefault();
-        document.getElementById('btn-clear').click();
-      }
-
-      if (e.key.toLowerCase() === 'f') {
-        e.preventDefault();
-        toggleFocusMode();
-      }
-
-      if (e.key >= '1' && e.key <= '9') {
-        e.preventDefault();
-        const profiles = ["bristle", "palette-knife", "turpentine", "fan-brush", "filbert", "dry-scumble", "rigger", "stippler", "round-point"];
-        const index = parseInt(e.key) - 1;
-        if (profiles[index]) {
-          selectBrushProfile(profiles[index]);
-          showToast(`Brush: ${profiles[index].toUpperCase()}`, "info");
-        }
-      }
-
-      if (e.key.toLowerCase() === 'm') {
-        e.preventDefault();
-        const mediums = ["none", "linseed", "turps", "liquin"];
-        const currIndex = mediums.indexOf(activeMedium);
-        const nextIndex = (currIndex + 1) % mediums.length;
-        selectMedium(mediums[nextIndex]);
-      }
-    });
-
-    const shortcutsOverlay = document.getElementById('shortcuts-overlay');
+    // Shortcuts overlay
     document.getElementById('btn-show-shortcuts').addEventListener('click', () => {
-      shortcutsOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      document.getElementById('shortcuts-overlay').classList.remove('opacity-0', 'pointer-events-none');
     });
-
     document.getElementById('close-shortcuts-btn').addEventListener('click', () => {
-      shortcutsOverlay.classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('shortcuts-overlay').classList.add('opacity-0', 'pointer-events-none');
     });
-
     document.getElementById('shortcuts-understand-btn').addEventListener('click', () => {
-      shortcutsOverlay.classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('shortcuts-overlay').classList.add('opacity-0', 'pointer-events-none');
     });
 
-    document.getElementById('btn-undo').addEventListener('click', triggerGestureUndo);
-
-    document.getElementById('btn-save').addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = `DrawPaw_Impasto_${Date.now()}.png`;
-      link.href = paintCanvas.toDataURL('image/png');
-      link.click();
-      showToast("Masterpiece exported as high-res PNG!", "success");
-    });
-
-    // =========================================================================
-    // VISCOUS OIL MIXING PAD (PURE SPECTRAL WELL LOGIC)
-    // =========================================================================
-    const mixerCanvas = document.getElementById('mixer-canvas');
-    const mCtx = mixerCanvas.getContext('2d', { willReadFrequently: true });
-    const mixerHint = document.getElementById('mixer-hint');
-    const mixerOutputSwatch = document.getElementById('mixer-output-swatch');
-    const mixerOutputName = document.getElementById('mixer-output-name');
-    const btnLoadMixerColor = document.getElementById('btn-load-mixer-color');
-
-    let activeMixerTipColor = null;
-
-    const MIXER_DOLLOPS = [
-      { x: 0.15, y: 0.35, r: 42, color: { r: 29, g: 78, b: 216 }, name: "Ultramarine Blue" },
-      { x: 0.85, y: 0.35, r: 42, color: { r: 250, g: 204, b: 21 }, name: "Zinc Yellow" },
-      { x: 0.50, y: 0.20, r: 42, color: { r: 225, g: 29, b: 72 }, name: "Cadmium Red" },
-      { x: 0.20, y: 0.78, r: 36, color: { r: 16, g: 185, b: 129 }, name: "Phthalo Green" },
-      { x: 0.80, y: 0.78, r: 36, color: { r: 124, g: 45, b: 18 }, name: "Burnt Sienna" },
-      { x: 0.50, y: 0.82, r: 38, color: { r: 255, g: 255, b: 255 }, name: "Titanium White" }
-    ];
-
-    function initMixer() {
-      if (mixerCanvas.parentElement.clientWidth === 0) return;
-      mixerCanvas.width = mixerCanvas.parentElement.clientWidth;
-      mixerCanvas.height = mixerCanvas.parentElement.clientHeight;
-
-      mCtx.fillStyle = '#E8E2D6';
-      mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
-
-      MIXER_DOLLOPS.forEach(d => {
-        drawMixerWellDollop(
-          d.x * mixerCanvas.width,
-          d.y * mixerCanvas.height,
-          d.r,
-          d.color
-        );
-      });
-
-      mCtx.fillStyle = 'rgba(64, 53, 44, 0.45)';
-      mCtx.font = 'bold 11px sans-serif';
-      mCtx.textAlign = 'center';
-      mCtx.fillText("SWIRL & BLEND DOLLOPS ACROSS THE SLAB", mixerCanvas.width / 2, mixerCanvas.height / 2);
-    }
-
-    function drawMixerWellDollop(x, y, radius, rgb) {
-      mCtx.save();
-      const grad = mCtx.createRadialGradient(x, y, 2, x, y, radius);
-      grad.addColorStop(0, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
-      grad.addColorStop(0.9, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
-      grad.addColorStop(1, 'transparent');
-
-      mCtx.beginPath();
-      mCtx.fillStyle = grad;
-      mCtx.arc(x, y, radius, 0, Math.PI * 2);
-      mCtx.fill();
-      mCtx.restore();
-    }
-
-    let isMixing = false;
-    let mxLastX = 0;
-    let mxLastY = 0;
-
-    function mixBlendStroke(x0, y0, x1, y1) {
-      const dx = x1 - x0;
-      const dy = y1 - y0;
-      const distance = Math.hypot(dx, dy);
-      const steps = Math.max(Math.floor(distance / 2.0), 1);
-      const blendRadius = 18;
-
-      for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        const cx = x0 + dx * t;
-        const cy = y0 + dy * t;
-
-        let canvasColor = null;
-        try {
-          const sample = mCtx.getImageData(cx - 3, cy - 3, 6, 6);
-          let rSum = 0, gSum = 0, bSum = 0, valid = 0;
-          for (let p = 0; p < sample.data.length; p += 4) {
-            const r = sample.data[p];
-            const g = sample.data[p+1];
-            const b = sample.data[p+2];
-            if (!isBackgroundBoardColor(r, g, b)) {
-              rSum += r; gSum += g; bSum += b; valid++;
-            }
-          }
-          if (valid > 0) {
-            canvasColor = {
-              r: Math.round(rSum / valid),
-              g: Math.round(gSum / valid),
-              b: Math.round(bSum / valid)
-            };
-          }
-        } catch(e){}
-
-        if (canvasColor) {
-          if (!activeMixerTipColor) {
-            activeMixerTipColor = canvasColor;
-          } else {
-            activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.35);
-          }
-        }
-
-        if (activeMixerTipColor) {
-          mCtx.save();
-          mCtx.globalAlpha = 0.95;
-          mCtx.fillStyle = `rgb(${activeMixerTipColor.r}, ${activeMixerTipColor.g}, ${activeMixerTipColor.b})`;
-          mCtx.beginPath();
-          mCtx.arc(cx, cy, blendRadius, 0, Math.PI * 2);
-          mCtx.fill();
-          mCtx.restore();
-
-          const hex = rgbToHex(activeMixerTipColor.r, activeMixerTipColor.g, activeMixerTipColor.b);
-          mixerOutputSwatch.style.backgroundColor = hex;
-          mixerOutputName.innerText = hex.toUpperCase();
-        }
-      }
-    }
-
-    function hideMixerHint() {
-      if (mixerHint) mixerHint.style.opacity = '0';
-    }
-
-    mixerCanvas.addEventListener('pointerdown', (e) => {
-      isMixing = true;
-      hideMixerHint();
-      const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      mxLastX = (e.clientX - rect.left) * (mixerCanvas.width / rw);
-      mxLastY = (e.clientY - rect.top) * (mixerCanvas.height / rh);
-      
-      // Immediately pick up color under click point so it never drags white/background
-      try {
-        const pix = mCtx.getImageData(mxLastX, mxLastY, 1, 1).data;
-        if (pix[3] > 0 && !isBackgroundBoardColor(pix[0], pix[1], pix[2])) {
-          activeMixerTipColor = { r: pix[0], g: pix[1], b: pix[2] };
-        }
-      } catch(err){}
-
-      if (!activeMixerTipColor) {
-        activeMixerTipColor = { ...loadedReservoirColor };
-      }
-
-      mixBlendStroke(mxLastX, mxLastY, mxLastX, mxLastY);
-    });
-
-    mixerCanvas.addEventListener('pointermove', (e) => {
-      if (!isMixing) return;
-      const rect = mixerCanvas.getBoundingClientRect();
-      const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      const cx = (e.clientX - rect.left) * (mixerCanvas.width / rw);
-      const cy = (e.clientY - rect.top) * (mixerCanvas.height / rh);
-
-      mixBlendStroke(mxLastX, mxLastY, cx, cy);
-      mxLastX = cx;
-      mxLastY = cy;
-    });
-
-    window.addEventListener('pointerup', () => { isMixing = false; });
-    window.addEventListener('pointercancel', () => { isMixing = false; });
-
-    btnLoadMixerColor.addEventListener('click', () => {
-      if (activeMixerTipColor) {
-        currentPigment = rgbToHex(activeMixerTipColor.r, activeMixerTipColor.g, activeMixerTipColor.b);
-        currentPigmentName = "Mixing Slab Custom";
-        
-        activePigmentName.innerText = currentPigmentName;
-        activeColorSwatch.style.backgroundColor = currentPigment;
-        loadedReservoirColor = { ...activeMixerTipColor };
-        activeBrushTipColor = { ...activeMixerTipColor };
-        brushDepletionLevel = 1.0;
-        customCursor.style.backgroundColor = currentPigment;
-        
-        showToast("Loaded custom mix onto Studio Brush!", "success");
-        switchTab('studio');
+    // Focus mode
+    let focusMode = false;
+    document.getElementById('btn-toggle-focus').addEventListener('click', toggleFocus);
+    function toggleFocus() {
+      focusMode = !focusMode;
+      const header = document.querySelector('header');
+      if (focusMode) {
+        header.style.display = 'none';
+        setTimeout(resizeCanvas, 50);
       } else {
-        showToast("Swirl some paint dollops first to create a mix!", "info");
+        header.style.display = '';
+        setTimeout(resizeCanvas, 50);
+      }
+    }
+
+    // =========================================================================
+    // KEYBOARD SHORTCUTS
+    // =========================================================================
+
+    const MEDIUM_CYCLE = ['none', 'linseed', 'turps', 'liquin'];
+
+    document.addEventListener('keydown', (e) => {
+      // Don't intercept if typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === 'u' || (e.ctrlKey && e.key === 'z')) {
+        e.preventDefault();
+        undoStroke();
+      }
+      if (e.key === 'c' && !e.ctrlKey) {
+        document.getElementById('modal-container').classList.remove('opacity-0', 'pointer-events-none');
+      }
+      if (e.key === '[') {
+        brushSize = Math.max(6, brushSize - 4);
+        brushSizeSlider.value = brushSize;
+        brushSizeLabel.innerText = brushSize + 'px';
+      }
+      if (e.key === ']') {
+        brushSize = Math.min(90, brushSize + 4);
+        brushSizeSlider.value = brushSize;
+        brushSizeLabel.innerText = brushSize + 'px';
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        toggleFocus();
+      }
+      if (e.key === 'm' || e.key === 'M') {
+        const currentIdx = MEDIUM_CYCLE.indexOf(activeMedium);
+        const nextIdx = (currentIdx + 1) % MEDIUM_CYCLE.length;
+        const nextMedium = MEDIUM_CYCLE[nextIdx];
+        document.querySelector(`.medium-btn[data-medium="${nextMedium}"]`).click();
+      }
+
+      // Number keys 1-9 for brush profiles
+      const profileMap = ['bristle', 'palette-knife', 'turpentine', 'fan-brush', 'filbert', 'dry-scumble', 'rigger', 'stippler', 'round-point'];
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= 9) {
+        const profileName = profileMap[num - 1];
+        const btn = document.querySelector(`.brush-profile-btn[data-profile="${profileName}"]`);
+        if (btn) btn.click();
       }
     });
 
-    document.getElementById('btn-clear-mixer').addEventListener('click', () => {
-      initMixer();
-      showToast("Mixing slab scraped clean.", "info");
-    });
-
-    // Bootstrap initialization
-    window.onload = function() {
-      resizeCanvas();
-      initPaletteSlab();
-      updateBrushParameters();
-      updateTelemetry();
-    };
+    // =========================================================================
+    // INITIALIZATION
+    // =========================================================================
 
     window.addEventListener('resize', () => {
+      if (!document.getElementById('tab-studio').classList.contains('hidden')) {
+        resizeCanvas();
+      }
+      if (!document.getElementById('tab-mixer').classList.contains('hidden')) {
+        initMixer();
+      }
+    });
+
+    // Boot sequence
+    setTimeout(() => {
       resizeCanvas();
       initPaletteSlab();
-      initMixer();
-    });
-  </script>
+      updateTelemetry();
+      customCursor.style.backgroundColor = currentPigment;
+    }, 100);
+
+
+</script>
 </body>
 </html>
