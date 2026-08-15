@@ -693,6 +693,7 @@
     }
 
     // Vibrant Subtractive-Pigment Oil Blending Function
+        // Vibrant Subtractive-Pigment Oil Blending Function
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
       const isBBackground = (colorB_rgb.r > 242 && colorB_rgb.g > 240 && colorB_rgb.b > 236) ||
                             (colorB_rgb.r === 0 && colorB_rgb.g === 0 && colorB_rgb.b === 0);
@@ -716,16 +717,22 @@
 
       const mixedH = artistHueToRgbHue(mixedAh);
 
-      // Preserve pigment saturation to avoid graying
-      const maxSaturation = Math.max(hsvA.s, hsvB.s);
-      const mixedS = Math.min(1.0, Math.max(maxSaturation * 0.92, (hsvA.s * (1 - ratio) + hsvB.s * ratio)));
-      
-      // Subtractive density curve: mixing two pigments slightly deepens the value
-      const mixedV = Math.max(20, (hsvA.v * (1 - ratio) + hsvB.v * ratio) * (1 - Math.sin(ratio * Math.PI) * 0.08));
+      // Preserve pigment saturation — take the higher of the two sources
+      // then apply a small penalty proportional to how different the hues are
+      // This prevents the rapid washout that made everything white
+      const baseSat = Math.max(hsvA.s, hsvB.s);
+      const hueDistance = Math.abs(dh);
+      const saturationPenalty = hueDistance * 0.15;
+      const mixedS = Math.max(0.08, Math.min(1.0, baseSat - saturationPenalty));
+
+      // Subtractive density: two pigments absorb more light than either alone
+      // producing a natural darkening at the midpoint of the blend
+      const densityDarkening = 1.0 - Math.sin(ratio * Math.PI) * 0.10;
+      const mixedV = Math.max(0.08, (hsvA.v * (1 - ratio) + hsvB.v * ratio) * densityDarkening);
 
       return hsvToRgb(mixedH, mixedS, mixedV);
     }
-
+    
     function hexToRgb(hex) {
       if (hex.length === 4) {
         hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
