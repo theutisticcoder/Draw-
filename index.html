@@ -694,21 +694,28 @@
 
     // Vibrant Subtractive-Pigment Oil Blending Function
         // Vibrant Subtractive-Pigment Oil Blending Function
+        // Vibrant Subtractive-Pigment Oil Blending Function
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      const isBBackground = (colorB_rgb.r > 242 && colorB_rgb.g > 240 && colorB_rgb.b > 236) ||
+      // 1. Detect canvas background using a wide threshold (catches #FAF8F5 and similar)
+      const isBBackground = (colorB_rgb.r > 230 && colorB_rgb.g > 225 && colorB_rgb.b > 215) ||
                             (colorB_rgb.r === 0 && colorB_rgb.g === 0 && colorB_rgb.b === 0);
 
       if (isBBackground) {
         return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
       }
 
-      // Geometric RGB midpoint mixing to prevent hue corruption from HSV wrapping
-      // This naturally yields rich greens (Y+B), oranges (R+Y), and purples (R+B)
+      // 2. Safety Net: If brush wetness is low (dry brush/scumbling), 
+      // refuse to pick up ANY foreign color to prevent canvas contamination.
+      if (brushWetness < 0.25) {
+        return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
+      }
+
+      // 3. Geometric RGB midpoint mixing (prevents hue corruption/blackening)
       const mx = colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio;
       const my = colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio;
       const mz = colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio;
       
-      // Scale the midpoint back to the average brightness of the two inputs
+      // 4. Scale the midpoint back to the average brightness of the two inputs
       // This prevents the mix from collapsing into a dark gray/black
       const avgBrightness = ((colorA_rgb.r + colorA_rgb.g + colorA_rgb.b) + 
                              (colorB_rgb.r + colorB_rgb.g + colorB_rgb.b)) / (2 * 3);
