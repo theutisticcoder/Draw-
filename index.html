@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -436,7 +438,7 @@
               <div class="flex justify-between items-center text-[9px] text-linen-400 bg-black/15 px-2 py-1 rounded">
                 <span>Pressure: <strong id="telemetry-pressure" class="text-amber-400 font-mono">0%</strong></span>
                 <span>Brush Load: <strong id="telemetry-load" class="text-amber-400 font-mono">100%</strong></span>
-                <span>Foreign Blend: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
+                <span>Tip Blend: <strong id="telemetry-dirty" class="text-amber-400 font-mono">0%</strong></span>
               </div>
               
               <div class="grid grid-cols-2 gap-x-3 text-[9px] text-linen-400 leading-tight">
@@ -760,7 +762,7 @@
         return {
           r: Math.max(0, Math.round(rgb.r * shadowFactor)),
           g: Math.max(0, Math.round(rgb.g * shadowFactor)),
-          b: Math.max(0, Math.round(rgb.b * shadowFactor))
+          b: Math.max(0, Math.round(rgb.g * shadowFactor))
         };
       }
     }
@@ -823,7 +825,7 @@
     let activeMedium = "none";
     let isDrawing = false;
     let historyStack = [];
-    let strokeCanvasSnapshot = null; // Snapshot taken at the start of a stroke to prevent self-darkening
+    let strokeCanvasSnapshot = null; // Snapshot taken at stroke touchdown to prevent self-darkening
 
     // Smooth bristle direction tracking
     let currentStrokeAngle = 0;
@@ -833,9 +835,10 @@
     let currentPressure = 0.5;
     let smoothedPressure = 0.5;
 
-    // Separate clean reservoir pigment from contaminated tip
+    // Deep reservoir vs surface bristle contamination modeling
     let loadedReservoirColor = hexToRgb(currentPigment);
-    let activeBrushTipColor = hexToRgb(currentPigment); 
+    let pickedUpForeignColor = null;       // Paint accumulated from other strokes
+    let brushContaminationAmount = 0.0;    // 0.0 (pure loaded reservoir) to capped max (e.g. 0.45)
     let brushDepletionLevel = 1.0; 
 
     let sketchSrcData = ""; 
@@ -998,11 +1001,11 @@
           pCtx.fill();
           pCtx.restore();
         } else {
-          // Swirling into existing pigment on the slab: blend pigments together
+          // Swirling into existing pigment on the slab: blend pigments progressively
           if (!activePaletteTipColor) {
             activePaletteTipColor = underlyingColor;
           } else {
-            activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.22);
+            activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.18);
           }
 
           pCtx.save();
@@ -1037,7 +1040,8 @@
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
         loadedReservoirColor = pickedRgb;
-        activeBrushTipColor = { ...pickedRgb };
+        pickedUpForeignColor = null;
+        brushContaminationAmount = 0.0;
         brushDepletionLevel = 1.0;
 
         customCursor.style.backgroundColor = currentPigment;
@@ -1065,27 +1069,29 @@
 
     const MEDIUM_PRESETS = {
       none: {
-        info: "<strong>Pure Impasto:</strong> High 3D viscosity with full pressure response, spectral blending, and cast shadows.",
-        modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.0005, opacityMult: 1.0, shadowMult: 1.0 })
+        info: "<strong>Pure Impasto:</strong> High 3D viscosity with progressive spectral blend fading and tactile impasto relief.",
+        modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.0005, opacityMult: 1.0, shadowMult: 1.0, cleanseMult: 1.0 })
       },
       linseed: {
-        info: "<strong>Linseed Oil:</strong> Increases fluid color blend flow, extends smear lengths, and adds glossy specular sheen.",
+        info: "<strong>Linseed Oil:</strong> Increases fluid color blend flow, extends smear trail fading, and adds glossy sheen.",
         modifier: (wet, visc) => ({
           wet: Math.max(wet, 0.88),
           visc: Math.max(visc, 0.55),
           depletion: 0.0003,
           opacityMult: 0.95,
-          shadowMult: 0.75
+          shadowMult: 0.75,
+          cleanseMult: 0.65 // Foreign pigment lingers longer in oily wash
         })
       },
       turps: {
-        info: "<strong>Turpentine Solvent:</strong> Highly fluid wash with soft diffuse depth, high glazing translucency, and fast color dispersion.",
+        info: "<strong>Turpentine Solvent:</strong> Highly fluid wash with soft diffuse depth, fast color dispersion, and quick clearing.",
         modifier: (wet, visc) => ({
           wet: 1.0,
           visc: 0.05,
           depletion: 0.001,
           opacityMult: 0.55,
-          shadowMult: 0.15
+          shadowMult: 0.15,
+          cleanseMult: 1.6
         })
       },
       liquin: {
@@ -1095,7 +1101,8 @@
           visc: Math.max(visc, 0.98),
           depletion: 0.0006,
           opacityMult: 1.25,
-          shadowMult: 1.4
+          shadowMult: 1.4,
+          cleanseMult: 0.9
         })
       }
     };
@@ -1449,12 +1456,7 @@
         telemetryPressure.innerText = `${Math.round(smoothedPressure * 100)}%`;
       }
       if (telemetryDirty) {
-        const orig = loadedReservoirColor;
-        const diff = Math.abs(activeBrushTipColor.r - orig.r) + 
-                     Math.abs(activeBrushTipColor.g - orig.g) + 
-                     Math.abs(activeBrushTipColor.b - orig.b);
-        const dirtyPercent = Math.min(Math.round((diff / 765) * 100), 100);
-        telemetryDirty.innerText = `${dirtyPercent}%`;
+        telemetryDirty.innerText = `${Math.round(brushContaminationAmount * 100)}%`;
       }
     }
 
@@ -1642,7 +1644,8 @@
       hasValidStrokeAngle = false;
       
       brushDepletionLevel = 1.0;
-      activeBrushTipColor = { ...loadedReservoirColor };
+      pickedUpForeignColor = null;
+      brushContaminationAmount = 0.0;
 
       // Snapshot the canvas prior to this stroke so the brush blends only with
       // pre-existing paint, preventing self-sampling feedback that darkens strokes.
@@ -1724,7 +1727,8 @@
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
         loadedReservoirColor = color;
-        activeBrushTipColor = { ...color };
+        pickedUpForeignColor = null;
+        brushContaminationAmount = 0.0;
         brushDepletionLevel = 1.0;
         customCursor.style.backgroundColor = currentPigment;
 
@@ -1895,14 +1899,33 @@
           }
         }
 
-        // Wet-on-wet spectral blending: picks up pre-existing paint without darkening clean strokes
+        // Realistic paint pickup & fading model:
+        // 1. Moving over wet pre-existing paint gradually charges the bristle tips
+        // 2. Bristle contamination is capped (max ~45%), preserving the deep reservoir
+        // 3. Moving onto clean canvas gradually washes out foreign paint back to loaded color
         if (accumulatedCanvasColor) {
-          const pickupRate = (0.02 + (1 - pressure) * 0.03) * brushWetness;
-          activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
-          customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
+          if (!pickedUpForeignColor) {
+            pickedUpForeignColor = accumulatedCanvasColor;
+          } else {
+            pickedUpForeignColor = mixColorsRGB(pickedUpForeignColor, accumulatedCanvasColor, 0.12);
+          }
+          // Smooth progressive pickup: build up contamination gradually with wetness
+          const pickupRate = (0.012 + (1 - pressure) * 0.018) * brushWetness;
+          const maxContaminationCap = 0.45 * brushWetness; // Reservoir keeps majority dominance
+          brushContaminationAmount = Math.min(maxContaminationCap, brushContaminationAmount + pickupRate);
+        } else {
+          // Fade trail: bristle tip deposits foreign paint and fades back to loaded reservoir
+          const pickupCleanseRate = 0.008 * (mod.cleanseMult || 1.0) * (0.8 + pressure * 0.4);
+          brushContaminationAmount = Math.max(0, brushContaminationAmount - pickupCleanseRate);
         }
 
-        const blendedStrokeColor = activeBrushTipColor;
+        // Active stroke color: deep reservoir mixed with surface tip contamination
+        let blendedStrokeColor = loadedReservoirColor;
+        if (brushContaminationAmount > 0.001 && pickedUpForeignColor) {
+          blendedStrokeColor = mixColorsRGB(loadedReservoirColor, pickedUpForeignColor, brushContaminationAmount);
+        }
+
+        customCursor.style.backgroundColor = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
         const baseAlpha = Math.min(1.0, (0.55 + (brushViscosity * 0.35) + (pressure * 0.1)) * brushDepletionLevel * mod.opacityMult);
 
@@ -2278,6 +2301,7 @@
     let mxLastX = 0;
     let mxLastY = 0;
     let activeMixerTipColor = null;
+    let mixerSmearContamination = 0.0;
 
     function mixBlendStroke(x0, y0, x1, y1) {
       const dx = x1 - x0;
@@ -2302,21 +2326,26 @@
         if (canvasColor) {
           if (!activeMixerTipColor) {
             activeMixerTipColor = canvasColor;
+            mixerSmearContamination = 0.5;
           } else {
-            activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.22);
+            // Progressive viscous blending: maxes out smoothly
+            mixerSmearContamination = Math.min(0.85, mixerSmearContamination + 0.035);
+            activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.08);
           }
+        } else {
+          // Trail fading: slowly fades off as carried pigment runs out
+          mixerSmearContamination = Math.max(0, mixerSmearContamination - 0.015);
         }
 
-        const compositeColor = activeMixerTipColor || canvasColor;
-        if (compositeColor) {
+        if (activeMixerTipColor && mixerSmearContamination > 0.01) {
           drawVolumetricDab(
             mCtx,
             cx, cy,
             blendDiameter * 0.45,
             blendDiameter * 0.9,
             Math.atan2(dy, dx),
-            compositeColor,
-            0.9,
+            activeMixerTipColor,
+            0.85 * mixerSmearContamination,
             Math.PI / 4,
             0.25,
             0.2,
@@ -2339,6 +2368,7 @@
       mxLastX = (e.clientX - rect.left) * (mixerCanvas.width / rw);
       mxLastY = (e.clientY - rect.top) * (mixerCanvas.height / rh);
       activeMixerTipColor = null; 
+      mixerSmearContamination = 0.0;
     });
 
     mixerCanvas.addEventListener('pointermove', (e) => {
@@ -2354,8 +2384,8 @@
       mxLastY = cy;
     });
 
-    window.addEventListener('pointerup', () => { isMixing = false; activeMixerTipColor = null; });
-    window.addEventListener('pointercancel', () => { isMixing = false; activeMixerTipColor = null; });
+    window.addEventListener('pointerup', () => { isMixing = false; activeMixerTipColor = null; mixerSmearContamination = 0.0; });
+    window.addEventListener('pointercancel', () => { isMixing = false; activeMixerTipColor = null; mixerSmearContamination = 0.0; });
 
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
 
