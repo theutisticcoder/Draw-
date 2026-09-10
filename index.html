@@ -222,7 +222,7 @@
                 <i class="fa-solid fa-rotate-right"></i> Replenish
               </button>
             </div>
-            <p class="text-[9px] text-linen-400 leading-tight">Swirl paints to blend new pigments. Tap anywhere to load the mixed color onto your brush.</p>
+            <p class="text-[9px] text-linen-400 leading-tight">Swirl paints to blend new pigments. Tap anywhere on paint to load the mixed color onto your brush.</p>
             <div class="relative w-full aspect-[4/3] rounded-lg bg-linen-100 overflow-hidden border border-linen-700 shadow-inner flex items-center justify-center">
               <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-900/10 via-linen-200 to-linen-300 pointer-events-none"></div>
               <canvas id="palette-well-canvas" class="absolute inset-0 w-full h-full cursor-pointer z-10"></canvas>
@@ -466,8 +466,8 @@
         </div>
 
         <div class="relative aspect-video w-full rounded-lg bg-[#EFECE6] border border-linen-700 shadow-inner overflow-hidden flex items-center justify-center">
-          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
           <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
+          <canvas id="mixer-canvas" class="absolute inset-0 w-full h-full cursor-pointer oil-texture z-10"></canvas>
           
           <div id="mixer-hint" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-black/20 flex-col text-center p-4 transition-opacity duration-500">
             <span class="bg-linen-900/95 text-white font-serif px-4 py-2.5 rounded-xl text-xs tracking-wider uppercase shadow-lg border border-amber-600/30">
@@ -628,19 +628,17 @@
     }
 
     // =========================================================================
-    // COLOR UTILITIES & TRUE SPECTRAL SUBTRACTIVE BLEND ENGINE
+    // COLOR UTILITIES & TRUE SUBTRACTIVE ARTIST PIGMENT BLEND ENGINE
     // =========================================================================
 
     function rgbToHsv(r, g, b) {
       r /= 255; g /= 255; b /= 255;
       const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h, s, v = max;
+      let h = 0, s = 0, v = max;
       const d = max - min;
       s = max === 0 ? 0 : d / max;
 
-      if (max === min) {
-        h = 0;
-      } else {
+      if (max !== min) {
         switch (max) {
           case r: h = (g - b) / d + (g < b ? 6 : 0); break;
           case g: h = (b - r) / d + 2; break;
@@ -676,9 +674,8 @@
 
     // Convert standard RGB hue to traditional artistic Color-Wheel Hue (RYB mapping)
     function rgbHueToArtistHue(h) {
-      // h in [0, 1]
       const deg = h * 360;
-      if (deg < 60) return (deg * 2) / 360; // Red to Yellow
+      if (deg < 60) return (deg * 2.0) / 360; // Red to Yellow
       if (deg < 120) return (120 + (deg - 60) * 1.0) / 360; // Yellow to Green
       if (deg < 240) return (180 + (deg - 120) * 0.5) / 360; // Green to Blue
       return deg / 360;
@@ -693,44 +690,46 @@
     }
 
     // Vibrant Subtractive-Pigment Oil Blending Function
-        // Vibrant Subtractive-Pigment Oil Blending Function
-        // Vibrant Subtractive-Pigment Oil Blending Function
     function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      // 1. Detect canvas background using a wide threshold (catches #FAF8F5 and similar)
-      const isBBackground = (colorB_rgb.r > 230 && colorB_rgb.g > 225 && colorB_rgb.b > 215) ||
-                            (colorB_rgb.r === 0 && colorB_rgb.g === 0 && colorB_rgb.b === 0);
+      if (!colorB_rgb) return { ...colorA_rgb };
+      if (!colorA_rgb) return { ...colorB_rgb };
+      if (ratio <= 0) return { ...colorA_rgb };
+      if (ratio >= 1) return { ...colorB_rgb };
 
-      if (isBBackground) {
-        return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
+      if (brushWetness < 0.15) {
+        return { ...colorA_rgb };
       }
 
-      // 2. Safety Net: If brush wetness is low (dry brush/scumbling), 
-      // refuse to pick up ANY foreign color to prevent canvas contamination.
-      if (brushWetness < 0.25) {
-        return { r: colorA_rgb.r, g: colorA_rgb.g, b: colorA_rgb.b };
+      const hsvA = rgbToHsv(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
+      const hsvB = rgbToHsv(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
+
+      // If one color is tint/shade (White, Black, Gray), blend linearly to create realistic tints/pastels
+      if (hsvA.s < 0.15 || hsvB.s < 0.15) {
+        const r = Math.round(colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio);
+        const g = Math.round(colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio);
+        const b = Math.round(colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio);
+        return { r, g, b };
       }
 
-      // 3. Geometric RGB midpoint mixing (prevents hue corruption/blackening)
-      const mx = colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio;
-      const my = colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio;
-      const mz = colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio;
-      
-      // 4. Scale the midpoint back to the average brightness of the two inputs
-      // This prevents the mix from collapsing into a dark gray/black
-      const avgBrightness = ((colorA_rgb.r + colorA_rgb.g + colorA_rgb.b) + 
-                             (colorB_rgb.r + colorB_rgb.g + colorB_rgb.b)) / (2 * 3);
-      const midpointBrightness = (mx + my + mz) / 3;
-      
-      let scale = 1;
-      if (midpointBrightness > 0) {
-        scale = avgBrightness / midpointBrightness;
-      }
+      // Saturated pigments: interpolate along the traditional artist RYB color wheel
+      const hueA = rgbHueToArtistHue(hsvA.h);
+      const hueB = rgbHueToArtistHue(hsvB.h);
 
-      const mixedR = Math.min(255, Math.max(0, mx * scale));
-      const mixedG = Math.min(255, Math.max(0, my * scale));
-      const mixedB = Math.min(255, Math.max(0, mz * scale));
+      let dHue = hueB - hueA;
+      if (dHue > 0.5) dHue -= 1.0;
+      else if (dHue < -0.5) dHue += 1.0;
 
-      return { r: Math.round(mixedR), g: Math.round(mixedG), b: Math.round(mixedB) };
+      const mixedArtistHue = (hueA + dHue * ratio + 1.0) % 1.0;
+      const mixedRgbHue = artistHueToRgbHue(mixedArtistHue);
+
+      // Preserve rich chromatic saturation and luminous brightness
+      const mixedS = Math.min(1.0, (hsvA.s * (1 - ratio) + hsvB.s * ratio) * 1.02);
+      const mixedV = Math.max(
+        hsvA.v * (1 - ratio) + hsvB.v * ratio,
+        Math.min(hsvA.v, hsvB.v) * 0.96
+      );
+
+      return hsvToRgb(mixedRgbHue, mixedS, mixedV);
     }
     
     function hexToRgb(hex) {
@@ -757,11 +756,11 @@
           b: Math.min(255, rgb.b + (255 - rgb.b) * factor)
         };
       } else {
-        const shadowFactor = 1 + factor;
+        const shadowFactor = Math.max(0, 1 + factor);
         return {
-          r: Math.max(0, rgb.r * shadowFactor),
-          g: Math.max(0, rgb.g * shadowFactor),
-          b: Math.max(0, rgb.b * shadowFactor)
+          r: Math.max(0, Math.round(rgb.r * shadowFactor)),
+          g: Math.max(0, Math.round(rgb.g * shadowFactor)),
+          b: Math.max(0, Math.round(rgb.b * shadowFactor))
         };
       }
     }
@@ -824,6 +823,7 @@
     let activeMedium = "none";
     let isDrawing = false;
     let historyStack = [];
+    let strokeCanvasSnapshot = null; // Snapshot taken at the start of a stroke to prevent self-darkening
 
     // Smooth bristle direction tracking
     let currentStrokeAngle = 0;
@@ -906,27 +906,27 @@
     ];
 
     function initPaletteSlab() {
-      if (paletteCanvas.parentElement.clientWidth === 0) return;
+      if (!paletteCanvas.parentElement || paletteCanvas.parentElement.clientWidth === 0) return;
       paletteCanvas.width = paletteCanvas.parentElement.clientWidth;
       paletteCanvas.height = paletteCanvas.parentElement.clientHeight;
 
-      pCtx.fillStyle = '#EDE8DF';
-      pCtx.fillRect(0, 0, paletteCanvas.width, paletteCanvas.height);
+      // Keep palette canvas transparent so it never mixes with the background
+      pCtx.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
 
       PALETTE_PIGMENTS.forEach(pigment => {
         const pX = (pigment.x / 200) * paletteCanvas.width;
         const pY = (pigment.y / 160) * paletteCanvas.height;
 
         pCtx.save();
-        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 15);
+        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 17);
         grad.addColorStop(0, '#FFFFFF');
-        grad.addColorStop(0.2, pigment.color);
-        grad.addColorStop(0.85, pigment.color);
-        grad.addColorStop(1, 'transparent');
+        grad.addColorStop(0.25, pigment.color);
+        grad.addColorStop(0.9, pigment.color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
 
         pCtx.beginPath();
         pCtx.fillStyle = grad;
-        pCtx.arc(pX, pY, 15, 0, Math.PI * 2);
+        pCtx.arc(pX, pY, 17, 0, Math.PI * 2);
         pCtx.fill();
         pCtx.restore();
       });
@@ -945,6 +945,7 @@
       paletteLastX = (e.clientX - rect.left) * (paletteCanvas.width / rw);
       paletteLastY = (e.clientY - rect.top) * (paletteCanvas.height / rh);
 
+      activePaletteTipColor = null;
       samplePaletteColor(paletteLastX, paletteLastY);
     }
 
@@ -966,50 +967,48 @@
     function smudgePaletteColors(x0, y0, x1, y1) {
       const dx = x1 - x0;
       const dy = y1 - y0;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const dist = Math.hypot(dx, dy);
       const steps = Math.max(Math.floor(dist / 2), 1);
-      const smearRadius = 8;
+      const smearRadius = 9;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
-        const cx = x0 + dx * t;
-        const cy = y0 + dy * t;
+        const cx = Math.round(x0 + dx * t);
+        const cy = Math.round(y0 + dy * t);
 
-        let underlyingColor = { r: 237, g: 232, b: 223 };
+        if (cx < 0 || cx >= paletteCanvas.width || cy < 0 || cy >= paletteCanvas.height) continue;
 
+        let underlyingColor = null;
         try {
           const pix = pCtx.getImageData(cx, cy, 1, 1).data;
-          if (pix[3] > 0) {
+          // Only treat as paint if there is actual opaque pigment there
+          if (pix[3] > 35) {
             underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
           }
         } catch (err) {}
 
-        const isSlabBackground = Math.abs(underlyingColor.r - 237) < 15 && 
-                                 Math.abs(underlyingColor.g - 232) < 15 && 
-                                 Math.abs(underlyingColor.b - 223) < 15;
-
-        if (isSlabBackground) {
+        if (!underlyingColor) {
+          // Dragging across bare slab: deposit carried pigment cleanly without mixing with background
           const paintColor = activePaletteTipColor || loadedReservoirColor;
           pCtx.save();
-          pCtx.globalAlpha = 0.55;
+          pCtx.globalAlpha = 0.95;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
           pCtx.fill();
           pCtx.restore();
         } else {
+          // Swirling into existing pigment on the slab: blend pigments together
           if (!activePaletteTipColor) {
             activePaletteTipColor = underlyingColor;
+          } else {
+            activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.22);
           }
 
-          // Active spectral palette mixing
-          activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.28);
-          const paintColor = mixColorsRGB(activePaletteTipColor, underlyingColor, 0.45);
-
           pCtx.save();
-          pCtx.globalAlpha = 0.6;
+          pCtx.globalAlpha = 0.95;
           pCtx.beginPath();
-          pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
+          pCtx.fillStyle = `rgb(${activePaletteTipColor.r}, ${activePaletteTipColor.g}, ${activePaletteTipColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
           pCtx.fill();
           pCtx.restore();
@@ -1019,16 +1018,18 @@
 
     function samplePaletteColor(x, y) {
       try {
-        const pix = pCtx.getImageData(x, y, 1, 1).data;
-        const pickedRgb = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 237, g: 232, b: 223 };
-        
+        const pix = pCtx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
+        // Do not sample bare background slab
+        if (pix[3] < 35) return;
+
+        const pickedRgb = { r: pix[0], g: pix[1], b: pix[2] };
         currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
         currentPigmentName = `Mixed Slab`;
         
         PALETTE_PIGMENTS.forEach(pigment => {
           const rgbPreset = hexToRgb(pigment.color);
           const dist = Math.abs(rgbPreset.r - pickedRgb.r) + Math.abs(rgbPreset.g - pickedRgb.g) + Math.abs(rgbPreset.b - pickedRgb.b);
-          if (dist < 15) {
+          if (dist < 20) {
             currentPigmentName = pigment.name;
           }
         });
@@ -1036,7 +1037,7 @@
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
         loadedReservoirColor = pickedRgb;
-        activeBrushTipColor = pickedRgb;
+        activeBrushTipColor = { ...pickedRgb };
         brushDepletionLevel = 1.0;
 
         customCursor.style.backgroundColor = currentPigment;
@@ -1048,8 +1049,8 @@
 
     paletteCanvas.addEventListener('pointerdown', handlePalettePointerDown);
     paletteCanvas.addEventListener('pointermove', handlePalettePointerMove);
-    window.addEventListener('pointerup', () => isSmudgingPalette = false);
-    window.addEventListener('pointercancel', () => isSmudgingPalette = false);
+    window.addEventListener('pointerup', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
+    window.addEventListener('pointercancel', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
 
     document.getElementById('btn-palette-reset').addEventListener('click', () => {
       initPaletteSlab();
@@ -1065,14 +1066,14 @@
     const MEDIUM_PRESETS = {
       none: {
         info: "<strong>Pure Impasto:</strong> High 3D viscosity with full pressure response, spectral blending, and cast shadows.",
-        modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.002, opacityMult: 1.0, shadowMult: 1.0 })
+        modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.0005, opacityMult: 1.0, shadowMult: 1.0 })
       },
       linseed: {
         info: "<strong>Linseed Oil:</strong> Increases fluid color blend flow, extends smear lengths, and adds glossy specular sheen.",
         modifier: (wet, visc) => ({
           wet: Math.max(wet, 0.88),
           visc: Math.max(visc, 0.55),
-          depletion: 0.001,
+          depletion: 0.0003,
           opacityMult: 0.95,
           shadowMult: 0.75
         })
@@ -1082,8 +1083,8 @@
         modifier: (wet, visc) => ({
           wet: 1.0,
           visc: 0.05,
-          depletion: 0.005,
-          opacityMult: 0.45,
+          depletion: 0.001,
+          opacityMult: 0.55,
           shadowMult: 0.15
         })
       },
@@ -1092,7 +1093,7 @@
         modifier: (wet, visc) => ({
           wet: Math.min(wet, 0.45),
           visc: Math.max(visc, 0.98),
-          depletion: 0.003,
+          depletion: 0.0006,
           opacityMult: 1.25,
           shadowMult: 1.4
         })
@@ -1605,18 +1606,15 @@
     let eyedropperTimer = null;
 
     function getNormalizedPressure(e) {
-      // If hardware stylus pressure is supported
       if (e.pressure !== undefined && e.pressure > 0) {
         return Math.min(Math.max(e.pressure, 0.05), 1.0);
       }
       
-      // Fallback velocity calculation for mouse/standard touch
       const now = performance.now();
       const dt = Math.max(now - lastStrokeTime, 8);
       const dist = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-      const speed = dist / dt; // pixels/ms
+      const speed = dist / dt;
 
-      // Slower strokes apply more paint/pressure; fast flicks taper off
       const estimatedPressure = Math.min(Math.max(1.0 - speed * 0.18, 0.25), 0.95);
       return estimatedPressure;
     }
@@ -1633,7 +1631,6 @@
       smoothedPressure = currentPressure;
       lastStrokeTime = performance.now();
 
-      // Long press eyedropper
       if (eyedropperTimer) clearTimeout(eyedropperTimer);
       eyedropperTimer = setTimeout(() => {
         activateEyedropper(pos.x, pos.y);
@@ -1647,6 +1644,14 @@
       brushDepletionLevel = 1.0;
       activeBrushTipColor = { ...loadedReservoirColor };
 
+      // Snapshot the canvas prior to this stroke so the brush blends only with
+      // pre-existing paint, preventing self-sampling feedback that darkens strokes.
+      try {
+        strokeCanvasSnapshot = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      } catch (err) {
+        strokeCanvasSnapshot = null;
+      }
+
       drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
       updateCursorSize();
     }
@@ -1659,6 +1664,7 @@
       if (isDrawing) {
         isDrawing = false;
         hasValidStrokeAngle = false;
+        strokeCanvasSnapshot = null;
         saveHistoryState();
         saveToLocalForage(true);
       }
@@ -1679,7 +1685,7 @@
       }
 
       const rawP = getNormalizedPressure(e);
-      smoothedPressure = smoothedPressure * 0.65 + rawP * 0.35; // Smooth pressure response
+      smoothedPressure = smoothedPressure * 0.65 + rawP * 0.35;
       lastStrokeTime = performance.now();
 
       drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
@@ -1705,16 +1711,20 @@
     function activateEyedropper(x, y) {
       if (isDrawing) isDrawing = false;
       try {
-        const pix = ctx.getImageData(x, y, 1, 1).data;
-        const color = pix[3] > 0 ? { r: pix[0], g: pix[1], b: pix[2] } : { r: 250, g: 248, b: 245 };
-        
+        const pix = ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
+        if (pix[3] < 20) {
+          showToast("Eyedropper: Bare canvas area", "info");
+          return;
+        }
+
+        const color = { r: pix[0], g: pix[1], b: pix[2] };
         currentPigment = rgbToHex(color.r, color.g, color.b);
         currentPigmentName = "Eyedropper Pick";
         
         activePigmentName.innerText = currentPigmentName;
         activeColorSwatch.style.backgroundColor = currentPigment;
         loadedReservoirColor = color;
-        activeBrushTipColor = color;
+        activeBrushTipColor = { ...color };
         brushDepletionLevel = 1.0;
         customCursor.style.backgroundColor = currentPigment;
 
@@ -1753,7 +1763,7 @@
       }
     }
 
-    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.35, shadowFactor = 0.45, pressureMod = 1.0) {
+    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.25, shadowFactor = 0.2, pressureMod = 1.0) {
       targetCtx.save();
       targetCtx.translate(x, y);
       targetCtx.rotate(angle);
@@ -1761,48 +1771,54 @@
       const radL = (length > 0 ? length : radius * 1.5) * (0.8 + pressureMod * 0.3);
       const radW = radius * (0.8 + pressureMod * 0.4);
 
-      // 1. Directional cast shadow
-      const shadowDx = -Math.cos(normalAngle) * (radW * 0.45);
-      const shadowDy = -Math.sin(normalAngle) * (radW * 0.45);
-      const shadowRgb = adjustColorShade(baseRgb, -shadowFactor);
+      // 1. Directional edge shadow (subtle and soft, kept outside the primary stroke center)
+      if (brushViscosity > 0.2) {
+        const shadowDx = -Math.cos(normalAngle) * (radW * 0.3);
+        const shadowDy = -Math.sin(normalAngle) * (radW * 0.3);
+        const shadowRgb = adjustColorShade(baseRgb, -Math.min(shadowFactor, 0.22));
 
-      targetCtx.save();
-      targetCtx.globalAlpha = alpha * 0.55 * pressureMod;
-      targetCtx.fillStyle = `rgb(${shadowRgb.r}, ${shadowRgb.g}, ${shadowRgb.b})`;
-      targetCtx.beginPath();
-      targetCtx.ellipse(shadowDx, shadowDy, radL * 0.6, radW * 0.9, 0, 0, Math.PI * 2);
-      targetCtx.fill();
-      targetCtx.restore();
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha * 0.25 * pressureMod;
+        targetCtx.fillStyle = `rgb(${shadowRgb.r}, ${shadowRgb.g}, ${shadowRgb.b})`;
+        targetCtx.beginPath();
+        targetCtx.ellipse(shadowDx, shadowDy, radL * 0.55, radW * 0.75, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+      }
 
-      // 2. Thick sculpted paint body
+      // 2. Thick sculpted vibrant paint body (drawn opaque and rich)
       targetCtx.save();
-      targetCtx.globalAlpha = alpha;
+      targetCtx.globalAlpha = Math.min(1.0, alpha);
       targetCtx.fillStyle = `rgb(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b})`;
       targetCtx.beginPath();
       targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.85, 0, 0, Math.PI * 2);
       targetCtx.fill();
       targetCtx.restore();
 
-      // 3. Sunward specular highlight ridge
-      const lightDx = Math.cos(normalAngle) * (radW * 0.35);
-      const lightDy = Math.sin(normalAngle) * (radW * 0.35);
-      const lightRgb = adjustColorShade(baseRgb, highlightFactor);
+      // 3. Specular highlight ridge (gives 3D relief without whitening out)
+      if (brushViscosity > 0.3) {
+        const lightDx = Math.cos(normalAngle) * (radW * 0.25);
+        const lightDy = Math.sin(normalAngle) * (radW * 0.25);
+        const lightRgb = adjustColorShade(baseRgb, Math.min(highlightFactor, 0.28));
 
-      targetCtx.save();
-      targetCtx.globalAlpha = alpha * 0.75 * pressureMod;
-      targetCtx.fillStyle = `rgb(${lightRgb.r}, ${lightRgb.g}, ${lightRgb.b})`;
-      targetCtx.beginPath();
-      targetCtx.ellipse(lightDx, lightDy, radL * 0.4, radW * 0.45, 0, 0, Math.PI * 2);
-      targetCtx.fill();
-      targetCtx.restore();
-
-      // 4. Wet specular micro-pinpoint
-      if (brushViscosity > 0.4) {
         targetCtx.save();
-        targetCtx.globalAlpha = alpha * 0.45 * pressureMod;
-        targetCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        targetCtx.globalAlpha = alpha * 0.4 * pressureMod;
+        targetCtx.fillStyle = `rgb(${lightRgb.r}, ${lightRgb.g}, ${lightRgb.b})`;
         targetCtx.beginPath();
-        targetCtx.ellipse(lightDx * 1.1, lightDy * 1.1, radL * 0.2, radW * 0.2, 0, 0, Math.PI * 2);
+        targetCtx.ellipse(lightDx, lightDy, radL * 0.4, radW * 0.4, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+      }
+
+      // 4. Wet specular micro-pinpoint sheen
+      if (brushViscosity > 0.6) {
+        const lightDx = Math.cos(normalAngle) * (radW * 0.25);
+        const lightDy = Math.sin(normalAngle) * (radW * 0.25);
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha * 0.3 * pressureMod;
+        targetCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        targetCtx.beginPath();
+        targetCtx.ellipse(lightDx * 1.1, lightDy * 1.1, radL * 0.15, radW * 0.15, 0, 0, Math.PI * 2);
         targetCtx.fill();
         targetCtx.restore();
       }
@@ -1836,7 +1852,6 @@
       const mediumPreset = MEDIUM_PRESETS[activeMedium];
       const mod = mediumPreset.modifier(brushWetness, brushViscosity);
 
-      // Pressure modulation factors
       const pressureEffect = 0.5 + pressure * pressureSensitivity * 0.8;
       const dynamicBrushSize = brushSize * pressureEffect;
 
@@ -1845,21 +1860,29 @@
         const cx = x0 + dx * t;
         const cy = y0 + dy * t;
 
-        // Sample canvas ahead for wet-on-wet paint mixing
-        const sampleRadius = Math.max(Math.round(dynamicBrushSize * 0.4), 3);
-        let accumulatedCanvasColor = null; 
+        // Sample PRE-EXISTING canvas paint from the snapshot taken before this stroke started
+        let accumulatedCanvasColor = null;
+        if (strokeCanvasSnapshot && brushWetness > 0.15) {
+          const sampleRadius = Math.max(Math.round(dynamicBrushSize * 0.35), 2);
+          const startX = Math.max(0, Math.floor(cx - sampleRadius / 2));
+          const startY = Math.max(0, Math.floor(cy - sampleRadius / 2));
+          const endX = Math.min(paintCanvas.width, startX + sampleRadius);
+          const endY = Math.min(paintCanvas.height, startY + sampleRadius);
 
-        try {
-          const sampleData = ctx.getImageData(cx - sampleRadius/2, cy - sampleRadius/2, sampleRadius, sampleRadius);
           let rSum = 0, gSum = 0, bSum = 0, validPixels = 0;
-          
-          for (let p = 0; p < sampleData.data.length; p += 4) {
-            const alphaVal = sampleData.data[p+3];
-            if (alphaVal > 40) {
-              rSum += sampleData.data[p];
-              gSum += sampleData.data[p+1];
-              bSum += sampleData.data[p+2];
-              validPixels++;
+          const snapData = strokeCanvasSnapshot.data;
+          const canvasW = paintCanvas.width;
+
+          for (let sy = startY; sy < endY; sy++) {
+            for (let sx = startX; sx < endX; sx++) {
+              const idx = (sy * canvasW + sx) * 4;
+              const a = snapData[idx + 3];
+              if (a > 50) {
+                rSum += snapData[idx];
+                gSum += snapData[idx + 1];
+                bSum += snapData[idx + 2];
+                validPixels++;
+              }
             }
           }
 
@@ -1870,23 +1893,21 @@
               b: Math.round(bSum / validPixels)
             };
           }
-        } catch (e) {}
+        }
 
-        // Dynamic spectral mixing: Pick up canvas pigment continuously based on wetness & pressure
+        // Wet-on-wet spectral blending: picks up pre-existing paint without darkening clean strokes
         if (accumulatedCanvasColor) {
-          const pickupRate = (0.045 + (1 - pressure) * 0.05) * brushWetness;
+          const pickupRate = (0.02 + (1 - pressure) * 0.03) * brushWetness;
           activeBrushTipColor = mixColorsRGB(activeBrushTipColor, accumulatedCanvasColor, pickupRate);
           customCursor.style.backgroundColor = `rgb(${activeBrushTipColor.r}, ${activeBrushTipColor.g}, ${activeBrushTipColor.b})`;
         }
 
-        // Heavy pressure deposits fresh reservoir load; light pressure blends wet stroke
-        const reservoirMixRatio = 0.12 * pressure * (1 - brushDepletionLevel);
-        const blendedStrokeColor = mixColorsRGB(activeBrushTipColor, loadedReservoirColor, reservoirMixRatio);
+        const blendedStrokeColor = activeBrushTipColor;
         const rgbStr = `rgb(${blendedStrokeColor.r}, ${blendedStrokeColor.g}, ${blendedStrokeColor.b})`;
-        const baseAlpha = (0.35 + (brushViscosity * 0.5) + (pressure * 0.15)) * brushDepletionLevel * mod.opacityMult;
+        const baseAlpha = Math.min(1.0, (0.55 + (brushViscosity * 0.35) + (pressure * 0.1)) * brushDepletionLevel * mod.opacityMult);
 
         // =====================================================================
-        // 3D BRUSH PROFILE IMPLEMENTATIONS WITH PRESSURE
+        // 3D BRUSH PROFILE IMPLEMENTATIONS
         // =====================================================================
 
         if (currentBrushProfile === 'bristle') {
@@ -1912,8 +1933,8 @@
               blendedStrokeColor,
               baseAlpha,
               relativeLightAngle,
-              0.35 * brushViscosity,
-              0.45 * brushViscosity * mod.shadowMult,
+              0.25 * brushViscosity,
+              0.2 * brushViscosity * mod.shadowMult,
               pressure
             );
           }
@@ -1925,30 +1946,30 @@
 
           const kw = dynamicBrushSize * 1.25;
           const kh = dynamicBrushSize * (0.35 + pressure * 0.2);
-          const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.6);
+          const shadowOffset = Math.sin(relativeLightAngle) * (kh * 0.35);
 
-          const knifeShadow = adjustColorShade(blendedStrokeColor, -0.6 * mod.shadowMult);
-          ctx.globalAlpha = 0.55 * brushDepletionLevel * mod.opacityMult * pressure;
+          const knifeShadow = adjustColorShade(blendedStrokeColor, -0.25 * mod.shadowMult);
+          ctx.globalAlpha = 0.3 * brushDepletionLevel * mod.opacityMult * pressure;
           ctx.fillStyle = `rgb(${knifeShadow.r}, ${knifeShadow.g}, ${knifeShadow.b})`;
           ctx.fillRect(-kw/2, -kh/2 - shadowOffset, kw, kh);
 
-          ctx.globalAlpha = 0.95 * brushDepletionLevel * mod.opacityMult;
+          ctx.globalAlpha = 0.98 * brushDepletionLevel * mod.opacityMult;
           ctx.fillStyle = rgbStr;
           ctx.fillRect(-kw/2, -kh/2, kw, kh);
 
-          const knifeLight = adjustColorShade(blendedStrokeColor, 0.45);
-          ctx.globalAlpha = 0.85 * brushDepletionLevel;
+          const knifeLight = adjustColorShade(blendedStrokeColor, 0.28);
+          ctx.globalAlpha = 0.5 * brushDepletionLevel;
           ctx.fillStyle = `rgb(${knifeLight.r}, ${knifeLight.g}, ${knifeLight.b})`;
-          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw, kh * 0.25);
+          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw, kh * 0.22);
 
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw * 0.85, 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.fillRect(-kw/2, -kh/2 + shadowOffset * 0.5, kw * 0.85, 1.5);
 
           ctx.restore();
         } 
         else if (currentBrushProfile === 'turpentine') {
           ctx.save();
-          ctx.globalAlpha = (0.08 + pressure * 0.1) * mod.opacityMult;
+          ctx.globalAlpha = (0.12 + pressure * 0.1) * mod.opacityMult;
           const radialGrad = ctx.createRadialGradient(cx, cy, dynamicBrushSize * 0.15, cx, cy, dynamicBrushSize * 1.1);
           radialGrad.addColorStop(0, rgbStr);
           radialGrad.addColorStop(0.8, rgbStr);
@@ -1981,8 +2002,8 @@
               blendedStrokeColor,
               baseAlpha * 0.85,
               relativeLightAngle,
-              0.4,
-              0.45 * mod.shadowMult,
+              0.25,
+              0.2 * mod.shadowMult,
               pressure
             );
           }
@@ -2001,10 +2022,10 @@
               rx * 2,
               strokeAngle,
               blendedStrokeColor,
-              baseAlpha * 0.5,
+              baseAlpha * 0.55,
               relativeLightAngle,
-              0.35 + (k * 0.1),
-              0.4 * mod.shadowMult,
+              0.25 + (k * 0.05),
+              0.2 * mod.shadowMult,
               pressure
             );
           }
@@ -2024,10 +2045,10 @@
               Math.random() * 4.0 + 2.0,
               strokeAngle,
               blendedStrokeColor,
-              baseAlpha * 0.6,
+              baseAlpha * 0.7,
               relativeLightAngle,
-              0.45,
-              0.55 * mod.shadowMult,
+              0.3,
+              0.2 * mod.shadowMult,
               pressure
             );
           }
@@ -2041,10 +2062,10 @@
             riggerRadius * 3.0,
             strokeAngle,
             blendedStrokeColor,
-            0.9 * brushDepletionLevel * mod.opacityMult,
+            0.95 * brushDepletionLevel * mod.opacityMult,
             relativeLightAngle,
-            0.5,
-            0.55 * mod.shadowMult,
+            0.3,
+            0.2 * mod.shadowMult,
             pressure
           );
         }
@@ -2063,10 +2084,10 @@
               Math.random() * 3.5 + 2.0,
               0,
               blendedStrokeColor,
-              baseAlpha * 0.75,
+              baseAlpha * 0.8,
               relativeLightAngle,
-              0.5,
-              0.6 * mod.shadowMult,
+              0.3,
+              0.2 * mod.shadowMult,
               pressure
             );
           }
@@ -2084,16 +2105,16 @@
               curRad * 2.2,
               strokeAngle,
               blendedStrokeColor,
-              baseAlpha * 0.45,
+              baseAlpha * 0.55,
               relativeLightAngle,
-              0.35 + (r * 0.12),
-              0.45 * mod.shadowMult,
+              0.25 + (r * 0.08),
+              0.2 * mod.shadowMult,
               pressure
             );
           }
         }
 
-        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion * (0.7 + pressure * 0.6), 0.3);
+        brushDepletionLevel = Math.max(brushDepletionLevel - mod.depletion * (0.3 + pressure * 0.3), 0.7);
         updateTelemetry();
       }
     }
@@ -2221,29 +2242,30 @@
     const mixerHint = document.getElementById('mixer-hint');
 
     function initMixer() {
-      if (mixerCanvas.parentElement.clientWidth === 0) return;
+      if (!mixerCanvas.parentElement || mixerCanvas.parentElement.clientWidth === 0) return;
       mixerCanvas.width = mixerCanvas.parentElement.clientWidth;
       mixerCanvas.height = mixerCanvas.parentElement.clientHeight;
 
-      mCtx.fillStyle = '#EFECE6';
-      mCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
+      mCtx.clearRect(0, 0, mixerCanvas.width, mixerCanvas.height);
 
       drawWellBlob(75, mixerCanvas.height / 2, 45, { r: 29, g: 78, b: 216 }); 
       drawWellBlob(mixerCanvas.width - 75, mixerCanvas.height / 2, 45, { r: 250, g: 204, b: 21 }); 
 
+      mCtx.save();
       mCtx.fillStyle = 'rgba(40, 34, 27, 0.4)';
       mCtx.font = 'bold 11px sans-serif';
       mCtx.textAlign = 'center';
       mCtx.fillText("DRAG TO SMEAR & BLEND 3D OILS", mixerCanvas.width / 2, mixerCanvas.height / 2 + 60);
+      mCtx.restore();
     }
 
     function drawWellBlob(x, y, radius, rgb) {
       mCtx.save();
       const grad = mCtx.createRadialGradient(x, y, 2, x, y, radius);
       grad.addColorStop(0, '#FFFFFF');
-      grad.addColorStop(0.2, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
-      grad.addColorStop(0.85, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
-      grad.addColorStop(1, 'transparent');
+      grad.addColorStop(0.25, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      grad.addColorStop(0.9, `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
 
       mCtx.beginPath();
       mCtx.fillStyle = grad;
@@ -2262,42 +2284,45 @@
       const dy = y1 - y0;
       const distance = Math.hypot(dx, dy);
       const steps = Math.max(Math.floor(distance / 1.8), 1);
-      const blendDiameter = 20;
+      const blendDiameter = 22;
 
-      for (let i = 0; i < steps; i++) {
+      for (let i = 0; i <= steps; i++) {
         const t = i / steps;
-        const cx = x0 + dx * t;
-        const cy = y0 + dy * t;
+        const cx = Math.round(x0 + dx * t);
+        const cy = Math.round(y0 + dy * t);
 
-        let canvasColor = { r: 239, g: 236, b: 230 };
+        let canvasColor = null;
         try {
           const pix = mCtx.getImageData(cx, cy, 1, 1).data;
-          if (pix[3] > 0) {
+          if (pix[3] > 35) {
             canvasColor = { r: pix[0], g: pix[1], b: pix[2] };
           }
         } catch(e){}
 
-        if (!activeMixerTipColor) {
-          activeMixerTipColor = canvasColor;
+        if (canvasColor) {
+          if (!activeMixerTipColor) {
+            activeMixerTipColor = canvasColor;
+          } else {
+            activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.22);
+          }
         }
 
-        // True subtractive spectral mix on the mixing pad
-        activeMixerTipColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.28);
-        const compositeColor = mixColorsRGB(activeMixerTipColor, canvasColor, 0.45);
-
-        drawVolumetricDab(
-          mCtx,
-          cx, cy,
-          blendDiameter * 0.45,
-          blendDiameter * 0.9,
-          Math.atan2(dy, dx),
-          compositeColor,
-          0.5,
-          Math.PI / 4,
-          0.4,
-          0.45,
-          0.8
-        );
+        const compositeColor = activeMixerTipColor || canvasColor;
+        if (compositeColor) {
+          drawVolumetricDab(
+            mCtx,
+            cx, cy,
+            blendDiameter * 0.45,
+            blendDiameter * 0.9,
+            Math.atan2(dy, dx),
+            compositeColor,
+            0.9,
+            Math.PI / 4,
+            0.25,
+            0.2,
+            0.8
+          );
+        }
       }
     }
 
@@ -2329,8 +2354,8 @@
       mxLastY = cy;
     });
 
-    window.addEventListener('pointerup', () => { isMixing = false; });
-    window.addEventListener('pointercancel', () => { isMixing = false; });
+    window.addEventListener('pointerup', () => { isMixing = false; activeMixerTipColor = null; });
+    window.addEventListener('pointercancel', () => { isMixing = false; activeMixerTipColor = null; });
 
     document.getElementById('btn-clear-mixer').addEventListener('click', initMixer);
 
