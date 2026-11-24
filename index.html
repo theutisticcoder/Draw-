@@ -171,7 +171,7 @@
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 shrink-0">
         <div>
           <h2 class="font-serif text-lg font-bold leading-none">L'Atelier Board (Wet-on-Wet Fluid Engine)</h2>
-          <span class="text-[10px] text-linen-400">Pressure-sensitive spectral blending, wet smear mode, and architectural/anatomical tracing guides.</span>
+          <span class="text-[10px] text-linen-400">Pressure-sensitive spectral blending, wet smear mode, and full-canvas architectural & Loomis tracing guides.</span>
         </div>
         <div class="flex flex-wrap gap-1.5 justify-end">
           <button id="btn-undo" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all">
@@ -544,136 +544,132 @@
     }
 
     // =========================================================================
-    // DRAW STROKE CORE SIMULATION (PRESSURE & SPECTRAL OIL ENGINE)
+    // COLOR UTILITIES & TRUE SUBTRACTIVE ARTIST PIGMENT BLEND ENGINE
     // =========================================================================
-    let lastX = 0;
-    let lastY = 0;
-    let lastClientX = 0;
-    let lastClientY = 0;
-    let lastStrokeTime = 0;
-    let eyedropperTimer = null;
 
-    function getNormalizedPressure(e) {
-      // Pen / Stylus hardware pressure (Apple Pencil, Wacom, Surface Pen, etc.)
-      if (e.pointerType === 'pen' && typeof e.pressure === 'number') {
-        const rawPen = Math.min(Math.max(e.pressure, 0.02), 1.0);
-        // Apply ergonomic response curve so light touches are delicate and firm presses reach 100%
-        return Math.pow(rawPen, 0.85);
-      }
+    function rgbToHsv(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0, v = max;
+      const d = max - min;
+      s = max === 0 ? 0 : d / max;
 
-      // Touch screens with real force sensors (iOS / Android capacitive force)
-      if (e.pointerType === 'touch' && typeof e.pressure === 'number' && e.pressure > 0 && e.pressure !== 0.5 && e.pressure !== 1.0) {
-        return Math.min(Math.max(e.pressure, 0.05), 1.0);
-      }
-
-      // Mouse or standard touch without hardware pressure: derive dynamic pressure from stroke velocity
-      const now = performance.now();
-      const dt = Math.max(now - lastStrokeTime, 8);
-      const dist = Math.hypot(e.clientX - lastClientX, e.clientY - lastClientY);
-      const speed = dist / dt;
-
-      // Fast sweeps taper lightly (0.18), slow deliberate strokes press firmly (up to 0.95)
-      const velocityPressure = 0.92 / (1 + speed * 0.45);
-      return Math.min(Math.max(velocityPressure, 0.18), 0.95);
-    }
-
-    function startDrawing(e) {
-      if (e.pointerType === 'touch' && !e.isPrimary) {
-        isDrawing = false;
-        triggerGestureUndo();
-        return;
-      }
-
-      const pos = getMousePos(paintCanvas, e);
-      lastClientX = e.clientX;
-      lastClientY = e.clientY;
-      lastStrokeTime = performance.now();
-
-      // For mouse/standard touch initial touchdown, start with a balanced mid-light pressure
-      if (e.pointerType !== 'pen' && (e.pressure === 0.5 || e.pressure === 0 || e.pressure === 1.0)) {
-        currentPressure = 0.45;
-      } else {
-        currentPressure = getNormalizedPressure(e);
-      }
-      smoothedPressure = currentPressure;
-
-      if (eyedropperTimer) clearTimeout(eyedropperTimer);
-      eyedropperTimer = setTimeout(() => {
-        activateEyedropper(pos.x, pos.y);
-      }, 750);
-
-      isDrawing = true;
-      lastX = pos.x;
-      lastY = pos.y;
-      hasValidStrokeAngle = false;
-      
-      brushDepletionLevel = 1.0;
-      pickedUpForeignColor = null;
-      brushContaminationAmount = 0.0;
-      activeInstantBlendRatio = 0.0;
-      reservoirPurity = 1.0;
-
-      try {
-        strokeCanvasSnapshot = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
-      } catch (err) {
-        strokeCanvasSnapshot = null;
-      }
-
-      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
-      updateCursorSize();
-    }
-
-    function stopDrawing(e) {
-      if (eyedropperTimer) {
-        clearTimeout(eyedropperTimer);
-        eyedropperTimer = null;
-      }
-      if (isDrawing) {
-        isDrawing = false;
-        hasValidStrokeAngle = false;
-        strokeCanvasSnapshot = null;
-        saveHistoryState();
-        saveToLocalForage(true);
-      }
-      smoothedPressure = 0.5;
-      updateCursorSize();
-      updateTelemetry();
-    }
-
-    function draw(e) {
-      if (!isDrawing) return;
-
-      // Process high-frequency coalesced stylus/pointer samples when supported by the browser
-      const events = (typeof e.getCoalescedEvents === 'function' && e.getCoalescedEvents().length > 0)
-        ? e.getCoalescedEvents()
-        : [e];
-
-      for (const ev of events) {
-        const pos = getMousePos(paintCanvas, ev);
-        const dist = Math.hypot(pos.x - lastX, pos.y - lastY);
-
-        if (dist > 8 && eyedropperTimer) {
-          clearTimeout(eyedropperTimer);
-          eyedropperTimer = null;
+      if (max !== min) {
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
         }
-
-        const rawP = getNormalizedPressure(ev);
-        // Responsive smoothing so quick pressure tapers register immediately
-        smoothedPressure = smoothedPressure * 0.35 + rawP * 0.65;
-
-        lastClientX = ev.clientX;
-        lastClientY = ev.clientY;
-        lastStrokeTime = performance.now();
-
-        drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
-        lastX = pos.x;
-        lastY = pos.y;
+        h /= 6;
       }
-
-      updateCursorSize();
+      return { h, s, v };
     }
 
-    function getMousePos(canvas, evt) {
+    function hsvToRgb(h, s, v) {
+      let r, g, b;
+      const i = Math.floor(h * 6);
+      const f = h * 6 - i;
+      const p = v * (1 - s);
+      const q = v * (1 - f * s);
+      const t = v * (1 - (1 - f) * s);
+
+      switch (i % 6) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+      }
+      return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+      };
+    }
+
+    function rgbHueToArtistHue(h) {
+      const deg = h * 360;
+      if (deg < 60) return (deg * 2.0) / 360;
+      if (deg < 120) return (120 + (deg - 60) * 1.0) / 360;
+      if (deg < 240) return (180 + (deg - 120) * 0.5) / 360;
+      return deg / 360;
+    }
+
+    function artistHueToRgbHue(ah) {
+      const deg = ah * 360;
+      if (deg < 120) return (deg * 0.5) / 360;
+      if (deg < 180) return (60 + (deg - 120)) / 360;
+      if (deg < 240) return (120 + (deg - 180) * 2.0) / 360;
+      return deg / 360;
+    }
+
+    function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
+      if (!colorB_rgb) return { ...colorA_rgb };
+      if (!colorA_rgb) return { ...colorB_rgb };
+      if (ratio <= 0) return { ...colorA_rgb };
+      if (ratio >= 1) return { ...colorB_rgb };
+
+      const hsvA = rgbToHsv(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
+      const hsvB = rgbToHsv(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
+
+      if (hsvA.s < 0.15 || hsvB.s < 0.15) {
+        const r = Math.round(colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio);
+        const g = Math.round(colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio);
+        const b = Math.round(colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio);
+        return { r, g, b };
+      }
+
+      const hueA = rgbHueToArtistHue(hsvA.h);
+      const hueB = rgbHueToArtistHue(hsvB.h);
+
+      let dHue = hueB - hueA;
+      if (dHue > 0.5) dHue -= 1.0;
+      else if (dHue < -0.5) dHue += 1.0;
+
+      const mixedArtistHue = (hueA + dHue * ratio + 1.0) % 1.0;
+      const mixedRgbHue = artistHueToRgbHue(mixedArtistHue);
+
+      const mixedS = Math.min(1.0, (hsvA.s * (1 - ratio) + hsvB.s * ratio) * 1.02);
+      const mixedV = Math.max(
+        hsvA.v * (1 - ratio) + hsvB.v * ratio,
+        Math.min(hsvA.v, hsvB.v) * 0.96
+      );
+
+      return hsvToRgb(mixedRgbHue, mixedS, mixedV);
+    }
+    
+    function hexToRgb(hex) {
+      if (hex.length === 4) {
+        hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+      }
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 255, g: 255, b: 255 };
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+    }
+
+    function adjustColorShade(rgb, factor) {
+      if (factor >= 0) {
+        return {
+          r: Math.min(255, Math.round(rgb.r + (255 - rgb.r) * factor)),
+          g: Math.min(255, Math.round(rgb.g + (255 - rgb.g) * factor)),
+          b: Math.min(255, Math.round(rgb.b + (255 - rgb.b) * factor))
+        };
+      } else {
+        const shadowFactor = Math.max(0, 1 + factor);
+        return {
+          r: Math.max(0, Math.round(rgb.r * shadowFactor)),
+          g: Math.max(0, Math.round(rgb.g * shadowFactor)),
+          b: Math.max(0, Math.round(rgb.b * shadowFactor))
+        };
+      }
     }
 
     let lightVector = { x: -0.707, y: 0.707, z: 0.766 };
@@ -752,16 +748,138 @@
     let brushContaminationAmount = 0.0;
     let brushDepletionLevel = 1.0; 
     let activeInstantBlendRatio = 0.0;
-    let reservoirPurity = 1.0; // Gradually depletes as brush loads up underlying paint
+    let reservoirPurity = 1.0;
 
     let sketchSrcData = ""; 
-// ... existing code ... -->
+    let sketchOpacity = parseFloat(sliderSketchOpacity.value) / 100;
+    let sketchMode = "overlay"; 
+
+    const paintCanvas = document.getElementById('oil-canvas');
+    const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
+
     // =========================================================================
-    // LOOMIS HEAD & FULL PERSPECTIVE SVG GENERATORS
+    // LOOMIS HEAD & FULL-CANVAS PERSPECTIVE SVG GENERATORS
     // =========================================================================
     function generateReferencePresets() {
       // 1. Loomis Head — Front View
-// ... existing code ... -->
+      const loomisFront = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' fill='none' stroke-linecap='round'>
+          <circle cx='400' cy='255' r='125' stroke-width='2.2'/>
+          <ellipse cx='400' cy='255' rx='88' ry='125' stroke-width='1.3' stroke-dasharray='6,5' opacity='0.75'/>
+          <line x1='400' y1='110' x2='400' y2='475' stroke='#b91c1c' stroke-width='1.5'/>
+          <line x1='260' y1='255' x2='540' y2='255' stroke='#b91c1c' stroke-width='1.6'/>
+          <line x1='295' y1='172' x2='505' y2='172' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <line x1='295' y1='338' x2='505' y2='338' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <line x1='335' y1='421' x2='465' y2='421' stroke='#b91c1c' stroke-width='1.5'/>
+          <line x1='355' y1='372' x2='445' y2='372' stroke-width='1.1' stroke-dasharray='3,3'/>
+          <path d='M312,255 L322,350 L368,421 L432,421 L478,350 L488,255' stroke-width='2.2'/>
+          <ellipse cx='365' cy='272' rx='18' ry='9' stroke-width='1.3'/>
+          <ellipse cx='435' cy='272' rx='18' ry='9' stroke-width='1.3'/>
+          <path d='M388,338 L400,344 L412,338' stroke-width='1.5'/>
+          <path d='M376,372 Q400,378 424,372' stroke-width='1.5'/>
+          <text x='515' y='175' fill='#334155' stroke='none' font-family='monospace' font-size='10'>1. HAIRLINE</text>
+          <text x='545' y='258' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>2. BROW LINE</text>
+          <text x='515' y='341' fill='#334155' stroke='none' font-family='monospace' font-size='10'>3. NOSE BASE</text>
+          <text x='475' y='424' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>4. CHIN</text>
+        </g>
+      </svg>`;
+
+      // 2. Loomis Head — 3/4 Turn & Planes
+      const loomisThreeQuarter = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' fill='none' stroke-linecap='round'>
+          <circle cx='390' cy='250' r='125' stroke-width='2.2'/>
+          <ellipse cx='448' cy='250' rx='54' ry='84' transform='rotate(-8 448 250)' stroke='#0369a1' stroke-width='1.8'/>
+          <line x1='455' y1='166' x2='441' y2='334' stroke='#0369a1' stroke-width='1.3'/>
+          <line x1='395' y1='243' x2='501' y2='257' stroke='#0369a1' stroke-width='1.3'/>
+          <path d='M355,130 Q320,250 342,418' stroke='#b91c1c' stroke-width='1.8'/>
+          <path d='M267,232 Q345,254 501,257' stroke='#b91c1c' stroke-width='1.8'/>
+          <path d='M295,162 Q360,182 475,180' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <path d='M282,315 Q345,336 456,334' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <path d='M441,334 L415,382 L342,418 L302,402 L286,335 L278,260' stroke-width='2.2'/>
+          <path d='M355,175 L346,245 L330,322 L344,330' stroke-width='1.4'/>
+          <path d='M346,245 L312,254 L305,274' stroke-width='1.3'/>
+          <path d='M346,245 L385,256 L396,278' stroke-width='1.3'/>
+          <path d='M330,322 L318,365 L342,418' stroke-width='1.3'/>
+          <text x='515' y='215' fill='#0369a1' stroke='none' font-family='monospace' font-size='10'>SIDE PLANE</text>
+          <text x='515' y='228' fill='#0369a1' stroke='none' font-family='monospace' font-size='10'>(2/3 RADIUS)</text>
+          <text x='185' y='235' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>BROW AXIS</text>
+          <text x='275' y='445' fill='#334155' stroke='none' font-family='monospace' font-size='10'>LOOMIS 3/4 RHYTHM</text>
+        </g>
+      </svg>`;
+
+      // 3. Loomis Head — Side Profile
+      const loomisProfile = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' fill='none' stroke-linecap='round'>
+          <circle cx='410' cy='250' r='125' stroke-width='2.2'/>
+          <circle cx='410' cy='250' r='83' stroke='#0369a1' stroke-width='1.6' stroke-dasharray='5,4'/>
+          <line x1='410' y1='115' x2='410' y2='435' stroke='#b91c1c' stroke-width='1.5'/>
+          <line x1='265' y1='250' x2='550' y2='250' stroke='#b91c1c' stroke-width='1.6'/>
+          <line x1='275' y1='167' x2='535' y2='167' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <line x1='275' y1='333' x2='535' y2='333' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <line x1='275' y1='416' x2='430' y2='416' stroke='#b91c1c' stroke-width='1.5'/>
+          <path d='M300,167 L285,245 L260,322 L285,333 L282,360 L292,374 L286,386 L296,416 L345,416 L410,365 L410,333' stroke-width='2.2'/>
+          <ellipse cx='425' cy='292' rx='12' ry='22' transform='rotate(-10 425 292)' stroke='#0369a1' stroke-width='1.8'/>
+          <path d='M302,258 L322,265 L302,272' stroke-width='1.5'/>
+          <text x='445' y='296' fill='#0369a1' stroke='none' font-family='monospace' font-size='10'>EAR QUADRANT</text>
+          <text x='185' y='253' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>BROW</text>
+          <text x='185' y='336' fill='#334155' stroke='none' font-family='monospace' font-size='10'>NOSE</text>
+          <text x='185' y='419' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>CHIN</text>
+        </g>
+      </svg>`;
+
+      // 4. 1-Point Full-Canvas Perspective Grid
+      let p1Lines = "";
+      const vp1 = { x: 500, y: 375 };
+      for (let a = 0; a < 360; a += 10) {
+        const rad = (a * Math.PI) / 180;
+        const x2 = vp1.x + Math.cos(rad) * 1400;
+        const y2 = vp1.y + Math.sin(rad) * 1400;
+        p1Lines += `<line x1='${vp1.x}' y1='${vp1.y}' x2='${x2.toFixed(1)}' y2='${y2.toFixed(1)}' stroke-width='1.1' opacity='0.65'/>`;
+      }
+      const scales = [0.06, 0.14, 0.25, 0.38, 0.54, 0.72, 0.92, 1.15];
+      scales.forEach(s => {
+        const w = 1000 * s;
+        const h = 750 * s;
+        p1Lines += `<rect x='${(vp1.x - w/2).toFixed(1)}' y='${(vp1.y - h/2).toFixed(1)}' width='${w.toFixed(1)}' height='${h.toFixed(1)}' stroke-width='1.1' opacity='0.5'/>`;
+      });
+      const perspective1Pt = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 750' preserveAspectRatio='none'>
+        <g stroke='#1e3a8a' fill='none'>
+          ${p1Lines}
+          <line x1='0' y1='${vp1.y}' x2='1000' y2='${vp1.y}' stroke='#b91c1c' stroke-width='2.2'/>
+          <line x1='${vp1.x}' y1='0' x2='${vp1.x}' y2='750' stroke='#b91c1c' stroke-width='1.4' stroke-dasharray='6,5'/>
+          <circle cx='${vp1.x}' cy='${vp1.y}' r='7' fill='#b91c1c' stroke='none'/>
+          <text x='18' y='${vp1.y - 8}' fill='#b91c1c' stroke='none' font-family='monospace' font-size='11' font-weight='bold'>HORIZON LINE (HL)</text>
+          <text x='${vp1.x + 12}' y='${vp1.y - 10}' fill='#b91c1c' stroke='none' font-family='monospace' font-size='11' font-weight='bold'>1-PT VP</text>
+        </g>
+      </svg>`;
+
+      // 5. 2-Point Full-Canvas Perspective Grid
+      let p2Lines = "";
+      const vpL = { x: 0, y: 375 };
+      const vpR = { x: 1000, y: 375 };
+      for (let a = -68; a <= 68; a += 5.5) {
+        const rad = (a * Math.PI) / 180;
+        const lx2 = vpL.x + Math.cos(rad) * 1600;
+        const ly2 = vpL.y + Math.sin(rad) * 1600;
+        p2Lines += `<line x1='${vpL.x}' y1='${vpL.y}' x2='${lx2.toFixed(1)}' y2='${ly2.toFixed(1)}' stroke-width='1.1' opacity='0.6'/>`;
+        const rx2 = vpR.x - Math.cos(rad) * 1600;
+        const ry2 = vpR.y + Math.sin(rad) * 1600;
+        p2Lines += `<line x1='${vpR.x}' y1='${vpR.y}' x2='${rx2.toFixed(1)}' y2='${ry2.toFixed(1)}' stroke-width='1.1' opacity='0.6'/>`;
+      }
+      for (let vx = 80; vx <= 920; vx += 70) {
+        p2Lines += `<line x1='${vx}' y1='0' x2='${vx}' y2='750' stroke='#0f766e' stroke-width='1.0' opacity='0.45'/>`;
+      }
+      const perspective2Pt = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 750' preserveAspectRatio='none'>
+        <g stroke='#1e3a8a' fill='none'>
+          ${p2Lines}
+          <line x1='0' y1='375' x2='1000' y2='375' stroke='#b91c1c' stroke-width='2.2'/>
+          <circle cx='${vpL.x}' cy='${vpL.y}' r='7' fill='#b91c1c' stroke='none'/>
+          <circle cx='${vpR.x}' cy='${vpR.y}' r='7' fill='#b91c1c' stroke='none'/>
+          <text x='16' y='366' fill='#b91c1c' stroke='none' font-family='monospace' font-size='11' font-weight='bold'>LEFT VP</text>
+          <text x='915' y='366' fill='#b91c1c' stroke='none' font-family='monospace' font-size='11' font-weight='bold'>RIGHT VP</text>
+        </g>
+      </svg>`;
+
       // 6. 3-Point Aerial Perspective Grid
       let p3Lines = "";
       const vp3L = { x: 0, y: 210 };
@@ -787,7 +905,211 @@
       </svg>`;
 
       // 7. Classical Still Life
-// ... existing code ... -->
+      const stillLife = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' stroke-width='2' fill='none'>
+          <line x1='120' y1='440' x2='680' y2='440' stroke-dasharray='6,4'/>
+          <ellipse cx='360' cy='155' rx='38' ry='14'/>
+          <path d='M322,155 C330,195 335,215 310,255 C270,315 275,390 315,440 L405,440 C445,390 450,315 410,255 C385,215 390,195 398,155'/>
+          <circle cx='465' cy='402' r='44'/>
+          <path d='M458,360 Q468,342 478,346'/>
+        </g>
+      </svg>`;
+
+      return {
+        loomis_front: "data:image/svg+xml;utf8," + encodeURIComponent(loomisFront),
+        loomis_three_quarter: "data:image/svg+xml;utf8," + encodeURIComponent(loomisThreeQuarter),
+        loomis_profile: "data:image/svg+xml;utf8," + encodeURIComponent(loomisProfile),
+        perspective_1pt: "data:image/svg+xml;utf8," + encodeURIComponent(perspective1Pt),
+        perspective_2pt: "data:image/svg+xml;utf8," + encodeURIComponent(perspective2Pt),
+        perspective_3pt: "data:image/svg+xml;utf8," + encodeURIComponent(perspective3Pt),
+        still_life: "data:image/svg+xml;utf8," + encodeURIComponent(stillLife)
+      };
+    }
+
+    const SKETCH_PRESETS = generateReferencePresets();
+
+    function resizeCanvas() {
+      const container = document.getElementById('studio-canvas-container');
+      if (!container || container.clientWidth === 0) return;
+      
+      let targetWidth = container.clientWidth - 8;
+      let targetHeight = container.clientHeight - 8;
+
+      if (targetWidth <= 100) targetWidth = 800;
+      if (targetHeight <= 100) targetHeight = 600;
+      
+      let tempImage = null;
+      if (paintCanvas.width > 0 && paintCanvas.height > 0) {
+        tempImage = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      }
+
+      paintCanvas.width = targetWidth; 
+      paintCanvas.height = targetHeight;
+      
+      if (tempImage) {
+        ctx.putImageData(tempImage, 0, 0);
+      } else {
+        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+        saveHistoryState();
+        loadFromLocalForage(true);
+      }
+    }
+
+    function saveHistoryState() {
+      if (paintCanvas.width <= 0 || paintCanvas.height <= 0) return;
+      if (historyStack.length > 20) historyStack.shift();
+      try {
+        historyStack.push(ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
+      } catch (err) {
+        console.warn("Capture bounds exception handled:", err);
+      }
+    }
+
+    // =========================================================================
+    // MIXABLE PALETTE SLAB CANVAS LOGIC
+    // =========================================================================
+    const paletteCanvas = document.getElementById('palette-well-canvas');
+    const pCtx = paletteCanvas.getContext('2d', { willReadFrequently: true });
+
+    const PALETTE_PIGMENTS = [
+      { color: "#E11D48", name: "Cadmium Red", x: 25, y: 25 },
+      { color: "#1D4ED8", name: "Ultramarine Blue", x: 75, y: 25 },
+      { color: "#FACC15", name: "Zinc Yellow", x: 125, y: 25 },
+      { color: "#10B981", name: "Phthalo Green", x: 175, y: 25 },
+      { color: "#7C2D12", name: "Burnt Sienna", x: 25, y: 135 },
+      { color: "#FFFFFF", name: "Titanium White", x: 75, y: 135 },
+      { color: "#111827", name: "Ivory Black", x: 125, y: 135 },
+      { color: "#9333EA", name: "Cobalt Violet", x: 175, y: 135 }
+    ];
+
+    function initPaletteSlab() {
+      if (!paletteCanvas.parentElement || paletteCanvas.parentElement.clientWidth === 0) return;
+      paletteCanvas.width = paletteCanvas.parentElement.clientWidth;
+      paletteCanvas.height = paletteCanvas.parentElement.clientHeight;
+
+      pCtx.clearRect(0, 0, paletteCanvas.width, paletteCanvas.height);
+
+      PALETTE_PIGMENTS.forEach(pigment => {
+        const pX = (pigment.x / 200) * paletteCanvas.width;
+        const pY = (pigment.y / 160) * paletteCanvas.height;
+
+        pCtx.save();
+        const grad = pCtx.createRadialGradient(pX, pY, 1, pX, pY, 17);
+        grad.addColorStop(0, '#FFFFFF');
+        grad.addColorStop(0.25, pigment.color);
+        grad.addColorStop(0.9, pigment.color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+        pCtx.beginPath();
+        pCtx.fillStyle = grad;
+        pCtx.arc(pX, pY, 17, 0, Math.PI * 2);
+        pCtx.fill();
+        pCtx.restore();
+      });
+    }
+
+    let isSmudgingPalette = false;
+    let paletteLastX = 0;
+    let paletteLastY = 0;
+    let activePaletteTipColor = null;
+
+    function handlePalettePointerDown(e) {
+      isSmudgingPalette = true;
+      const rect = paletteCanvas.getBoundingClientRect();
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      paletteLastX = (e.clientX - rect.left) * (paletteCanvas.width / rw);
+      paletteLastY = (e.clientY - rect.top) * (paletteCanvas.height / rh);
+
+      activePaletteTipColor = null;
+      samplePaletteColor(paletteLastX, paletteLastY);
+    }
+
+    function handlePalettePointerMove(e) {
+      if (!isSmudgingPalette) return;
+
+      const rect = paletteCanvas.getBoundingClientRect();
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      const cx = (e.clientX - rect.left) * (paletteCanvas.width / rw);
+      const cy = (e.clientY - rect.top) * (paletteCanvas.height / rh);
+      const pressure = getNormalizedPressure(e);
+
+      smudgePaletteColors(paletteLastX, paletteLastY, cx, cy, pressure);
+      
+      paletteLastX = cx;
+      paletteLastY = cy;
+    }
+
+    function smudgePaletteColors(x0, y0, x1, y1, pressure = 0.5) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const dist = Math.hypot(dx, dy);
+      const steps = Math.max(Math.floor(dist / 2), 1);
+      const smearRadius = 6 + pressure * 6;
+      const mixStepRate = 0.1 + pressure * 0.25;
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const cx = Math.round(x0 + dx * t);
+        const cy = Math.round(y0 + dy * t);
+
+        if (cx < 0 || cx >= paletteCanvas.width || cy < 0 || cy >= paletteCanvas.height) continue;
+
+        let underlyingColor = null;
+        try {
+          const pix = pCtx.getImageData(cx, cy, 1, 1).data;
+          if (pix[3] > 35) {
+            underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
+          }
+        } catch (err) {}
+
+        if (!underlyingColor) {
+          const paintColor = activePaletteTipColor || loadedReservoirColor;
+          pCtx.save();
+          pCtx.globalAlpha = 0.92;
+          pCtx.beginPath();
+          pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
+          pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
+          pCtx.fill();
+          pCtx.restore();
+        } else {
+          if (!activePaletteTipColor) {
+            activePaletteTipColor = underlyingColor;
+          } else {
+            activePaletteTipColor = mixColorsRGB(activePaletteTipColor, underlyingColor, mixStepRate);
+          }
+
+          pCtx.save();
+          pCtx.globalAlpha = 0.95;
+          pCtx.beginPath();
+          pCtx.fillStyle = `rgb(${activePaletteTipColor.r}, ${activePaletteTipColor.g}, ${activePaletteTipColor.b})`;
+          pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
+          pCtx.fill();
+          pCtx.restore();
+        }
+      }
+    }
+
+    function samplePaletteColor(x, y) {
+      try {
+        const pix = pCtx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
+        if (pix[3] < 35) return;
+
+        const pickedRgb = { r: pix[0], g: pix[1], b: pix[2] };
+        currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
+        currentPigmentName = `Mixed Slab`;
+        
+        PALETTE_PIGMENTS.forEach(pigment => {
+          const rgbPreset = hexToRgb(pigment.color);
+          const dist = Math.abs(rgbPreset.r - pickedRgb.r) + Math.abs(rgbPreset.g - pickedRgb.g) + Math.abs(rgbPreset.b - pickedRgb.b);
+          if (dist < 20) {
+            currentPigmentName = pigment.name;
+          }
+        });
+
+        activePigmentName.innerText = currentPigmentName;
+        activeColorSwatch.style.backgroundColor = currentPigment;
         loadedReservoirColor = pickedRgb;
         pickedUpForeignColor = null;
         brushContaminationAmount = 0.0;
@@ -795,7 +1117,657 @@
         reservoirPurity = 1.0;
 
         if (isSmearMode) {
-// ... existing code ... -->
+          toggleSmearMode(false);
+        }
+
+        customCursor.style.backgroundColor = currentPigment;
+        updateTelemetry();
+      } catch (err) {
+        console.warn("Palette color sample boundaries exception handled.");
+      }
+    }
+
+    paletteCanvas.addEventListener('pointerdown', handlePalettePointerDown);
+    paletteCanvas.addEventListener('pointermove', handlePalettePointerMove);
+    window.addEventListener('pointerup', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
+    window.addEventListener('pointercancel', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
+
+    document.getElementById('btn-palette-reset').addEventListener('click', () => {
+      initPaletteSlab();
+      showToast("Palette slab replenished with fresh colors!", "success");
+    });
+
+    // =========================================================================
+    // SMEAR / BLEND MODE TOGGLE
+    // =========================================================================
+    function toggleSmearMode(forceState) {
+      isSmearMode = typeof forceState === 'boolean' ? forceState : !isSmearMode;
+      if (isSmearMode) {
+        btnSmearMode.className = "px-2 py-0.5 bg-amber-600 text-white border border-amber-400 text-[9px] font-bold rounded transition-all shadow";
+        btnSmearMode.innerHTML = `<i class="fa-solid fa-hand-sparkles mr-0.5"></i> Blend Smudge: ON`;
+        showToast("Blend Smudge Mode ON: Pressure smears & blends existing colors", "info");
+      } else {
+        btnSmearMode.className = "px-2 py-0.5 bg-linen-800 hover:bg-linen-700 border border-linen-600 text-[9px] font-semibold rounded text-linen-200 transition-all";
+        btnSmearMode.innerHTML = `<i class="fa-solid fa-hand-sparkles text-amber-400 mr-0.5"></i> Blend Smudge: OFF`;
+      }
+    }
+
+    btnSmearMode.addEventListener('click', () => toggleSmearMode());
+
+    // =========================================================================
+    // MEDIUMS LOGIC & OVERRIDES
+    // =========================================================================
+    const mediumButtons = document.querySelectorAll('.medium-btn');
+    const mediumInfoBlock = document.getElementById('active-medium-info');
+
+    const MEDIUM_PRESETS = {
+      none: {
+        info: "<strong>Pure Impasto:</strong> High 3D viscosity with pressure-modulated spectral blend fading and tactile impasto relief.",
+        modifier: (wet, visc) => ({ wet, visc: Math.max(visc, 0.8), depletion: 0.0005, opacityMult: 1.0, shadowMult: 1.0, cleanseMult: 1.0 })
+      },
+      linseed: {
+        info: "<strong>Linseed Oil:</strong> Increases fluid color blend flow, extends smear trail fading, and adds glossy sheen.",
+        modifier: (wet, visc) => ({
+          wet: Math.max(wet, 0.88),
+          visc: Math.max(visc, 0.55),
+          depletion: 0.0003,
+          opacityMult: 0.95,
+          shadowMult: 0.75,
+          cleanseMult: 0.65
+        })
+      },
+      turps: {
+        info: "<strong>Turpentine Solvent:</strong> Highly fluid wash with soft diffuse depth, fast color dispersion, and quick clearing.",
+        modifier: (wet, visc) => ({
+          wet: 1.0,
+          visc: 0.05,
+          depletion: 0.001,
+          opacityMult: 0.55,
+          shadowMult: 0.15,
+          cleanseMult: 1.6
+        })
+      },
+      liquin: {
+        info: "<strong>Liquin Gel:</strong> Heavy impasto builder. Sculpt exaggerated 3D knife peaks with deep tactile relief under high pressure.",
+        modifier: (wet, visc) => ({
+          wet: Math.min(wet, 0.45),
+          visc: Math.max(visc, 0.98),
+          depletion: 0.0006,
+          opacityMult: 1.25,
+          shadowMult: 1.4,
+          cleanseMult: 0.9
+        })
+      }
+    };
+
+    function selectMedium(mediumKey) {
+      activeMedium = mediumKey;
+      mediumButtons.forEach(btn => {
+        if (btn.dataset.medium === mediumKey) {
+          btn.classList.remove('border-transparent');
+          btn.classList.add('border-amber-500');
+        } else {
+          btn.classList.remove('border-amber-500');
+          btn.classList.add('border-transparent');
+        }
+      });
+
+      const preset = MEDIUM_PRESETS[mediumKey];
+      mediumInfoBlock.innerHTML = preset.info;
+      updateBrushParameters();
+      showToast(`Swapped medium to ${mediumKey.toUpperCase()}`, "info");
+    }
+
+    mediumButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectMedium(btn.dataset.medium);
+      });
+    });
+
+    // =========================================================================
+    // PERSISTENCE & HISTORY LOCALFORAGE BACKUPS
+    // =========================================================================
+
+    function saveToLocalForage(silent = false) {
+      const dataUrl = paintCanvas.toDataURL();
+      saveStatusText.innerText = "Auto-saving...";
+
+      const sessionObj = {
+        canvasData: dataUrl,
+        sketchSrc: sketchSrcData,
+        sketchOpacity: sketchOpacity,
+        sketchMode: sketchMode,
+        sketchPresetValue: selectSketchPreset.value,
+        activeMedium: activeMedium,
+        lightAzimuth: document.getElementById('input-light-azimuth').value,
+        lightElevation: document.getElementById('input-light-elevation').value,
+        lightScale: document.getElementById('input-light-scale').value,
+        lightSpec: document.getElementById('input-light-spec').value,
+        sidebarOnRight: studioGrid.classList.contains('xl:flex-row-reverse'),
+        resModeFast: paintCanvas.classList.contains('filter-none')
+      };
+      
+      localforage.setItem('atelier_session_bundle_rgb_v7', sessionObj).then(() => {
+        saveStatusText.innerText = "All changes saved locally";
+        if (!silent) {
+          showToast('Session layout saved to browser!', 'success');
+        }
+      }).catch(err => {
+        saveStatusText.innerText = "Local save failed";
+        if (!silent) {
+          showToast('Failed to save session: ' + err, 'error');
+        }
+      });
+    }
+
+    function loadFromLocalForage(isBootRestore = false) {
+      saveStatusText.innerText = "Restoring session...";
+      
+      localforage.getItem('atelier_session_bundle_rgb_v7').then(bundle => {
+        if (bundle) {
+          if (bundle.sketchSrc) {
+            sketchSrcData = bundle.sketchSrc;
+            sketchOpacity = bundle.sketchOpacity;
+            sketchMode = bundle.sketchMode;
+            selectSketchPreset.value = bundle.sketchPresetValue || "none";
+            
+            sliderSketchOpacity.value = Math.round(sketchOpacity * 100);
+            valSketchOpacity.innerText = `${Math.round(sketchOpacity * 100)}%`;
+            
+            if (selectSketchPreset.value === 'custom') {
+              customSketchUploadArea.classList.remove('hidden');
+            }
+
+            if (sketchMode === 'overlay') {
+              setSketchPlacement('overlay');
+            } else {
+              setSketchPlacement('underlay');
+            }
+            
+            updateSketchImgLayers();
+          }
+
+          if (bundle.activeMedium) {
+            selectMedium(bundle.activeMedium);
+          }
+
+          if (bundle.lightAzimuth) {
+            document.getElementById('input-light-azimuth').value = bundle.lightAzimuth;
+            document.getElementById('input-light-elevation').value = bundle.lightElevation;
+            document.getElementById('input-light-scale').value = bundle.lightScale;
+            document.getElementById('input-light-spec').value = bundle.lightSpec;
+            updateImpastoLighting();
+          }
+
+          if (bundle.sidebarOnRight) {
+            toggleSidebarSide(true);
+          }
+          if (bundle.resModeFast) {
+            toggleResolutionMode(true);
+          }
+
+          if (bundle.canvasData) {
+            const img = new Image();
+            img.onload = () => {
+              ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+              ctx.drawImage(img, 0, 0);
+              
+              historyStack = [];
+              saveHistoryState();
+              
+              saveStatusText.innerText = "Canvas restored";
+              if (isBootRestore) {
+                showToast('Restored active painting workspace!', 'info');
+              } else {
+                showToast('Successfully loaded backup.', 'success');
+              }
+            };
+            img.src = bundle.canvasData;
+          }
+        } else {
+          saveStatusText.innerText = "Ready to paint";
+        }
+      }).catch(err => {
+        saveStatusText.innerText = "Database restore failed";
+        console.error("localForage Error:", err);
+      });
+    }
+
+    // =========================================================================
+    // SKETCH TRACING OVERLAYS (LOOMIS & FULL-CANVAS PERSPECTIVE GRIDS)
+    // =========================================================================
+
+    function updateSketchImgLayers() {
+      const presetVal = selectSketchPreset.value;
+      if (!sketchSrcData || presetVal === 'none') {
+        imgSketchOverlay.style.opacity = '0';
+        imgSketchUnderlay.style.opacity = '0';
+        return;
+      }
+
+      const isPerspectiveGrid = presetVal.startsWith('perspective_');
+      const fitClass = isPerspectiveGrid ? 'object-fill' : 'object-contain';
+
+      imgSketchOverlay.classList.remove('object-contain', 'object-fill');
+      imgSketchUnderlay.classList.remove('object-contain', 'object-fill');
+      imgSketchOverlay.classList.add(fitClass);
+      imgSketchUnderlay.classList.add(fitClass);
+
+      if (sketchMode === 'overlay') {
+        imgSketchOverlay.src = sketchSrcData;
+        imgSketchOverlay.style.opacity = sketchOpacity;
+        imgSketchUnderlay.style.opacity = '0';
+      } else {
+        imgSketchUnderlay.src = sketchSrcData;
+        imgSketchUnderlay.style.opacity = sketchOpacity;
+        imgSketchOverlay.style.opacity = '0';
+      }
+    }
+
+    function setSketchPlacement(mode) {
+      sketchMode = mode;
+      if (mode === 'overlay') {
+        btnSketchOverlay.className = "px-2 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px] flex-1";
+        btnSketchUnderlay.className = "px-2 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] flex-1 hover:text-linen-100";
+      } else {
+        btnSketchUnderlay.className = "px-2 py-0.5 bg-linen-800 text-amber-500 border border-amber-500 rounded text-[9px] flex-1";
+        btnSketchOverlay.className = "px-2 py-0.5 bg-linen-800 text-linen-400 border border-transparent rounded text-[9px] flex-1 hover:text-linen-100";
+      }
+      updateSketchImgLayers();
+    }
+
+    selectSketchPreset.addEventListener('change', (e) => {
+      const val = e.target.value;
+      customSketchUploadArea.classList.add('hidden');
+
+      if (val === 'none') {
+        sketchSrcData = "";
+        updateSketchImgLayers();
+        saveToLocalForage(true);
+      } else if (val === 'custom') {
+        customSketchUploadArea.classList.remove('hidden');
+        if (!sketchSrcData.startsWith('data:image')) {
+          sketchSrcData = "";
+          updateSketchImgLayers();
+        }
+      } else if (SKETCH_PRESETS[val]) {
+        sketchSrcData = SKETCH_PRESETS[val];
+        updateSketchImgLayers();
+        saveToLocalForage(true);
+        const label = e.target.options[e.target.selectedIndex].text;
+        showToast(`Loaded guide: ${label}`, 'info');
+      }
+    });
+
+    inputSketchUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          sketchSrcData = event.target.result;
+          updateSketchImgLayers();
+          saveToLocalForage(true);
+          showToast('Custom tracing reference uploaded!', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    sliderSketchOpacity.addEventListener('input', (e) => {
+      sketchOpacity = parseFloat(e.target.value) / 100;
+      valSketchOpacity.innerText = `${e.target.value}%`;
+      updateSketchImgLayers();
+    });
+
+    sliderSketchOpacity.addEventListener('change', () => {
+      saveToLocalForage(true);
+    });
+
+    btnSketchOverlay.addEventListener('click', () => {
+      setSketchPlacement('overlay');
+      saveToLocalForage(true);
+    });
+
+    btnSketchUnderlay.addEventListener('click', () => {
+      setSketchPlacement('underlay');
+      saveToLocalForage(true);
+    });
+
+    // =========================================================================
+    // MODAL POPUPS AND SCRUB CONFIRMATIONS
+    // =========================================================================
+    const modalContainer = document.getElementById('modal-container');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      modalContainer.classList.remove('opacity-0', 'pointer-events-none');
+    });
+
+    modalCancelBtn.addEventListener('click', () => {
+      modalContainer.classList.add('opacity-0', 'pointer-events-none');
+    });
+
+    modalConfirmBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      saveHistoryState();
+      saveToLocalForage(true);
+      modalContainer.classList.add('opacity-0', 'pointer-events-none');
+      showToast('Painting canvas wiped clean.', 'info');
+    });
+
+    const profileButtons = document.querySelectorAll('.brush-profile-btn');
+    profileButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectBrushProfile(btn.dataset.profile);
+      });
+    });
+
+    function selectBrushProfile(profileName) {
+      profileButtons.forEach(b => {
+        if (b.dataset.profile === profileName) {
+          b.classList.remove('border-transparent');
+          b.classList.add('border-amber-500');
+        } else {
+          b.classList.remove('border-amber-500');
+          b.classList.add('border-transparent');
+        }
+      });
+
+      currentBrushProfile = profileName;
+
+      if (currentBrushProfile === 'palette-knife') {
+        brushSizeSlider.value = 40;
+        brushWetSlider.value = 35;
+        brushViscSlider.value = 100;
+      } else if (currentBrushProfile === 'turpentine') {
+        brushSizeSlider.value = 55;
+        brushWetSlider.value = 100;
+        brushViscSlider.value = 15;
+      } else if (currentBrushProfile === 'fan-brush') {
+        brushSizeSlider.value = 45;
+        brushWetSlider.value = 85;
+        brushViscSlider.value = 65;
+      } else if (currentBrushProfile === 'filbert') {
+        brushSizeSlider.value = 38;
+        brushWetSlider.value = 80;
+        brushViscSlider.value = 85;
+      } else if (currentBrushProfile === 'dry-scumble') {
+        brushSizeSlider.value = 45;
+        brushWetSlider.value = 15;
+        brushViscSlider.value = 50;
+      } else if (currentBrushProfile === 'rigger') {
+        brushSizeSlider.value = 14;
+        brushWetSlider.value = 40;
+        brushViscSlider.value = 90;
+      } else if (currentBrushProfile === 'stippler') {
+        brushSizeSlider.value = 40;
+        brushWetSlider.value = 60;
+        brushViscSlider.value = 90;
+      } else if (currentBrushProfile === 'round-point') {
+        brushSizeSlider.value = 24;
+        brushWetSlider.value = 70;
+        brushViscSlider.value = 85;
+      } else {
+        brushSizeSlider.value = 32;
+        brushWetSlider.value = 75;
+        brushViscSlider.value = 85;
+      }
+
+      updateBrushParameters();
+    }
+
+    function updateBrushParameters() {
+      const baseWet = parseInt(brushWetSlider.value) / 100;
+      const baseVisc = parseInt(brushViscSlider.value) / 100;
+      pressureBlendCoupling = parseInt(pressureBlendSlider.value) / 100;
+      pressureSensitivity = parseInt(pressureSensSlider.value) / 100;
+
+      const mod = MEDIUM_PRESETS[activeMedium].modifier(baseWet, baseVisc);
+
+      brushSize = parseInt(brushSizeSlider.value);
+      brushWetness = mod.wet;
+      brushViscosity = mod.visc;
+
+      brushSizeLabel.innerText = `${brushSize}px`;
+      brushWetLabel.innerText = `${Math.round(brushWetness * 100)}%`;
+      pressureBlendLabel.innerText = `${Math.round(pressureBlendCoupling * 100)}%`;
+      brushViscLabel.innerText = `${Math.round(brushViscosity * 100)}%`;
+      pressureSensLabel.innerText = `${Math.round(pressureSensitivity * 100)}%`;
+
+      updateCursorSize();
+    }
+
+    brushSizeSlider.addEventListener('input', updateBrushParameters);
+    brushWetSlider.addEventListener('input', updateBrushParameters);
+    pressureBlendSlider.addEventListener('input', updateBrushParameters);
+    brushViscSlider.addEventListener('input', updateBrushParameters);
+    pressureSensSlider.addEventListener('input', updateBrushParameters);
+
+    function updateCursorSize() {
+      const effectivePressure = Math.pow(smoothedPressure, 0.8);
+      const scaleFactor = Math.max(0.22, (1 - pressureSensitivity * 0.72) + (pressureSensitivity * effectivePressure * 1.35));
+      const dynamicSize = brushSize * scaleFactor;
+      customCursor.style.width = `${Math.round(dynamicSize)}px`;
+      customCursor.style.height = `${Math.round(dynamicSize)}px`;
+      
+      const coreSize = Math.max(3, Math.round(dynamicSize * smoothedPressure * 0.55));
+      cursorPressureCore.style.width = `${coreSize}px`;
+      cursorPressureCore.style.height = `${coreSize}px`;
+    }
+
+    function updateTelemetry() {
+      if (telemetryBlend) {
+        telemetryBlend.innerText = `${Math.round(activeInstantBlendRatio * 100)}%`;
+      }
+      if (telemetryPressure) {
+        telemetryPressure.innerText = `${Math.round(smoothedPressure * 100)}%`;
+      }
+      if (telemetryDirty) {
+        telemetryDirty.innerText = `${Math.round(brushContaminationAmount * 100)}%`;
+      }
+    }
+
+    // =========================================================================
+    // DYNAMIC IMPASTO SHADOWS & LIGHTING SYSTEM
+    // =========================================================================
+    const inputAzimuth = document.getElementById('input-light-azimuth');
+    const inputElevation = document.getElementById('input-light-elevation');
+    const inputScale = document.getElementById('input-light-scale');
+    const inputSpec = document.getElementById('input-light-spec');
+
+    const valAzimuth = document.getElementById('val-light-azimuth');
+    const valElevation = document.getElementById('val-light-elevation');
+    const valScale = document.getElementById('val-light-scale');
+    const valSpec = document.getElementById('val-light-spec');
+
+    function updateImpastoLighting() {
+      const az = inputAzimuth.value;
+      const el = inputElevation.value;
+      const sc = inputScale.value;
+      const sp = inputSpec.value;
+
+      valAzimuth.innerText = `${az}°`;
+      valElevation.innerText = `${el}°`;
+      valScale.innerText = `${sc}`;
+      valSpec.innerText = `${sp}`;
+
+      calculateLightVector();
+
+      const diffLight = document.getElementById('emboss-diffuse-light');
+      const specLight = document.getElementById('emboss-specular-light');
+      const diffuseNode = document.querySelector('#oil-emboss feDiffuseLighting');
+      const specularNode = document.querySelector('#oil-emboss feSpecularLighting');
+
+      if (diffLight) {
+        diffLight.setAttribute('azimuth', az);
+        diffLight.setAttribute('elevation', el);
+      }
+      if (specLight) {
+        specLight.setAttribute('azimuth', az);
+        specLight.setAttribute('elevation', el);
+      }
+      if (diffuseNode) {
+        diffuseNode.setAttribute('surfaceScale', sc);
+      }
+      if (specularNode) {
+        specularNode.setAttribute('surfaceScale', (parseFloat(sc) * 0.8).toFixed(1));
+        specularNode.setAttribute('specularExponent', sp);
+      }
+    }
+
+    inputAzimuth.addEventListener('input', updateImpastoLighting);
+    inputElevation.addEventListener('input', updateImpastoLighting);
+    inputScale.addEventListener('input', updateImpastoLighting);
+    inputSpec.addEventListener('input', updateImpastoLighting);
+
+    inputAzimuth.addEventListener('change', () => saveToLocalForage(true));
+    inputElevation.addEventListener('change', () => saveToLocalForage(true));
+    inputScale.addEventListener('change', () => saveToLocalForage(true));
+    inputSpec.addEventListener('change', () => saveToLocalForage(true));
+
+    // =========================================================================
+    // ADJUSTABLE WORKSPACE LAYOUT CONTROLLERS
+    // =========================================================================
+    const btnSidebarLeft = document.getElementById('btn-sidebar-left');
+    const btnSidebarRight = document.getElementById('btn-sidebar-right');
+    const btnResHigh = document.getElementById('btn-res-high');
+    const btnResFast = document.getElementById('btn-res-fast');
+    const btnToggleFocus = document.getElementById('btn-toggle-focus');
+
+    const studioGrid = document.getElementById('studio-grid');
+    const controlsPanel = document.getElementById('controls-panel');
+    const canvasPanel = document.getElementById('canvas-panel');
+    const bottomPanel = document.getElementById('bottom-tracing-panel');
+
+    function toggleSidebarSide(toRight) {
+      if (toRight) {
+        studioGrid.classList.add('xl:flex-row-reverse');
+        btnSidebarRight.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnSidebarLeft.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
+      } else {
+        studioGrid.classList.remove('xl:flex-row-reverse');
+        btnSidebarLeft.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnSidebarRight.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
+      }
+    }
+
+    btnSidebarLeft.addEventListener('click', () => {
+      toggleSidebarSide(false);
+      saveToLocalForage(true);
+    });
+
+    btnSidebarRight.addEventListener('click', () => {
+      toggleSidebarSide(true);
+      saveToLocalForage(true);
+    });
+
+    function toggleResolutionMode(isFast) {
+      if (isFast) {
+        paintCanvas.classList.remove('oil-texture');
+        btnResFast.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnResHigh.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
+        showToast("Switched to fast performance layout", "info");
+      } else {
+        paintCanvas.classList.add('oil-texture');
+        btnResHigh.className = "px-2 py-0.5 bg-amber-600 text-white rounded text-[9px] font-semibold";
+        btnResFast.className = "px-2 py-0.5 bg-linen-800 text-linen-300 hover:text-white rounded text-[9px] font-semibold";
+        showToast("Switched to high-fidelity 3D shading layer", "success");
+      }
+    }
+
+    btnResHigh.addEventListener('click', () => {
+      toggleResolutionMode(false);
+      saveToLocalForage(true);
+    });
+
+    btnResFast.addEventListener('click', () => {
+      toggleResolutionMode(true);
+      saveToLocalForage(true);
+    });
+
+    let focusModeOn = false;
+    function toggleFocusMode() {
+      focusModeOn = !focusModeOn;
+      if (focusModeOn) {
+        controlsPanel.classList.add('hidden', 'xl:hidden');
+        bottomPanel.classList.add('hidden');
+        canvasPanel.className = "col-span-12 flex flex-col gap-4 transition-all duration-300";
+        btnToggleFocus.innerHTML = `<i class="fa-solid fa-compress text-amber-500"></i> Standard Workspace <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>`;
+        showToast("Focus Mode Activated: Controls hidden", "info");
+      } else {
+        controlsPanel.classList.remove('hidden', 'xl:hidden');
+        bottomPanel.classList.remove('hidden');
+        canvasPanel.className = "col-span-12 xl:col-span-9 flex flex-col gap-4 transition-all duration-300";
+        btnToggleFocus.innerHTML = `<i class="fa-solid fa-expand text-amber-800"></i> Focus Mode <kbd class="px-1 text-[8px] bg-linen-300 rounded font-mono">F</kbd>`;
+        showToast("Focus Mode Exited: All panels visible", "info");
+      }
+      setTimeout(resizeCanvas, 150);
+    }
+
+    btnToggleFocus.addEventListener('click', toggleFocusMode);
+
+    // =========================================================================
+    // DRAW STROKE CORE SIMULATION (PRESSURE & SPECTRAL OIL ENGINE)
+    // =========================================================================
+    let lastX = 0;
+    let lastY = 0;
+    let lastClientX = 0;
+    let lastClientY = 0;
+    let lastStrokeTime = 0;
+    let eyedropperTimer = null;
+
+    function getNormalizedPressure(e) {
+      // Pen / Stylus hardware pressure (Apple Pencil, Wacom, Surface Pen, etc.)
+      if (e.pointerType === 'pen' && typeof e.pressure === 'number') {
+        const rawPen = Math.min(Math.max(e.pressure, 0.02), 1.0);
+        return Math.pow(rawPen, 0.85);
+      }
+
+      // Touch screens with real force sensors
+      if (e.pointerType === 'touch' && typeof e.pressure === 'number' && e.pressure > 0 && e.pressure !== 0.5 && e.pressure !== 1.0) {
+        return Math.min(Math.max(e.pressure, 0.05), 1.0);
+      }
+
+      // Mouse or standard touch: derive dynamic pressure from stroke velocity
+      const now = performance.now();
+      const dt = Math.max(now - lastStrokeTime, 8);
+      const dist = Math.hypot(e.clientX - lastClientX, e.clientY - lastClientY);
+      const speed = dist / dt;
+
+      const velocityPressure = 0.92 / (1 + speed * 0.45);
+      return Math.min(Math.max(velocityPressure, 0.18), 0.95);
+    }
+
+    function startDrawing(e) {
+      if (e.pointerType === 'touch' && !e.isPrimary) {
+        isDrawing = false;
+        triggerGestureUndo();
+        return;
+      }
+
+      const pos = getMousePos(paintCanvas, e);
+      lastClientX = e.clientX;
+      lastClientY = e.clientY;
+      lastStrokeTime = performance.now();
+
+      if (e.pointerType !== 'pen' && (e.pressure === 0.5 || e.pressure === 0 || e.pressure === 1.0)) {
+        currentPressure = 0.45;
+      } else {
+        currentPressure = getNormalizedPressure(e);
+      }
+      smoothedPressure = currentPressure;
+
+      if (eyedropperTimer) clearTimeout(eyedropperTimer);
+      eyedropperTimer = setTimeout(() => {
+        activateEyedropper(pos.x, pos.y);
+      }, 750);
+
+      isDrawing = true;
+      lastX = pos.x;
+      lastY = pos.y;
+      hasValidStrokeAngle = false;
+      
       brushDepletionLevel = 1.0;
       pickedUpForeignColor = null;
       brushContaminationAmount = 0.0;
@@ -805,12 +1777,219 @@
       try {
         strokeCanvasSnapshot = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
       } catch (err) {
-// ... existing code ... -->
+        strokeCanvasSnapshot = null;
+      }
+
+      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
+      updateCursorSize();
+    }
+
+    function stopDrawing(e) {
+      if (eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+      if (isDrawing) {
+        isDrawing = false;
+        hasValidStrokeAngle = false;
+        strokeCanvasSnapshot = null;
+        saveHistoryState();
+        saveToLocalForage(true);
+      }
+      smoothedPressure = 0.5;
+      updateCursorSize();
+      updateTelemetry();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+
+      const events = (typeof e.getCoalescedEvents === 'function' && e.getCoalescedEvents().length > 0)
+        ? e.getCoalescedEvents()
+        : [e];
+
+      for (const ev of events) {
+        const pos = getMousePos(paintCanvas, ev);
+        const dist = Math.hypot(pos.x - lastX, pos.y - lastY);
+
+        if (dist > 8 && eyedropperTimer) {
+          clearTimeout(eyedropperTimer);
+          eyedropperTimer = null;
+        }
+
+        const rawP = getNormalizedPressure(ev);
+        smoothedPressure = smoothedPressure * 0.35 + rawP * 0.65;
+
+        lastClientX = ev.clientX;
+        lastClientY = ev.clientY;
+        lastStrokeTime = performance.now();
+
+        drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
+        lastX = pos.x;
+        lastY = pos.y;
+      }
+
+      updateCursorSize();
+    }
+
+    function getMousePos(canvas, evt) {
+      const rect = canvas.getBoundingClientRect();
+      const rw = rect.width || 1;
+      const rh = rect.height || 1;
+      
+      return {
+        x: (evt.clientX - rect.left) * (canvas.width / rw),
+        y: (evt.clientY - rect.top) * (canvas.height / rh)
+      };
+    }
+
+    const eyedropperPreview = document.getElementById('eyedropper-preview');
+    function activateEyedropper(x, y) {
+      if (isDrawing) isDrawing = false;
+      try {
+        const pix = ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
+        if (pix[3] < 20) {
+          showToast("Eyedropper: Bare canvas area", "info");
+          return;
+        }
+
+        const color = { r: pix[0], g: pix[1], b: pix[2] };
+        currentPigment = rgbToHex(color.r, color.g, color.b);
+        currentPigmentName = "Eyedropper Pick";
+        
+        activePigmentName.innerText = currentPigmentName;
+        activeColorSwatch.style.backgroundColor = currentPigment;
         loadedReservoirColor = color;
         pickedUpForeignColor = null;
         brushContaminationAmount = 0.0;
         brushDepletionLevel = 1.0;
         reservoirPurity = 1.0;
+        customCursor.style.backgroundColor = currentPigment;
+
+        if (isSmearMode) {
+          toggleSmearMode(false);
+        }
+
+        eyedropperPreview.style.backgroundColor = currentPigment;
+        const rect = paintCanvas.getBoundingClientRect();
+        
+        const rw = rect.width || 1;
+        const rh = rect.height || 1;
+        const screenX = rect.left + (x * (rw / paintCanvas.width));
+        const screenY = rect.top + (y * (rh / paintCanvas.height));
+
+        eyedropperPreview.style.left = `${screenX}px`;
+        eyedropperPreview.style.top = `${screenY}px`;
+        eyedropperPreview.classList.remove('hidden');
+        
+        setTimeout(() => {
+          eyedropperPreview.classList.add('hidden');
+        }, 1200);
+
+        showToast("Eyedropper sampled canvas color!", "success");
+        updateTelemetry();
+      } catch (err) {
+        console.warn("Eyedropper boundary exception handled.");
+      }
+    }
+
+    function triggerGestureUndo() {
+      if (historyStack.length > 1) {
+        historyStack.pop(); 
+        const lastState = historyStack[historyStack.length - 1];
+        ctx.putImageData(lastState, 0, 0);
+        saveToLocalForage(true);
+        showToast("Gestures: Undone stroke!", "info");
+      } else {
+        ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      }
+    }
+
+    function drawVolumetricDab(targetCtx, x, y, radius, length, angle, baseRgb, alpha, normalAngle, highlightFactor = 0.25, shadowFactor = 0.2, pressureMod = 1.0) {
+      targetCtx.save();
+      targetCtx.translate(x, y);
+      targetCtx.rotate(angle);
+
+      const radL = (length > 0 ? length : radius * 1.5) * (0.8 + pressureMod * 0.3);
+      const radW = radius * (0.8 + pressureMod * 0.4);
+
+      if (brushViscosity > 0.2) {
+        const shadowDx = -Math.cos(normalAngle) * (radW * 0.3);
+        const shadowDy = -Math.sin(normalAngle) * (radW * 0.3);
+        const shadowRgb = adjustColorShade(baseRgb, -Math.min(shadowFactor, 0.22));
+
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha * 0.25 * pressureMod;
+        targetCtx.fillStyle = `rgb(${shadowRgb.r}, ${shadowRgb.g}, ${shadowRgb.b})`;
+        targetCtx.beginPath();
+        targetCtx.ellipse(shadowDx, shadowDy, radL * 0.55, radW * 0.75, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+      }
+
+      targetCtx.save();
+      targetCtx.globalAlpha = Math.min(1.0, alpha);
+      targetCtx.fillStyle = `rgb(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b})`;
+      targetCtx.beginPath();
+      targetCtx.ellipse(0, 0, radL * 0.55, radW * 0.85, 0, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+
+      if (brushViscosity > 0.3) {
+        const lightDx = Math.cos(normalAngle) * (radW * 0.25);
+        const lightDy = Math.sin(normalAngle) * (radW * 0.25);
+        const lightRgb = adjustColorShade(baseRgb, Math.min(highlightFactor, 0.28));
+
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha * 0.4 * pressureMod;
+        targetCtx.fillStyle = `rgb(${lightRgb.r}, ${lightRgb.g}, ${lightRgb.b})`;
+        targetCtx.beginPath();
+        targetCtx.ellipse(lightDx, lightDy, radL * 0.4, radW * 0.4, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+      }
+
+      if (brushViscosity > 0.6) {
+        const lightDx = Math.cos(normalAngle) * (radW * 0.25);
+        const lightDy = Math.sin(normalAngle) * (radW * 0.25);
+        targetCtx.save();
+        targetCtx.globalAlpha = alpha * 0.3 * pressureMod;
+        targetCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        targetCtx.beginPath();
+        targetCtx.ellipse(lightDx * 1.1, lightDy * 1.1, radL * 0.15, radW * 0.15, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.restore();
+      }
+
+      targetCtx.restore();
+    }
+
+    function drawStroke(x0, y0, x1, y1, pressure) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const distance = Math.hypot(dx, dy);
+
+      if (distance > 0.5) {
+        const rawAngle = Math.atan2(dy, dx);
+        if (!hasValidStrokeAngle) {
+          currentStrokeAngle = rawAngle;
+          hasValidStrokeAngle = true;
+        } else {
+          let diff = (rawAngle - currentStrokeAngle + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+          currentStrokeAngle += diff * 0.4;
+        }
+      }
+
+      const strokeAngle = hasValidStrokeAngle ? currentStrokeAngle : 0;
+      const perpAngle = strokeAngle + Math.PI / 2;
+
+      const lightAngleWorld = Math.atan2(lightVector.y, lightVector.x);
+      const relativeLightAngle = lightAngleWorld - strokeAngle;
+
+      const steps = Math.max(Math.floor(distance / 2.0), 1);
+      const mediumPreset = MEDIUM_PRESETS[activeMedium];
+      const mod = mediumPreset.modifier(brushWetness, brushViscosity);
+
       // Pressure-driven blend & size dynamics
       const effectivePressure = Math.pow(pressure, 0.8);
       const pressureBlendFactor = (1 - pressureBlendCoupling * 0.75) + (pressureBlendCoupling * effectivePressure * 1.75);
@@ -866,7 +2045,6 @@
         let baseAlpha = Math.min(1.0, (0.5 + (brushViscosity * 0.35) + (pressure * 0.15)) * brushDepletionLevel * mod.opacityMult);
 
         if (isSmearMode) {
-          // DRY/CLEAN BRUSH SMEAR BLENDING: Picks up underlying colors rapidly and carries them smoothly
           if (accumulatedCanvasColor) {
             if (!pickedUpForeignColor) {
               pickedUpForeignColor = accumulatedCanvasColor;
@@ -890,9 +2068,7 @@
           activeInstantBlendRatio = Math.min(1.0, brushContaminationAmount * pressureBlendFactor);
           baseAlpha = Math.min(0.96, brushContaminationAmount * (0.35 + pressure * 0.6) * mod.opacityMult);
         } else {
-          // STANDARD PIGMENTED BRUSH: Deep wet-on-wet spectral mixing with underlying paint
           if (accumulatedCanvasColor) {
-            // Bristle tip immediately absorbs underlying pigment proportional to wetness & stylus force
             const tipAbsorption = Math.min(0.85, (0.25 + pressure * 0.45) * brushWetness * pressureBlendFactor);
             if (!pickedUpForeignColor) {
               pickedUpForeignColor = accumulatedCanvasColor;
@@ -900,13 +2076,11 @@
               pickedUpForeignColor = mixColorsRGB(pickedUpForeignColor, accumulatedCanvasColor, tipAbsorption);
             }
 
-            // Reservoir purity decreases as the brush works over wet paint, allowing underlying color to dominate
             const pickupRate = (0.06 + pressure * 0.14) * brushWetness * pressureBlendFactor * (0.5 + underPaintCoverage * 0.5);
             const maxContaminationCap = Math.min(0.92, (0.45 + pressure * 0.5) * brushWetness * pressureBlendFactor);
             brushContaminationAmount = Math.min(maxContaminationCap, brushContaminationAmount + pickupRate);
             reservoirPurity = Math.max(0.15, reservoirPurity - pickupRate * 0.35);
           } else {
-            // Carrying mixed pigment out onto clean canvas creates a natural gradient trail before returning to pure brush color
             const pickupCleanseRate = 0.006 * (mod.cleanseMult || 1.0) * (0.6 + pressure * 0.4);
             brushContaminationAmount = Math.max(0, brushContaminationAmount - pickupCleanseRate);
             reservoirPurity = Math.min(1.0, reservoirPurity + pickupCleanseRate * 0.5);
@@ -918,12 +2092,9 @@
           }
 
           if (accumulatedCanvasColor) {
-            // Strong direct wet-on-wet fusion right at the point of contact
             const directContactRatio = Math.min(0.88, (0.28 + pressure * 0.55) * brushWetness * pressureBlendFactor * (0.5 + underPaintCoverage * 0.5));
             workingColor = mixColorsRGB(workingColor, accumulatedCanvasColor, directContactRatio);
             activeInstantBlendRatio = Math.min(1.0, Math.max(brushContaminationAmount, directContactRatio));
-
-            // Slightly soften stroke opacity on wet contact so underlying brushstrokes marry organically
             baseAlpha *= (1.0 - 0.18 * brushWetness * underPaintCoverage);
           } else {
             activeInstantBlendRatio = brushContaminationAmount;
