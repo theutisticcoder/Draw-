@@ -544,136 +544,136 @@
     }
 
     // =========================================================================
-    // COLOR UTILITIES & SUBTRACTIVE ARTIST PIGMENT BLEND ENGINE
+    // DRAW STROKE CORE SIMULATION (PRESSURE & SPECTRAL OIL ENGINE)
     // =========================================================================
+    let lastX = 0;
+    let lastY = 0;
+    let lastClientX = 0;
+    let lastClientY = 0;
+    let lastStrokeTime = 0;
+    let eyedropperTimer = null;
 
-    function rgbToHsv(r, g, b) {
-      r /= 255; g /= 255; b /= 255;
-      const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h = 0, s = 0, v = max;
-      const d = max - min;
-      s = max === 0 ? 0 : d / max;
-
-      if (max !== min) {
-        switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-      }
-      return { h, s, v };
-    }
-
-    function hsvToRgb(h, s, v) {
-      let r, g, b;
-      const i = Math.floor(h * 6);
-      const f = h * 6 - i;
-      const p = v * (1 - s);
-      const q = v * (1 - f * s);
-      const t = v * (1 - (1 - f) * s);
-
-      switch (i % 6) {
-        case 0: r = v; g = t; b = p; break;
-        case 1: r = q; g = v; b = p; break;
-        case 2: r = p; g = v; b = t; break;
-        case 3: r = p; g = q; b = v; break;
-        case 4: r = t; g = p; b = v; break;
-        case 5: r = v; g = p; b = q; break;
-      }
-      return {
-        r: Math.round(r * 255),
-        g: Math.round(g * 255),
-        b: Math.round(b * 255)
-      };
-    }
-
-    function rgbHueToArtistHue(h) {
-      const deg = h * 360;
-      if (deg < 60) return (deg * 2.0) / 360;
-      if (deg < 120) return (120 + (deg - 60) * 1.0) / 360;
-      if (deg < 240) return (180 + (deg - 120) * 0.5) / 360;
-      return deg / 360;
-    }
-
-    function artistHueToRgbHue(ah) {
-      const deg = ah * 360;
-      if (deg < 120) return (deg * 0.5) / 360;
-      if (deg < 180) return (60 + (deg - 120)) / 360;
-      if (deg < 240) return (120 + (deg - 180) * 2.0) / 360;
-      return deg / 360;
-    }
-
-    function mixColorsRGB(colorA_rgb, colorB_rgb, ratio) {
-      if (!colorB_rgb) return { ...colorA_rgb };
-      if (!colorA_rgb) return { ...colorB_rgb };
-      if (ratio <= 0) return { ...colorA_rgb };
-      if (ratio >= 1) return { ...colorB_rgb };
-
-      if (brushWetness < 0.1) {
-        return { ...colorA_rgb };
+    function getNormalizedPressure(e) {
+      // Pen / Stylus hardware pressure (Apple Pencil, Wacom, Surface Pen, etc.)
+      if (e.pointerType === 'pen' && typeof e.pressure === 'number') {
+        const rawPen = Math.min(Math.max(e.pressure, 0.02), 1.0);
+        // Apply ergonomic response curve so light touches are delicate and firm presses reach 100%
+        return Math.pow(rawPen, 0.85);
       }
 
-      const hsvA = rgbToHsv(colorA_rgb.r, colorA_rgb.g, colorA_rgb.b);
-      const hsvB = rgbToHsv(colorB_rgb.r, colorB_rgb.g, colorB_rgb.b);
-
-      if (hsvA.s < 0.15 || hsvB.s < 0.15) {
-        const r = Math.round(colorA_rgb.r * (1 - ratio) + colorB_rgb.r * ratio);
-        const g = Math.round(colorA_rgb.g * (1 - ratio) + colorB_rgb.g * ratio);
-        const b = Math.round(colorA_rgb.b * (1 - ratio) + colorB_rgb.b * ratio);
-        return { r, g, b };
+      // Touch screens with real force sensors (iOS / Android capacitive force)
+      if (e.pointerType === 'touch' && typeof e.pressure === 'number' && e.pressure > 0 && e.pressure !== 0.5 && e.pressure !== 1.0) {
+        return Math.min(Math.max(e.pressure, 0.05), 1.0);
       }
 
-      const hueA = rgbHueToArtistHue(hsvA.h);
-      const hueB = rgbHueToArtistHue(hsvB.h);
+      // Mouse or standard touch without hardware pressure: derive dynamic pressure from stroke velocity
+      const now = performance.now();
+      const dt = Math.max(now - lastStrokeTime, 8);
+      const dist = Math.hypot(e.clientX - lastClientX, e.clientY - lastClientY);
+      const speed = dist / dt;
 
-      let dHue = hueB - hueA;
-      if (dHue > 0.5) dHue -= 1.0;
-      else if (dHue < -0.5) dHue += 1.0;
-
-      const mixedArtistHue = (hueA + dHue * ratio + 1.0) % 1.0;
-      const mixedRgbHue = artistHueToRgbHue(mixedArtistHue);
-
-      const mixedS = Math.min(1.0, (hsvA.s * (1 - ratio) + hsvB.s * ratio) * 1.02);
-      const mixedV = Math.max(
-        hsvA.v * (1 - ratio) + hsvB.v * ratio,
-        Math.min(hsvA.v, hsvB.v) * 0.96
-      );
-
-      return hsvToRgb(mixedRgbHue, mixedS, mixedV);
+      // Fast sweeps taper lightly (0.18), slow deliberate strokes press firmly (up to 0.95)
+      const velocityPressure = 0.92 / (1 + speed * 0.45);
+      return Math.min(Math.max(velocityPressure, 0.18), 0.95);
     }
-    
-    function hexToRgb(hex) {
-      if (hex.length === 4) {
-        hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
+
+    function startDrawing(e) {
+      if (e.pointerType === 'touch' && !e.isPrimary) {
+        isDrawing = false;
+        triggerGestureUndo();
+        return;
       }
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : { r: 255, g: 255, b: 255 };
-    }
 
-    function rgbToHex(r, g, b) {
-      return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
-    }
+      const pos = getMousePos(paintCanvas, e);
+      lastClientX = e.clientX;
+      lastClientY = e.clientY;
+      lastStrokeTime = performance.now();
 
-    function adjustColorShade(rgb, factor) {
-      if (factor >= 0) {
-        return {
-          r: Math.min(255, rgb.r + (255 - rgb.r) * factor),
-          g: Math.min(255, rgb.g + (255 - rgb.g) * factor),
-          b: Math.min(255, rgb.b + (255 - rgb.b) * factor)
-        };
+      // For mouse/standard touch initial touchdown, start with a balanced mid-light pressure
+      if (e.pointerType !== 'pen' && (e.pressure === 0.5 || e.pressure === 0 || e.pressure === 1.0)) {
+        currentPressure = 0.45;
       } else {
-        const shadowFactor = Math.max(0, 1 + factor);
-        return {
-          r: Math.max(0, Math.round(rgb.r * shadowFactor)),
-          g: Math.max(0, Math.round(rgb.g * shadowFactor)),
-          b: Math.max(0, Math.round(rgb.b * shadowFactor))
-        };
+        currentPressure = getNormalizedPressure(e);
       }
+      smoothedPressure = currentPressure;
+
+      if (eyedropperTimer) clearTimeout(eyedropperTimer);
+      eyedropperTimer = setTimeout(() => {
+        activateEyedropper(pos.x, pos.y);
+      }, 750);
+
+      isDrawing = true;
+      lastX = pos.x;
+      lastY = pos.y;
+      hasValidStrokeAngle = false;
+      
+      brushDepletionLevel = 1.0;
+      pickedUpForeignColor = null;
+      brushContaminationAmount = 0.0;
+      activeInstantBlendRatio = 0.0;
+      reservoirPurity = 1.0;
+
+      try {
+        strokeCanvasSnapshot = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      } catch (err) {
+        strokeCanvasSnapshot = null;
+      }
+
+      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
+      updateCursorSize();
+    }
+
+    function stopDrawing(e) {
+      if (eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+      if (isDrawing) {
+        isDrawing = false;
+        hasValidStrokeAngle = false;
+        strokeCanvasSnapshot = null;
+        saveHistoryState();
+        saveToLocalForage(true);
+      }
+      smoothedPressure = 0.5;
+      updateCursorSize();
+      updateTelemetry();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+
+      // Process high-frequency coalesced stylus/pointer samples when supported by the browser
+      const events = (typeof e.getCoalescedEvents === 'function' && e.getCoalescedEvents().length > 0)
+        ? e.getCoalescedEvents()
+        : [e];
+
+      for (const ev of events) {
+        const pos = getMousePos(paintCanvas, ev);
+        const dist = Math.hypot(pos.x - lastX, pos.y - lastY);
+
+        if (dist > 8 && eyedropperTimer) {
+          clearTimeout(eyedropperTimer);
+          eyedropperTimer = null;
+        }
+
+        const rawP = getNormalizedPressure(ev);
+        // Responsive smoothing so quick pressure tapers register immediately
+        smoothedPressure = smoothedPressure * 0.35 + rawP * 0.65;
+
+        lastClientX = ev.clientX;
+        lastClientY = ev.clientY;
+        lastStrokeTime = performance.now();
+
+        drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
+        lastX = pos.x;
+        lastY = pos.y;
+      }
+
+      updateCursorSize();
+    }
+
+    function getMousePos(canvas, evt) {
     }
 
     let lightVector = { x: -0.707, y: 0.707, z: 0.766 };
@@ -811,11 +811,11 @@
         brushContaminationAmount = 0.0;
         brushDepletionLevel = 1.0;
         reservoirPurity = 1.0;
-        if (isSmearMode) toggleSmearMode(false);
-// ... existing code ... -->
-      // Pressure-driven blend factor: stronger dynamic range from light glide to deep mix
-      const effectivePressure = Math.pow(pressure, 0.75);
-      const pressureBlendFactor = (1 - pressureBlendCoupling * 0.7) + (pressureBlendCoupling * effectivePressure * 1.65);
+      // Pressure-driven blend & size dynamics
+      const effectivePressure = Math.pow(pressure, 0.8);
+      const pressureBlendFactor = (1 - pressureBlendCoupling * 0.75) + (pressureBlendCoupling * effectivePressure * 1.75);
+      const pressureEffect = Math.max(0.18, (1 - pressureSensitivity * 0.72) + (pressureSensitivity * effectivePressure * 1.35));
+      const dynamicBrushSize = brushSize * pressureEffect;
 
       for (let i = 0; i <= steps; i++) {
         const t = steps === 0 ? 0 : i / steps;
