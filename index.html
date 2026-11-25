@@ -181,6 +181,10 @@
             <i class="fa-solid fa-trash-can text-red-400"></i> Scrub <kbd class="px-1 text-[9px] bg-red-950/80 rounded">C</kbd>
           </button>
           <div class="h-4 w-px bg-linen-700 self-center hidden sm:block"></div>
+          <button id="btn-reset-zoom" onclick="resetCanvasTransform()" class="px-2.5 py-1 bg-linen-900/45 hover:bg-linen-900 text-[10px] rounded-full border border-linen-700 flex items-center gap-1 transition-all" title="Reset Zoom & Pan (Shortcut: 0)">
+            <i class="fa-solid fa-magnifying-glass text-amber-400"></i> <span id="zoom-level-label">100%</span>
+          </button>
+          <div class="h-4 w-px bg-linen-700 self-center hidden sm:block"></div>
           <button id="btn-local-save" onclick="saveToLocalForage(false)" class="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-900 border border-emerald-800 text-[10px] rounded-full flex items-center gap-1 transition-all">
             <i class="fa-solid fa-circle-check text-emerald-400"></i> Save progress
           </button>
@@ -381,14 +385,15 @@
           <div class="flex-grow bg-[#EFECE6] border-4 border-linen-900 rounded-xl shadow-2xl relative overflow-hidden flex items-center justify-center p-1" id="studio-canvas-container">
             <div class="absolute inset-0 border-2 border-black/10 pointer-events-none z-20"></div>
 
-            <div class="absolute inset-1 rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center">
+            <div id="canvas-viewport-wrapper" class="w-full h-full relative rounded-md overflow-hidden bg-[#faf8f5] shadow-inner flex items-center justify-center origin-top-left will-change-transform">
               <div class="absolute inset-0 linen-canvas pointer-events-none z-0"></div>
               <img id="sketch-underlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[5] opacity-0 transition-opacity duration-200">
               <canvas id="oil-canvas" class="absolute inset-0 z-10 w-full h-full cursor-none oil-texture"></canvas>
               <img id="sketch-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-[15] opacity-0 mix-blend-multiply transition-opacity duration-200">
-              <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
-              <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier 3D Board</div>
             </div>
+            <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
+            <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier 3D Board</div>
+          </div>
           </div>
 
           <!-- Bottom Control Bar with Loomis & Perspective Reference Guides -->
@@ -452,7 +457,7 @@
               
               <div class="grid grid-cols-2 gap-x-2 text-[9px] text-linen-400 leading-tight">
                 <div><i class="fa-solid fa-pen-nib text-amber-500"></i> Stylus Force: <span class="text-linen-200">Blend & Size</span></div>
-                <div><i class="fa-solid fa-hand text-amber-600"></i> 2-Finger Tap: <span class="text-linen-200">Undo</span></div>
+                <div><i class="fa-solid fa-up-down-left-right text-amber-600"></i> 2-Finger Pinch: <span class="text-linen-200">Zoom & Pan</span></div>
               </div>
             </div>
 
@@ -477,12 +482,12 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-pen-nib"></i> Pressure-Sensitive Blending & Stylus</h4>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[10px] mb-1"><i class="fa-solid fa-pen-nib"></i> Pressure-Sensitive Blending & Gestures</h4>
           <ul class="space-y-1 list-disc list-inside text-linen-300">
             <li><strong>Stylus Force</strong>: Modulates stroke width, impasto height, and wet color pickup/blending depth.</li>
+            <li><strong>Two-Finger Pinch & Drag</strong>: Smoothly pinch to zoom in/out and drag with two fingers to pan across the canvas.</li>
             <li><strong>Blend Smudge Mode (<kbd class="px-1 bg-linen-800 rounded text-[9px]">B</kbd>)</strong>: Uses a dry/clean brush to smear and blend existing canvas paints without adding new pigment.</li>
-            <li><strong>Long Press (0.75s)</strong>: Eyedropper color pickup from canvas.</li>
-            <li><strong>Two-Finger Tap</strong>: Quick Undo last brush stroke.</li>
+            <li><strong>Stationary Hold (0.75s)</strong>: Hold still without moving to sample a color with the Eyedropper.</li>
           </ul>
         </div>
 
@@ -495,6 +500,7 @@
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">B</kbd> : Toggle Blend Smudge</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">1 - 9</kbd> : Select 3D Brushes</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">M</kbd> : Cycle Mediums</div>
+            <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">0</kbd> : Reset Zoom & Pan</div>
             <div><kbd class="px-1.5 py-0.5 bg-linen-800 rounded text-[9px]">F</kbd> : Toggle Focus Mode</div>
           </div>
         </div>
@@ -756,86 +762,38 @@
 
     const paintCanvas = document.getElementById('oil-canvas');
     const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
+    const viewportWrapper = document.getElementById('canvas-viewport-wrapper');
+    const zoomLevelLabel = document.getElementById('zoom-level-label');
 
     // =========================================================================
-    // LOOMIS HEAD & FULL-CANVAS PERSPECTIVE SVG GENERATORS
+    // CANVAS PINCH-TO-ZOOM & PAN STATE
     // =========================================================================
-    function generateReferencePresets() {
-      // 1. Loomis Head — Front View
-      const loomisFront = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
-        <g stroke='#1e293b' fill='none' stroke-linecap='round'>
-          <circle cx='400' cy='255' r='125' stroke-width='2.2'/>
-          <ellipse cx='400' cy='255' rx='88' ry='125' stroke-width='1.3' stroke-dasharray='6,5' opacity='0.75'/>
-          <line x1='400' y1='110' x2='400' y2='475' stroke='#b91c1c' stroke-width='1.5'/>
-          <line x1='260' y1='255' x2='540' y2='255' stroke='#b91c1c' stroke-width='1.6'/>
-          <line x1='295' y1='172' x2='505' y2='172' stroke-width='1.2' stroke-dasharray='4,4'/>
-          <line x1='295' y1='338' x2='505' y2='338' stroke-width='1.2' stroke-dasharray='4,4'/>
-          <line x1='335' y1='421' x2='465' y2='421' stroke='#b91c1c' stroke-width='1.5'/>
-          <line x1='355' y1='372' x2='445' y2='372' stroke-width='1.1' stroke-dasharray='3,3'/>
-          <path d='M312,255 L322,350 L368,421 L432,421 L478,350 L488,255' stroke-width='2.2'/>
-          <ellipse cx='365' cy='272' rx='18' ry='9' stroke-width='1.3'/>
-          <ellipse cx='435' cy='272' rx='18' ry='9' stroke-width='1.3'/>
-          <path d='M388,338 L400,344 L412,338' stroke-width='1.5'/>
-          <path d='M376,372 Q400,378 424,372' stroke-width='1.5'/>
-          <text x='515' y='175' fill='#334155' stroke='none' font-family='monospace' font-size='10'>1. HAIRLINE</text>
-          <text x='545' y='258' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>2. BROW LINE</text>
-          <text x='515' y='341' fill='#334155' stroke='none' font-family='monospace' font-size='10'>3. NOSE BASE</text>
-          <text x='475' y='424' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>4. CHIN</text>
-        </g>
-      </svg>`;
+    let viewScale = 1.0;
+    let viewPanX = 0;
+    let viewPanY = 0;
+    const activePointers = new Map();
+    let isPinching = false;
+    let pinchStartDist = 0;
+    let pinchStartScale = 1.0;
+    let pinchStartPanX = 0;
+    let pinchStartPanY = 0;
+    let pinchStartCenter = { x: 0, y: 0 };
 
-      // 2. Loomis Head — 3/4 Turn & Planes
-      const loomisThreeQuarter = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
-        <g stroke='#1e293b' fill='none' stroke-linecap='round'>
-          <circle cx='390' cy='250' r='125' stroke-width='2.2'/>
-          <ellipse cx='448' cy='250' rx='54' ry='84' transform='rotate(-8 448 250)' stroke='#0369a1' stroke-width='1.8'/>
-          <line x1='455' y1='166' x2='441' y2='334' stroke='#0369a1' stroke-width='1.3'/>
-          <line x1='395' y1='243' x2='501' y2='257' stroke='#0369a1' stroke-width='1.3'/>
-          <path d='M355,130 Q320,250 342,418' stroke='#b91c1c' stroke-width='1.8'/>
-          <path d='M267,232 Q345,254 501,257' stroke='#b91c1c' stroke-width='1.8'/>
-          <path d='M295,162 Q360,182 475,180' stroke-width='1.2' stroke-dasharray='4,4'/>
-          <path d='M282,315 Q345,336 456,334' stroke-width='1.2' stroke-dasharray='4,4'/>
-          <path d='M441,334 L415,382 L342,418 L302,402 L286,335 L278,260' stroke-width='2.2'/>
-          <path d='M355,175 L346,245 L330,322 L344,330' stroke-width='1.4'/>
-          <path d='M346,245 L312,254 L305,274' stroke-width='1.3'/>
-          <path d='M346,245 L385,256 L396,278' stroke-width='1.3'/>
-          <path d='M330,322 L318,365 L342,418' stroke-width='1.3'/>
-          <text x='515' y='215' fill='#0369a1' stroke='none' font-family='monospace' font-size='10'>SIDE PLANE</text>
-          <text x='515' y='228' fill='#0369a1' stroke='none' font-family='monospace' font-size='10'>(2/3 RADIUS)</text>
-          <text x='185' y='235' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>BROW AXIS</text>
-          <text x='275' y='445' fill='#334155' stroke='none' font-family='monospace' font-size='10'>LOOMIS 3/4 RHYTHM</text>
-        </g>
-      </svg>`;
-
-      // 3. Loomis Head — Side Profile
-      const loomisProfile = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
-        <g stroke='#1e293b' fill='none' stroke-linecap='round'>
-          <circle cx='410' cy='250' r='125' stroke-width='2.2'/>
-          <circle cx='410' cy='250' r='83' stroke='#0369a1' stroke-width='1.6' stroke-dasharray='5,4'/>
-          <line x1='410' y1='115' x2='410' y2='435' stroke='#b91c1c' stroke-width='1.5'/>
-          <line x1='265' y1='250' x2='550' y2='250' stroke='#b91c1c' stroke-width='1.6'/>
-          <line x1='275' y1='167' x2='535' y2='167' stroke-width='1.2' stroke-dasharray='4,4'/>
-          <line x1='275' y1='333' x2='535' y2='333' stroke-width='1.2' stroke-dasharray='4,4'/>
-          <line x1='275' y1='416' x2='430' y2='416' stroke='#b91c1c' stroke-width='1.5'/>
-          <path d='M300,167 L285,245 L260,322 L285,333 L282,360 L292,374 L286,386 L296,416 L345,416 L410,365 L410,333' stroke-width='2.2'/>
-          <ellipse cx='425' cy='292' rx='12' ry='22' transform='rotate(-10 425 292)' stroke='#0369a1' stroke-width='1.8'/>
-          <path d='M302,258 L322,265 L302,272' stroke-width='1.5'/>
-          <text x='445' y='296' fill='#0369a1' stroke='none' font-family='monospace' font-size='10'>EAR QUADRANT</text>
-          <text x='185' y='253' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>BROW</text>
-          <text x='185' y='336' fill='#334155' stroke='none' font-family='monospace' font-size='10'>NOSE</text>
-          <text x='185' y='419' fill='#b91c1c' stroke='none' font-family='monospace' font-size='10'>CHIN</text>
-        </g>
-      </svg>`;
-
-      // 4. 1-Point Full-Canvas Perspective Grid
-      let p1Lines = "";
-      const vp1 = { x: 500, y: 375 };
-      for (let a = 0; a < 360; a += 10) {
-        const rad = (a * Math.PI) / 180;
-        const x2 = vp1.x + Math.cos(rad) * 1400;
-        const y2 = vp1.y + Math.sin(rad) * 1400;
-        p1Lines += `<line x1='${vp1.x}' y1='${vp1.y}' x2='${x2.toFixed(1)}' y2='${y2.toFixed(1)}' stroke-width='1.1' opacity='0.65'/>`;
+    function applyCanvasTransform() {
+      if (!viewportWrapper) return;
+      viewportWrapper.style.transform = `translate(${viewPanX}px, ${viewPanY}px) scale(${viewScale})`;
+      if (zoomLevelLabel) {
+        zoomLevelLabel.innerText = `${Math.round(viewScale * 100)}%`;
       }
+      updateCursorSize();
+    }
+
+    function resetCanvasTransform() {
+      viewScale = 1.0;
+      viewPanX = 0;
+      viewPanY = 0;
+      applyCanvasTransform();
+    }
       const scales = [0.06, 0.14, 0.25, 0.38, 0.54, 0.72, 0.92, 1.15];
       scales.forEach(s => {
         const w = 1000 * s;
@@ -953,6 +911,7 @@
         saveHistoryState();
         loadFromLocalForage(true);
       }
+      applyCanvasTransform();
     }
 
     function saveHistoryState() {
@@ -1547,7 +1506,7 @@
     function updateCursorSize() {
       const effectivePressure = Math.pow(smoothedPressure, 0.8);
       const scaleFactor = Math.max(0.22, (1 - pressureSensitivity * 0.72) + (pressureSensitivity * effectivePressure * 1.35));
-      const dynamicSize = brushSize * scaleFactor;
+      const dynamicSize = brushSize * scaleFactor * viewScale;
       customCursor.style.width = `${Math.round(dynamicSize)}px`;
       customCursor.style.height = `${Math.round(dynamicSize)}px`;
       
@@ -1712,6 +1671,9 @@
     // =========================================================================
     let lastX = 0;
     let lastY = 0;
+    let strokeStartClientX = 0;
+    let strokeStartClientY = 0;
+    let hasMovedSinceDown = false;
     let lastClientX = 0;
     let lastClientY = 0;
     let lastStrokeTime = 0;
@@ -1739,14 +1701,84 @@
       return Math.min(Math.max(velocityPressure, 0.18), 0.95);
     }
 
-    function startDrawing(e) {
-      if (e.pointerType === 'touch' && !e.isPrimary) {
+    function cancelEyedropperTimer() {
+      if (eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+    }
+
+    function beginPinchGesture() {
+      cancelEyedropperTimer();
+      if (isDrawing) {
+        // Revert accidental dot created by the second finger landing
+        if (!hasMovedSinceDown && historyStack.length > 0) {
+          ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
+        } else {
+          saveHistoryState();
+        }
         isDrawing = false;
-        triggerGestureUndo();
+        strokeCanvasSnapshot = null;
+      }
+
+      const pts = Array.from(activePointers.values());
+      if (pts.length < 2) return;
+
+      isPinching = true;
+      const containerRect = canvasContainer.getBoundingClientRect();
+      const p1 = pts[0];
+      const p2 = pts[1];
+
+      pinchStartDist = Math.max(Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY), 10);
+      pinchStartScale = viewScale;
+      pinchStartPanX = viewPanX;
+      pinchStartPanY = viewPanY;
+      pinchStartCenter = {
+        x: ((p1.clientX + p2.clientX) / 2) - containerRect.left,
+        y: ((p1.clientY + p2.clientY) / 2) - containerRect.top
+      };
+    }
+
+    function updatePinchGesture() {
+      const pts = Array.from(activePointers.values());
+      if (pts.length < 2) return;
+
+      const containerRect = canvasContainer.getBoundingClientRect();
+      const p1 = pts[0];
+      const p2 = pts[1];
+
+      const currentDist = Math.max(Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY), 10);
+      const currentCenter = {
+        x: ((p1.clientX + p2.clientX) / 2) - containerRect.left,
+        y: ((p1.clientY + p2.clientY) / 2) - containerRect.top
+      };
+
+      const nextScale = Math.min(Math.max(pinchStartScale * (currentDist / pinchStartDist), 0.5), 5.0);
+      const scaleRatio = nextScale / pinchStartScale;
+
+      // Zoom anchored at the midpoint between both fingers + two-finger pan delta
+      viewPanX = currentCenter.x - (pinchStartCenter.x - pinchStartPanX) * scaleRatio;
+      viewPanY = currentCenter.y - (pinchStartCenter.y - pinchStartPanY) * scaleRatio;
+      viewScale = nextScale;
+
+      applyCanvasTransform();
+    }
+
+    function startDrawing(e) {
+      activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType });
+
+      // Two or more fingers on screen activates pinch-to-zoom & pan
+      if (activePointers.size >= 2) {
+        beginPinchGesture();
         return;
       }
 
+      if (isPinching) return;
+
       const pos = getMousePos(paintCanvas, e);
+      strokeStartClientX = e.clientX;
+      strokeStartClientY = e.clientY;
+      hasMovedSinceDown = false;
       lastClientX = e.clientX;
       lastClientY = e.clientY;
       lastStrokeTime = performance.now();
@@ -1758,9 +1790,12 @@
       }
       smoothedPressure = currentPressure;
 
-      if (eyedropperTimer) clearTimeout(eyedropperTimer);
+      cancelEyedropperTimer();
       eyedropperTimer = setTimeout(() => {
-        activateEyedropper(pos.x, pos.y);
+        // Only trigger eyedropper if the user held completely stationary without drawing a stroke
+        if (isDrawing && !hasMovedSinceDown && !isPinching && activePointers.size === 1) {
+          activateEyedropper(pos.x, pos.y);
+        }
       }, 750);
 
       isDrawing = true;
@@ -1785,10 +1820,18 @@
     }
 
     function stopDrawing(e) {
-      if (eyedropperTimer) {
-        clearTimeout(eyedropperTimer);
-        eyedropperTimer = null;
+      if (e && e.pointerId !== undefined) {
+        activePointers.delete(e.pointerId);
       }
+      cancelEyedropperTimer();
+
+      if (isPinching) {
+        if (activePointers.size < 2) {
+          isPinching = false;
+        }
+        return;
+      }
+
       if (isDrawing) {
         isDrawing = false;
         hasValidStrokeAngle = false;
@@ -1802,7 +1845,25 @@
     }
 
     function draw(e) {
+      if (activePointers.has(e.pointerId)) {
+        activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType });
+      }
+
+      if (isPinching || activePointers.size >= 2) {
+        updatePinchGesture();
+        return;
+      }
+
       if (!isDrawing) return;
+
+      // Cancel eyedropper immediately as soon as pointer moves more than 4px from initial touch point
+      if (!hasMovedSinceDown) {
+        const totalMoveFromStart = Math.hypot(e.clientX - strokeStartClientX, e.clientY - strokeStartClientY);
+        if (totalMoveFromStart > 4) {
+          hasMovedSinceDown = true;
+          cancelEyedropperTimer();
+        }
+      }
 
       const events = (typeof e.getCoalescedEvents === 'function' && e.getCoalescedEvents().length > 0)
         ? e.getCoalescedEvents()
@@ -1810,12 +1871,6 @@
 
       for (const ev of events) {
         const pos = getMousePos(paintCanvas, ev);
-        const dist = Math.hypot(pos.x - lastX, pos.y - lastY);
-
-        if (dist > 8 && eyedropperTimer) {
-          clearTimeout(eyedropperTimer);
-          eyedropperTimer = null;
-        }
 
         const rawP = getNormalizedPressure(ev);
         smoothedPressure = smoothedPressure * 0.35 + rawP * 0.65;
@@ -1835,17 +1890,16 @@
     function getMousePos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const rw = rect.width || 1;
-      const rh = rect.height || 1;
-      
-      return {
-        x: (evt.clientX - rect.left) * (canvas.width / rw),
-        y: (evt.clientY - rect.top) * (canvas.height / rh)
-      };
-    }
-
-    const eyedropperPreview = document.getElementById('eyedropper-preview');
+    // Eyedropper sampling tool
     function activateEyedropper(x, y) {
-      if (isDrawing) isDrawing = false;
+      if (isDrawing) {
+        // Restore canvas before the stationary hold dot was placed so picking doesn't leave a dot
+        if (historyStack.length > 0) {
+          ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
+        }
+        isDrawing = false;
+        strokeCanvasSnapshot = null;
+      }
       try {
         const pix = ctx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
         if (pix[3] < 20) {
@@ -1871,12 +1925,13 @@
         }
 
         eyedropperPreview.style.backgroundColor = currentPigment;
-        const rect = paintCanvas.getBoundingClientRect();
+        const containerRect = canvasContainer.getBoundingClientRect();
+        const canvasRect = paintCanvas.getBoundingClientRect();
         
-        const rw = rect.width || 1;
-        const rh = rect.height || 1;
-        const screenX = rect.left + (x * (rw / paintCanvas.width));
-        const screenY = rect.top + (y * (rh / paintCanvas.height));
+        const rw = canvasRect.width || 1;
+        const rh = canvasRect.height || 1;
+        const screenX = (canvasRect.left - containerRect.left) + (x * (rw / paintCanvas.width));
+        const screenY = (canvasRect.top - containerRect.top) + (y * (rh / paintCanvas.height));
 
         eyedropperPreview.style.left = `${screenX}px`;
         eyedropperPreview.style.top = `${screenY}px`;
@@ -2334,6 +2389,25 @@
     });
 
     const canvasContainer = document.getElementById('studio-canvas-container');
+    canvasContainer.style.touchAction = 'none';
+
+    canvasContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const containerRect = canvasContainer.getBoundingClientRect();
+      const cursorX = e.clientX - containerRect.left;
+      const cursorY = e.clientY - containerRect.top;
+
+      const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+      const nextScale = Math.min(Math.max(viewScale * zoomFactor, 0.5), 5.0);
+      const scaleRatio = nextScale / viewScale;
+
+      viewPanX = cursorX - (cursorX - viewPanX) * scaleRatio;
+      viewPanY = cursorY - (cursorY - viewPanY) * scaleRatio;
+      viewScale = nextScale;
+
+      applyCanvasTransform();
+    }, { passive: false });
+
     canvasContainer.addEventListener('pointerenter', () => {
       canvasContainer.classList.add('brush-cursor-active');
       customCursor.classList.remove('hidden');
@@ -2393,6 +2467,12 @@
       if (e.key.toLowerCase() === 'f') {
         e.preventDefault();
         toggleFocusMode();
+      }
+
+      if (e.key === '0') {
+        e.preventDefault();
+        resetCanvasTransform();
+        showToast("Canvas view reset to 100%", "info");
       }
 
       if (e.key >= '1' && e.key <= '9') {
