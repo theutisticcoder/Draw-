@@ -1040,6 +1040,7 @@
     let activePaletteTipColor = null;
 
     function handlePalettePointerDown(e) {
+      try { paletteCanvas.setPointerCapture(e.pointerId); } catch (err) {}
       isSmudgingPalette = true;
       const rect = paletteCanvas.getBoundingClientRect();
       const rw = rect.width || 1;
@@ -1049,6 +1050,14 @@
 
       activePaletteTipColor = null;
       samplePaletteColor(paletteLastX, paletteLastY);
+      if (activePaletteTipColor === null) {
+        try {
+          const pix = pCtx.getImageData(Math.round(paletteLastX), Math.round(paletteLastY), 1, 1).data;
+          if (pix[3] > 20) {
+            activePaletteTipColor = { r: pix[0], g: pix[1], b: pix[2] };
+          }
+        } catch (err) {}
+      }
     }
 
     function handlePalettePointerMove(e) {
@@ -1059,7 +1068,7 @@
       const rh = rect.height || 1;
       const cx = (e.clientX - rect.left) * (paletteCanvas.width / rw);
       const cy = (e.clientY - rect.top) * (paletteCanvas.height / rh);
-      const pressure = getNormalizedPressure(e);
+      const pressure = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.65;
 
       smudgePaletteColors(paletteLastX, paletteLastY, cx, cy, pressure);
       
@@ -1067,13 +1076,13 @@
       paletteLastY = cy;
     }
 
-    function smudgePaletteColors(x0, y0, x1, y1, pressure = 0.5) {
+    function smudgePaletteColors(x0, y0, x1, y1, pressure = 0.65) {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const dist = Math.hypot(dx, dy);
-      const steps = Math.max(Math.floor(dist / 2), 1);
-      const smearRadius = 6 + pressure * 6;
-      const mixStepRate = 0.1 + pressure * 0.25;
+      const steps = Math.max(Math.floor(dist / 1.5), 1);
+      const smearRadius = 8 + pressure * 7;
+      const mixStepRate = 0.14 + pressure * 0.24;
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -1084,18 +1093,36 @@
 
         let underlyingColor = null;
         try {
-          const pix = pCtx.getImageData(cx, cy, 1, 1).data;
-          if (pix[3] > 35) {
-            underlyingColor = { r: pix[0], g: pix[1], b: pix[2] };
+          const sampleSize = 5;
+          const sx = Math.max(0, cx - 2);
+          const sy = Math.max(0, cy - 2);
+          const sw = Math.min(paletteCanvas.width - sx, sampleSize);
+          const sh = Math.min(paletteCanvas.height - sy, sampleSize);
+          const data = pCtx.getImageData(sx, sy, sw, sh).data;
+          let rSum = 0, gSum = 0, bSum = 0, count = 0;
+          for (let p = 0; p < data.length; p += 4) {
+            if (data[p + 3] > 25) {
+              rSum += data[p];
+              gSum += data[p + 1];
+              bSum += data[p + 2];
+              count++;
+            }
+          }
+          if (count > 0) {
+            underlyingColor = {
+              r: Math.round(rSum / count),
+              g: Math.round(gSum / count),
+              b: Math.round(bSum / count)
+            };
           }
         } catch (err) {}
 
         if (!underlyingColor) {
-          const paintColor = activePaletteTipColor || loadedReservoirColor;
+          if (!activePaletteTipColor) continue;
           pCtx.save();
-          pCtx.globalAlpha = 0.92;
+          pCtx.globalAlpha = 0.88;
           pCtx.beginPath();
-          pCtx.fillStyle = `rgb(${paintColor.r}, ${paintColor.g}, ${paintColor.b})`;
+          pCtx.fillStyle = `rgb(${activePaletteTipColor.r}, ${activePaletteTipColor.g}, ${activePaletteTipColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
           pCtx.fill();
           pCtx.restore();
@@ -1107,7 +1134,7 @@
           }
 
           pCtx.save();
-          pCtx.globalAlpha = 0.95;
+          pCtx.globalAlpha = 0.94;
           pCtx.beginPath();
           pCtx.fillStyle = `rgb(${activePaletteTipColor.r}, ${activePaletteTipColor.g}, ${activePaletteTipColor.b})`;
           pCtx.arc(cx, cy, smearRadius, 0, Math.PI * 2);
@@ -1115,14 +1142,28 @@
           pCtx.restore();
         }
       }
+
+      if (activePaletteTipColor) {
+        currentPigment = rgbToHex(activePaletteTipColor.r, activePaletteTipColor.g, activePaletteTipColor.b);
+        currentPigmentName = "Mixed Slab";
+        activePigmentName.innerText = currentPigmentName;
+        activeColorSwatch.style.backgroundColor = currentPigment;
+        loadedReservoirColor = { ...activePaletteTipColor };
+        pickedUpForeignColor = null;
+        brushContaminationAmount = 0.0;
+        brushDepletionLevel = 1.0;
+        reservoirPurity = 1.0;
+        customCursor.style.backgroundColor = currentPigment;
+      }
     }
 
     function samplePaletteColor(x, y) {
       try {
         const pix = pCtx.getImageData(Math.round(x), Math.round(y), 1, 1).data;
-        if (pix[3] < 35) return;
+        if (pix[3] < 25) return;
 
         const pickedRgb = { r: pix[0], g: pix[1], b: pix[2] };
+        activePaletteTipColor = pickedRgb;
         currentPigment = rgbToHex(pickedRgb.r, pickedRgb.g, pickedRgb.b);
         currentPigmentName = `Mixed Slab`;
         
@@ -1155,6 +1196,11 @@
 
     paletteCanvas.addEventListener('pointerdown', handlePalettePointerDown);
     paletteCanvas.addEventListener('pointermove', handlePalettePointerMove);
+    paletteCanvas.addEventListener('pointerup', (e) => {
+      try { paletteCanvas.releasePointerCapture(e.pointerId); } catch (err) {}
+      isSmudgingPalette = false;
+      activePaletteTipColor = null;
+    });
     window.addEventListener('pointerup', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
     window.addEventListener('pointercancel', () => { isSmudgingPalette = false; activePaletteTipColor = null; });
 
