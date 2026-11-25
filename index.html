@@ -765,12 +765,32 @@
     const viewportWrapper = document.getElementById('canvas-viewport-wrapper');
     const zoomLevelLabel = document.getElementById('zoom-level-label');
 
+    // Pinch-to-zoom & pan state
+    let viewScale = 1.0;
+    let viewPanX = 0;
+    let viewPanY = 0;
+    let activePointers = new Map();
+    let isPinching = false;
+    let pinchStartDist = 0;
+    let pinchStartScale = 1.0;
+    let pinchStartPanX = 0;
+    let pinchStartPanY = 0;
+    let pinchStartCenter = { x: 0, y: 0 };
+
     if (canvasContainer) {
       canvasContainer.style.touchAction = 'none';
     }
     if (viewportWrapper) {
       viewportWrapper.style.touchAction = 'none';
     }
+
+    function applyCanvasTransform() {
+      if (viewportWrapper) {
+        viewportWrapper.style.transform = `translate3d(${viewPanX}px, ${viewPanY}px, 0) scale(${viewScale})`;
+      }
+      if (zoomLevelLabel) {
+        zoomLevelLabel.innerText = `${Math.round(viewScale * 100)}%`;
+      }
       updateCursorSize();
     }
 
@@ -1945,186 +1965,10 @@
       };
     }
 
-    function cancelEyedropperTimer() {
-      if (eyedropperTimer) {
-        clearTimeout(eyedropperTimer);
-        eyedropperTimer = null;
-      }
-    }
-
-    function beginPinchGesture() {
-      cancelEyedropperTimer();
+    // Eyedropper sampling tool
+    const eyedropperPreview = document.getElementById('eyedropper-preview');
+    function activateEyedropper(x, y) {
       if (isDrawing) {
-        if (!hasMovedSinceDown && historyStack.length > 0) {
-          ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
-        } else {
-          saveHistoryState();
-        }
-        isDrawing = false;
-        strokeCanvasSnapshot = null;
-      }
-
-      const pts = Array.from(activePointers.values());
-      if (pts.length < 2) return;
-
-      isPinching = true;
-      const containerRect = canvasContainer.getBoundingClientRect();
-      const p1 = pts[0];
-      const p2 = pts[1];
-
-      pinchStartDist = Math.max(Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY), 10);
-      pinchStartScale = viewScale;
-      pinchStartPanX = viewPanX;
-      pinchStartPanY = viewPanY;
-      pinchStartCenter = {
-        x: ((p1.clientX + p2.clientX) / 2) - containerRect.left,
-        y: ((p1.clientY + p2.clientY) / 2) - containerRect.top
-      };
-    }
-
-    function updatePinchGesture() {
-      const pts = Array.from(activePointers.values());
-      if (pts.length < 2) return;
-
-      const containerRect = canvasContainer.getBoundingClientRect();
-      const p1 = pts[0];
-      const p2 = pts[1];
-
-      const currentDist = Math.max(Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY), 10);
-      const currentCenter = {
-        x: ((p1.clientX + p2.clientX) / 2) - containerRect.left,
-        y: ((p1.clientY + p2.clientY) / 2) - containerRect.top
-      };
-
-      const nextScale = Math.min(Math.max(pinchStartScale * (currentDist / pinchStartDist), 0.5), 5.0);
-      const scaleRatio = nextScale / pinchStartScale;
-
-      viewPanX = currentCenter.x - (pinchStartCenter.x - pinchStartPanX) * scaleRatio;
-      viewPanY = currentCenter.y - (pinchStartCenter.y - pinchStartPanY) * scaleRatio;
-      viewScale = nextScale;
-
-      applyCanvasTransform();
-    }
-
-    function startDrawing(e) {
-      activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType });
-
-      if (activePointers.size >= 2) {
-        beginPinchGesture();
-        return;
-      }
-
-      if (isPinching) return;
-
-      const pos = getMousePos(paintCanvas, e);
-      strokeStartClientX = e.clientX;
-      strokeStartClientY = e.clientY;
-      hasMovedSinceDown = false;
-      lastClientX = e.clientX;
-      lastClientY = e.clientY;
-      lastStrokeTime = performance.now();
-
-      if (e.pointerType !== 'pen' && (e.pressure === 0.5 || e.pressure === 0 || e.pressure === 1.0)) {
-        currentPressure = 0.45;
-      } else {
-        currentPressure = getNormalizedPressure(e);
-      }
-      smoothedPressure = currentPressure;
-
-      cancelEyedropperTimer();
-      eyedropperTimer = setTimeout(() => {
-        if (isDrawing && !hasMovedSinceDown && !isPinching && activePointers.size === 1) {
-          activateEyedropper(pos.x, pos.y);
-        }
-      }, 750);
-
-      isDrawing = true;
-      lastX = pos.x;
-      lastY = pos.y;
-      hasValidStrokeAngle = false;
-      
-      brushDepletionLevel = 1.0;
-      pickedUpForeignColor = null;
-      brushContaminationAmount = 0.0;
-      activeInstantBlendRatio = 0.0;
-      reservoirPurity = 1.0;
-
-      try {
-        strokeCanvasSnapshot = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
-      } catch (err) {
-        strokeCanvasSnapshot = null;
-      }
-
-      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
-      updateCursorSize();
-    }
-
-    function stopDrawing(e) {
-      if (e && e.pointerId !== undefined) {
-        activePointers.delete(e.pointerId);
-      }
-      cancelEyedropperTimer();
-
-      if (isPinching) {
-        if (activePointers.size < 2) {
-          isPinching = false;
-        }
-        return;
-      }
-
-      if (isDrawing) {
-        isDrawing = false;
-        hasValidStrokeAngle = false;
-        strokeCanvasSnapshot = null;
-        saveHistoryState();
-        saveToLocalForage(true);
-      }
-      smoothedPressure = 0.5;
-      updateCursorSize();
-      updateTelemetry();
-    }
-
-    function draw(e) {
-      if (activePointers.has(e.pointerId)) {
-        activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType });
-      }
-
-      if (isPinching || activePointers.size >= 2) {
-        updatePinchGesture();
-        return;
-      }
-
-      if (!isDrawing) return;
-
-      if (!hasMovedSinceDown) {
-        const totalMoveFromStart = Math.hypot(e.clientX - strokeStartClientX, e.clientY - strokeStartClientY);
-        if (totalMoveFromStart > 4) {
-          hasMovedSinceDown = true;
-          cancelEyedropperTimer();
-        }
-      }
-
-      const events = (typeof e.getCoalescedEvents === 'function' && e.getCoalescedEvents().length > 0)
-        ? e.getCoalescedEvents()
-        : [e];
-
-      for (const ev of events) {
-        const pos = getMousePos(paintCanvas, ev);
-
-        const rawP = getNormalizedPressure(ev);
-        smoothedPressure = smoothedPressure * 0.35 + rawP * 0.65;
-
-        lastClientX = ev.clientX;
-        lastClientY = ev.clientY;
-        lastStrokeTime = performance.now();
-
-        drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
-        lastX = pos.x;
-        lastY = pos.y;
-      }
-
-      updateCursorSize();
-    }
         isDrawing = false;
         strokeCanvasSnapshot = null;
       }
