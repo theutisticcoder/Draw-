@@ -394,7 +394,6 @@
             <div id="eyedropper-preview" class="absolute w-12 h-12 rounded-full border-4 border-white shadow-lg pointer-events-none hidden z-30 transition-transform"></div>
             <div class="absolute bottom-2 right-3 pointer-events-none z-20 font-serif italic text-[10px] text-linen-900/30 select-none">L'Atelier 3D Board</div>
           </div>
-          </div>
 
           <!-- Bottom Control Bar with Loomis & Perspective Reference Guides -->
           <div id="bottom-tracing-panel" class="grid grid-cols-1 md:grid-cols-12 gap-3 shrink-0">
@@ -762,29 +761,16 @@
 
     const paintCanvas = document.getElementById('oil-canvas');
     const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
+    const canvasContainer = document.getElementById('studio-canvas-container');
     const viewportWrapper = document.getElementById('canvas-viewport-wrapper');
     const zoomLevelLabel = document.getElementById('zoom-level-label');
 
-    // =========================================================================
-    // CANVAS PINCH-TO-ZOOM & PAN STATE
-    // =========================================================================
-    let viewScale = 1.0;
-    let viewPanX = 0;
-    let viewPanY = 0;
-    const activePointers = new Map();
-    let isPinching = false;
-    let pinchStartDist = 0;
-    let pinchStartScale = 1.0;
-    let pinchStartPanX = 0;
-    let pinchStartPanY = 0;
-    let pinchStartCenter = { x: 0, y: 0 };
-
-    function applyCanvasTransform() {
-      if (!viewportWrapper) return;
-      viewportWrapper.style.transform = `translate(${viewPanX}px, ${viewPanY}px) scale(${viewScale})`;
-      if (zoomLevelLabel) {
-        zoomLevelLabel.innerText = `${Math.round(viewScale * 100)}%`;
-      }
+    if (canvasContainer) {
+      canvasContainer.style.touchAction = 'none';
+    }
+    if (viewportWrapper) {
+      viewportWrapper.style.touchAction = 'none';
+    }
       updateCursorSize();
     }
 
@@ -794,6 +780,67 @@
       viewPanY = 0;
       applyCanvasTransform();
     }
+
+    function generateReferencePresets() {
+      // 1. Loomis Head - Front View
+      const loomisFront = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' fill='none'>
+          <circle cx='400' cy='255' r='115' stroke-width='2'/>
+          <ellipse cx='400' cy='255' rx='84' ry='115' stroke-width='1.2' stroke-dasharray='5,4'/>
+          <line x1='400' y1='115' x2='400' y2='455' stroke-width='1.5'/>
+          <line x1='285' y1='255' x2='515' y2='255' stroke-width='1.6'/>
+          <line x1='316' y1='174' x2='484' y2='174' stroke-width='1.3'/>
+          <line x1='316' y1='336' x2='484' y2='336' stroke-width='1.3'/>
+          <line x1='345' y1='425' x2='455' y2='425' stroke-width='1.3'/>
+          <path d='M316,255 L322,350 L368,425 L432,425 L478,350 L484,255' stroke-width='2'/>
+          <path d='M345,268 Q368,260 388,268' stroke-width='1.4'/>
+          <path d='M412,268 Q432,260 455,268' stroke-width='1.4'/>
+          <path d='M388,336 L400,342 L412,336' stroke-width='1.4'/>
+          <line x1='372' y1='368' x2='428' y2='368' stroke-width='1.4'/>
+        </g>
+      </svg>`;
+
+      // 2. Loomis Head - 3/4 Turn & Planes
+      const loomisThreeQuarter = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' fill='none'>
+          <circle cx='390' cy='255' r='115' stroke-width='2'/>
+          <ellipse cx='446' cy='255' rx='46' ry='82' transform='rotate(-8 446 255)' stroke-width='1.8'/>
+          <line x1='412' y1='250' x2='480' y2='260' stroke-width='1.3'/>
+          <line x1='454' y1='174' x2='438' y2='336' stroke-width='1.3'/>
+          <path d='M355,144 C312,185 304,265 316,336 C322,374 338,405 358,426' stroke-width='1.8'/>
+          <path d='M280,248 Q335,262 446,255' stroke-width='1.6'/>
+          <path d='M308,172 Q355,184 454,174' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <path d='M292,326 Q345,342 438,336' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <path d='M446,275 L440,355 L385,424 L358,426 L316,356 L312,315' stroke-width='2'/>
+          <path d='M345,256 L332,328 L352,334' stroke-width='1.5'/>
+          <path d='M322,366 Q348,372 376,368' stroke-width='1.4'/>
+        </g>
+      </svg>`;
+
+      // 3. Loomis Head - Side Profile
+      const loomisProfile = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <g stroke='#1e293b' fill='none'>
+          <circle cx='415' cy='255' r='115' stroke-width='2'/>
+          <ellipse cx='415' cy='255' rx='76' ry='76' stroke-width='1.5'/>
+          <line x1='415' y1='125' x2='415' y2='440' stroke-width='1.4'/>
+          <line x1='275' y1='255' x2='540' y2='255' stroke-width='1.6'/>
+          <line x1='285' y1='179' x2='530' y2='179' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <line x1='285' y1='331' x2='530' y2='331' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <line x1='295' y1='415' x2='440' y2='415' stroke-width='1.2' stroke-dasharray='4,4'/>
+          <path d='M316,179 L302,255 L284,326 L306,334 L302,358 L312,366 L304,378 L312,415 L368,415 L415,355 L415,255' stroke-width='2'/>
+          <ellipse cx='426' cy='292' rx='12' ry='22' stroke-width='1.5'/>
+        </g>
+      </svg>`;
+
+      // 4. 1-Point Full-Canvas Perspective Grid
+      let p1Lines = "";
+      const vp1 = { x: 500, y: 375 };
+      for (let i = 0; i < 36; i++) {
+        const angle = (i * Math.PI * 2) / 36;
+        const x2 = vp1.x + Math.cos(angle) * 1400;
+        const y2 = vp1.y + Math.sin(angle) * 1400;
+        p1Lines += `<line x1='${vp1.x}' y1='${vp1.y}' x2='${x2.toFixed(1)}' y2='${y2.toFixed(1)}' stroke-width='1.1' opacity='0.65'/>`;
+      }
       const scales = [0.06, 0.14, 0.25, 0.38, 0.54, 0.72, 0.92, 1.15];
       scales.forEach(s => {
         const w = 1000 * s;
@@ -1890,13 +1937,194 @@
     function getMousePos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const rw = rect.width || 1;
-    // Eyedropper sampling tool
-    function activateEyedropper(x, y) {
+      const rh = rect.height || 1;
+      
+      return {
+        x: (evt.clientX - rect.left) * (canvas.width / rw),
+        y: (evt.clientY - rect.top) * (canvas.height / rh)
+      };
+    }
+
+    function cancelEyedropperTimer() {
+      if (eyedropperTimer) {
+        clearTimeout(eyedropperTimer);
+        eyedropperTimer = null;
+      }
+    }
+
+    function beginPinchGesture() {
+      cancelEyedropperTimer();
       if (isDrawing) {
-        // Restore canvas before the stationary hold dot was placed so picking doesn't leave a dot
-        if (historyStack.length > 0) {
+        if (!hasMovedSinceDown && historyStack.length > 0) {
           ctx.putImageData(historyStack[historyStack.length - 1], 0, 0);
+        } else {
+          saveHistoryState();
         }
+        isDrawing = false;
+        strokeCanvasSnapshot = null;
+      }
+
+      const pts = Array.from(activePointers.values());
+      if (pts.length < 2) return;
+
+      isPinching = true;
+      const containerRect = canvasContainer.getBoundingClientRect();
+      const p1 = pts[0];
+      const p2 = pts[1];
+
+      pinchStartDist = Math.max(Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY), 10);
+      pinchStartScale = viewScale;
+      pinchStartPanX = viewPanX;
+      pinchStartPanY = viewPanY;
+      pinchStartCenter = {
+        x: ((p1.clientX + p2.clientX) / 2) - containerRect.left,
+        y: ((p1.clientY + p2.clientY) / 2) - containerRect.top
+      };
+    }
+
+    function updatePinchGesture() {
+      const pts = Array.from(activePointers.values());
+      if (pts.length < 2) return;
+
+      const containerRect = canvasContainer.getBoundingClientRect();
+      const p1 = pts[0];
+      const p2 = pts[1];
+
+      const currentDist = Math.max(Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY), 10);
+      const currentCenter = {
+        x: ((p1.clientX + p2.clientX) / 2) - containerRect.left,
+        y: ((p1.clientY + p2.clientY) / 2) - containerRect.top
+      };
+
+      const nextScale = Math.min(Math.max(pinchStartScale * (currentDist / pinchStartDist), 0.5), 5.0);
+      const scaleRatio = nextScale / pinchStartScale;
+
+      viewPanX = currentCenter.x - (pinchStartCenter.x - pinchStartPanX) * scaleRatio;
+      viewPanY = currentCenter.y - (pinchStartCenter.y - pinchStartPanY) * scaleRatio;
+      viewScale = nextScale;
+
+      applyCanvasTransform();
+    }
+
+    function startDrawing(e) {
+      activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType });
+
+      if (activePointers.size >= 2) {
+        beginPinchGesture();
+        return;
+      }
+
+      if (isPinching) return;
+
+      const pos = getMousePos(paintCanvas, e);
+      strokeStartClientX = e.clientX;
+      strokeStartClientY = e.clientY;
+      hasMovedSinceDown = false;
+      lastClientX = e.clientX;
+      lastClientY = e.clientY;
+      lastStrokeTime = performance.now();
+
+      if (e.pointerType !== 'pen' && (e.pressure === 0.5 || e.pressure === 0 || e.pressure === 1.0)) {
+        currentPressure = 0.45;
+      } else {
+        currentPressure = getNormalizedPressure(e);
+      }
+      smoothedPressure = currentPressure;
+
+      cancelEyedropperTimer();
+      eyedropperTimer = setTimeout(() => {
+        if (isDrawing && !hasMovedSinceDown && !isPinching && activePointers.size === 1) {
+          activateEyedropper(pos.x, pos.y);
+        }
+      }, 750);
+
+      isDrawing = true;
+      lastX = pos.x;
+      lastY = pos.y;
+      hasValidStrokeAngle = false;
+      
+      brushDepletionLevel = 1.0;
+      pickedUpForeignColor = null;
+      brushContaminationAmount = 0.0;
+      activeInstantBlendRatio = 0.0;
+      reservoirPurity = 1.0;
+
+      try {
+        strokeCanvasSnapshot = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
+      } catch (err) {
+        strokeCanvasSnapshot = null;
+      }
+
+      drawStroke(pos.x, pos.y, pos.x, pos.y, smoothedPressure);
+      updateCursorSize();
+    }
+
+    function stopDrawing(e) {
+      if (e && e.pointerId !== undefined) {
+        activePointers.delete(e.pointerId);
+      }
+      cancelEyedropperTimer();
+
+      if (isPinching) {
+        if (activePointers.size < 2) {
+          isPinching = false;
+        }
+        return;
+      }
+
+      if (isDrawing) {
+        isDrawing = false;
+        hasValidStrokeAngle = false;
+        strokeCanvasSnapshot = null;
+        saveHistoryState();
+        saveToLocalForage(true);
+      }
+      smoothedPressure = 0.5;
+      updateCursorSize();
+      updateTelemetry();
+    }
+
+    function draw(e) {
+      if (activePointers.has(e.pointerId)) {
+        activePointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType });
+      }
+
+      if (isPinching || activePointers.size >= 2) {
+        updatePinchGesture();
+        return;
+      }
+
+      if (!isDrawing) return;
+
+      if (!hasMovedSinceDown) {
+        const totalMoveFromStart = Math.hypot(e.clientX - strokeStartClientX, e.clientY - strokeStartClientY);
+        if (totalMoveFromStart > 4) {
+          hasMovedSinceDown = true;
+          cancelEyedropperTimer();
+        }
+      }
+
+      const events = (typeof e.getCoalescedEvents === 'function' && e.getCoalescedEvents().length > 0)
+        ? e.getCoalescedEvents()
+        : [e];
+
+      for (const ev of events) {
+        const pos = getMousePos(paintCanvas, ev);
+
+        const rawP = getNormalizedPressure(ev);
+        smoothedPressure = smoothedPressure * 0.35 + rawP * 0.65;
+
+        lastClientX = ev.clientX;
+        lastClientY = ev.clientY;
+        lastStrokeTime = performance.now();
+
+        drawStroke(lastX, lastY, pos.x, pos.y, smoothedPressure);
+        lastX = pos.x;
+        lastY = pos.y;
+      }
+
+      updateCursorSize();
+    }
         isDrawing = false;
         strokeCanvasSnapshot = null;
       }
@@ -2375,21 +2603,30 @@
     }
 
     paintCanvas.addEventListener('pointerdown', (e) => {
-      paintCanvas.setPointerCapture(e.pointerId);
+      try { paintCanvas.setPointerCapture(e.pointerId); } catch (err) {}
       startDrawing(e);
     });
     paintCanvas.addEventListener('pointermove', draw);
     paintCanvas.addEventListener('pointerup', (e) => {
-      paintCanvas.releasePointerCapture(e.pointerId);
+      try { paintCanvas.releasePointerCapture(e.pointerId); } catch (err) {}
       stopDrawing(e);
     });
     paintCanvas.addEventListener('pointercancel', (e) => {
-      paintCanvas.releasePointerCapture(e.pointerId);
+      try { paintCanvas.releasePointerCapture(e.pointerId); } catch (err) {}
       stopDrawing(e);
     });
 
-    const canvasContainer = document.getElementById('studio-canvas-container');
-    canvasContainer.style.touchAction = 'none';
+    // Global safety cleanup in case a finger lifts outside the canvas bounds
+    window.addEventListener('pointerup', (e) => {
+      if (activePointers.has(e.pointerId)) {
+        stopDrawing(e);
+      }
+    });
+    window.addEventListener('pointercancel', (e) => {
+      if (activePointers.has(e.pointerId)) {
+        stopDrawing(e);
+      }
+    });
 
     canvasContainer.addEventListener('wheel', (e) => {
       e.preventDefault();
